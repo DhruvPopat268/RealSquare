@@ -3,6 +3,7 @@ import { Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Hero from "./components/Hero";
 import StatsBar from "./components/StatsBar";
+import TopPicks from "./components/TopPicks";
 import PropertyListings from "./components/PropertyListings";
 import RecommendedSellers from "./components/RecommendedSellers";
 import NewlyAdded from "./components/NewlyAdded";
@@ -10,6 +11,7 @@ import NewsArticles from "./components/NewsArticles";
 import Footer from "./components/Footer";
 import PropertyDetail from "./pages/PropertyDetail";
 import BuyersPage from "./pages/BuyersPage";
+import DeveloperProjects from "./pages/DeveloperProjects";
 import "./App.css";
 
 function HomePage({ activeTab, setActiveTab, searchQuery, setSearchQuery, handleSearch, listingsRef }) {
@@ -18,6 +20,7 @@ function HomePage({ activeTab, setActiveTab, searchQuery, setSearchQuery, handle
       <Navbar />
       <Hero activeTab={activeTab} setActiveTab={setActiveTab} searchQuery={searchQuery} setSearchQuery={setSearchQuery} onSearch={handleSearch} />
       <StatsBar />
+      <TopPicks />
       <PropertyListings activeTab={activeTab} searchQuery={searchQuery} listingsRef={listingsRef} />
       <RecommendedSellers activeTab={activeTab} />
       <NewlyAdded searchQuery={searchQuery} />
@@ -52,6 +55,7 @@ function App() {
       } />
       <Route path="/property/:id" element={<PropertyDetail />} />
       <Route path="/buy" element={<BuyersPage />} />
+      <Route path="/developer/:developerId" element={<DeveloperProjects />} />
     </Routes>
   );
 }
