@@ -3,7 +3,6 @@ import { FiSearch } from "react-icons/fi";
 import "./Hero.css";
 
 const tabs = ["BUY", "RENT", "COMMERCIAL", "PG/CO-LIVING", "PLOTS"];
-const localities = ["Andheri West", "Chembur", "Malad West", "Kandivali West", "Borivali"];
 const API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 
 const TAB_CONFIG = {
@@ -109,20 +108,20 @@ export default function Hero({ activeTab, setActiveTab, searchQuery, setSearchQu
   };
 
   const handleSelect = (description) => {
-    setQuery(description);
-    setSearchQuery(description);
+    const selectedLocation = description.split(",")[0].trim();
+    setQuery(selectedLocation);
+    setSearchQuery(selectedLocation);
     setSuggestions([]);
     setShowDropdown(false);
+    onSearch();
   };
 
   const handleCityClick = (city) => {
     setQuery(city);
     setSearchQuery(city);
-    clearTimeout(debounceRef.current);
     setSuggestions([]);
     setShowDropdown(false);
-    setSearching(true);
-    fetchSuggestions(city);
+    onSearch();
   };
 
   const config = TAB_CONFIG[activeTab];
@@ -157,7 +156,7 @@ export default function Hero({ activeTab, setActiveTab, searchQuery, setSearchQu
           </div>
 
           <div className="search-row" ref={wrapRef}>
-            <div className="search-input-wrap">
+            <div className="search-input-wrap" style={{ flex: 1 }}>
               <FiSearch className="search-icon" size={18} />
               <input
                 type="text"
@@ -169,7 +168,6 @@ export default function Hero({ activeTab, setActiveTab, searchQuery, setSearchQu
               />
               {searching && <span className="search-spinner" />}
             </div>
-            <button className="search-btn" onClick={() => { setSearchQuery(query); onSearch(); }}>Search</button>
 
             {showDropdown && suggestions.length > 0 && (
               <ul className="suggestions-dropdown">

@@ -7,24 +7,31 @@ import TopPicks from "./components/TopPicks";
 import PropertyListings from "./components/PropertyListings";
 import RecommendedSellers from "./components/RecommendedSellers";
 import NewlyAdded from "./components/NewlyAdded";
+import ResearchInsights from "./components/ResearchInsights";
 import NewsArticles from "./components/NewsArticles";
 import Footer from "./components/Footer";
 import PropertyDetail from "./pages/PropertyDetail";
 import BuyersPage from "./pages/BuyersPage";
 import DeveloperProjects from "./pages/DeveloperProjects";
+import PropertyListPage from "./pages/PropertyListPage";
+import PriceTrends from "./pages/PriceTrends";
+import NewsPage from "./pages/NewsPage";
+import PageSpinner from "./components/PageSpinner";
 import "./App.css";
 
 function HomePage({ activeTab, setActiveTab, searchQuery, setSearchQuery, handleSearch, listingsRef }) {
   return (
     <>
+      <PageSpinner />
       <Navbar />
       <Hero activeTab={activeTab} setActiveTab={setActiveTab} searchQuery={searchQuery} setSearchQuery={setSearchQuery} onSearch={handleSearch} />
       <StatsBar />
       <TopPicks />
       <PropertyListings activeTab={activeTab} searchQuery={searchQuery} listingsRef={listingsRef} />
       <RecommendedSellers activeTab={activeTab} />
-      <NewlyAdded searchQuery={searchQuery} />
-      <NewsArticles />
+      <NewlyAdded searchQuery={searchQuery} activeTab={activeTab} />
+      <ResearchInsights />
+      <NewsArticles searchQuery={searchQuery} />
       <Footer />
     </>
   );
@@ -55,7 +62,11 @@ function App() {
       } />
       <Route path="/property/:id" element={<PropertyDetail />} />
       <Route path="/buy" element={<BuyersPage />} />
+      <Route path="/listings" element={<PropertyListPage />} />
       <Route path="/developer/:developerId" element={<DeveloperProjects />} />
+      <Route path="/price-trends/:city" element={<PriceTrends />} />
+      <Route path="/price-trends" element={<PriceTrends />} />
+      <Route path="/news" element={<NewsPage />} />
     </Routes>
   );
 }

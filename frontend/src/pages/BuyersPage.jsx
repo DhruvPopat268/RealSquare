@@ -3,8 +3,9 @@ import { useSearchParams, useNavigate } from "react-router-dom";
 import { FiMapPin, FiSliders, FiX, FiChevronDown } from "react-icons/fi";
 import { properties } from "../data/properties";
 import PropertyCard from "../components/PropertyCard";
-import Navbar from "../components/Navbar";
+import ListingHeader from "../components/ListingHeader";
 import Footer from "../components/Footer";
+import PageSpinner from "../components/PageSpinner";
 import "./BuyersPage.css";
 
 const PROPERTY_TYPES = ["Apartment", "Villa", "House", "Plot", "Studio", "Commercial"];
@@ -100,7 +101,8 @@ export default function BuyersPage() {
 
   return (
     <>
-      <Navbar />
+      <PageSpinner />
+      <ListingHeader />
       <div className="bp-page">
 
         {/* Top filter bar */}
