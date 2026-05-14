@@ -42,8 +42,12 @@ function normalizeType(raw) {
 
 function extractCity(description) {
   const parts = description.split(",").map((s) => s.trim());
-  return parts[parts.length - 2] || parts[0];
+  // parts[-1] = country (India), parts[-2] = state, parts[-3] = city
+  // e.g. "Gotri, Vadodara, Gujarat, India" → parts[1] = "Vadodara"
+  return parts[1] || parts[0];
 }
+
+const ALLOWED_TYPES = ["sublocality", "sublocality_level_1", "locality", "neighborhood"];
 
 function extractArea(description) {
   return description.split(",")[0].trim();
@@ -120,6 +124,9 @@ export default function ListingHeader() {
   const [inlineSearching, setInlineSearching] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
+  // City change confirmation state
+  const [cityChangeModal, setCityChangeModal] = useState(null);
+
   const debounceRef = useRef(null);
   const inlineDebounceRef = useRef(null);
   const cityDebounceRef = useRef(null);
@@ -164,10 +171,17 @@ export default function ListingHeader() {
   const fetchSuggestions = useCallback((value, setter, loadingSetter) => {
     if (!value.trim() || !autocompleteService) { setter([]); loadingSetter(false); return; }
     autocompleteService.getPlacePredictions(
-      { input: value, componentRestrictions: { country: "in" }, types: ["geocode", "establishment"] },
+      { input: value, componentRestrictions: { country: "in" }, types: ["geocode"] },
       (results, status) => {
         loadingSetter(false);
-        setter(status === "OK" && results ? results.slice(0, 6) : []);
+        if (status === "OK" && results) {
+          const filtered = results
+            .filter((item) => item.types.some((t) => ALLOWED_TYPES.includes(t)))
+            .slice(0, 6);
+          setter(filtered);
+        } else {
+          setter([]);
+        }
       }
     );
   }, []);
@@ -265,11 +279,18 @@ export default function ListingHeader() {
       params.set("areas", newAreas.join(","));
       navigate(`/listings?${params.toString()}`);
     } else {
-      // Different city — open modal pre-filled
-      setModalCity(extractCity(suggestion.description));
-      setModalAreas([area]);
-      setShowModal(true);
+      // Different city — show confirmation popup
+      setCityChangeModal({ area, newCity: extractCity(suggestion.description) });
     }
+  };
+
+  const confirmCityChange = () => {
+    const params = new URLSearchParams();
+    params.set("listingType", INTENT_MAP[currentType] || "BUY");
+    params.set("city", cityChangeModal.newCity);
+    params.set("areas", cityChangeModal.area);
+    setCityChangeModal(null);
+    navigate(`/listings?${params.toString()}`);
   };
 
   const removeAreaChip = (area) => {
@@ -674,6 +695,33 @@ export default function ListingHeader() {
                 </div>
               </div>
             )}
+          </div>
+        </div>
+      )}
+      {/* ── CITY CHANGE CONFIRMATION ── */}
+      {cityChangeModal && (
+        <div className="fixed inset-0 z-[800] flex items-center justify-center" style={{ background: "rgba(0,0,0,0.45)" }}>
+          <div className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-[360px] mx-4">
+            <h3 className="text-base font-bold text-[#1a1a2e] mb-2">Change City?</h3>
+            <p className="text-sm text-gray-500 mb-5 leading-relaxed">
+              Selecting <strong>"{cityChangeModal.area}"</strong> will change your city from{" "}
+              <strong className="text-[#7B2FFF]">{currentCity}</strong> to{" "}
+              <strong className="text-[#7B2FFF]">{cityChangeModal.newCity}</strong>. Do you want to proceed?
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setCityChangeModal(null)}
+                className="flex-1 py-2.5 rounded-xl border border-gray-200 text-sm font-semibold text-gray-600 hover:bg-gray-50 transition"
+              >
+                No, Stay in {currentCity}
+              </button>
+              <button
+                onClick={confirmCityChange}
+                className="flex-1 py-2.5 rounded-xl bg-[#7B2FFF] hover:bg-[#6320d4] text-white text-sm font-semibold transition"
+              >
+                Yes, Change City
+              </button>
+            </div>
           </div>
         </div>
       )}

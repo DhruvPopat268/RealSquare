@@ -4,9 +4,12 @@ import Navbar from "./components/Navbar";
 import Hero from "./components/Hero";
 import StatsBar from "./components/StatsBar";
 import TopPicks from "./components/TopPicks";
+import HighDemandProjects from "./components/HighDemandProjects";
 import PropertyListings from "./components/PropertyListings";
 import RecommendedSellers from "./components/RecommendedSellers";
 import NewlyAdded from "./components/NewlyAdded";
+import PropertyOwnerCTA from "./components/PropertyOwnerCTA";
+import ExploreMoreSections from "./components/ExploreMoreSections";
 import ResearchInsights from "./components/ResearchInsights";
 import NewsArticles from "./components/NewsArticles";
 import Footer from "./components/Footer";
@@ -27,9 +30,12 @@ function HomePage({ activeTab, setActiveTab, searchQuery, setSearchQuery, handle
       <Hero activeTab={activeTab} setActiveTab={setActiveTab} searchQuery={searchQuery} setSearchQuery={setSearchQuery} onSearch={handleSearch} />
       <StatsBar />
       <TopPicks />
+      <HighDemandProjects />
       <PropertyListings activeTab={activeTab} searchQuery={searchQuery} listingsRef={listingsRef} />
+      <ExploreMoreSections />
       <RecommendedSellers activeTab={activeTab} />
       <NewlyAdded searchQuery={searchQuery} activeTab={activeTab} />
+      <PropertyOwnerCTA activeTab={activeTab} />
       <ResearchInsights />
       <NewsArticles searchQuery={searchQuery} />
       <Footer />
