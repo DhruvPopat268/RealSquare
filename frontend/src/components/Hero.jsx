@@ -1,9 +1,10 @@
 import { useEffect, useRef, useCallback, useState } from "react";
 import { FiSearch } from "react-icons/fi";
-import "./Hero.css";
 
 const tabs = ["BUY", "RENT", "COMMERCIAL", "PG/CO-LIVING", "PLOTS"];
 const API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
+
+const BUILDING_HEIGHTS = [22, 32, 26, 36, 20, 30];
 
 const TAB_CONFIG = {
   BUY: {
@@ -79,10 +80,7 @@ export default function Hero({ activeTab, setActiveTab, searchQuery, setSearchQu
 
   const fetchSuggestions = useCallback((value) => {
     if (!value.trim()) { setSuggestions([]); setSearching(false); return; }
-    if (!autocompleteService) {
-      setSearching(false);
-      return;
-    }
+    if (!autocompleteService) { setSearching(false); return; }
     autocompleteService.getPlacePredictions(
       { input: value, componentRestrictions: { country: "in" }, types: ["geocode", "establishment"] },
       (results, status) => {
@@ -108,56 +106,73 @@ export default function Hero({ activeTab, setActiveTab, searchQuery, setSearchQu
   };
 
   const handleSelect = (description) => {
-    const selectedLocation = description.split(",")[0].trim();
-    setQuery(selectedLocation);
-    setSearchQuery(selectedLocation);
-    setSuggestions([]);
-    setShowDropdown(false);
+    const loc = description.split(",")[0].trim();
+    setQuery(loc); setSearchQuery(loc);
+    setSuggestions([]); setShowDropdown(false);
     onSearch();
   };
 
   const handleCityClick = (city) => {
-    setQuery(city);
-    setSearchQuery(city);
-    setSuggestions([]);
-    setShowDropdown(false);
+    setQuery(city); setSearchQuery(city);
+    setSuggestions([]); setShowDropdown(false);
     onSearch();
   };
 
   const config = TAB_CONFIG[activeTab];
 
   return (
-    <section className="hero" style={{ background: config.gradient }}>
-      <div className="hero-buildings" aria-hidden="true">
-        {[...Array(6)].map((_, i) => (
-          <div key={i} className="building-col">
+    <section
+      className="relative min-h-[520px] flex items-center justify-center overflow-hidden px-5 py-12 md:px-10 transition-all duration-400"
+      style={{ background: config.gradient }}
+    >
+      {/* Decorative buildings */}
+      <div className="absolute left-0 bottom-0 flex items-end gap-1.5 pl-4 opacity-[0.12] pointer-events-none" aria-hidden="true">
+        {BUILDING_HEIGHTS.map((h, i) => (
+          <div key={i} className="flex flex-col gap-1 items-center">
             {[...Array(5)].map((_, j) => (
-              <div key={j} className="building-block" />
+              <div
+                key={j}
+                className="w-9 border-[1.5px] border-white rounded-sm"
+                style={{ height: h }}
+              />
             ))}
           </div>
         ))}
       </div>
 
-      <div className="hero-content">
-        <h1>Find Your Dream Property</h1>
-        <p>Search from <strong>76K+</strong> verified listings across India</p>
+      {/* Content */}
+      <div className="relative z-10 flex-1 max-w-[620px] text-center">
+        <h1 className="text-[26px] sm:text-[36px] font-extrabold text-white tracking-tight leading-snug mb-2">
+          Find Your Dream Property
+        </h1>
+        <p className="text-[15px] text-white/80 mb-6">
+          Search from <strong className="text-white">76K+</strong> verified listings across India
+        </p>
 
-        <div className="search-box">
-          <div className="search-tabs">
+        {/* Search box */}
+        <div className="backdrop-blur-md bg-white/90 border border-white/20 rounded-xl shadow-[0_12px_40px_rgba(0,0,0,0.25)] mb-4">
+
+          {/* Tabs */}
+          <div className="flex bg-[#f0f9ff] border-b border-[#bae6fd] rounded-t-xl overflow-x-auto">
             {tabs.map((tab) => (
               <button
                 key={tab}
-                className={`tab-btn ${activeTab === tab ? "active" : ""}`}
                 onClick={() => setActiveTab(tab)}
+                className={`flex-1 py-2.5 px-1.5 border-none text-[11px] sm:text-[12px] font-bold cursor-pointer border-b-[3px] tracking-[0.4px] transition-all whitespace-nowrap
+                  ${activeTab === tab
+                    ? "text-[#0ea5e9] border-b-[#0ea5e9] bg-white"
+                    : "text-[#888] border-b-transparent bg-transparent hover:text-[#0369a1] hover:bg-[#e0f2fe]"
+                  }`}
               >
                 {tab}
               </button>
             ))}
           </div>
 
-          <div className="search-row" ref={wrapRef}>
-            <div className="search-input-wrap" style={{ flex: 1 }}>
-              <FiSearch className="search-icon" size={18} />
+          {/* Search row */}
+          <div className="flex items-center px-4 py-3 gap-2.5 relative" ref={wrapRef}>
+            <div className="flex-1 flex items-center gap-2.5">
+              <FiSearch className="text-[#aaa] flex-shrink-0" size={18} />
               <input
                 type="text"
                 placeholder="Search for locality, landmark, project, or builder"
@@ -165,15 +180,23 @@ export default function Hero({ activeTab, setActiveTab, searchQuery, setSearchQu
                 onChange={handleInputChange}
                 onFocus={() => suggestions.length > 0 && setShowDropdown(true)}
                 autoComplete="off"
+                className="flex-1 border-none outline-none text-[14px] text-[#333] bg-transparent placeholder:text-[#bbb] w-full"
               />
-              {searching && <span className="search-spinner" />}
+              {searching && (
+                <span className="w-[18px] h-[18px] border-2 border-[#bae6fd] border-t-[#0ea5e9] rounded-full flex-shrink-0 animate-spin" />
+              )}
             </div>
 
+            {/* Suggestions dropdown */}
             {showDropdown && suggestions.length > 0 && (
-              <ul className="suggestions-dropdown">
+              <ul className="absolute top-[calc(100%+6px)] left-0 right-0 bg-white rounded-xl shadow-[0_8px_32px_rgba(0,0,0,0.15)] list-none p-1.5 m-0 z-[100] overflow-hidden">
                 {suggestions.map((s) => (
-                  <li key={s.place_id} onMouseDown={() => handleSelect(s.description)}>
-                    <FiSearch size={13} className="suggestion-icon" />
+                  <li
+                    key={s.place_id}
+                    onMouseDown={() => handleSelect(s.description)}
+                    className="flex items-center gap-2.5 px-4 py-2.5 text-[13px] text-[#333] cursor-pointer rounded-lg hover:bg-[#f0f9ff] hover:text-[#0ea5e9] transition-colors"
+                  >
+                    <FiSearch size={13} className="text-[#aaa] flex-shrink-0" />
                     <span>{s.description}</span>
                   </li>
                 ))}
@@ -182,23 +205,50 @@ export default function Hero({ activeTab, setActiveTab, searchQuery, setSearchQu
           </div>
         </div>
 
-        <div className="popular-localities">
-          <span className="loc-label">Most Searched Cities</span>
-          <div className="loc-chips">
+        {/* Popular cities */}
+        <div className="flex flex-col items-center gap-2 mb-3.5">
+          <span className="text-[11px] font-semibold text-white/60 uppercase tracking-[0.6px]">
+            Most Searched Cities
+          </span>
+          <div className="flex gap-2 flex-wrap justify-center">
             {["Mumbai", "Delhi", "Bangalore", "Hyderabad", "Pune", "Chennai", "Ahmedabad", "Kolkata", "Noida", "Gurgaon"].map((city) => (
-              <a key={city} href="#" className="loc-chip" onClick={(e) => { e.preventDefault(); handleCityClick(city); }}>{city}</a>
+              <a
+                key={city}
+                href="#"
+                onClick={(e) => { e.preventDefault(); handleCityClick(city); }}
+                className="text-white text-[13px] no-underline bg-white/[0.12] px-3.5 py-1 rounded-full border border-white/[0.28] hover:bg-white/[0.22] transition-colors whitespace-nowrap"
+              >
+                {city}
+              </a>
             ))}
           </div>
         </div>
 
-        <div className="owner-bar">
+        {/* Owner bar */}
+        <div className="inline-flex items-center gap-2 bg-white/10 border border-white/20 rounded-full px-4 py-1.5 text-[13px] text-white/85">
           <span>✨ Are you a Property Owner?</span>
-          <a href="#">Sell / Rent for FREE ›</a>
+          <a href="#" className="text-white font-bold no-underline hover:underline">
+            Sell / Rent for FREE ›
+          </a>
         </div>
       </div>
 
-      <div className="hero-image-wrap">
-        <img src={config.image} alt="Find your dream home" className="hero-image" style={{ "--overlay-color": config.overlay }} />
+      {/* Right image — hidden on tablet and below */}
+      <div className="absolute right-0 bottom-0 top-0 w-[38%] pointer-events-none overflow-hidden hidden md:block">
+        <img
+          src={config.image}
+          alt="Find your dream home"
+          className="w-full h-full object-cover object-top"
+          style={{
+            maskImage: "linear-gradient(to left, black 70%, transparent 100%)",
+            WebkitMaskImage: "linear-gradient(to left, black 70%, transparent 100%)",
+            filter: "blur(0.4px) brightness(0.92) saturate(1.1)",
+          }}
+        />
+        <div
+          className="absolute inset-0 pointer-events-none transition-all duration-400"
+          style={{ background: `linear-gradient(to right, ${config.overlay} 0%, transparent 40%)` }}
+        />
       </div>
     </section>
   );
