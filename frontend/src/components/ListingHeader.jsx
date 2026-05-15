@@ -236,7 +236,17 @@ export default function ListingHeader() {
     }
   };
 
-  const addModalArea = (area) => {
+  const addModalArea = (area, description = "") => {
+    if (description) {
+      const isSameCity = description.toLowerCase().includes(modalCity.toLowerCase());
+      if (!isSameCity) {
+        const newCity = extractCity(description);
+        setCityChangeModal({ area, newCity, source: "modal" });
+        setModalInput("");
+        setSuggestions([]);
+        return;
+      }
+    }
     if (!modalAreas.includes(area)) setModalAreas([...modalAreas, area]);
     setModalInput("");
     setSuggestions([]);
@@ -279,16 +289,24 @@ export default function ListingHeader() {
       navigate(`/listings?${params.toString()}`);
     } else {
       // Different city — show confirmation popup
-      setCityChangeModal({ area, newCity: extractCity(suggestion.description) });
+      setCityChangeModal({ area, newCity: extractCity(suggestion.description), source: "inline" });
     }
   };
 
   const confirmCityChange = () => {
+    if (cityChangeModal.source === "modal") {
+      setModalCity(cityChangeModal.newCity);
+      setModalAreas([cityChangeModal.area]);
+      setCityChangeModal(null);
+      return;
+    }
+    // inline or any other source — navigate with new city + area, clear old areas
     const params = new URLSearchParams();
     params.set("listingType", INTENT_MAP[currentType] || "BUY");
     params.set("city", cityChangeModal.newCity);
     params.set("areas", cityChangeModal.area);
     setCityChangeModal(null);
+    setEditAreas([cityChangeModal.area]);
     navigate(`/listings?${params.toString()}`);
   };
 
@@ -312,7 +330,7 @@ export default function ListingHeader() {
   return (
     <>
       <nav className="sticky top-0 z-[200] bg-white shadow-[0_2px_8px_rgba(0,0,0,0.08)]" ref={navRef}>
-        <div className="max-w-[1280px] mx-auto px-6 h-[62px] flex items-center gap-4">
+        <div className="max-w-[1280px] mx-auto px-4 md:px-6 h-[62px] flex items-center gap-4">
 
           {/* Logo */}
           <div className="flex-shrink-0 cursor-pointer" onClick={() => navigate("/")}>
@@ -416,32 +434,42 @@ export default function ListingHeader() {
           </button>
         </div>
 
-        {/* Mobile menu */}
-        {mobileOpen && (
-          <div className="md:hidden flex flex-col px-5 py-3 gap-3 border-t border-gray-100">
-            <span className="text-sm font-bold text-[#1a1a2e]">{currentType} In {displayCity}</span>
-            <button
-              className="bg-[#7B2FFF] text-white border-none px-4 py-2.5 rounded-lg text-sm font-bold cursor-pointer"
-              onClick={() => setShowModal(true)}
-            >
-              Search Properties
-            </button>
-          </div>
-        )}
+        {/* Mobile search bar — always visible below logo row */}
+        <div className="md:hidden px-4 pb-3">
+          <button
+            className="w-full flex items-center gap-2 bg-[#f7f8fa] border-2 border-[#7B2FFF] rounded-xl px-4 py-2.5 text-left"
+            onClick={() => { setModalType(currentType); setModalCity(currentCity || "Mumbai"); setModalAreas([...editAreas]); setShowModal(true); }}
+          >
+            <FiSearch size={15} className="text-[#7B2FFF] flex-shrink-0" />
+            <span className="flex-1 text-sm text-gray-400 truncate">
+              {editAreas.length ? editAreas.join(", ") : `Search in ${displayCity}...`}
+            </span>
+            <span className="text-xs font-bold text-[#7B2FFF] bg-[#f0ebff] px-2 py-0.5 rounded-full flex-shrink-0">
+              {currentType}
+            </span>
+          </button>
+        </div>
       </nav>
 
       {/* ── SEARCH MODAL ── */}
       {showModal && (
-        <div className="fixed inset-0 z-[600] flex items-start justify-center pt-[62px]" style={{ background: "rgba(0,0,0,0.45)" }}
+        <div className="fixed inset-0 z-[600] flex items-start justify-center md:pt-[62px]" style={{ background: "rgba(0,0,0,0.45)" }}
           onMouseDown={() => setShowModal(false)}>
           <div
             ref={modalRef}
-            className="bg-white rounded-2xl shadow-2xl w-full max-w-[640px] mx-4 overflow-hidden"
+            className="bg-white w-full h-full md:h-auto md:rounded-2xl md:shadow-2xl md:max-w-[640px] md:mx-4 overflow-hidden flex flex-col"
             onMouseDown={(e) => e.stopPropagation()}
           >
+            {/* Mobile header with close */}
+            <div className="flex items-center justify-between px-5 pt-5 pb-3 md:pt-5">
+              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">I'm Looking to</p>
+              <button className="md:hidden bg-transparent border-none cursor-pointer text-gray-500" onClick={() => setShowModal(false)}>
+                <FiX size={22} />
+              </button>
+            </div>
+
             {/* Intent tabs */}
-            <div className="px-5 pt-5 pb-3">
-              <p className="text-xs font-semibold text-gray-400 mb-3 uppercase tracking-wide">I'm Looking to</p>
+            <div className="px-5 pb-3">
               <div className="flex gap-2 flex-wrap">
                 {TYPES.map((t) => (
                   <button
@@ -461,20 +489,20 @@ export default function ListingHeader() {
 
             <div className="h-px bg-gray-100 mx-5" />
 
-            {/* City + Area search row */}
-            <div className="flex items-center gap-0 px-5 py-4">
-              {/* City — clickable to open city picker */}
+            {/* City + Area + Search — stacked on mobile, row on desktop */}
+            <div className="flex flex-col md:flex-row md:items-center gap-3 px-5 py-4">
+              {/* City picker */}
               <button
-                className="flex items-center gap-2 pr-4 border-r border-gray-200 flex-shrink-0 hover:text-[#7B2FFF] transition group"
+                className="flex items-center gap-2 py-2.5 px-3 border border-gray-200 rounded-xl hover:border-[#7B2FFF] hover:text-[#7B2FFF] transition group w-full md:w-auto md:border-0 md:border-r md:rounded-none md:pr-4 md:py-0 md:px-0 flex-shrink-0"
                 onClick={() => openCityModal("main")}
               >
                 <FiMapPin size={15} className="text-[#7B2FFF]" />
-                <span className="text-sm font-bold text-[#1a1a2e] group-hover:text-[#7B2FFF]">{modalCity}</span>
+                <span className="text-sm font-bold text-[#1a1a2e] group-hover:text-[#7B2FFF] flex-1 text-left">{modalCity}</span>
                 <FiChevronDown size={13} className="text-gray-400" />
               </button>
 
               {/* Area input + chips */}
-              <div className="flex-1 flex items-center flex-wrap gap-1.5 px-3 min-h-[40px]">
+              <div className="flex-1 flex items-center flex-wrap gap-1.5 border border-gray-200 rounded-xl px-3 py-2 min-h-[44px] md:border-0 md:rounded-none md:px-3 md:py-0">
                 {modalAreas.map((a) => (
                   <span key={a} className="flex items-center gap-1 bg-[#ede9fe] text-[#7B2FFF] border border-[#c4b5fd] text-xs font-semibold px-2.5 py-1 rounded-full">
                     {a}
@@ -493,10 +521,10 @@ export default function ListingHeader() {
                 )}
               </div>
 
-              {/* Search button */}
+              {/* Search button — full width on mobile */}
               <button
                 onClick={handleModalSearch}
-                className="bg-[#7B2FFF] hover:bg-[#6320d4] text-white px-5 py-2.5 rounded-xl text-sm font-bold transition flex-shrink-0"
+                className="w-full md:w-auto bg-[#7B2FFF] hover:bg-[#6320d4] text-white px-6 py-3 md:py-2.5 rounded-xl text-sm font-bold transition flex-shrink-0"
               >
                 Search
               </button>
@@ -509,7 +537,7 @@ export default function ListingHeader() {
                   <>
                     <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wide px-5 pt-3 pb-1">In {modalCity}</p>
                     {modalSameCitySuggestions.map((s) => (
-                      <button key={s.place_id} onMouseDown={() => addModalArea(extractArea(s.description))}
+                      <button key={s.place_id} onMouseDown={() => addModalArea(extractArea(s.description), s.description)}
                         className="w-full flex items-center gap-3 px-5 py-2.5 hover:bg-[#f5f0ff] text-left transition">
                         <FiSearch size={13} className="text-gray-400 flex-shrink-0" />
                         <span className="text-sm text-gray-800 font-medium">{extractArea(s.description)}</span>
@@ -522,7 +550,7 @@ export default function ListingHeader() {
                   <>
                     <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wide px-5 pt-3 pb-1 border-t border-gray-100">Other Cities</p>
                     {modalOtherSuggestions.map((s) => (
-                      <button key={s.place_id} onMouseDown={() => { setModalCity(extractCity(s.description)); setModalAreas([extractArea(s.description)]); setModalInput(""); setSuggestions([]); }}
+                      <button key={s.place_id} onMouseDown={() => addModalArea(extractArea(s.description), s.description)}
                         className="w-full flex items-center gap-3 px-5 py-2.5 hover:bg-[#fff7ed] text-left transition">
                         <FiSearch size={13} className="text-orange-400 flex-shrink-0" />
                         <span className="text-sm text-gray-800 font-medium">{extractArea(s.description)}</span>
@@ -680,7 +708,7 @@ export default function ListingHeader() {
       )}
       {/* ── CITY CHANGE CONFIRMATION ── */}
       {cityChangeModal && (
-        <div className="fixed inset-0 z-[800] flex items-center justify-center" style={{ background: "rgba(0,0,0,0.45)" }}>
+        <div className="fixed inset-0 z-[800] flex items-center justify-center px-4" style={{ background: "rgba(0,0,0,0.45)" }}>
           <div className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-[360px] mx-4">
             <h3 className="text-base font-bold text-[#1a1a2e] mb-2">Change City?</h3>
             <p className="text-sm text-gray-500 mb-5 leading-relaxed">

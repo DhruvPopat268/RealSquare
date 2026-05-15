@@ -179,7 +179,7 @@ export default function PropertyListPage() {
     selectedTypes.length + selectedBhk.length + selectedStatus.length +
     selectedAmenities.length + (selectedBudget ? 1 : 0);
 
-  useEffect(() => { clearAll(); }, [city, listingType]);
+  useEffect(() => { clearAll(); }, [city, listingType, areas.join(",")]);
 
   // Open mobile filter — copy current applied state into draft
   const openMobileFilter = () => {
