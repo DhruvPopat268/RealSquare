@@ -206,15 +206,14 @@ export default function Navbar() {
   }, []);
 
   return (
-    <nav
-      ref={navRef}
-      className="sticky top-0 z-[200] bg-white shadow-[0_2px_8px_rgba(0,0,0,0.08)] font-[inherit] relative flex items-center h-[62px]"
-    >
-      <div className="w-full px-6 h-full flex items-center justify-between">
-
-        {/* Logo */}
+    <>
+      <nav
+        ref={navRef}
+        className="sticky top-0 z-[200] bg-white shadow-[0_2px_8px_rgba(0,0,0,0.08)] flex items-center h-[62px] px-4 md:px-6"
+      >
+        {/* Logo — left on all screens */}
         <div
-          className="flex items-center gap-1.5 cursor-pointer z-10 flex-1 pl-32"
+          className="flex items-center gap-1.5 cursor-pointer z-10 ml-2 md:flex-1 md:pl-28"
           onClick={() => navigate("/")}
         >
           <span className="text-xl font-extrabold text-[#1a1a2e] tracking-tight">
@@ -222,7 +221,8 @@ export default function Navbar() {
           </span>
         </div>
 
-        <div className="hidden md:flex items-center justify-around" style={{position:'absolute', left:'50%', transform:'translateX(-50%)', width:'650px'}}>
+        {/* Desktop center nav */}
+        <div className="hidden md:flex items-center justify-around absolute left-1/2 -translate-x-1/2 w-[650px]">
           {Object.keys(menus).map((label) => (
             <button
               key={label}
@@ -250,16 +250,14 @@ export default function Navbar() {
           ))}
         </div>
 
-        {/* Right actions */}
+        {/* Desktop right actions */}
         <div className="hidden md:flex items-center justify-end gap-9 z-10 flex-1">
           <a href="#" className="text-[13px] font-medium text-[#444] no-underline whitespace-nowrap hover:text-[#7B2FFF] transition-colors">
             Download App
           </a>
           <button className="flex items-center gap-1.5 border-none bg-transparent text-sm font-bold text-[#1a1a2e] cursor-pointer whitespace-nowrap hover:text-[#7B2FFF] transition-colors">
             Post Property
-            <span className="bg-[#7B2FFF] text-white text-[10px] font-bold px-1.5 py-0.5 rounded tracking-wide">
-              FREE
-            </span>
+            <span className="bg-[#7B2FFF] text-white text-[10px] font-bold px-1.5 py-0.5 rounded tracking-wide">FREE</span>
           </button>
           <button className="flex items-center gap-1.5 bg-[#7B2FFF] border-none rounded-full px-3 py-1.5 cursor-pointer text-white text-[15px]">
             <span>☰</span>
@@ -267,19 +265,25 @@ export default function Navbar() {
           </button>
         </div>
 
-        {/* Mobile hamburger */}
-        <button
-          className="md:hidden ml-auto bg-transparent border-none cursor-pointer text-[#333]"
-          onClick={() => setMobileOpen(!mobileOpen)}
-        >
-          {mobileOpen ? <FiX size={22} /> : <FiMenu size={22} />}
-        </button>
-      </div>
+        {/* Mobile — Download App + hamburger */}
+        <div className="md:hidden ml-auto flex items-center gap-7 mr-2">
+          <a href="#" className="text-[13px] font-medium text-[#444] no-underline hover:text-[#7B2FFF] transition-colors whitespace-nowrap flex items-center gap-1">
+            Download App
+            <span className="bg-[#7B2FFF] text-white text-[10px] font-bold px-1.5 py-0.5 rounded tracking-wide">NEW</span>
+          </a>
+          <button
+            className="bg-transparent border-none cursor-pointer text-[#333] p-1"
+            onClick={() => setMobileOpen(!mobileOpen)}
+          >
+            {mobileOpen ? <FiX size={24} /> : <FiMenu size={24} />}
+          </button>
+        </div>
+      </nav>
 
-      {/* Mega dropdown */}
+      {/* Desktop mega dropdown */}
       {activeMenu && menus[activeMenu] && (
         <div
-          className={`absolute top-[62px] left-1/2 -translate-x-1/2 bg-white rounded-xl shadow-[0_12px_48px_rgba(0,0,0,0.14)] z-[300] w-max animate-fadeDown hidden md:block ${
+          className={`fixed top-[62px] left-1/2 -translate-x-1/2 bg-white rounded-xl shadow-[0_12px_48px_rgba(0,0,0,0.14)] z-[300] w-max animate-fadeDown hidden md:block ${
             ["For Sellers", "Calculators", "News & Guide"].includes(activeMenu)
               ? "min-w-[220px] max-w-[280px]"
               : "min-w-[900px] max-w-[1080px]"
@@ -287,70 +291,46 @@ export default function Navbar() {
           onMouseEnter={() => openMenu(activeMenu)}
           onMouseLeave={closeMenu}
         >
-          {/* Arrow */}
           <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-white [clip-path:polygon(50%_0%,0%_100%,100%_100%)]" />
-
           <div className="flex gap-0 px-8 py-7">
             {menus[activeMenu].sections.map((section, si) => (
               <div
                 key={section.heading}
                 className={`flex-1 min-w-[180px] ${
-                  si < menus[activeMenu].sections.length - 1
-                    ? "pr-6 border-r border-gray-100"
-                    : "pr-0"
+                  si < menus[activeMenu].sections.length - 1 ? "pr-6 border-r border-gray-100" : "pr-0"
                 } ${si > 0 ? "pl-6" : ""}`}
               >
-                <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wide mb-3.5">
-                  {section.heading}
-                </p>
-
-                {/* Links */}
+                <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wide mb-3.5">{section.heading}</p>
                 {section.type === "links" && (
                   <ul className="list-none p-0 m-0 flex flex-col gap-2.5">
                     {section.items.map((item) => (
                       <li key={item}>
-                        <a
-                          href="#"
-                          className="text-[14px] text-[#333] no-underline hover:text-[#7B2FFF] transition-colors"
-                          onClick={(e) => { e.preventDefault(); handleItemClick(activeMenu, item); }}
-                        >
-                          {item}
-                        </a>
+                        <a href="#" className="text-[14px] text-[#333] no-underline hover:text-[#7B2FFF] transition-colors"
+                          onClick={(e) => { e.preventDefault(); handleItemClick(activeMenu, item); }}>{item}</a>
                       </li>
                     ))}
                   </ul>
                 )}
-
-                {/* Icons */}
                 {section.type === "icons" && (
                   <ul className="list-none p-0 m-0 flex flex-col gap-2.5">
                     {section.items.map((item) => (
                       <li key={item}>
-                        <a
-                          href="#"
-                          className="flex items-center gap-2.5 text-[14px] font-medium text-[#333] no-underline hover:text-[#7B2FFF] transition-colors"
-                          onClick={(e) => { e.preventDefault(); handleItemClick(activeMenu, item); }}
-                        >
-                          <span className="w-[30px] h-[30px] bg-[#f5f3ff] border border-[#ede9fe] rounded-md flex items-center justify-center text-sm flex-shrink-0">
-                            ⊞
-                          </span>
+                        <a href="#" className="flex items-center gap-2.5 text-[14px] font-medium text-[#333] no-underline hover:text-[#7B2FFF] transition-colors"
+                          onClick={(e) => { e.preventDefault(); handleItemClick(activeMenu, item); }}>
+                          <span className="w-[30px] h-[30px] bg-[#f5f3ff] border border-[#ede9fe] rounded-md flex items-center justify-center text-sm flex-shrink-0">⊞</span>
                           {item}
                         </a>
                       </li>
                     ))}
                   </ul>
                 )}
-
-                {/* Cards */}
                 {section.type === "cards" && (
                   <ul className="list-none p-0 m-0 flex flex-col gap-3.5">
                     {section.items.map((item) => (
                       <li key={item.title}>
                         <a href="#" className="flex flex-col gap-0.5 no-underline group"
                           onClick={(e) => { e.preventDefault(); handleItemClick(activeMenu, item.title); }}>
-                          <span className="text-[14px] font-semibold text-[#222] group-hover:text-[#7B2FFF] transition-colors">
-                            {item.title}
-                          </span>
+                          <span className="text-[14px] font-semibold text-[#222] group-hover:text-[#7B2FFF] transition-colors">{item.title}</span>
                           <span className="text-xs text-gray-400">{item.sub}</span>
                         </a>
                       </li>
@@ -363,19 +343,104 @@ export default function Navbar() {
         </div>
       )}
 
-      {/* Mobile menu */}
+      {/* Mobile drawer — slides in from right */}
       {mobileOpen && (
-        <div className="flex flex-col px-5 py-3 gap-3 border-t border-gray-100 md:hidden">
-          {Object.keys(menus).map((label) => (
-            <a key={label} href="#" className="text-[15px] font-medium text-[#333] no-underline">
-              {label}
-            </a>
-          ))}
-          <button className="bg-[#7B2FFF] text-white border-none px-4 py-2.5 rounded-lg text-sm font-bold cursor-pointer mt-1">
-            Post Property FREE
-          </button>
+        <div
+          className="fixed inset-0 z-[199] md:hidden"
+          onMouseDown={() => setMobileOpen(false)}
+        >
+          {/* Backdrop */}
+          <div className="absolute inset-0 bg-black/40" />
+
+          {/* Drawer panel */}
+          <div
+            className="absolute top-0 right-0 h-full w-[75vw] max-w-[300px] bg-white shadow-[-4px_0_24px_rgba(0,0,0,0.12)] flex flex-col"
+            onMouseDown={(e) => e.stopPropagation()}
+          >
+            {/* Drawer header */}
+            <div className="flex items-center justify-between px-5 h-[62px] border-b border-gray-100">
+              <span className="text-lg font-extrabold text-[#1a1a2e]">
+                Real<span className="text-[#7B2FFF]">Square</span>
+              </span>
+              <button
+                className="bg-transparent border-none cursor-pointer text-[#333] p-1"
+                onClick={() => setMobileOpen(false)}
+              >
+                <FiX size={22} />
+              </button>
+            </div>
+
+            {/* Nav links */}
+            <div className="flex flex-col flex-1 overflow-y-auto px-5 py-4 gap-1">
+              {Object.keys(menus).map((label) => {
+                const hasMenu = menus[label] !== null;
+                const isOpen = activeMenu === label;
+                return (
+                  <div key={label}>
+                    <button
+                      className="w-full text-left text-[15px] font-medium text-[#333] bg-transparent border-none cursor-pointer py-3 px-2 rounded-lg hover:bg-[#f3eeff] hover:text-[#7B2FFF] transition-colors flex items-center justify-between"
+                      onClick={() => {
+                        if (!hasMenu) {
+                          setMobileOpen(false);
+                          navigate("/news");
+                          return;
+                        }
+                        setActiveMenu(isOpen ? null : label);
+                      }}
+                    >
+                      <span>{label}</span>
+                      {hasMenu && (
+                        <FiChevronDown
+                          size={15}
+                          className={`opacity-50 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
+                        />
+                      )}
+                    </button>
+
+                    {/* Accordion sub-items */}
+                    {hasMenu && isOpen && (
+                      <div className="ml-3 mb-2 flex flex-col gap-0">
+                        {menus[label].sections.map((section) => (
+                          <div key={section.heading} className="mb-3">
+                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wide px-2 mb-1.5">
+                              {section.heading}
+                            </p>
+                            {section.items.map((item) => {
+                              const itemLabel = typeof item === "string" ? item : item.title;
+                              const itemSub   = typeof item === "object" ? item.sub : null;
+                              return (
+                                <button
+                                  key={itemLabel}
+                                  className="w-full text-left text-[13px] text-[#444] bg-transparent border-none cursor-pointer py-2 px-2 rounded-lg hover:bg-[#f3eeff] hover:text-[#7B2FFF] transition-colors"
+                                  onClick={() => {
+                                    setMobileOpen(false);
+                                    setActiveMenu(null);
+                                    handleItemClick(label, itemLabel);
+                                  }}
+                                >
+                                  {itemLabel}
+                                  {itemSub && <span className="block text-[11px] text-gray-400">{itemSub}</span>}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Bottom CTA */}
+            <div className="px-5 py-5 border-t border-gray-100">
+              <button className="w-full bg-[#7B2FFF] text-white border-none px-4 py-3 rounded-xl text-sm font-bold cursor-pointer">
+                Post Property FREE
+              </button>
+            </div>
+          </div>
         </div>
       )}
-    </nav>
+    </>
   );
 }

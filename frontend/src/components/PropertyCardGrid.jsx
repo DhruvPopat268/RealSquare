@@ -34,7 +34,7 @@ export default function PropertyCardGrid({ property }) {
       onClick={() => navigate(`/property/${id}`, { state: { from: location.pathname + location.search } })}
     >
       {/* Image */}
-      <ImageSlider images={images} className="h-[200px]">
+      <ImageSlider images={images} className="h-[160px] sm:h-[200px]">
         {tag && (
           <span className={`absolute top-2 left-2 text-[11px] font-semibold px-2 py-0.5 rounded-full z-10 ${tagColors[tag] || "bg-gray-100 text-gray-600"}`}>
             {tag}
@@ -52,9 +52,9 @@ export default function PropertyCardGrid({ property }) {
       </ImageSlider>
 
       {/* Body */}
-      <div className="p-4">
-        <div className="text-lg font-bold text-[#7B2FFF] mb-1">{price}</div>
-        <h3 className="text-sm font-semibold text-gray-900 mb-1 leading-snug">{title}</h3>
+      <div className="p-3 sm:p-4">
+        <div className="text-base sm:text-lg font-bold text-[#7B2FFF] mb-1">{price}</div>
+        <h3 className="text-xs sm:text-sm font-semibold text-gray-900 mb-1 leading-snug">{title}</h3>
         <div className="flex items-center gap-1 text-gray-400 text-xs mb-3">
           <FiMapPin size={11} />
           <span className="truncate">{loc}</span>
