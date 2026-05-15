@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { FiHome, FiDroplet, FiMaximize2, FiHeart, FiMapPin } from "react-icons/fi";
 import ContactFlow from "./ContactFlow";
 import WishlistToast, { useWishlistToast } from "./WishlistToast";
+import ImageSlider from "./ImageSlider";
 
 export default function PropertyCardGrid({ property }) {
   const [showContact, setShowContact] = useState(false);
@@ -10,7 +11,8 @@ export default function PropertyCardGrid({ property }) {
   const { toast, showToast, setToast } = useWishlistToast();
   const navigate = useNavigate();
   const location = useLocation();
-  const { id, title, price, location: loc, beds, baths, area, type, tag, image } = property;
+  const { id, title, price, location: loc, beds, baths, area, type, tag, image, gallery } = property;
+  const images = gallery?.length ? gallery : [image];
 
   const handleWishlistToggle = (e) => {
     e.stopPropagation();
@@ -32,23 +34,22 @@ export default function PropertyCardGrid({ property }) {
       onClick={() => navigate(`/property/${id}`, { state: { from: location.pathname + location.search } })}
     >
       {/* Image */}
-      <div className="relative h-[200px] overflow-hidden">
-        <img src={image} alt={title} className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" />
+      <ImageSlider images={images} className="h-[200px]">
         {tag && (
-          <span className={`absolute top-2 left-2 text-[11px] font-semibold px-2 py-0.5 rounded-full ${tagColors[tag] || "bg-gray-100 text-gray-600"}`}>
+          <span className={`absolute top-2 left-2 text-[11px] font-semibold px-2 py-0.5 rounded-full z-10 ${tagColors[tag] || "bg-gray-100 text-gray-600"}`}>
             {tag}
           </span>
         )}
         <button
-          className="absolute top-2 right-2 bg-white/90 rounded-full w-7 h-7 flex items-center justify-center shadow"
+          className="absolute top-2 right-2 bg-white/90 rounded-full w-7 h-7 flex items-center justify-center shadow z-10"
           onClick={handleWishlistToggle}
         >
           <FiHeart size={14} className={wishlisted ? "text-red-500 fill-red-500" : "text-gray-400"} />
         </button>
-        <span className="absolute bottom-2 right-2 bg-black/55 text-white text-[10px] px-2 py-0.5 rounded">
+        <span className="absolute bottom-2 right-2 bg-black/55 text-white text-[10px] px-2 py-0.5 rounded z-10">
           {type}
         </span>
-      </div>
+      </ImageSlider>
 
       {/* Body */}
       <div className="p-4">

@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { topPickGroups } from "../data/properties";
 import ContactFlow from "./ContactFlow";
+import ImageSlider from "./ImageSlider";
 
 const INTERVAL = 3000;
 
@@ -122,30 +123,13 @@ export default function TopPicks() {
 
           {/* Right image */}
           <div className="flex-1 relative overflow-hidden max-md:h-[210px]">
-            <img
-              src={project.image}
-              alt={project.name}
-              className="absolute inset-0 w-full h-full object-cover cursor-pointer"
-              onClick={() => handleProjectClick(project)}
+            <ImageSlider
+              images={group.projects.map((p) => p.image)}
+              className="absolute inset-0 w-full h-full"
             />
-
-            {/* Thumbnail strip */}
-            <div className="absolute top-4 right-4 flex gap-2.5">
-              {group.projects.map((p, i) => (
-                <div
-                  key={p.id}
-                  onClick={() => setActiveProject(i)}
-                  className={`w-[110px] rounded-xl overflow-hidden cursor-pointer border-2 bg-black transition-all ${
-                    activeProject === i ? "border-[#7B2FFF]" : "border-transparent"
-                  }`}
-                >
-                  <img src={p.image} alt={p.name} className="w-full h-[66px] object-cover opacity-85" />
-                  <span className="block text-[10px] text-white px-1.5 py-1 bg-black/55 truncate">{p.name}</span>
-                </div>
-              ))}
-            </div>
           </div>
         </div>
+
       </div>
 
       {showContact && <ContactFlow onClose={() => setShowContact(false)} />}

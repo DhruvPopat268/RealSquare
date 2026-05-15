@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { FiChevronDown, FiArrowLeft, FiPhone } from "react-icons/fi";
 import { MdVerified } from "react-icons/md";
 import { topPickGroups } from "../data/properties";
-import ListingHeader from "../components/ListingHeader";
+import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import ContactFlow from "../components/ContactFlow";
 import PageSpinner from "../components/PageSpinner";
@@ -38,7 +38,7 @@ export default function DeveloperProjects() {
   if (!group) {
     return (
       <>
-        <ListingHeader />
+        <Navbar />
         <div className="text-center py-20">
           <p className="text-gray-500 mb-4">Developer not found.</p>
           <button
@@ -60,7 +60,7 @@ export default function DeveloperProjects() {
   return (
     <>
       <PageSpinner key={developerId} />
-      <ListingHeader />
+      <Navbar />
 
       <div className="bg-[#f7f8fa] min-h-screen">
         <div className="max-w-[1200px] mx-auto px-5 py-6">

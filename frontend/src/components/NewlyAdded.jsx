@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { FiMapPin, FiClock } from "react-icons/fi";
 import { newlyAddedProperties, rentProperties, commercialProperties, pgProperties, plotProperties } from "../data/properties";
 import ContactFlow from "./ContactFlow";
+import ImageSlider from "./ImageSlider";
 
 const INTENT_MAP = {
   BUY: newlyAddedProperties,
@@ -89,14 +90,16 @@ export default function NewlyAdded({ searchQuery, activeTab }) {
                   className="bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all cursor-pointer overflow-hidden flex flex-col"
                   onClick={() => navigate(`/property/${p.id}`)}
                 >
-                  <div className="h-[150px] overflow-hidden flex-shrink-0 relative">
-                    <img src={p.image} alt={p.displayName} className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" />
+                  <ImageSlider
+                    images={p.images?.length ? p.images : [p.image]}
+                    className="h-[150px] flex-shrink-0"
+                  >
                     {ago && (
-                      <span className="absolute bottom-2 left-2 flex items-center gap-1 bg-black/60 text-white text-[10px] px-2 py-0.5 rounded-full">
+                      <span className="absolute bottom-2 left-2 flex items-center gap-1 bg-black/60 text-white text-[10px] px-2 py-0.5 rounded-full z-10">
                         <FiClock size={9} /> {ago}
                       </span>
                     )}
-                  </div>
+                  </ImageSlider>
                   <div className="p-3 flex flex-col gap-1 flex-1">
                     <h3 className="text-xs font-bold text-gray-900 leading-snug line-clamp-2">{p.displayName}</h3>
                     <span className="text-[11px] text-[#7B2FFF] font-medium">{p.type}</span>

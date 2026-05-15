@@ -2,7 +2,6 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { useNavigate, useSearchParams, useLocation } from "react-router-dom";
 import { FiChevronDown, FiX, FiSearch, FiMenu, FiMapPin } from "react-icons/fi";
 import { properties, newlyAddedProperties, rentProperties, commercialProperties, pgProperties, plotProperties } from "../data/properties";
-import "./Navbar.css";
 
 const TYPES = ["Buy", "Rent", "Commercial", "PG/Co-Living", "Plots"];
 const INTENT_MAP = { "Buy": "BUY", "Rent": "RENT", "Commercial": "COMMERCIAL", "PG/Co-Living": "PG/CO-LIVING", "Plots": "PLOTS" };
@@ -176,7 +175,7 @@ export default function ListingHeader() {
         loadingSetter(false);
         if (status === "OK" && results) {
           const filtered = results
-            .filter((item) => item.types.some((t) => ALLOWED_TYPES.includes(t)))
+            .filter((item) => item.types.some((t) => ALLOWED_TYPES.includes(t)) && item.description.split(",").length >= 4)
             .slice(0, 6);
           setter(filtered);
         } else {
@@ -312,31 +311,27 @@ export default function ListingHeader() {
 
   return (
     <>
-      <nav className="navbar" ref={navRef}>
-        <div className="navbar-inner">
+      <nav className="sticky top-0 z-[200] bg-white shadow-[0_2px_8px_rgba(0,0,0,0.08)]" ref={navRef}>
+        <div className="max-w-[1280px] mx-auto px-6 h-[62px] flex items-center gap-4">
 
           {/* Logo */}
-          <div className="navbar-logo" onClick={() => navigate("/")} style={{ cursor: "pointer" }}>
-            <span className="logo-text">Real<span className="logo-accent">Square</span></span>
+          <div className="flex-shrink-0 cursor-pointer" onClick={() => navigate("/")}>
+            <span className="text-xl font-extrabold text-[#1a1a2e] tracking-tight">
+              Real<span className="text-[#7B2FFF]">Square</span>
+            </span>
           </div>
 
-          {/* Middle */}
-          <div className="navbar-links desktop-only" style={{ position: "relative" }}>
+          {/* Middle — desktop only */}
+          <div className="hidden md:flex items-center gap-2 flex-1 min-w-0 relative">
 
             {/* City/Intent trigger button */}
             <button
-              className="nav-item"
-              onClick={() => {
-                setModalType(currentType);
-                setModalCity(currentCity);
-                setModalAreas([...editAreas]);
-                setShowModal(true);
-              }}
-              style={{ fontWeight: 700, color: "#1a1a2e", whiteSpace: "nowrap" }}
+              className="flex items-center gap-1 px-3 py-2 rounded-md bg-transparent border-none text-sm font-bold text-[#1a1a2e] cursor-pointer whitespace-nowrap hover:bg-[#f3eeff] hover:text-[#7B2FFF] transition-colors"
+              onClick={() => { setModalType(currentType); setModalCity(currentCity); setModalAreas([...editAreas]); setShowModal(true); }}
             >
               {currentType} In
               <span
-                className="inline-flex items-center gap-1 ml-1 px-2 py-0.5 rounded-lg bg-[#f0ebff] text-[#7B2FFF] hover:bg-[#e4d9ff] transition"
+                className="inline-flex items-center gap-1 ml-1 px-2 py-0.5 rounded-lg bg-[#f0ebff] text-[#7B2FFF] hover:bg-[#e4d9ff] transition text-sm font-semibold"
                 onClick={(e) => { e.stopPropagation(); openCityModal("inline"); }}
               >
                 {displayCity} <FiChevronDown size={11} />
@@ -346,78 +341,56 @@ export default function ListingHeader() {
             {/* Inline search box */}
             <div
               ref={searchRef}
-              style={{
-                flex: 1, display: "flex", alignItems: "center", gap: 6,
-                minWidth: 0, background: "#f7f8fa", border: "2px solid #7B2FFF",
-                borderRadius: 8, padding: "5px 12px", cursor: "text", position: "relative",
-              }}
+              className="flex-1 flex items-center gap-1.5 min-w-0 bg-[#f7f8fa] border-2 border-[#7B2FFF] rounded-lg px-3 py-1.5 cursor-text relative focus-within:bg-white focus-within:border-[#5b21b6] transition-colors"
               onClick={() => document.getElementById("lh-input")?.focus()}
             >
-              <FiSearch size={14} style={{ color: "#aaa", flexShrink: 0 }} />
+              <FiSearch size={14} className="text-gray-400 flex-shrink-0" />
 
               {editAreas.map((a) => (
-                <span key={a} style={{
-                  display: "flex", alignItems: "center", gap: 4,
-                  background: "#ede9fe", color: "#7B2FFF", border: "1px solid #c4b5fd",
-                  fontSize: 12, fontWeight: 600, padding: "3px 8px", borderRadius: 20,
-                  whiteSpace: "nowrap", flexShrink: 0,
-                }}>
+                <span key={a} className="flex items-center gap-1 bg-[#ede9fe] text-[#7B2FFF] border border-[#c4b5fd] text-xs font-semibold px-2 py-0.5 rounded-full whitespace-nowrap flex-shrink-0">
                   {a}
-                  <FiX size={10} style={{ cursor: "pointer", opacity: 0.7 }}
-                    onClick={(e) => { e.stopPropagation(); removeAreaChip(a); }} />
+                  <FiX size={10} className="cursor-pointer opacity-70 hover:opacity-100" onClick={(e) => { e.stopPropagation(); removeAreaChip(a); }} />
                 </span>
               ))}
 
               <input
                 id="lh-input"
-                style={{ flex: 1, border: "none", outline: "none", fontSize: 14, color: "#333", background: "transparent", minWidth: 80 }}
+                className="flex-1 border-none outline-none text-sm text-[#333] bg-transparent min-w-[80px]"
                 placeholder={editAreas.length ? "+ Add area..." : "Search locality, landmark, project..."}
                 value={searchInput}
                 onChange={handleInlineInput}
-                onFocus={(e) => {
-                  e.currentTarget.closest("div").style.borderColor = "#5b21b6";
-                  e.currentTarget.closest("div").style.background = "#fff";
-                  if (inlineSuggestions.length > 0) setShowInlineDropdown(true);
-                }}
-                onBlur={(e) => {
-                  e.currentTarget.closest("div").style.borderColor = "#7B2FFF";
-                  e.currentTarget.closest("div").style.background = "#f7f8fa";
-                }}
+                onFocus={() => { if (inlineSuggestions.length > 0) setShowInlineDropdown(true); }}
               />
 
               {inlineSearching && (
-                <span style={{ width: 14, height: 14, border: "2px solid #7B2FFF", borderTopColor: "transparent", borderRadius: "50%", animation: "spin 0.6s linear infinite", flexShrink: 0 }} />
+                <span className="w-3.5 h-3.5 border-2 border-[#7B2FFF] border-t-transparent rounded-full animate-spin flex-shrink-0" />
               )}
 
               {/* Inline suggestions dropdown */}
               {showInlineDropdown && inlineSuggestions.length > 0 && (
-                <div className="mega-dropdown" style={{ left: 0, right: 0, width: "auto", minWidth: "unset", maxWidth: "unset", transform: "none", top: "calc(100% + 8px)" }}>
+                <div className="absolute top-[calc(100%+8px)] left-0 right-0 bg-white rounded-xl shadow-[0_12px_48px_rgba(0,0,0,0.14)] z-[300] overflow-hidden">
                   {sameCitySuggestions.length > 0 && (
                     <>
-                      <p className="mega-heading" style={{ padding: "16px 24px 6px" }}>In {currentCity}</p>
+                      <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wide px-6 pt-4 pb-1.5">In {currentCity}</p>
                       {sameCitySuggestions.map((s) => (
                         <button key={s.place_id} onMouseDown={() => handleInlineSelect(s)}
-                          style={{ width: "100%", display: "flex", alignItems: "center", gap: 10, padding: "10px 24px", border: "none", background: "transparent", cursor: "pointer", textAlign: "left" }}
-                          onMouseEnter={(e) => e.currentTarget.style.background = "#f5f0ff"}
-                          onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}>
-                          <FiSearch size={13} style={{ color: "#aaa", flexShrink: 0 }} />
-                          <span style={{ fontSize: 14, color: "#222", fontWeight: 500 }}>{extractArea(s.description)}</span>
-                          <span style={{ fontSize: 12, color: "#999" }}>{s.description.split(",").slice(1).join(",")}</span>
+                          className="w-full flex items-center gap-2.5 px-6 py-2.5 border-none bg-transparent cursor-pointer text-left hover:bg-[#f5f0ff] transition">
+                          <FiSearch size={13} className="text-gray-400 flex-shrink-0" />
+                          <span className="text-sm text-[#222] font-medium">{extractArea(s.description)}</span>
+                          <span className="text-xs text-gray-400 truncate">{s.description.split(",").slice(1).join(",")}</span>
                         </button>
                       ))}
                     </>
                   )}
                   {otherSuggestions.length > 0 && (
                     <>
-                      <p className="mega-heading" style={{ padding: "12px 24px 6px", borderTop: sameCitySuggestions.length ? "1px solid #f0f0f0" : "none" }}>Other Cities</p>
+                      <p className={`text-[11px] font-semibold text-gray-400 uppercase tracking-wide px-6 pt-3 pb-1.5 ${sameCitySuggestions.length ? "border-t border-gray-100" : ""}`}>Other Cities</p>
                       {otherSuggestions.map((s) => (
                         <button key={s.place_id} onMouseDown={() => handleInlineSelect(s)}
-                          style={{ width: "100%", display: "flex", alignItems: "center", gap: 10, padding: "10px 24px", border: "none", background: "transparent", cursor: "pointer", textAlign: "left" }}
-                          onMouseEnter={(e) => e.currentTarget.style.background = "#fff7ed"}
-                          onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}>
-                          <FiSearch size={13} style={{ color: "#f97316", flexShrink: 0 }} />
-                          <span style={{ fontSize: 14, color: "#222", fontWeight: 500 }}>{extractArea(s.description)}</span>
-                          <span style={{ fontSize: 12, color: "#999" }}>{s.description.split(",").slice(1).join(",")}</span>
+                          className="w-full flex items-center gap-2.5 px-6 py-2.5 border-none bg-transparent cursor-pointer text-left hover:bg-[#fff7ed] transition">
+                          <FiSearch size={13} className="text-orange-400 flex-shrink-0" />
+                          <span className="text-sm text-[#222] font-medium">{extractArea(s.description)}</span>
+                          <span className="text-xs text-gray-400 truncate">{s.description.split(",").slice(1).join(",")}</span>
                         </button>
                       ))}
                     </>
@@ -427,25 +400,32 @@ export default function ListingHeader() {
             </div>
           </div>
 
-          {/* Right actions */}
-          <div className="navbar-actions desktop-only">
-            <a href="#" className="download-link">Download App</a>
-            <button className="btn-post">Post Property <span className="free-tag">FREE</span></button>
-            <button className="btn-avatar">
-              <span className="avatar-lines">☰</span>
-              <span className="avatar-icon">👤</span>
+          {/* Right actions — desktop */}
+          <div className="hidden md:flex items-center gap-3.5 flex-shrink-0">
+            <a href="#" className="text-[13px] font-medium text-[#444] no-underline whitespace-nowrap hover:text-[#7B2FFF] transition-colors">Download App</a>
+            <button className="flex items-center gap-1.5 border-none bg-transparent text-sm font-bold text-[#1a1a2e] cursor-pointer whitespace-nowrap hover:text-[#7B2FFF] transition-colors">
+              Post Property
+              <span className="bg-[#7B2FFF] text-white text-[10px] font-bold px-1.5 py-0.5 rounded tracking-wide">FREE</span>
             </button>
+            <button className="flex items-center gap-1.5 bg-[#7B2FFF] border-none rounded-full px-3 py-1.5 cursor-pointer text-white text-[15px]">☰ 👤</button>
           </div>
 
-          <button className="hamburger mobile-only" onClick={() => setMobileOpen(!mobileOpen)}>
+          {/* Mobile hamburger */}
+          <button className="md:hidden ml-auto bg-transparent border-none cursor-pointer text-[#333]" onClick={() => setMobileOpen(!mobileOpen)}>
             {mobileOpen ? <FiX size={22} /> : <FiMenu size={22} />}
           </button>
         </div>
 
+        {/* Mobile menu */}
         {mobileOpen && (
-          <div className="mobile-menu">
-            <span style={{ fontSize: 14, fontWeight: 700, color: "#1a1a2e" }}>{currentType} In {displayCity}</span>
-            <button className="btn-post mobile-post" onClick={() => setShowModal(true)}>Search Properties</button>
+          <div className="md:hidden flex flex-col px-5 py-3 gap-3 border-t border-gray-100">
+            <span className="text-sm font-bold text-[#1a1a2e]">{currentType} In {displayCity}</span>
+            <button
+              className="bg-[#7B2FFF] text-white border-none px-4 py-2.5 rounded-lg text-sm font-bold cursor-pointer"
+              onClick={() => setShowModal(true)}
+            >
+              Search Properties
+            </button>
           </div>
         )}
       </nav>

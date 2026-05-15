@@ -16,9 +16,14 @@ import Footer from "./components/Footer";
 import PropertyDetail from "./pages/PropertyDetail";
 import BuyersPage from "./pages/BuyersPage";
 import DeveloperProjects from "./pages/DeveloperProjects";
+import BrokerPage from "./pages/BrokerPage";
+import DeveloperPage from "./pages/DeveloperPage";
 import PropertyListPage from "./pages/PropertyListPage";
 import PriceTrends from "./pages/PriceTrends";
 import NewsPage from "./pages/NewsPage";
+import OwnersPage from "./pages/OwnersPage";
+import EMICalculator from "./pages/EMICalculator";
+import PropertyValueCalculator from "./pages/PropertyValueCalculator";
 import PageSpinner from "./components/PageSpinner";
 import "./App.css";
 
@@ -73,6 +78,11 @@ function App() {
       <Route path="/price-trends/:city" element={<PriceTrends />} />
       <Route path="/price-trends" element={<PriceTrends />} />
       <Route path="/news" element={<NewsPage />} />
+      <Route path="/broker" element={<BrokerPage />} />
+      <Route path="/developer-plans" element={<DeveloperPage />} />
+      <Route path="/owners" element={<OwnersPage />} />
+      <Route path="/emi-calculator" element={<EMICalculator />} />
+      <Route path="/property-value-calculator" element={<PropertyValueCalculator />} />
     </Routes>
   );
 }

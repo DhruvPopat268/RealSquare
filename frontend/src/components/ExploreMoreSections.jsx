@@ -1,22 +1,23 @@
 import { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FiChevronRight } from "react-icons/fi";
+import ImageSlider from "./ImageSlider";
 
 // ── Data ──────────────────────────────────────────────────────────────────
 
 const FEATURED_PROJECTS = [
-  { id: 1, name: "Anuar Towers", developer: "Anuhar Homes Pvt Ltd", type: "2, 3 BHK Apartments", location: "Manikonda, Hyderabad", price: "₹1.04 Cr - 1.57 Cr", image: "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=600&h=340&fit=crop", propertyId: 1 },
-  { id: 2, name: "Prestige Koramangala Heights", developer: "Prestige Group", type: "2, 3 BHK Apartments", location: "Koramangala, Bangalore", price: "₹85 L - 1.2 Cr", image: "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=600&h=340&fit=crop", propertyId: 2 },
-  { id: 3, name: "Lodha Palava City", developer: "Lodha Group", type: "1, 2, 3 BHK Apartments", location: "Dombivli East, Thane", price: "₹42.5 L - 1.2 Cr", image: "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=600&h=340&fit=crop", propertyId: 3 },
-  { id: 4, name: "Aparna Sarovar Zenith", developer: "Aparna Constructions", type: "2, 3 BHK Apartments", location: "Gachibowli, Hyderabad", price: "₹92 L - 1.45 Cr", image: "https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=600&h=340&fit=crop", propertyId: 4 },
-  { id: 5, name: "Skyline Residency", developer: "Skyline Builders", type: "2, 3 BHK Apartments", location: "Bandra West, Mumbai", price: "₹65,000/mo", image: "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=600&h=340&fit=crop", propertyId: 101 },
+  { id: 1, name: "Anuar Towers", developer: "Anuhar Homes Pvt Ltd", type: "2, 3 BHK Apartments", location: "Manikonda, Hyderabad", price: "₹1.04 Cr - 1.57 Cr", images: ["https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=600&h=340&fit=crop","https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=600&h=340&fit=crop","https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=600&h=340&fit=crop"], propertyId: 1 },
+  { id: 2, name: "Prestige Koramangala Heights", developer: "Prestige Group", type: "2, 3 BHK Apartments", location: "Koramangala, Bangalore", price: "₹85 L - 1.2 Cr", images: ["https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=600&h=340&fit=crop","https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=600&h=340&fit=crop","https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=600&h=340&fit=crop"], propertyId: 2 },
+  { id: 3, name: "Lodha Palava City", developer: "Lodha Group", type: "1, 2, 3 BHK Apartments", location: "Dombivli East, Thane", price: "₹42.5 L - 1.2 Cr", images: ["https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=600&h=340&fit=crop","https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=600&h=340&fit=crop","https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=600&h=340&fit=crop"], propertyId: 3 },
+  { id: 4, name: "Aparna Sarovar Zenith", developer: "Aparna Constructions", type: "2, 3 BHK Apartments", location: "Gachibowli, Hyderabad", price: "₹92 L - 1.45 Cr", images: ["https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=600&h=340&fit=crop","https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=600&h=340&fit=crop","https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=600&h=340&fit=crop"], propertyId: 4 },
+  { id: 5, name: "Skyline Residency", developer: "Skyline Builders", type: "2, 3 BHK Apartments", location: "Bandra West, Mumbai", price: "₹65,000/mo", images: ["https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=600&h=340&fit=crop","https://images.unsplash.com/photo-1486325212027-8081e485255e?w=600&h=340&fit=crop","https://images.unsplash.com/photo-1494526585095-c41746248156?w=600&h=340&fit=crop"], propertyId: 101 },
 ];
 
 const SPOTLIGHT_PROJECTS = [
-  { id: 1, name: "Prestige Whitefield", developer: "Prestige Group", type: "2, 3 BHK Apartments", location: "Whitefield, Bangalore", price: "₹85 L - 1.40 Cr", image: "https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=600&h=380&fit=crop", propertyId: 2 },
-  { id: 2, name: "Lodha Belmondo", developer: "Lodha Group", type: "2, 3 BHK Apartments", location: "Gahunje, Pune", price: "₹1.20 Cr - 1.85 Cr", image: "https://images.unsplash.com/photo-1486325212027-8081e485255e?w=600&h=380&fit=crop", propertyId: 3 },
-  { id: 3, name: "Aparna Sarovar Grande", developer: "Aparna Constructions", type: "3, 4 BHK Apartments", location: "Nallagandla, Hyderabad", price: "₹1.19 Cr - 1.99 Cr", image: "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=600&h=380&fit=crop", propertyId: 4 },
-  { id: 4, name: "Raj Legacy Satyam", developer: "Raj Realty Group", type: "1, 2, 3 BHK Apartments", location: "Mira Road East, Mumbai", price: "₹82.5 L - 1.20 Cr", image: "https://images.unsplash.com/photo-1494526585095-c41746248156?w=600&h=380&fit=crop", propertyId: 1 },
+  { id: 1, name: "Prestige Whitefield", developer: "Prestige Group", type: "2, 3 BHK Apartments", location: "Whitefield, Bangalore", price: "₹85 L - 1.40 Cr", images: ["https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=600&h=380&fit=crop","https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=600&h=380&fit=crop","https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=600&h=380&fit=crop"], propertyId: 2 },
+  { id: 2, name: "Lodha Belmondo", developer: "Lodha Group", type: "2, 3 BHK Apartments", location: "Gahunje, Pune", price: "₹1.20 Cr - 1.85 Cr", images: ["https://images.unsplash.com/photo-1486325212027-8081e485255e?w=600&h=380&fit=crop","https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=600&h=380&fit=crop","https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=600&h=380&fit=crop"], propertyId: 3 },
+  { id: 3, name: "Aparna Sarovar Grande", developer: "Aparna Constructions", type: "3, 4 BHK Apartments", location: "Nallagandla, Hyderabad", price: "₹1.19 Cr - 1.99 Cr", images: ["https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=600&h=380&fit=crop","https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=600&h=380&fit=crop","https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=600&h=380&fit=crop"], propertyId: 4 },
+  { id: 4, name: "Raj Legacy Satyam", developer: "Raj Realty Group", type: "1, 2, 3 BHK Apartments", location: "Mira Road East, Mumbai", price: "₹82.5 L - 1.20 Cr", images: ["https://images.unsplash.com/photo-1494526585095-c41746248156?w=600&h=380&fit=crop","https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=600&h=380&fit=crop","https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=600&h=380&fit=crop"], propertyId: 1 },
 ];
 
 const FEATURED_DEVELOPERS = [
@@ -28,10 +29,10 @@ const FEATURED_DEVELOPERS = [
     totalProjects: 120,
     description: "India's largest real estate developer by sales, known for delivering world-class residential and commercial projects across Mumbai, Pune, Hyderabad and London.",
     projects: [
-      { id: "lg-1", name: "Lodha Palava City", type: "1, 2, 3 BHK", location: "Dombivli East, Thane", price: "₹42.5 L - 1.2 Cr", image: "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=400&h=220&fit=crop", propertyId: 3 },
-      { id: "lg-2", name: "Lodha Belmondo", type: "2, 3 BHK", location: "Gahunje, Pune", price: "₹1.20 Cr - 1.85 Cr", image: "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=400&h=220&fit=crop", propertyId: 3 },
-      { id: "lg-3", name: "Lodha Meridian", type: "2, 3 BHK", location: "Kukatpally, Hyderabad", price: "₹95 L - 1.40 Cr", image: "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=400&h=220&fit=crop", propertyId: 3 },
-      { id: "lg-4", name: "Lodha Park", type: "3, 4 BHK", location: "Worli, Mumbai", price: "₹5.5 Cr - 9 Cr", image: "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=400&h=220&fit=crop", propertyId: 3 },
+      { id: "lg-1", name: "Lodha Palava City", type: "1, 2, 3 BHK", location: "Dombivli East, Thane", price: "₹42.5 L - 1.2 Cr", images: ["https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=400&h=220&fit=crop","https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=400&h=220&fit=crop","https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=400&h=220&fit=crop"], propertyId: 3 },
+      { id: "lg-2", name: "Lodha Belmondo", type: "2, 3 BHK", location: "Gahunje, Pune", price: "₹1.20 Cr - 1.85 Cr", images: ["https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=400&h=220&fit=crop","https://images.unsplash.com/photo-1486325212027-8081e485255e?w=400&h=220&fit=crop","https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=400&h=220&fit=crop"], propertyId: 3 },
+      { id: "lg-3", name: "Lodha Meridian", type: "2, 3 BHK", location: "Kukatpally, Hyderabad", price: "₹95 L - 1.40 Cr", images: ["https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=400&h=220&fit=crop","https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=400&h=220&fit=crop","https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=400&h=220&fit=crop"], propertyId: 3 },
+      { id: "lg-4", name: "Lodha Park", type: "3, 4 BHK", location: "Worli, Mumbai", price: "₹5.5 Cr - 9 Cr", images: ["https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=400&h=220&fit=crop","https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=400&h=220&fit=crop","https://images.unsplash.com/photo-1494526585095-c41746248156?w=400&h=220&fit=crop"], propertyId: 3 },
     ],
   },
   {
@@ -42,10 +43,10 @@ const FEATURED_DEVELOPERS = [
     totalProjects: 85,
     description: "One of South India's leading real estate developers with a diversified portfolio spanning residential, commercial, retail, hospitality and leisure segments.",
     projects: [
-      { id: "pg-1", name: "Prestige Koramangala Heights", type: "2, 3 BHK", location: "Koramangala, Bangalore", price: "₹85 L - 1.2 Cr", image: "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=400&h=220&fit=crop", propertyId: 2 },
-      { id: "pg-2", name: "Prestige Whitefield", type: "2, 3 BHK", location: "Whitefield, Bangalore", price: "₹75 L - 1.40 Cr", image: "https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=400&h=220&fit=crop", propertyId: 2 },
-      { id: "pg-3", name: "Prestige Lakeside Habitat", type: "1, 2, 3 BHK", location: "Whitefield, Bangalore", price: "₹60 L - 1.10 Cr", image: "https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=400&h=220&fit=crop", propertyId: 2 },
-      { id: "pg-4", name: "Prestige Golfshire", type: "4, 5 BHK Villas", location: "Devanahalli, Bangalore", price: "₹3.5 Cr - 6 Cr", image: "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=400&h=220&fit=crop", propertyId: 2 },
+      { id: "pg-1", name: "Prestige Koramangala Heights", type: "2, 3 BHK", location: "Koramangala, Bangalore", price: "₹85 L - 1.2 Cr", images: ["https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=400&h=220&fit=crop","https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=400&h=220&fit=crop","https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=400&h=220&fit=crop"], propertyId: 2 },
+      { id: "pg-2", name: "Prestige Whitefield", type: "2, 3 BHK", location: "Whitefield, Bangalore", price: "₹75 L - 1.40 Cr", images: ["https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=400&h=220&fit=crop","https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=400&h=220&fit=crop","https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=400&h=220&fit=crop"], propertyId: 2 },
+      { id: "pg-3", name: "Prestige Lakeside Habitat", type: "1, 2, 3 BHK", location: "Whitefield, Bangalore", price: "₹60 L - 1.10 Cr", images: ["https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=400&h=220&fit=crop","https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=400&h=220&fit=crop","https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=400&h=220&fit=crop"], propertyId: 2 },
+      { id: "pg-4", name: "Prestige Golfshire", type: "4, 5 BHK Villas", location: "Devanahalli, Bangalore", price: "₹3.5 Cr - 6 Cr", images: ["https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=400&h=220&fit=crop","https://images.unsplash.com/photo-1486325212027-8081e485255e?w=400&h=220&fit=crop","https://images.unsplash.com/photo-1494526585095-c41746248156?w=400&h=220&fit=crop"], propertyId: 2 },
     ],
   },
   {
@@ -56,20 +57,20 @@ const FEATURED_DEVELOPERS = [
     totalProjects: 30,
     description: "A dynamic force in Mumbai's real estate landscape with a proven track record of delivering landmark projects across the western suburbs and beyond.",
     projects: [
-      { id: "rr-1", name: "Raj Legacy 1", type: "1 BHK", location: "Mira Road East, Mumbai", price: "₹68.65 L", image: "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=400&h=220&fit=crop", propertyId: 1 },
-      { id: "rr-2", name: "Raj Legacy Satyam A & B", type: "1, 2, 3 BHK", location: "Mira Road East, Mumbai", price: "₹82.5 L - 1.10 Cr", image: "https://images.unsplash.com/photo-1486325212027-8081e485255e?w=400&h=220&fit=crop", propertyId: 1 },
-      { id: "rr-3", name: "Raj Grandeur", type: "2, 3 BHK", location: "Borivali West, Mumbai", price: "₹1.10 Cr - 1.60 Cr", image: "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=400&h=220&fit=crop", propertyId: 1 },
-      { id: "rr-4", name: "Raj Splendour", type: "2, 3 BHK", location: "Kandivali West, Mumbai", price: "₹95 L - 1.45 Cr", image: "https://images.unsplash.com/photo-1494526585095-c41746248156?w=400&h=220&fit=crop", propertyId: 1 },
+      { id: "rr-1", name: "Raj Legacy 1", type: "1 BHK", location: "Mira Road East, Mumbai", price: "₹68.65 L", images: ["https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=400&h=220&fit=crop","https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=400&h=220&fit=crop","https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=400&h=220&fit=crop"], propertyId: 1 },
+      { id: "rr-2", name: "Raj Legacy Satyam A & B", type: "1, 2, 3 BHK", location: "Mira Road East, Mumbai", price: "₹82.5 L - 1.10 Cr", images: ["https://images.unsplash.com/photo-1486325212027-8081e485255e?w=400&h=220&fit=crop","https://images.unsplash.com/photo-1494526585095-c41746248156?w=400&h=220&fit=crop","https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=400&h=220&fit=crop"], propertyId: 1 },
+      { id: "rr-3", name: "Raj Grandeur", type: "2, 3 BHK", location: "Borivali West, Mumbai", price: "₹1.10 Cr - 1.60 Cr", images: ["https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=400&h=220&fit=crop","https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=400&h=220&fit=crop","https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=400&h=220&fit=crop"], propertyId: 1 },
+      { id: "rr-4", name: "Raj Splendour", type: "2, 3 BHK", location: "Kandivali West, Mumbai", price: "₹95 L - 1.45 Cr", images: ["https://images.unsplash.com/photo-1494526585095-c41746248156?w=400&h=220&fit=crop","https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=400&h=220&fit=crop","https://images.unsplash.com/photo-1486325212027-8081e485255e?w=400&h=220&fit=crop"], propertyId: 1 },
     ],
   },
 ];
 
 const TRUSTED_PROJECTS = [
-  { id: 1, name: "Aparna Sarovar Zenith", developer: "Aparna Constructions", type: "2, 3 BHK Apartments", location: "Gachibowli, Hyderabad", price: "₹92 L - 1.45 Cr", image: "https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=500&h=300&fit=crop", propertyId: 4 },
-  { id: 2, name: "Prestige Koramangala Heights", developer: "Prestige Group", type: "2, 3 BHK Apartments", location: "Whitefield, Bangalore", price: "₹85 L - 1.2 Cr", image: "https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=500&h=300&fit=crop", propertyId: 2 },
-  { id: 3, name: "Lodha Palava City", developer: "Lodha Group", type: "1, 2, 3 BHK Apartments", location: "Dombivli East, Thane", price: "₹42.5 L - 1.2 Cr", image: "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=500&h=300&fit=crop", propertyId: 3 },
-  { id: 4, name: "Anuar Towers", developer: "Anuhar Homes Pvt Ltd", type: "2, 3 BHK Apartments", location: "Manikonda, Hyderabad", price: "₹1.04 Cr - 1.57 Cr", image: "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=500&h=300&fit=crop", propertyId: 1 },
-  { id: 5, name: "Raj Legacy Satyam", developer: "Raj Realty Group", type: "1, 2, 3 BHK Apartments", location: "Mira Road East, Mumbai", price: "₹82.5 L - 1.10 Cr", image: "https://images.unsplash.com/photo-1486325212027-8081e485255e?w=500&h=300&fit=crop", propertyId: 1 },
+  { id: 1, name: "Aparna Sarovar Zenith", developer: "Aparna Constructions", type: "2, 3 BHK Apartments", location: "Gachibowli, Hyderabad", price: "₹92 L - 1.45 Cr", images: ["https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=500&h=300&fit=crop","https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=500&h=300&fit=crop","https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=500&h=300&fit=crop"], propertyId: 4 },
+  { id: 2, name: "Prestige Koramangala Heights", developer: "Prestige Group", type: "2, 3 BHK Apartments", location: "Whitefield, Bangalore", price: "₹85 L - 1.2 Cr", images: ["https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=500&h=300&fit=crop","https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=500&h=300&fit=crop","https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=500&h=300&fit=crop"], propertyId: 2 },
+  { id: 3, name: "Lodha Palava City", developer: "Lodha Group", type: "1, 2, 3 BHK Apartments", location: "Dombivli East, Thane", price: "₹42.5 L - 1.2 Cr", images: ["https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=500&h=300&fit=crop","https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=500&h=300&fit=crop","https://images.unsplash.com/photo-1486325212027-8081e485255e?w=500&h=300&fit=crop"], propertyId: 3 },
+  { id: 4, name: "Anuar Towers", developer: "Anuhar Homes Pvt Ltd", type: "2, 3 BHK Apartments", location: "Manikonda, Hyderabad", price: "₹1.04 Cr - 1.57 Cr", images: ["https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=500&h=300&fit=crop","https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=500&h=300&fit=crop","https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=500&h=300&fit=crop"], propertyId: 1 },
+  { id: 5, name: "Raj Legacy Satyam", developer: "Raj Realty Group", type: "1, 2, 3 BHK Apartments", location: "Mira Road East, Mumbai", price: "₹82.5 L - 1.10 Cr", images: ["https://images.unsplash.com/photo-1486325212027-8081e485255e?w=500&h=300&fit=crop","https://images.unsplash.com/photo-1494526585095-c41746248156?w=500&h=300&fit=crop","https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=500&h=300&fit=crop"], propertyId: 1 },
 ];
 
 // ── Section 1: Featured Projects to Explore ──────────────────────────────
@@ -105,9 +106,7 @@ function FeaturedProjectsSection() {
               onClick={() => navigate(`/property/${p.propertyId}`)}
               className="min-w-[480px] max-w-[480px] flex-shrink-0 border border-gray-200 rounded-xl overflow-hidden cursor-pointer hover:shadow-md transition-shadow group"
             >
-              <div className="h-[260px] overflow-hidden">
-                <img src={p.image} alt={p.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-              </div>
+              <ImageSlider images={p.images} className="h-[260px]" />
               <div className="p-4">
                 <div className="flex items-start justify-between gap-3">
                   <div>
@@ -165,9 +164,9 @@ function SpotlightProjectsSection() {
               onClick={() => navigate(`/property/${p.propertyId}`)}
               className="min-w-[480px] max-w-[480px] flex-shrink-0 rounded-xl overflow-hidden cursor-pointer hover:shadow-lg transition-shadow relative group h-[260px]"
             >
-              <img src={p.image} alt={p.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+              <ImageSlider images={p.images} className="w-full h-full" />
               {/* Gradient overlay */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent pointer-events-none" />
               {/* Content */}
               <div className="absolute bottom-0 left-0 right-0 p-4">
                 <div className="flex items-end justify-between gap-3">
@@ -244,13 +243,8 @@ function BuilderCard({ dev }) {
         className="relative h-[190px] cursor-pointer group overflow-hidden"
         onClick={() => navigate(`/property/${activeProject.propertyId}`)}
       >
-        <img
-          key={activeProject.id}
-          src={activeProject.image}
-          alt={activeProject.name}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
+        <ImageSlider images={activeProject.images} className="w-full h-full" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent pointer-events-none" />
         <div className="absolute bottom-0 left-0 right-0 p-3">
           <p className="text-white font-bold text-sm leading-tight">{activeProject.name}</p>
           <p className="text-white/70 text-xs mt-0.5">{activeProject.location}</p>
@@ -339,9 +333,7 @@ function TrustedDevelopersSection() {
               onClick={() => navigate(`/property/${p.propertyId}`)}
               className="min-w-[340px] max-w-[340px] flex-shrink-0 border border-gray-200 rounded-xl overflow-hidden cursor-pointer hover:shadow-md transition-shadow bg-white group"
             >
-              <div className="h-[220px] overflow-hidden">
-                <img src={p.image} alt={p.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-              </div>
+              <ImageSlider images={p.images} className="h-[220px]" />
               <div className="p-4">
                 <h3 className="font-bold text-gray-900 text-sm">{p.name}</h3>
                 <p className="text-xs text-gray-400 mt-0.5">by {p.developer}</p>

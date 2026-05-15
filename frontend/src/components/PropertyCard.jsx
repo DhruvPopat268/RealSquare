@@ -4,6 +4,7 @@ import { FiHeart, FiMapPin, FiMaximize2, FiPhone, FiClock } from "react-icons/fi
 import { MdVerified } from "react-icons/md";
 import ContactFlow from "./ContactFlow";
 import WishlistToast, { useWishlistToast } from "./WishlistToast";
+import ImageSlider from "./ImageSlider";
 
 function timeAgo(ts) {
   if (!ts) return null;
@@ -22,7 +23,8 @@ export default function PropertyCard({ property, showPostedAt = false }) {
   const { toast, showToast, setToast } = useWishlistToast();
   const navigate = useNavigate();
   const location = useLocation();
-  const { id, title, price, location: loc, beds, baths, area, type, tag, image, developer, emiStarts, configurations, postedAt } = property;
+  const { id, title, price, location: loc, beds, baths, area, type, tag, image, gallery, developer, emiStarts, configurations, postedAt } = property;
+  const images = gallery?.length ? gallery : [image];
   const ago = showPostedAt ? timeAgo(postedAt) : null;
 
   const handleWishlistToggle = (e) => {
@@ -46,27 +48,28 @@ export default function PropertyCard({ property, showPostedAt = false }) {
     >
       {/* Left — Image */}
       <div className="relative flex-shrink-0 w-[260px] h-[190px]">
-        <img src={image} alt={title} className="w-full h-full object-cover" />
-        {/* Newly Added badge */}
-        {showPostedAt && (
-          <span className="absolute top-2 left-2 flex items-center gap-1 bg-green-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
-            ✦ Newly Added
+        <ImageSlider images={images} className="w-full h-full">
+          {/* Newly Added badge */}
+          {showPostedAt && (
+            <span className="absolute top-2 left-2 flex items-center gap-1 bg-green-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full z-10">
+              ✦ Newly Added
+            </span>
+          )}
+          {tag && !showPostedAt && (
+            <span className={`absolute top-2 left-2 text-[11px] font-700 px-2 py-0.5 rounded font-semibold z-10 ${tagColors[tag] || "bg-gray-100 text-gray-600"}`}>
+              {tag}
+            </span>
+          )}
+          <button
+            className="absolute top-2 right-2 bg-white/90 rounded-full w-7 h-7 flex items-center justify-center shadow z-10"
+            onClick={handleWishlistToggle}
+          >
+            <FiHeart size={14} className={wishlisted ? "text-red-500 fill-red-500" : "text-gray-400"} />
+          </button>
+          <span className="absolute bottom-2 left-2 bg-black/60 text-white text-[10px] px-2 py-0.5 rounded z-10">
+            {type}
           </span>
-        )}
-        {tag && !showPostedAt && (
-          <span className={`absolute top-2 left-2 text-[11px] font-700 px-2 py-0.5 rounded font-semibold ${tagColors[tag] || "bg-gray-100 text-gray-600"}`}>
-            {tag}
-          </span>
-        )}
-        <button
-          className="absolute top-2 right-2 bg-white/90 rounded-full w-7 h-7 flex items-center justify-center shadow"
-          onClick={handleWishlistToggle}
-        >
-          <FiHeart size={14} className={wishlisted ? "text-red-500 fill-red-500" : "text-gray-400"} />
-        </button>
-        <span className="absolute bottom-2 left-2 bg-black/60 text-white text-[10px] px-2 py-0.5 rounded">
-          {type}
-        </span>
+        </ImageSlider>
       </div>
 
       {/* Right — Details */}

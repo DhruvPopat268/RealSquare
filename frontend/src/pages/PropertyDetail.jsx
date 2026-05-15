@@ -5,7 +5,7 @@ import {
   FiHeart,
   FiShare2,
   FiCheck,
-  FiChevronDown,
+  FiChevronLeft,
   FiChevronRight,
 } from "react-icons/fi";
 import { properties, newlyAddedProperties, rentProperties, commercialProperties, pgProperties, plotProperties } from "../data/properties";
@@ -150,54 +150,66 @@ export default function PropertyDetail() {
         </div>
 
         {/* IMAGE GALLERY */}
-        <div className="grid grid-cols-1 lg:grid-cols-[2fr_380px] gap-3 mb-6">
-          {/* MAIN IMAGE */}
-          <div className="relative">
-            <img
-              src={gallery[activeImage]}
-              alt=""
-              className="w-full h-[520px] rounded-2xl object-cover"
-            />
+        <div className="relative mb-6 rounded-2xl overflow-hidden group">
+          <img
+            src={gallery[activeImage]}
+            alt=""
+            className="w-full h-[520px] object-cover"
+          />
 
-            <div className="absolute top-5 right-5 flex gap-3">
-              <button className="bg-white shadow-md px-4 py-2 rounded-xl flex items-center gap-2 text-sm font-medium">
-                <FiShare2 />
-                SHARE
-              </button>
+          {/* Left arrow */}
+          {gallery.length > 1 && (
+            <button
+              onClick={() => setActiveImage((activeImage - 1 + gallery.length) % gallery.length)}
+              className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-black/50 hover:bg-black/75 text-white rounded-full flex items-center justify-center transition opacity-0 group-hover:opacity-100"
+            >
+              <FiChevronLeft size={20} />
+            </button>
+          )}
 
-              <button
-                onClick={handleWishlistToggle}
-                className="bg-white shadow-md px-4 py-2 rounded-xl flex items-center gap-2 text-sm font-medium"
-              >
-                <FiHeart
-                  className={
-                    wishlist
-                      ? "text-red-500 fill-red-500"
-                      : ""
-                  }
-                />
-                SAVE
-              </button>
-            </div>
+          {/* Right arrow */}
+          {gallery.length > 1 && (
+            <button
+              onClick={() => setActiveImage((activeImage + 1) % gallery.length)}
+              className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-black/50 hover:bg-black/75 text-white rounded-full flex items-center justify-center transition opacity-0 group-hover:opacity-100"
+            >
+              <FiChevronRight size={20} />
+            </button>
+          )}
+
+          {/* Counter */}
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/50 text-white text-sm px-3 py-1 rounded-full">
+            {activeImage + 1} / {gallery.length}
           </div>
 
-          {/* SIDE IMAGES */}
-          <div className="flex flex-col gap-3">
-            {gallery.slice(1, 3).map((img, index) => (
-              <img
-                key={index}
-                src={img}
-                alt=""
-                onClick={() =>
-                  setActiveImage(index + 1)
-                }
-                className="h-[253px] rounded-2xl object-cover cursor-pointer"
-              />
-            ))}
-
-            <div className="bg-black/80 h-[253px] rounded-2xl flex items-center justify-center text-white text-4xl font-bold">
-              +{gallery.length - 3} more
+          {/* Dot indicators */}
+          {gallery.length > 1 && gallery.length <= 10 && (
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5">
+              {gallery.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => setActiveImage(i)}
+                  className={`w-2 h-2 rounded-full transition-all ${
+                    i === activeImage ? "bg-white w-4" : "bg-white/50"
+                  }`}
+                />
+              ))}
             </div>
+          )}
+
+          {/* Top-right actions */}
+          <div className="absolute top-5 right-5 flex gap-3">
+            <button className="bg-white shadow-md px-4 py-2 rounded-xl flex items-center gap-2 text-sm font-medium">
+              <FiShare2 />
+              SHARE
+            </button>
+            <button
+              onClick={handleWishlistToggle}
+              className="bg-white shadow-md px-4 py-2 rounded-xl flex items-center gap-2 text-sm font-medium"
+            >
+              <FiHeart className={wishlist ? "text-red-500 fill-red-500" : ""} />
+              SAVE
+            </button>
           </div>
         </div>
 
