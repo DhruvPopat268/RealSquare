@@ -36,13 +36,13 @@ export default function ImageSlider({ images = [], className = "", imgClass = ""
         <>
           <button
             onClick={prev}
-            className="absolute left-2 top-1/2 -translate-y-1/2 w-7 h-7 bg-black/50 hover:bg-black/75 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition z-10"
+            className="absolute left-2 top-1/2 -translate-y-1/2 w-7 h-7 bg-black/50 hover:bg-black/75 text-white rounded-full flex items-center justify-center transition z-10 opacity-100 md:opacity-0 md:group-hover:opacity-100"
           >
             <FiChevronLeft size={14} />
           </button>
           <button
             onClick={next}
-            className="absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 bg-black/50 hover:bg-black/75 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition z-10"
+            className="absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 bg-black/50 hover:bg-black/75 text-white rounded-full flex items-center justify-center transition z-10 opacity-100 md:opacity-0 md:group-hover:opacity-100"
           >
             <FiChevronRight size={14} />
           </button>

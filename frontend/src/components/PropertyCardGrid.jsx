@@ -62,7 +62,7 @@ export default function PropertyCardGrid({ property }) {
 
         <div className="h-px bg-gray-100 mb-3" />
 
-        <div className="flex items-center gap-3 text-xs text-gray-500 mb-3">
+        <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-gray-500 mb-3">
           {beds != null && <span className="flex items-center gap-1"><FiHome size={12} /> {beds} Beds</span>}
           {baths != null && <span className="flex items-center gap-1"><FiDroplet size={12} /> {baths} Baths</span>}
           <span className="flex items-center gap-1"><FiMaximize2 size={12} /> {area}</span>

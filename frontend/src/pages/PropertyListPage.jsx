@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from "react";
-import { useSearchParams, useNavigate } from "react-router-dom";
-import { FiChevronDown, FiChevronUp, FiX, FiClock } from "react-icons/fi";
+import { useSearchParams } from "react-router-dom";
+import { FiChevronDown, FiChevronUp, FiX, FiClock, FiSliders } from "react-icons/fi";
 import { properties, newlyAddedProperties, rentProperties, commercialProperties, pgProperties, plotProperties } from "../data/properties";
 import PropertyCard from "../components/PropertyCard";
 import ListingHeader from "../components/ListingHeader";
@@ -27,15 +27,15 @@ function timeAgo(ts) {
 }
 
 const PROPERTY_TYPES = ["Apartment", "Villa", "House", "Plot", "Studio", "Commercial"];
-const BHK_OPTIONS = ["1 RK", "1 BHK", "2 BHK", "3 BHK", "4 BHK", "4+ BHK"];
+const BHK_OPTIONS    = ["1 RK", "1 BHK", "2 BHK", "3 BHK", "4 BHK", "4+ BHK"];
 const BUDGETS = [
-  { label: "Under ₹50L", min: 0, max: 50 },
-  { label: "₹50L - ₹1Cr", min: 50, max: 100 },
+  { label: "Under ₹50L",   min: 0,   max: 50 },
+  { label: "₹50L - ₹1Cr", min: 50,  max: 100 },
   { label: "₹1Cr - ₹2Cr", min: 100, max: 200 },
   { label: "₹2Cr - ₹5Cr", min: 200, max: 500 },
-  { label: "Above ₹5Cr", min: 500, max: Infinity },
+  { label: "Above ₹5Cr",  min: 500, max: Infinity },
 ];
-const STATUSES = ["Ready to Move", "New Launch", "Under Construction", "Premium"];
+const STATUSES  = ["Ready to Move", "New Launch", "Under Construction", "Premium"];
 const AMENITIES = ["Parking", "Lift", "Park", "Club house", "Gymnasium", "Swimming Pool"];
 
 const TYPE_CONFIG = {
@@ -55,7 +55,7 @@ function parsePriceToL(price) {
   if (!price) return 0;
   const str = price.replace(/[₹,]/g, "").trim();
   if (str.includes("Cr")) return parseFloat(str) * 100;
-  if (str.includes("L")) return parseFloat(str);
+  if (str.includes("L"))  return parseFloat(str);
   return 0;
 }
 
@@ -63,10 +63,7 @@ function FilterSection({ title, children, defaultOpen = true }) {
   const [open, setOpen] = useState(defaultOpen);
   return (
     <div className="border-b border-gray-100 py-4">
-      <button
-        className="flex items-center justify-between w-full text-left"
-        onClick={() => setOpen(!open)}
-      >
+      <button className="flex items-center justify-between w-full text-left" onClick={() => setOpen(!open)}>
         <span className="font-semibold text-gray-800 text-sm">{title}</span>
         {open ? <FiChevronUp size={15} className="text-gray-400" /> : <FiChevronDown size={15} className="text-gray-400" />}
       </button>
@@ -90,40 +87,128 @@ function FilterChip({ label, active, onClick }) {
   );
 }
 
+// The filter panel content — shared between sidebar and mobile modal
+function FilterPanel({ selectedTypes, setSelectedTypes, selectedBhk, setSelectedBhk, selectedBudget, setSelectedBudget, selectedStatus, setSelectedStatus, selectedAmenities, setSelectedAmenities, toggle }) {
+  return (
+    <>
+      <FilterSection title="Budget">
+        <div className="flex flex-col gap-1.5">
+          {BUDGETS.map((b) => (
+            <label key={b.label} className="flex items-center gap-2 cursor-pointer group">
+              <input type="radio" name="budget" checked={selectedBudget?.label === b.label} onChange={() => setSelectedBudget(selectedBudget?.label === b.label ? null : b)} className="accent-[#7B2FFF]" />
+              <span className="text-sm text-gray-600 group-hover:text-[#7B2FFF]">{b.label}</span>
+            </label>
+          ))}
+        </div>
+      </FilterSection>
+
+      <FilterSection title="Type of property">
+        <div className="flex flex-col gap-1.5">
+          {PROPERTY_TYPES.map((t) => (
+            <label key={t} className="flex items-center gap-2 cursor-pointer group">
+              <input type="checkbox" checked={selectedTypes.includes(t)} onChange={() => toggle(selectedTypes, setSelectedTypes, t)} className="accent-[#7B2FFF]" />
+              <span className="text-sm text-gray-600 group-hover:text-[#7B2FFF]">{t}</span>
+            </label>
+          ))}
+        </div>
+      </FilterSection>
+
+      <FilterSection title="No. of Bedrooms">
+        <div className="flex flex-wrap gap-2">
+          {BHK_OPTIONS.map((b) => (
+            <FilterChip key={b} label={b} active={selectedBhk.includes(b)} onClick={() => toggle(selectedBhk, setSelectedBhk, b)} />
+          ))}
+        </div>
+      </FilterSection>
+
+      <FilterSection title="Construction Status">
+        <div className="flex flex-col gap-1.5">
+          {STATUSES.map((s) => (
+            <label key={s} className="flex items-center gap-2 cursor-pointer group">
+              <input type="checkbox" checked={selectedStatus.includes(s)} onChange={() => toggle(selectedStatus, setSelectedStatus, s)} className="accent-[#7B2FFF]" />
+              <span className="text-sm text-gray-600 group-hover:text-[#7B2FFF]">{s}</span>
+            </label>
+          ))}
+        </div>
+      </FilterSection>
+
+      <FilterSection title="Amenities" defaultOpen={false}>
+        <div className="flex flex-wrap gap-2">
+          {AMENITIES.map((a) => (
+            <FilterChip key={a} label={a} active={selectedAmenities.includes(a)} onClick={() => toggle(selectedAmenities, setSelectedAmenities, a)} />
+          ))}
+        </div>
+      </FilterSection>
+    </>
+  );
+}
+
 export default function PropertyListPage() {
   const [searchParams] = useSearchParams();
 
-  const listingType = searchParams.get("listingType") || "BUY";
-  const city = searchParams.get("city") || "";
-  const areas = searchParams.get("areas") ? searchParams.get("areas").split(",").filter(Boolean) : [];
+  const listingType  = searchParams.get("listingType") || "BUY";
+  const city         = searchParams.get("city") || "";
+  const areas        = searchParams.get("areas") ? searchParams.get("areas").split(",").filter(Boolean) : [];
   const isNewlyAdded = searchParams.get("source") === "newly-added";
 
-  const [selectedTypes, setSelectedTypes] = useState([]);
-  const [selectedBhk, setSelectedBhk] = useState([]);
-  const [selectedBudget, setSelectedBudget] = useState(null);
-  const [selectedStatus, setSelectedStatus] = useState([]);
+  // Applied filter state
+  const [selectedTypes,     setSelectedTypes]     = useState([]);
+  const [selectedBhk,       setSelectedBhk]       = useState([]);
+  const [selectedBudget,    setSelectedBudget]     = useState(null);
+  const [selectedStatus,    setSelectedStatus]     = useState([]);
   const [selectedAmenities, setSelectedAmenities] = useState([]);
-  const [sortBy, setSortBy] = useState("relevance");
+  const [sortBy,            setSortBy]             = useState("relevance");
+
+  // Mobile modal draft state (only applied on "Apply")
+  const [showMobileFilter, setShowMobileFilter]   = useState(false);
+  const [draftTypes,       setDraftTypes]         = useState([]);
+  const [draftBhk,         setDraftBhk]           = useState([]);
+  const [draftBudget,      setDraftBudget]         = useState(null);
+  const [draftStatus,      setDraftStatus]         = useState([]);
+  const [draftAmenities,   setDraftAmenities]     = useState([]);
 
   const toggle = (arr, setArr, val) =>
     setArr(arr.includes(val) ? arr.filter((v) => v !== val) : [...arr, val]);
 
   const clearAll = () => {
-    setSelectedTypes([]);
-    setSelectedBhk([]);
-    setSelectedBudget(null);
-    setSelectedStatus([]);
-    setSelectedAmenities([]);
+    setSelectedTypes([]); setSelectedBhk([]); setSelectedBudget(null);
+    setSelectedStatus([]); setSelectedAmenities([]);
   };
 
   const activeFilterCount =
     selectedTypes.length + selectedBhk.length + selectedStatus.length +
     selectedAmenities.length + (selectedBudget ? 1 : 0);
 
-  // Reset sidebar filters when URL (city/type) changes
-  useEffect(() => {
-    clearAll();
-  }, [city, listingType]);
+  useEffect(() => { clearAll(); }, [city, listingType]);
+
+  // Open mobile filter — copy current applied state into draft
+  const openMobileFilter = () => {
+    setDraftTypes([...selectedTypes]);
+    setDraftBhk([...selectedBhk]);
+    setDraftBudget(selectedBudget);
+    setDraftStatus([...selectedStatus]);
+    setDraftAmenities([...selectedAmenities]);
+    setShowMobileFilter(true);
+  };
+
+  // Apply draft → applied
+  const applyMobileFilter = () => {
+    setSelectedTypes([...draftTypes]);
+    setSelectedBhk([...draftBhk]);
+    setSelectedBudget(draftBudget);
+    setSelectedStatus([...draftStatus]);
+    setSelectedAmenities([...draftAmenities]);
+    setShowMobileFilter(false);
+  };
+
+  const clearDraft = () => {
+    setDraftTypes([]); setDraftBhk([]); setDraftBudget(null);
+    setDraftStatus([]); setDraftAmenities([]);
+  };
+
+  const draftFilterCount =
+    draftTypes.length + draftBhk.length + draftStatus.length +
+    draftAmenities.length + (draftBudget ? 1 : 0);
 
   const sourceList = isNewlyAdded
     ? newlyAddedProperties.map((p) => ({ ...p, title: p.name, isNewlyAdded: true }))
@@ -151,7 +236,7 @@ export default function PropertyListPage() {
       });
     }
     if (selectedStatus.length) list = list.filter((p) => selectedStatus.includes(p.tag));
-    if (sortBy === "price-asc") list.sort((a, b) => parsePriceToL(a.price) - parsePriceToL(b.price));
+    if (sortBy === "price-asc")  list.sort((a, b) => parsePriceToL(a.price) - parsePriceToL(b.price));
     if (sortBy === "price-desc") list.sort((a, b) => parsePriceToL(b.price) - parsePriceToL(a.price));
     return list;
   }, [city, areas.join(","), selectedTypes, selectedBhk, selectedBudget, selectedStatus, selectedAmenities, sortBy]);
@@ -167,89 +252,17 @@ export default function PropertyListPage() {
       <div className="bg-[#f7f8fa] min-h-screen">
         <div className="max-w-[1280px] mx-auto px-4 py-5 flex gap-5 items-start">
 
-          {/* ── LEFT SIDEBAR ── */}
-          <aside className="w-[260px] flex-shrink-0 bg-white rounded-xl border border-gray-200 p-4 sticky top-[70px] max-h-[calc(100vh-80px)] overflow-y-auto">
+          {/* ── LEFT SIDEBAR — desktop only ── */}
+          <aside className="hidden md:block w-[260px] flex-shrink-0 bg-white rounded-xl border border-gray-200 p-4 sticky top-[70px] max-h-[calc(100vh-80px)] overflow-y-auto">
             <p className="font-bold text-gray-800 text-sm mb-3 pb-3 border-b border-gray-100">Filters</p>
-
-            {/* Budget */}
-            <FilterSection title="Budget">
-              <div className="flex flex-col gap-1.5">
-                {BUDGETS.map((b) => (
-                  <label key={b.label} className="flex items-center gap-2 cursor-pointer group">
-                    <input
-                      type="radio"
-                      name="budget"
-                      checked={selectedBudget?.label === b.label}
-                      onChange={() => setSelectedBudget(selectedBudget?.label === b.label ? null : b)}
-                      className="accent-[#7B2FFF]"
-                    />
-                    <span className="text-sm text-gray-600 group-hover:text-[#7B2FFF]">{b.label}</span>
-                  </label>
-                ))}
-              </div>
-            </FilterSection>
-
-            {/* Type of Property */}
-            <FilterSection title="Type of property">
-              <div className="flex flex-col gap-1.5">
-                {PROPERTY_TYPES.map((t) => (
-                  <label key={t} className="flex items-center gap-2 cursor-pointer group">
-                    <input
-                      type="checkbox"
-                      checked={selectedTypes.includes(t)}
-                      onChange={() => toggle(selectedTypes, setSelectedTypes, t)}
-                      className="accent-[#7B2FFF]"
-                    />
-                    <span className="text-sm text-gray-600 group-hover:text-[#7B2FFF]">{t}</span>
-                  </label>
-                ))}
-              </div>
-            </FilterSection>
-
-            {/* No. of Bedrooms */}
-            <FilterSection title="No. of Bedrooms">
-              <div className="flex flex-wrap gap-2">
-                {BHK_OPTIONS.map((b) => (
-                  <FilterChip
-                    key={b}
-                    label={b}
-                    active={selectedBhk.includes(b)}
-                    onClick={() => toggle(selectedBhk, setSelectedBhk, b)}
-                  />
-                ))}
-              </div>
-            </FilterSection>
-
-            {/* Construction Status */}
-            <FilterSection title="Construction Status">
-              <div className="flex flex-col gap-1.5">
-                {STATUSES.map((s) => (
-                  <label key={s} className="flex items-center gap-2 cursor-pointer group">
-                    <input
-                      type="checkbox"
-                      checked={selectedStatus.includes(s)}
-                      onChange={() => toggle(selectedStatus, setSelectedStatus, s)}
-                      className="accent-[#7B2FFF]"
-                    />
-                    <span className="text-sm text-gray-600 group-hover:text-[#7B2FFF]">{s}</span>
-                  </label>
-                ))}
-              </div>
-            </FilterSection>
-
-            {/* Amenities */}
-            <FilterSection title="Amenities" defaultOpen={false}>
-              <div className="flex flex-wrap gap-2">
-                {AMENITIES.map((a) => (
-                  <FilterChip
-                    key={a}
-                    label={a}
-                    active={selectedAmenities.includes(a)}
-                    onClick={() => toggle(selectedAmenities, setSelectedAmenities, a)}
-                  />
-                ))}
-              </div>
-            </FilterSection>
+            <FilterPanel
+              selectedTypes={selectedTypes} setSelectedTypes={setSelectedTypes}
+              selectedBhk={selectedBhk} setSelectedBhk={setSelectedBhk}
+              selectedBudget={selectedBudget} setSelectedBudget={setSelectedBudget}
+              selectedStatus={selectedStatus} setSelectedStatus={setSelectedStatus}
+              selectedAmenities={selectedAmenities} setSelectedAmenities={setSelectedAmenities}
+              toggle={toggle}
+            />
           </aside>
 
           {/* ── RIGHT CONTENT ── */}
@@ -265,35 +278,42 @@ export default function PropertyListPage() {
             )}
 
             {/* Results header */}
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <h1 className="text-xl font-bold text-gray-900">
-                  {filtered.length} results | {pageTitle}
-                </h1>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-gray-500">Sort By</span>
+            <div className="mb-4">
+              {/* Top row — Filters + Sort */}
+              <div className="flex items-center justify-between gap-3 mb-2">
+                {/* Mobile filter button */}
+                <button
+                  onClick={openMobileFilter}
+                  className="md:hidden flex items-center gap-1.5 px-3 py-1.5 border border-[#7B2FFF] text-[#7B2FFF] rounded-lg text-sm font-semibold bg-white"
+                >
+                  <FiSliders size={14} /> Filters
+                  {activeFilterCount > 0 && (
+                    <span className="w-5 h-5 bg-[#7B2FFF] text-white text-[11px] font-bold rounded-full flex items-center justify-center">
+                      {activeFilterCount}
+                    </span>
+                  )}
+                </button>
+                <div className="md:hidden flex-1" />
                 <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value)}
-                  className="border border-gray-300 rounded-lg px-3 py-1.5 text-sm text-gray-700 outline-none focus:border-[#7B2FFF] bg-white"
+                  className="border border-gray-300 rounded-lg px-3 py-1.5 text-sm text-gray-700 outline-none focus:border-[#7B2FFF] bg-white ml-auto"
                 >
                   <option value="relevance">Relevance</option>
                   <option value="price-asc">Price: Low to High</option>
                   <option value="price-desc">Price: High to Low</option>
                 </select>
               </div>
+              {/* Bottom row — Results count */}
+              <h1 className="text-base sm:text-xl font-bold text-gray-900">
+                {filtered.length} results | {pageTitle}
+              </h1>
             </div>
 
             {/* Applied filters bar */}
             {activeFilterCount > 0 && (
               <div className="flex items-center gap-2 flex-wrap mb-4 bg-white border border-gray-200 rounded-xl px-4 py-3">
-                <span className="text-xs font-semibold text-gray-500 mr-1">Applied Filters:</span>
-                {areas.map((a) => (
-                  <span key={a} className="flex items-center gap-1 bg-gray-100 text-gray-700 text-xs px-2.5 py-1 rounded-full font-medium">
-                    {a}
-                  </span>
-                ))}
+                <span className="text-xs font-semibold text-gray-500 mr-1">Applied:</span>
                 {selectedTypes.map((t) => (
                   <span key={t} className="flex items-center gap-1 bg-[#f0ebff] text-[#7B2FFF] text-xs px-2.5 py-1 rounded-full font-medium">
                     {t} <FiX size={10} className="cursor-pointer" onClick={() => toggle(selectedTypes, setSelectedTypes, t)} />
@@ -319,9 +339,7 @@ export default function PropertyListPage() {
                     {a} <FiX size={10} className="cursor-pointer" onClick={() => toggle(selectedAmenities, setSelectedAmenities, a)} />
                   </span>
                 ))}
-                <button onClick={clearAll} className="ml-auto text-xs text-red-500 font-semibold hover:underline">
-                  Clear All
-                </button>
+                <button onClick={clearAll} className="ml-auto text-xs text-red-500 font-semibold hover:underline">Clear All</button>
               </div>
             )}
 
@@ -335,10 +353,7 @@ export default function PropertyListPage() {
             ) : (
               <div className="bg-white rounded-xl border border-gray-200 p-16 text-center">
                 <p className="text-gray-500 text-base mb-4">No properties found for your selection.</p>
-                <button
-                  onClick={clearAll}
-                  className="bg-[#7B2FFF] text-white px-6 py-2 rounded-lg text-sm font-semibold hover:bg-[#6a1fe0] transition"
-                >
+                <button onClick={clearAll} className="bg-[#7B2FFF] text-white px-6 py-2 rounded-lg text-sm font-semibold hover:bg-[#6a1fe0] transition">
                   Clear Filters
                 </button>
               </div>
@@ -346,6 +361,48 @@ export default function PropertyListPage() {
           </div>
         </div>
       </div>
+
+      {/* ── MOBILE FILTER MODAL ── */}
+      {showMobileFilter && (
+        <div className="fixed inset-0 z-[500] md:hidden flex flex-col bg-white">
+          {/* Header */}
+          <div className="flex items-center justify-between px-4 h-[56px] border-b border-gray-100 flex-shrink-0">
+            <span className="font-bold text-gray-900 text-base">Filters</span>
+            <button onClick={() => setShowMobileFilter(false)} className="bg-transparent border-none cursor-pointer text-gray-500 p-1">
+              <FiX size={22} />
+            </button>
+          </div>
+
+          {/* Scrollable filter content */}
+          <div className="flex-1 overflow-y-auto px-4">
+            <FilterPanel
+              selectedTypes={draftTypes} setSelectedTypes={setDraftTypes}
+              selectedBhk={draftBhk} setSelectedBhk={setDraftBhk}
+              selectedBudget={draftBudget} setSelectedBudget={setDraftBudget}
+              selectedStatus={draftStatus} setSelectedStatus={setDraftStatus}
+              selectedAmenities={draftAmenities} setSelectedAmenities={setDraftAmenities}
+              toggle={toggle}
+            />
+          </div>
+
+          {/* Footer — Clear + Apply */}
+          <div className="flex gap-3 px-4 py-4 border-t border-gray-100 flex-shrink-0">
+            <button
+              onClick={clearDraft}
+              className="flex-1 py-3 border-[1.5px] border-gray-300 text-gray-600 rounded-xl text-sm font-semibold bg-white"
+            >
+              Clear {draftFilterCount > 0 ? `(${draftFilterCount})` : ""}
+            </button>
+            <button
+              onClick={applyMobileFilter}
+              className="flex-1 py-3 bg-[#7B2FFF] text-white rounded-xl text-sm font-bold border-none cursor-pointer"
+            >
+              Apply Filters
+            </button>
+          </div>
+        </div>
+      )}
+
       <Footer />
     </>
   );

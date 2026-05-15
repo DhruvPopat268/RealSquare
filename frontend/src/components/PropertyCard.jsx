@@ -35,28 +35,27 @@ export default function PropertyCard({ property, showPostedAt = false }) {
   };
 
   const tagColors = {
-    "Ready to Move": "bg-green-100 text-green-700",
-    "New Launch": "bg-blue-100 text-blue-700",
-    "Premium": "bg-yellow-100 text-yellow-700",
+    "Ready to Move":      "bg-green-100 text-green-700",
+    "New Launch":         "bg-blue-100 text-blue-700",
+    "Premium":            "bg-yellow-100 text-yellow-700",
     "Under Construction": "bg-orange-100 text-orange-700",
   };
 
   return (
     <div
-      className="bg-white rounded-xl border border-gray-200 hover:shadow-lg transition-shadow cursor-pointer flex overflow-hidden"
+      className="bg-white rounded-xl border border-gray-200 hover:shadow-lg transition-shadow cursor-pointer overflow-hidden flex flex-col sm:flex-row"
       onClick={() => navigate(`/property/${id}`, { state: { from: location.pathname + location.search } })}
     >
-      {/* Left — Image */}
-      <div className="relative flex-shrink-0 w-[260px] h-[190px]">
+      {/* Image — full width on mobile, fixed width on desktop */}
+      <div className="relative w-full sm:w-[260px] sm:flex-shrink-0 h-[200px] sm:h-[190px]">
         <ImageSlider images={images} className="w-full h-full">
-          {/* Newly Added badge */}
           {showPostedAt && (
             <span className="absolute top-2 left-2 flex items-center gap-1 bg-green-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full z-10">
               ✦ Newly Added
             </span>
           )}
           {tag && !showPostedAt && (
-            <span className={`absolute top-2 left-2 text-[11px] font-700 px-2 py-0.5 rounded font-semibold z-10 ${tagColors[tag] || "bg-gray-100 text-gray-600"}`}>
+            <span className={`absolute top-2 left-2 text-[11px] px-2 py-0.5 rounded font-semibold z-10 ${tagColors[tag] || "bg-gray-100 text-gray-600"}`}>
               {tag}
             </span>
           )}
@@ -72,7 +71,7 @@ export default function PropertyCard({ property, showPostedAt = false }) {
         </ImageSlider>
       </div>
 
-      {/* Right — Details */}
+      {/* Details */}
       <div className="flex flex-col flex-1 p-4 min-w-0">
         <div className="flex items-start justify-between gap-2 mb-1">
           <div>
@@ -89,7 +88,7 @@ export default function PropertyCard({ property, showPostedAt = false }) {
           )}
         </div>
 
-        {/* Price row */}
+        {/* Price */}
         <div className="flex items-baseline gap-4 mt-2 mb-2">
           <span className="text-xl font-bold text-gray-900">{price}</span>
           {area && (
