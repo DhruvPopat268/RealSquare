@@ -1,0 +1,264 @@
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { FiArrowLeft, FiArrowRight, FiCheck } from "react-icons/fi";
+import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
+
+const PROFILE_TYPES = ["Owner", "Broker", "Developer/Builder", "Customer"];
+
+const STEPS = { MOBILE: "mobile", OTP: "otp", PROFILE_SETUP: "profile_setup", DONE: "done" };
+
+export default function LoginPage() {
+  const navigate = useNavigate();
+  const [step, setStep] = useState(STEPS.MOBILE);
+  const [mobile, setMobile] = useState("");
+  const [otp, setOtp] = useState(["", "", "", "", "", ""]);
+  const [isNewUser] = useState(true); // simulate new user after OTP
+  const [profile, setProfile] = useState({ type: "", name: "", mobile: "", email: "" });
+  const [errors, setErrors] = useState({});
+
+  // ── Step 1: Mobile ──────────────────────────────────────────────────────
+  const handleSendOtp = () => {
+    setErrors({});
+    setProfile((p) => ({ ...p, mobile }));
+    setStep(STEPS.OTP);
+  };
+
+  // ── Step 2: OTP ─────────────────────────────────────────────────────────
+  const handleOtpChange = (val, idx) => {
+    if (!/^\d?$/.test(val)) return;
+    const next = [...otp];
+    next[idx] = val;
+    setOtp(next);
+    if (val && idx < 5) document.getElementById(`otp-${idx + 1}`)?.focus();
+  };
+
+  const handleOtpKeyDown = (e, idx) => {
+    if (e.key === "Backspace" && !otp[idx] && idx > 0)
+      document.getElementById(`otp-${idx - 1}`)?.focus();
+  };
+
+  const handleVerifyOtp = () => {
+    setErrors({});
+    if (isNewUser) setStep(STEPS.PROFILE_SETUP);
+    else setStep(STEPS.DONE);
+  };
+
+  // ── Step 3: Profile Setup ───────────────────────────────────────────────
+  const handleProfileSubmit = () => {
+    const e = {};
+    if (!profile.type) e.type = "Select a profile type";
+    if (!profile.name.trim()) e.name = "Name is required";
+    if (!/^\d{10}$/.test(profile.mobile)) e.mobile = "Enter a valid 10-digit number";
+    if (profile.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(profile.email))
+      e.email = "Enter a valid email";
+    setErrors(e);
+    if (Object.keys(e).length === 0) setStep(STEPS.DONE);
+  };
+
+  return (
+    <>
+      <Navbar />
+      <div className="min-h-[calc(100vh-62px)] bg-[#f7f8fa] flex items-center justify-center px-4 py-12">
+        <div className="bg-white rounded-2xl shadow-[0_8px_40px_rgba(0,0,0,0.10)] w-full max-w-[420px] p-8">
+
+          {/* ── MOBILE STEP ── */}
+          {step === STEPS.MOBILE && (
+            <>
+              <div className="flex items-center gap-3 mb-6">
+                <button onClick={() => navigate(-1)} className="text-gray-400 hover:text-gray-600 bg-transparent border-none cursor-pointer p-0">
+                  <FiArrowLeft size={20} />
+                </button>
+                <div>
+                  <h2 className="text-xl font-extrabold text-[#1a1a2e]">Login / Sign Up</h2>
+                  <p className="text-sm text-gray-400 mt-0.5">Enter your mobile number to continue</p>
+                </div>
+              </div>
+
+              <div className="flex items-center border border-gray-200 rounded-xl overflow-hidden focus-within:border-[#7B2FFF] transition mb-1">
+                <span className="px-3 text-sm text-gray-500 border-r border-gray-200 py-3 bg-gray-50">+91</span>
+                <input
+                  type="tel"
+                  maxLength={10}
+                  placeholder="Mobile Number"
+                  value={mobile}
+                  onChange={(e) => setMobile(e.target.value.replace(/\D/, ""))}
+                  onKeyDown={(e) => e.key === "Enter" && handleSendOtp()}
+                  className="flex-1 px-3 py-3 text-sm outline-none"
+                />
+              </div>
+              {errors.mobile && <p className="text-xs text-red-500 mb-3">{errors.mobile}</p>}
+
+              <p className="text-xs text-gray-400 mb-5">
+                By continuing, you agree to our <span className="text-[#7B2FFF] cursor-pointer">Terms</span> &amp; <span className="text-[#7B2FFF] cursor-pointer">Privacy Policy</span>
+              </p>
+
+              <button
+                onClick={handleSendOtp}
+                className="w-full bg-[#7B2FFF] hover:bg-[#6320d4] text-white py-3 rounded-xl font-semibold text-sm transition flex items-center justify-center gap-2"
+              >
+                Send OTP <FiArrowRight size={15} />
+              </button>
+            </>
+          )}
+
+          {/* ── OTP STEP ── */}
+          {step === STEPS.OTP && (
+            <>
+              <button onClick={() => setStep(STEPS.MOBILE)} className="text-gray-400 hover:text-gray-600 bg-transparent border-none cursor-pointer p-0 mb-5 flex items-center gap-1.5 text-sm">
+                <FiArrowLeft size={16} /> Back
+              </button>
+
+              <h2 className="text-xl font-extrabold text-[#1a1a2e] mb-1">Verify OTP</h2>
+              <p className="text-sm text-gray-400 mb-6">
+                Sent to <span className="font-semibold text-[#1a1a2e]">+91 {mobile}</span>
+              </p>
+
+              <div className="flex gap-2 justify-between mb-2">
+                {otp.map((val, idx) => (
+                  <input
+                    key={idx}
+                    id={`otp-${idx}`}
+                    type="text"
+                    inputMode="numeric"
+                    maxLength={1}
+                    value={val}
+                    onChange={(e) => handleOtpChange(e.target.value, idx)}
+                    onKeyDown={(e) => handleOtpKeyDown(e, idx)}
+                    className="w-11 h-12 text-center text-lg font-bold border border-gray-200 rounded-xl outline-none focus:border-[#7B2FFF] transition"
+                  />
+                ))}
+              </div>
+              {errors.otp && <p className="text-xs text-red-500 mb-3">{errors.otp}</p>}
+
+              <p className="text-xs text-gray-400 mb-5">
+                Didn't receive?{" "}
+                <button className="text-[#7B2FFF] font-semibold bg-transparent border-none cursor-pointer p-0" onClick={() => setOtp(["", "", "", "", "", ""])}>
+                  Resend OTP
+                </button>
+              </p>
+
+              <button
+                onClick={handleVerifyOtp}
+                className="w-full bg-[#7B2FFF] hover:bg-[#6320d4] text-white py-3 rounded-xl font-semibold text-sm transition"
+              >
+                Verify &amp; Continue
+              </button>
+            </>
+          )}
+
+          {/* ── PROFILE SETUP STEP ── */}
+          {step === STEPS.PROFILE_SETUP && (
+            <>
+              <div className="flex items-center gap-2 bg-green-50 border border-green-200 rounded-xl px-4 py-3 mb-6">
+                <FiCheck size={16} className="text-green-500 flex-shrink-0" />
+                <p className="text-sm text-green-700 font-medium">You're new here! Set up your profile to get started.</p>
+              </div>
+
+              <h2 className="text-xl font-extrabold text-[#1a1a2e] mb-1">Profile Setup</h2>
+              <p className="text-sm text-gray-400 mb-6">Tell us a bit about yourself</p>
+
+              <div className="flex flex-col gap-4">
+                {/* Profile Type */}
+                <div>
+                  <label className="text-xs font-semibold text-gray-500 mb-1.5 block uppercase tracking-wide">I am a *</label>
+                  <div className="flex flex-wrap gap-2">
+                    {PROFILE_TYPES.map((type) => (
+                      <button
+                        key={type}
+                        onClick={() => setProfile((p) => ({ ...p, type }))}
+                        className={`px-3 py-1.5 rounded-full border text-sm font-medium transition ${
+                          profile.type === type
+                            ? "bg-[#7B2FFF] border-[#7B2FFF] text-white"
+                            : "border-gray-200 text-gray-500 bg-white hover:border-[#7B2FFF] hover:text-[#7B2FFF]"
+                        }`}
+                      >
+                        {type}
+                      </button>
+                    ))}
+                  </div>
+                  {errors.type && <p className="text-xs text-red-500 mt-1">{errors.type}</p>}
+                </div>
+
+                {/* Name */}
+                <div>
+                  <label className="text-xs font-semibold text-gray-500 mb-1.5 block uppercase tracking-wide">Full Name *</label>
+                  <input
+                    type="text"
+                    placeholder="Your full name"
+                    value={profile.name}
+                    onChange={(e) => setProfile((p) => ({ ...p, name: e.target.value }))}
+                    className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#7B2FFF] transition"
+                  />
+                  {errors.name && <p className="text-xs text-red-500 mt-1">{errors.name}</p>}
+                </div>
+
+                {/* Mobile */}
+                <div>
+                  <label className="text-xs font-semibold text-gray-500 mb-1.5 block uppercase tracking-wide">Mobile Number *</label>
+                  <div className="flex items-center border border-gray-200 rounded-xl overflow-hidden focus-within:border-[#7B2FFF] transition">
+                    <span className="px-3 text-sm text-gray-500 border-r border-gray-200 py-3 bg-gray-50">+91</span>
+                    <input
+                      type="tel"
+                      maxLength={10}
+                      placeholder="Mobile number"
+                      value={profile.mobile}
+                      onChange={(e) => setProfile((p) => ({ ...p, mobile: e.target.value.replace(/\D/, "") }))}
+                      className="flex-1 px-3 py-3 text-sm outline-none"
+                    />
+                  </div>
+                  {errors.mobile && <p className="text-xs text-red-500 mt-1">{errors.mobile}</p>}
+                </div>
+
+                {/* Email */}
+                <div>
+                  <label className="text-xs font-semibold text-gray-500 mb-1.5 block uppercase tracking-wide">Email <span className="normal-case text-gray-400">(optional)</span></label>
+                  <input
+                    type="email"
+                    placeholder="your@email.com"
+                    value={profile.email}
+                    onChange={(e) => setProfile((p) => ({ ...p, email: e.target.value }))}
+                    className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#7B2FFF] transition"
+                  />
+                  {errors.email && <p className="text-xs text-red-500 mt-1">{errors.email}</p>}
+                </div>
+              </div>
+
+              <button
+                onClick={handleProfileSubmit}
+                className="w-full mt-6 bg-[#7B2FFF] hover:bg-[#6320d4] text-white py-3 rounded-xl font-semibold text-sm transition"
+              >
+                Complete Setup
+              </button>
+            </>
+          )}
+
+          {/* ── DONE STEP ── */}
+          {step === STEPS.DONE && (
+            <div className="text-center py-4">
+              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <FiCheck size={32} className="text-green-500" />
+              </div>
+              <h2 className="text-xl font-extrabold text-[#1a1a2e] mb-2">
+                {isNewUser ? `Welcome, ${profile.name || "there"}! 🎉` : "Welcome back!"}
+              </h2>
+              <p className="text-sm text-gray-400 mb-6">
+                {isNewUser
+                  ? `Your profile is set up as a ${profile.type}. Start exploring RealSquare!`
+                  : "You're now logged in."}
+              </p>
+              <button
+                onClick={() => navigate("/")}
+                className="w-full bg-[#7B2FFF] hover:bg-[#6320d4] text-white py-3 rounded-xl font-semibold text-sm transition"
+              >
+                Go to Home
+              </button>
+            </div>
+          )}
+
+        </div>
+      </div>
+      <Footer />
+    </>
+  );
+}

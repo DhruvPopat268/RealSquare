@@ -90,13 +90,23 @@ const HIGH_DEMAND_PROJECTS = [
   },
 ];
 
-export default function HighDemandProjects() {
+export default function HighDemandProjects({ searchQuery }) {
   const navigate = useNavigate();
   const scrollRef = useRef(null);
+
+  const filtered = searchQuery
+    ? HIGH_DEMAND_PROJECTS.filter((p) => {
+        const q = searchQuery.toLowerCase();
+        const loc = p.location.toLowerCase();
+        return searchQuery.split(",").map((s) => s.trim().toLowerCase()).some((part) => loc.includes(part)) || loc.includes(q);
+      })
+    : HIGH_DEMAND_PROJECTS;
 
   const scroll = (dir) => {
     scrollRef.current?.scrollBy({ left: dir * 440, behavior: "smooth" });
   };
+
+  if (filtered.length === 0) return null;
 
   return (
     <section className="bg-white py-12 px-5">
@@ -130,7 +140,7 @@ export default function HighDemandProjects() {
           className="overflow-x-auto scrollbar-none"
         >
           <div className="grid grid-rows-2 grid-flow-col gap-3 w-max">
-            {HIGH_DEMAND_PROJECTS.map((project) => (
+            {filtered.map((project) => (
               <div
                 key={project.id}
                 onClick={() => navigate(`/property/${project.propertyId}`)}

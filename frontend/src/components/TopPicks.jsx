@@ -6,7 +6,7 @@ import ImageSlider from "./ImageSlider";
 
 const INTERVAL = 3000;
 
-export default function TopPicks() {
+export default function TopPicks({ searchQuery }) {
   const navigate = useNavigate();
   const [activeGroup, setActiveGroup] = useState(0);
   const [activeProject, setActiveProject] = useState(0);
@@ -15,8 +15,22 @@ export default function TopPicks() {
   const timerRef = useRef(null);
   const progressRef = useRef(null);
 
-  const group = topPickGroups[activeGroup];
-  const project = group.projects[activeProject];
+  const matchesCity = (location) => {
+    if (!searchQuery) return true;
+    const q = searchQuery.toLowerCase();
+    const loc = location.toLowerCase();
+    return searchQuery.split(",").map((s) => s.trim().toLowerCase()).some((part) => loc.includes(part)) || loc.includes(q);
+  };
+
+  const filteredGroups = searchQuery
+    ? topPickGroups.filter((g) => g.projects.some((p) => matchesCity(p.location)))
+    : topPickGroups;
+
+  const group = filteredGroups[activeGroup] ?? topPickGroups[activeGroup];
+  const filteredProjects = searchQuery
+    ? group.projects.filter((p) => matchesCity(p.location))
+    : group.projects;
+  const project = filteredProjects[activeProject] ?? filteredProjects[0];
 
   const startCycle = (currentGroup) => {
     clearInterval(timerRef.current);
@@ -27,7 +41,7 @@ export default function TopPicks() {
       setProgress(Math.min(((Date.now() - startTime) / INTERVAL) * 100, 100));
     }, 50);
     timerRef.current = setTimeout(() => {
-      const next = (currentGroup + 1) % topPickGroups.length;
+      const next = (currentGroup + 1) % filteredGroups.length;
       setActiveGroup(next);
       setActiveProject(0);
     }, INTERVAL);
@@ -48,6 +62,8 @@ export default function TopPicks() {
     }
   };
 
+  if (searchQuery && filteredGroups.length === 0) return null;
+
   return (
     <section className="bg-[#f7f8fa] pt-12 px-5">
       <div className="max-w-[1200px] mx-auto">
@@ -59,7 +75,7 @@ export default function TopPicks() {
             <p className="text-sm text-gray-400 mt-1">Explore top living options with us</p>
           </div>
           <div className="flex gap-2 flex-wrap">
-            {topPickGroups.map((g, i) => (
+            {filteredGroups.map((g, i) => (
               <button
                 key={g.id}
                 onClick={() => handleGroupChange(i)}

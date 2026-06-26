@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { FiChevronDown, FiMenu, FiX } from "react-icons/fi";
+import { FiChevronDown, FiMenu, FiX, FiUser } from "react-icons/fi";
 
 const PROJECT_ID_MAP = {
   "Anuar Towers": 1,
@@ -120,14 +120,14 @@ const menus = {
         heading: "Packages for",
         type: "cards",
         items: [
-          { title: "Developers", sub: "Launch or sell homes" },
-          { title: "Brokers", sub: "List and grow business" },
+          { title: "Developers/Builders", sub: "Launch or sell homes" },
+          { title: "Brokers/Agents", sub: "List and grow business" },
           { title: "Owners", sub: "Sell or rent easily" },
         ],
       },
     ],
   },
-  "Calculators": {
+  Calculators: {
     sections: [
       {
         heading: "Tools",
@@ -139,79 +139,179 @@ const menus = {
   "News & Guide": null,
 };
 
+function DropdownContent({ menuKey, sections, onItemClick }) {
+  const isNarrow = ["For Sellers", "Calculators"].includes(menuKey);
+  return (
+    <div
+      className={`absolute top-full left-1/2 -translate-x-1/2 bg-white rounded-xl shadow-[0_12px_48px_rgba(0,0,0,0.14)] z-[300] ${
+        isNarrow ? "min-w-[220px]" : "min-w-[900px]"
+      }`}
+    >
+      {/* caret */}
+      <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-white [clip-path:polygon(50%_0%,0%_100%,100%_100%)]" />
+      <div className="flex px-8 py-7 gap-0">
+        {sections.map((section, si) => (
+          <div
+            key={section.heading}
+            className={`flex-1 min-w-[180px] ${
+              si < sections.length - 1 ? "pr-6 border-r border-gray-100" : ""
+            } ${si > 0 ? "pl-6" : ""}`}
+          >
+            <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wide mb-3.5">
+              {section.heading}
+            </p>
+            {section.type === "links" && (
+              <ul className="list-none p-0 m-0 flex flex-col gap-2.5">
+                {section.items.map((item) => (
+                  <li key={item}>
+                    <button
+                      className="text-[14px] text-[#333] bg-transparent border-none cursor-pointer p-0 text-left hover:text-[#7B2FFF] transition-colors"
+                      onClick={() => onItemClick(menuKey, item)}
+                    >
+                      {item}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+            {section.type === "cards" && (
+              <ul className="list-none p-0 m-0 flex flex-col gap-3.5">
+                {section.items.map((item) => (
+                  <li key={item.title}>
+                    <button
+                      className="flex flex-col gap-0.5 bg-transparent border-none cursor-pointer p-0 text-left group"
+                      onClick={() => onItemClick(menuKey, item.title)}
+                    >
+                      <span className="text-[14px] font-semibold text-[#222] group-hover:text-[#7B2FFF] transition-colors">
+                        {item.title}
+                      </span>
+                      <span className="text-xs text-gray-400">{item.sub}</span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function NavItem({ label, menuData, onItemClick, onNavigate }) {
+  const [open, setOpen] = useState(false);
+  const wrapperRef = useRef(null);
+
+  const hasDropdown = menuData !== null;
+
+  // Close on outside click
+  useEffect(() => {
+    function handler(e) {
+      if (wrapperRef.current && !wrapperRef.current.contains(e.target)) {
+        setOpen(false);
+      }
+    }
+    if (open) document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [open]);
+
+  if (!hasDropdown) {
+    return (
+      <button
+        className="flex items-center gap-1 px-3 py-2 rounded-md border-none text-sm font-medium cursor-pointer whitespace-nowrap bg-transparent text-[#333] hover:bg-[#f3eeff] hover:text-[#7B2FFF] transition-colors duration-150"
+        onClick={() => onNavigate("/news")}
+      >
+        {label}
+      </button>
+    );
+  }
+
+  return (
+    <div
+      ref={wrapperRef}
+      className="relative overflow-visible"
+      onMouseEnter={() => setOpen(true)}
+      onMouseLeave={() => setOpen(false)}
+    >
+      <button
+        className={`flex items-center gap-1 px-3 py-2 rounded-md border-none text-sm font-medium cursor-pointer whitespace-nowrap transition-colors duration-150 ${
+          open ? "bg-[#f3eeff] text-[#7B2FFF]" : "bg-transparent text-[#333] hover:bg-[#f3eeff] hover:text-[#7B2FFF]"
+        }`}
+        onClick={() => setOpen((prev) => !prev)}
+      >
+        {label}
+        <FiChevronDown
+          size={13}
+          className={`opacity-60 transition-transform duration-200 ${open ? "rotate-180" : ""}`}
+        />
+      </button>
+
+      {open && (
+        <DropdownContent
+          menuKey={label}
+          sections={menuData.sections}
+          onItemClick={(menuKey, item) => {
+            setOpen(false);
+            onItemClick(menuKey, item);
+          }}
+        />
+      )}
+    </div>
+  );
+}
+
 export default function Navbar() {
-  const [activeMenu, setActiveMenu] = useState(null);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const navRef = useRef(null);
-  const closeTimer = useRef(null);
+  const [mobileActiveMenu, setMobileActiveMenu] = useState(null);
   const navigate = useNavigate();
 
   const handleItemClick = (menuLabel, item) => {
-    setActiveMenu(null);
+    setMobileOpen(false);
+    setMobileActiveMenu(null);
+
     if (menuLabel === "For Buyers") {
       const section = menus[menuLabel].sections.find((s) => s.items.includes(item));
       if (!section) return;
-      if (section.heading === "Top Metropolitans in India" || section.heading === "Top Emerging Cities in India") {
+      if (["Top Metropolitans in India", "Top Emerging Cities in India"].includes(section.heading)) {
         const city = item.replace("Properties for sale in ", "").trim();
         navigate(`/listings?listingType=BUY&city=${encodeURIComponent(city)}`);
       } else if (section.heading === "Top Projects in India") {
-        const propertyId = PROJECT_ID_MAP[item];
-        if (propertyId) navigate(`/property/${propertyId}`);
+        const id = PROJECT_ID_MAP[item];
+        if (id) navigate(`/property/${id}`);
       } else if (section.heading === "Top Developers in India") {
         const devId = DEVELOPER_ID_MAP[item];
-        if (devId) navigate(`/developer/${devId}`);
-        else navigate(`/listings?listingType=BUY`);
+        navigate(devId ? `/developer/${devId}` : `/listings?listingType=BUY`);
       }
     }
+
     if (menuLabel === "For Tenants") {
       const section = menus[menuLabel].sections.find((s) => s.items.includes(item));
       if (!section) return;
-      if (section.heading === "Top Metropolitans in India" || section.heading === "Top Emerging Cities in India") {
+      if (["Top Metropolitans in India", "Top Emerging Cities in India"].includes(section.heading)) {
         const city = item.replace("Flats for Rent in ", "").trim();
         navigate(`/listings?listingType=RENT&city=${encodeURIComponent(city)}`);
       } else if (section.heading === "Top Projects in India") {
-        const propertyId = PROJECT_ID_MAP[item];
-        if (propertyId) navigate(`/property/${propertyId}`);
+        const id = PROJECT_ID_MAP[item];
+        if (id) navigate(`/property/${id}`);
       }
     }
+
     if (menuLabel === "Calculators") {
       if (item === "EMI Calculator") navigate("/emi-calculator");
       if (item === "Property Value Calculator") navigate("/property-value-calculator");
     }
+
     if (menuLabel === "For Sellers") {
-      if (item === "Brokers") navigate("/broker");
-      if (item === "Developers") navigate("/developer-plans");
+      if (item === "Brokers/Agents") navigate("/broker");
+      if (item === "Developers/Builders") navigate("/developer-plans");
       if (item === "Owners") navigate("/owners");
     }
   };
 
-  const openMenu = (label) => {
-    clearTimeout(closeTimer.current);
-    setActiveMenu(label);
-  };
-
-  const closeMenu = () => {
-    closeTimer.current = setTimeout(() => setActiveMenu(null), 120);
-  };
-
-  useEffect(() => {
-    function handleClick(e) {
-      if (navRef.current && !navRef.current.contains(e.target)) setActiveMenu(null);
-    }
-    document.addEventListener("mousedown", handleClick);
-    return () => {
-      document.removeEventListener("mousedown", handleClick);
-      clearTimeout(closeTimer.current);
-    };
-  }, []);
-
   return (
     <>
-      <nav
-        ref={navRef}
-        className="sticky top-0 z-[200] bg-white shadow-[0_2px_8px_rgba(0,0,0,0.08)] flex items-center h-[62px] px-4 md:px-6"
-      >
-        {/* Logo — left on all screens */}
+      <nav className="sticky top-0 z-[200] bg-white shadow-[0_2px_8px_rgba(0,0,0,0.08)] flex items-center h-[62px] px-4 md:px-6 overflow-visible">
+        {/* Logo */}
         <div
           className="flex items-center gap-1.5 cursor-pointer z-10 ml-2 md:flex-1 md:pl-28"
           onClick={() => navigate("/")}
@@ -221,47 +321,41 @@ export default function Navbar() {
           </span>
         </div>
 
-        {/* Desktop center nav */}
-        <div className="hidden md:flex items-center justify-around absolute left-1/2 -translate-x-1/2 w-[650px]">
+        {/* Desktop nav — each item manages its own dropdown */}
+        <div className="hidden md:flex items-center justify-around absolute left-1/2 -translate-x-1/2 w-[650px] overflow-visible z-20">
           {Object.keys(menus).map((label) => (
-            <button
+            <NavItem
               key={label}
-              className={`flex items-center gap-1 px-3 py-2 rounded-md border-none text-sm font-medium cursor-pointer whitespace-nowrap transition-colors duration-150 ${
-                activeMenu === label
-                  ? "bg-[#f3eeff] text-[#7B2FFF]"
-                  : "bg-transparent text-[#333] hover:bg-[#f3eeff] hover:text-[#7B2FFF]"
-              }`}
-              onClick={() => {
-                if (label === "News & Guide") { navigate("/news"); return; }
-                setActiveMenu(activeMenu === label ? null : label);
-                if (label === "For Buyers") navigate("/buy");
-              }}
-              onMouseEnter={() => label !== "News & Guide" && openMenu(label)}
-              onMouseLeave={() => label !== "News & Guide" && closeMenu()}
-            >
-              {label}
-              {label !== "News & Guide" && (
-                <FiChevronDown
-                  size={13}
-                  className={`opacity-60 transition-transform duration-200 ${activeMenu === label ? "rotate-180" : ""}`}
-                />
-              )}
-            </button>
+              label={label}
+              menuData={menus[label]}
+              onItemClick={handleItemClick}
+              onNavigate={navigate}
+            />
           ))}
         </div>
 
         {/* Desktop right actions */}
         <div className="hidden md:flex items-center justify-end gap-9 z-10 flex-1">
+          <div className="flex items-center gap-1.5 bg-amber-50 border border-amber-200 rounded-full px-3 py-1.5">
+            <span className="text-base leading-none">🪙</span>
+            <span className="text-sm font-bold text-amber-500">1,250</span>
+          </div>
           <a href="#" className="text-[13px] font-medium text-[#444] no-underline whitespace-nowrap hover:text-[#7B2FFF] transition-colors">
             Download App
           </a>
-          <button className="flex items-center gap-1.5 border-none bg-transparent text-sm font-bold text-[#1a1a2e] cursor-pointer whitespace-nowrap hover:text-[#7B2FFF] transition-colors">
-            Post Property
+          <button
+            onClick={() => navigate("/list-property")}
+            className="flex items-center gap-1.5 border-none bg-transparent text-sm font-bold text-[#1a1a2e] cursor-pointer whitespace-nowrap hover:text-[#7B2FFF] transition-colors"
+          >
+            List Property
             <span className="bg-[#7B2FFF] text-white text-[10px] font-bold px-1.5 py-0.5 rounded tracking-wide">FREE</span>
           </button>
-          <button className="flex items-center gap-1.5 bg-[#7B2FFF] border-none rounded-full px-3 py-1.5 cursor-pointer text-white text-[15px]">
-            <span>☰</span>
-            <span>👤</span>
+          <button
+            onClick={() => navigate("/login")}
+            className="flex items-center gap-1.5 bg-[#7B2FFF] border-none rounded-full px-4 py-1.5 cursor-pointer text-white text-sm font-semibold hover:bg-[#6320d4] transition"
+          >
+            <FiUser size={15} />
+            Login
           </button>
         </div>
 
@@ -273,89 +367,23 @@ export default function Navbar() {
           </a>
           <button
             className="bg-transparent border-none cursor-pointer text-[#333] p-1"
-            onClick={() => setMobileOpen(!mobileOpen)}
+            onClick={() => setMobileOpen((prev) => !prev)}
           >
             {mobileOpen ? <FiX size={24} /> : <FiMenu size={24} />}
           </button>
         </div>
       </nav>
 
-      {/* Desktop mega dropdown */}
-      {activeMenu && menus[activeMenu] && (
-        <div
-          className={`fixed top-[62px] left-1/2 -translate-x-1/2 bg-white rounded-xl shadow-[0_12px_48px_rgba(0,0,0,0.14)] z-[300] w-max animate-fadeDown hidden md:block ${
-            ["For Sellers", "Calculators", "News & Guide"].includes(activeMenu)
-              ? "min-w-[220px] max-w-[280px]"
-              : "min-w-[900px] max-w-[1080px]"
-          }`}
-          onMouseEnter={() => openMenu(activeMenu)}
-          onMouseLeave={closeMenu}
-        >
-          <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-white [clip-path:polygon(50%_0%,0%_100%,100%_100%)]" />
-          <div className="flex gap-0 px-8 py-7">
-            {menus[activeMenu].sections.map((section, si) => (
-              <div
-                key={section.heading}
-                className={`flex-1 min-w-[180px] ${
-                  si < menus[activeMenu].sections.length - 1 ? "pr-6 border-r border-gray-100" : "pr-0"
-                } ${si > 0 ? "pl-6" : ""}`}
-              >
-                <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wide mb-3.5">{section.heading}</p>
-                {section.type === "links" && (
-                  <ul className="list-none p-0 m-0 flex flex-col gap-2.5">
-                    {section.items.map((item) => (
-                      <li key={item}>
-                        <a href="#" className="text-[14px] text-[#333] no-underline hover:text-[#7B2FFF] transition-colors"
-                          onClick={(e) => { e.preventDefault(); handleItemClick(activeMenu, item); }}>{item}</a>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-                {section.type === "icons" && (
-                  <ul className="list-none p-0 m-0 flex flex-col gap-2.5">
-                    {section.items.map((item) => (
-                      <li key={item}>
-                        <a href="#" className="flex items-center gap-2.5 text-[14px] font-medium text-[#333] no-underline hover:text-[#7B2FFF] transition-colors"
-                          onClick={(e) => { e.preventDefault(); handleItemClick(activeMenu, item); }}>
-                          <span className="w-[30px] h-[30px] bg-[#f5f3ff] border border-[#ede9fe] rounded-md flex items-center justify-center text-sm flex-shrink-0">⊞</span>
-                          {item}
-                        </a>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-                {section.type === "cards" && (
-                  <ul className="list-none p-0 m-0 flex flex-col gap-3.5">
-                    {section.items.map((item) => (
-                      <li key={item.title}>
-                        <a href="#" className="flex flex-col gap-0.5 no-underline group"
-                          onClick={(e) => { e.preventDefault(); handleItemClick(activeMenu, item.title); }}>
-                          <span className="text-[14px] font-semibold text-[#222] group-hover:text-[#7B2FFF] transition-colors">{item.title}</span>
-                          <span className="text-xs text-gray-400">{item.sub}</span>
-                        </a>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Mobile drawer — slides in from right */}
+      {/* Mobile drawer */}
       {mobileOpen && (
         <div
           className="fixed inset-0 z-[199] md:hidden"
-          onMouseDown={() => setMobileOpen(false)}
+          onClick={() => setMobileOpen(false)}
         >
-          {/* Backdrop */}
           <div className="absolute inset-0 bg-black/40" />
-
-          {/* Drawer panel */}
           <div
             className="absolute top-0 right-0 h-full w-[75vw] max-w-[300px] bg-white shadow-[-4px_0_24px_rgba(0,0,0,0.12)] flex flex-col"
-            onMouseDown={(e) => e.stopPropagation()}
+            onClick={(e) => e.stopPropagation()}
           >
             {/* Drawer header */}
             <div className="flex items-center justify-between px-5 h-[62px] border-b border-gray-100">
@@ -374,18 +402,14 @@ export default function Navbar() {
             <div className="flex flex-col flex-1 overflow-y-auto px-5 py-4 gap-1">
               {Object.keys(menus).map((label) => {
                 const hasMenu = menus[label] !== null;
-                const isOpen = activeMenu === label;
+                const isOpen = mobileActiveMenu === label;
                 return (
                   <div key={label}>
                     <button
                       className="w-full text-left text-[15px] font-medium text-[#333] bg-transparent border-none cursor-pointer py-3 px-2 rounded-lg hover:bg-[#f3eeff] hover:text-[#7B2FFF] transition-colors flex items-center justify-between"
                       onClick={() => {
-                        if (!hasMenu) {
-                          setMobileOpen(false);
-                          navigate("/news");
-                          return;
-                        }
-                        setActiveMenu(isOpen ? null : label);
+                        if (!hasMenu) { setMobileOpen(false); navigate("/news"); return; }
+                        setMobileActiveMenu(isOpen ? null : label);
                       }}
                     >
                       <span>{label}</span>
@@ -397,9 +421,8 @@ export default function Navbar() {
                       )}
                     </button>
 
-                    {/* Accordion sub-items */}
                     {hasMenu && isOpen && (
-                      <div className="ml-3 mb-2 flex flex-col gap-0">
+                      <div className="ml-3 mb-2 flex flex-col">
                         {menus[label].sections.map((section) => (
                           <div key={section.heading} className="mb-3">
                             <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wide px-2 mb-1.5">
@@ -407,16 +430,12 @@ export default function Navbar() {
                             </p>
                             {section.items.map((item) => {
                               const itemLabel = typeof item === "string" ? item : item.title;
-                              const itemSub   = typeof item === "object" ? item.sub : null;
+                              const itemSub = typeof item === "object" ? item.sub : null;
                               return (
                                 <button
                                   key={itemLabel}
                                   className="w-full text-left text-[13px] text-[#444] bg-transparent border-none cursor-pointer py-2 px-2 rounded-lg hover:bg-[#f3eeff] hover:text-[#7B2FFF] transition-colors"
-                                  onClick={() => {
-                                    setMobileOpen(false);
-                                    setActiveMenu(null);
-                                    handleItemClick(label, itemLabel);
-                                  }}
+                                  onClick={() => handleItemClick(label, itemLabel)}
                                 >
                                   {itemLabel}
                                   {itemSub && <span className="block text-[11px] text-gray-400">{itemSub}</span>}
@@ -434,8 +453,11 @@ export default function Navbar() {
 
             {/* Bottom CTA */}
             <div className="px-5 py-5 border-t border-gray-100">
-              <button className="w-full bg-[#7B2FFF] text-white border-none px-4 py-3 rounded-xl text-sm font-bold cursor-pointer">
-                Post Property FREE
+              <button
+                onClick={() => { setMobileOpen(false); navigate("/list-property"); }}
+                className="w-full bg-[#7B2FFF] text-white border-none px-4 py-3 rounded-xl text-sm font-bold cursor-pointer"
+              >
+                List Property FREE
               </button>
             </div>
           </div>

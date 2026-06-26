@@ -1,7 +1,7 @@
 import { useEffect, useRef, useCallback, useState } from "react";
 import { FiSearch } from "react-icons/fi";
 
-const tabs = ["BUY", "RENT", "COMMERCIAL", "PG/CO-LIVING", "PLOTS"];
+const tabs = ["BUY", "RENT", "PG/CO-LIVING"];
 const API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 
 const BUILDING_HEIGHTS = [22, 32, 26, 36, 20, 30];
@@ -17,20 +17,10 @@ const TAB_CONFIG = {
     gradient: "linear-gradient(135deg, #99f6e4, #2dd4bf, #0d9488)",
     overlay: "#0f766e",
   },
-  COMMERCIAL: {
-    image: "https://images.openai.com/static-rsc-4/R_cdKb6SgmIEAYa_bfnkcK5Nt-fY1n4KXWdZ_TBRiymoI2f_FIVqQwM5bEKdajIatnYbk1asXzr4s9EzzOn0uM7ZKT7X4ZFG2BNu6CZeALOwrYC5jgkDBf-3a5A9HRNeX3jA-ia1PsSVcfabl9IPUIAmmxYcLvKXN9bQ5hwYaVXatYZ__xPxzGsje9cS8V2O?purpose=fullsize",
-    gradient: "linear-gradient(135deg, #bae6fd, #38bdf8, #0ea5e9)",
-    overlay: "#0369a1",
-  },
   "PG/CO-LIVING": {
     image: "https://images.openai.com/static-rsc-4/GBreYPOJqR6c0KMcRile8uJDlCi9_tJ8Rvfu80KkulxT_t-opUxZUROHmQHEIWMxF6c3VPROZk6Ry023HEQ7l08jcyblBjZIV_JNojKooH9WNXQery0IVUSMbwPtVcpHvKbMoEqnibE-rPJDKEfh-LPKzRpx6byRA3XIDSU-inO2ssdle0dl-HWRV4_sGcAk?purpose=fullsize",
     gradient: "linear-gradient(135deg, #fce7f3, #f9a8d4, #ec4899)",
     overlay: "#be185d",
-  },
-  PLOTS: {
-    image: "https://images.openai.com/static-rsc-4/cgdF4PIqSn1ED2SYfN-6U099LhKJotcRXIeD6NvWaRx-xV9UPqdxa5w_nNrxWREi6AN9x-sXrSUdbs09in1OsgJydXo7XS2g75waEFbdeDBl6WcV_7gP0XHcHXZRUilD-W03a0oK0br153BLtlPF1eSam3JBLrNin4SyIai5eiO36wjoW6QqPl7o2JJiUAVg?purpose=fullsize",
-    gradient: "linear-gradient(135deg, #bbf7d0, #4ade80, #16a34a)",
-    overlay: "#15803d",
   },
 };
 

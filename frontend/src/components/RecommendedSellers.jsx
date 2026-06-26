@@ -3,11 +3,21 @@ import { FiPhone, FiChevronRight } from "react-icons/fi";
 import { sellersByTab } from "../data/sellers";
 import ContactFlow from "./ContactFlow";
 
-export default function RecommendedSellers({ activeTab }) {
+export default function RecommendedSellers({ activeTab, searchQuery }) {
   const [showContact, setShowContact] = useState(false);
   const scrollRef = useRef(null);
 
-  const sellers = sellersByTab[activeTab] ?? sellersByTab["BUY"];
+  const allSellers = sellersByTab[activeTab] ?? sellersByTab["BUY"];
+
+  const sellers = searchQuery
+    ? allSellers.filter((s) =>
+        s.areas.some((a) =>
+          searchQuery.split(",").map((p) => p.trim().toLowerCase()).some((part) => a.toLowerCase().includes(part))
+        )
+      )
+    : allSellers;
+
+  if (sellers.length === 0) return null;
 
   // pair sellers into columns of 2
   const pairs = [];

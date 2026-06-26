@@ -24,6 +24,8 @@ import NewsPage from "./pages/NewsPage";
 import OwnersPage from "./pages/OwnersPage";
 import EMICalculator from "./pages/EMICalculator";
 import PropertyValueCalculator from "./pages/PropertyValueCalculator";
+import LoginPage from "./pages/LoginPage";
+import ListPropertyPage from "./pages/ListPropertyPage";
 import PageSpinner from "./components/PageSpinner";
 import "./App.css";
 
@@ -34,11 +36,11 @@ function HomePage({ activeTab, setActiveTab, searchQuery, setSearchQuery, handle
       <Navbar />
       <Hero activeTab={activeTab} setActiveTab={setActiveTab} searchQuery={searchQuery} setSearchQuery={setSearchQuery} onSearch={handleSearch} />
       <StatsBar />
-      <TopPicks />
-      <HighDemandProjects />
+      <TopPicks searchQuery={searchQuery} />
+      <HighDemandProjects searchQuery={searchQuery} />
       <PropertyListings activeTab={activeTab} searchQuery={searchQuery} listingsRef={listingsRef} />
       <ExploreMoreSections />
-      <RecommendedSellers activeTab={activeTab} />
+      <RecommendedSellers activeTab={activeTab} searchQuery={searchQuery} />
       <NewlyAdded searchQuery={searchQuery} activeTab={activeTab} />
       <PropertyOwnerCTA activeTab={activeTab} />
       <ResearchInsights />
@@ -83,6 +85,8 @@ function App() {
       <Route path="/owners" element={<OwnersPage />} />
       <Route path="/emi-calculator" element={<EMICalculator />} />
       <Route path="/property-value-calculator" element={<PropertyValueCalculator />} />
+      <Route path="/login" element={<LoginPage />} />
+      <Route path="/list-property" element={<ListPropertyPage />} />
     </Routes>
   );
 }

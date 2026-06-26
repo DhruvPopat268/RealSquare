@@ -11,7 +11,8 @@ import PageSpinner from "../components/PageSpinner";
 const AD_PRODUCTS = [
   {
     name: "RealSquare's top picks",
-    image: "https://lh3.googleusercontent.com/d/1aZY4eSJyAP3kkxqDYfIbQpymFduDIhCX",
+    coins: 500,
+    image: "https://drive.google.com/thumbnail?id=1aZY4eSJyAP3kkxqDYfIbQpymFduDIhCX&sz=w1000",
     points: [
       "Most premium slot — featured in RealSquare's curated top picks",
       "Shown to high-intent buyers on homepage and listing pages",
@@ -21,7 +22,8 @@ const AD_PRODUCTS = [
   },
   {
     name: "Spotlight projects",
-    image: "https://lh3.googleusercontent.com/d/1Qk1mqKsYU9L8ofxAp7XWeLme0Wt5faXp",
+    coins: 350,
+    image: "https://drive.google.com/thumbnail?id=1Qk1mqKsYU9L8ofxAp7XWeLme0Wt5faXp&sz=w1000",
     points: [
       "Feature your project in the Spotlight section",
       "Large image-overlay cards with price and location",
@@ -31,7 +33,8 @@ const AD_PRODUCTS = [
   },
   {
     name: "Top builders",
-    image: "https://lh3.googleusercontent.com/d/1ZXmt3LICvzr4u6YIQ1SGR6NmTvzPFlMF",
+    coins: 280,
+    image: "https://drive.google.com/thumbnail?id=1ZXmt3LICvzr4u6YIQ1SGR6NmTvzPFlMF&sz=w1000",
     points: [
       "Get listed under Top Builders section on homepage",
       "Showcase multiple projects under your developer brand",
@@ -41,7 +44,8 @@ const AD_PRODUCTS = [
   },
   {
     name: "Projects by leading builders",
-    image: "https://lh3.googleusercontent.com/d/1FBMhhiRMS70O547T1XIQKJIyumFRXroq",
+    coins: 220,
+    image: "https://drive.google.com/thumbnail?id=1FBMhhiRMS70O547T1XIQKJIyumFRXroq&sz=w1000",
     points: [
       "Appear in the 'Projects by Leading Builders' horizontal strip",
       "Shown across homepage and search result pages",
@@ -51,7 +55,8 @@ const AD_PRODUCTS = [
   },
   {
     name: "Featured Projects to explore",
-    image: "https://lh3.googleusercontent.com/d/1W3X0WV1VvwdxYN1nM2gGHKHTegLCVP2W",
+    coins: 180,
+    image: "https://drive.google.com/thumbnail?id=1W3X0WV1VvwdxYN1nM2gGHKHTegLCVP2W&sz=w1000",
     points: [
       "Feature in the 'Featured Projects to Explore' section",
       "Large card format with image, price and developer name",
@@ -64,6 +69,7 @@ const AD_PRODUCTS = [
 const CONTENT_PRODUCTS = [
   {
     name: "Virtual Site Tour",
+    coins: 300,
     points: [
       "360° panoramic walkthrough of the project",
       "Works on mobile and desktop without any app",
@@ -73,6 +79,7 @@ const CONTENT_PRODUCTS = [
   },
   {
     name: "3D Project Render",
+    coins: 250,
     points: [
       "Photorealistic renders of towers and interiors",
       "Showcase amenities before construction completes",
@@ -82,6 +89,7 @@ const CONTENT_PRODUCTS = [
   },
   {
     name: "Interactive Floor Plan",
+    coins: 200,
     points: [
       "Clickable floor plan with room-level details",
       "Buyers can explore each unit configuration",
@@ -91,6 +99,7 @@ const CONTENT_PRODUCTS = [
   },
   {
     name: "Project Microsite",
+    coins: 400,
     points: [
       "Dedicated landing page for your project",
       "Includes gallery, amenities, location map and RERA",
@@ -103,6 +112,7 @@ const CONTENT_PRODUCTS = [
 const VIDEO_PRODUCTS = [
   {
     name: "Drone Aerial Video",
+    coins: 450,
     points: [
       "High-resolution aerial footage of the project site",
       "Showcases surrounding infrastructure and connectivity",
@@ -112,6 +122,7 @@ const VIDEO_PRODUCTS = [
   },
   {
     name: "Project Walkthrough",
+    coins: 380,
     points: [
       "Cinematic walkthrough of sample flat and amenities",
       "Professionally scripted and narrated",
@@ -121,6 +132,7 @@ const VIDEO_PRODUCTS = [
   },
   {
     name: "Short Reel",
+    coins: 150,
     points: [
       "60-second vertical video for Instagram & YouTube Shorts",
       "Highlights top 3 USPs of the project",
@@ -130,6 +142,7 @@ const VIDEO_PRODUCTS = [
   },
   {
     name: "Area Connectivity Video",
+    coins: 200,
     points: [
       "Documents key landmarks, roads and transit near the project",
       "Builds buyer confidence in location",
@@ -148,7 +161,7 @@ const STATS = [
 
 // ── Reusable Tab Section ──────────────────────────────────────────────────
 
-function TabSection({ title, subtitle, items, renderPreview, onInterested }) {
+function TabSection({ title, subtitle, items, renderPreview }) {
   const [active, setActive] = useState(0);
   const current = items[active];
 
@@ -178,6 +191,9 @@ function TabSection({ title, subtitle, items, renderPreview, onInterested }) {
               <span className={`text-xs font-semibold whitespace-nowrap ${active === i ? "text-[#7B2FFF]" : "text-gray-500"}`}>
                 {item.name}
               </span>
+              <span className="flex items-center gap-0.5 text-[11px] font-bold text-amber-500">
+                🪙 {item.coins}
+              </span>
             </button>
           ))}
         </div>
@@ -194,12 +210,19 @@ function TabSection({ title, subtitle, items, renderPreview, onInterested }) {
                 </li>
               ))}
             </ul>
-            <button
-              onClick={onInterested}
-              className="bg-[#7B2FFF] hover:bg-[#6320d4] text-white px-6 py-2.5 rounded-xl text-sm font-semibold transition"
-            >
-              I'm Interested
-            </button>
+            {/* Coin price + Unlock button */}
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2 bg-amber-50 border border-amber-200 rounded-xl px-4 py-2.5">
+                <span className="text-xl">🪙</span>
+                <div>
+                  <p className="text-[11px] text-amber-600 font-medium leading-none mb-0.5">Required Coins</p>
+                  <p className="text-lg font-extrabold text-amber-500 leading-none">{current.coins}</p>
+                </div>
+              </div>
+              <button className="bg-[#7B2FFF] hover:bg-[#6320d4] text-white px-6 py-2.5 rounded-xl text-sm font-semibold transition flex items-center gap-2">
+                🔓 Unlock Now
+              </button>
+            </div>
           </div>
 
           {/* Preview */}
@@ -342,7 +365,6 @@ export default function DeveloperPage() {
           title="Ad Products"
           subtitle="Best-in-industry placements to give your project maximum brand visibility"
           items={AD_PRODUCTS}
-          onInterested={() => setShowCallModal(true)}
           renderPreview={(item) => (
             <div className="rounded-2xl overflow-hidden border border-gray-200 shadow-sm">
               <img src={item.image} alt={item.name} className="w-full h-auto object-cover" />
@@ -357,7 +379,6 @@ export default function DeveloperPage() {
           title="Content Products"
           subtitle="Digitally rich content to showcase every aspect of your project"
           items={CONTENT_PRODUCTS}
-          onInterested={() => setShowCallModal(true)}
           renderPreview={() => (
             <div className="rounded-2xl bg-[#f0ebff] border border-[#e4d9ff] h-[260px] flex flex-col items-center justify-center gap-3 text-center px-8">
               <div className="w-14 h-14 bg-[#7B2FFF]/10 rounded-full flex items-center justify-center">
@@ -376,7 +397,6 @@ export default function DeveloperPage() {
           title="Video Offerings"
           subtitle="Engaging video content to bring all vital aspects of your project to life"
           items={VIDEO_PRODUCTS}
-          onInterested={() => setShowCallModal(true)}
           renderPreview={() => (
             <div className="rounded-2xl bg-gray-900 h-[260px] flex flex-col items-center justify-center gap-3 text-center px-8">
               <div className="w-14 h-14 bg-white/10 rounded-full flex items-center justify-center">
