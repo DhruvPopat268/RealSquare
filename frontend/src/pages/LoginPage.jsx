@@ -1,8 +1,10 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { FiArrowLeft, FiArrowRight, FiCheck } from "react-icons/fi";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+
+const BASE_URL = import.meta.env.VITE_API_URL;
 
 const PROFILE_TYPES = ["Owner", "Broker", "Developer/Builder", "Customer"];
 
@@ -10,18 +12,39 @@ const STEPS = { MOBILE: "mobile", OTP: "otp", PROFILE_SETUP: "profile_setup", DO
 
 export default function LoginPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [step, setStep] = useState(STEPS.MOBILE);
   const [mobile, setMobile] = useState("");
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
-  const [isNewUser] = useState(true); // simulate new user after OTP
+  const [isNewUser, setIsNewUser] = useState(false);
   const [profile, setProfile] = useState({ type: "", name: "", mobile: "", email: "" });
   const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
 
   // ── Step 1: Mobile ──────────────────────────────────────────────────────
-  const handleSendOtp = () => {
+  const handleSendOtp = async () => {
     setErrors({});
-    setProfile((p) => ({ ...p, mobile }));
-    setStep(STEPS.OTP);
+    if (!/^\d{10}$/.test(mobile)) {
+      setErrors({ mobile: "Enter a valid 10-digit number" });
+      return;
+    }
+    setLoading(true);
+    try {
+      const res = await fetch(`${BASE_URL}/api/system-users/send-otp`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ mobile }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Failed to send OTP");
+      setProfile((p) => ({ ...p, mobile }));
+      setStep(STEPS.OTP);
+    } catch (err) {
+      setErrors({ mobile: err.message });
+    } finally {
+      setLoading(false);
+    }
   };
 
   // ── Step 2: OTP ─────────────────────────────────────────────────────────
@@ -33,15 +56,51 @@ export default function LoginPage() {
     if (val && idx < 5) document.getElementById(`otp-${idx + 1}`)?.focus();
   };
 
+  const handleOtpPaste = (e) => {
+    e.preventDefault();
+    const digits = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 6);
+    if (!digits) return;
+    const next = ["", "", "", "", "", ""];
+    digits.split("").forEach((d, i) => { next[i] = d; });
+    setOtp(next);
+    document.getElementById(`otp-${Math.min(digits.length - 1, 5)}`)?.focus();
+  };
+
   const handleOtpKeyDown = (e, idx) => {
     if (e.key === "Backspace" && !otp[idx] && idx > 0)
       document.getElementById(`otp-${idx - 1}`)?.focus();
+    if (e.key === "Enter") handleVerifyOtp();
   };
 
-  const handleVerifyOtp = () => {
+  const handleVerifyOtp = async () => {
     setErrors({});
-    if (isNewUser) setStep(STEPS.PROFILE_SETUP);
-    else setStep(STEPS.DONE);
+    const otpValue = otp.join("");
+    if (otpValue.length < 6) {
+      setErrors({ otp: "Enter the complete 6-digit OTP" });
+      return;
+    }
+    setLoading(true);
+    try {
+      const res = await fetch(`${BASE_URL}/api/system-users/verify-otp`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ mobile, otp: otpValue }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Invalid OTP");
+      await fetch(`${BASE_URL}/api/system-users/me`, { credentials: "include" });
+      if (data.data.isNew) {
+        setIsNewUser(true);
+        setStep(STEPS.PROFILE_SETUP);
+      } else {
+        setStep(STEPS.DONE);
+      }
+    } catch (err) {
+      setErrors({ otp: err.message });
+    } finally {
+      setLoading(false);
+    }
   };
 
   // ── Step 3: Profile Setup ───────────────────────────────────────────────
@@ -95,9 +154,10 @@ export default function LoginPage() {
 
               <button
                 onClick={handleSendOtp}
-                className="w-full bg-[#7B2FFF] hover:bg-[#6320d4] text-white py-3 rounded-xl font-semibold text-sm transition flex items-center justify-center gap-2"
+                disabled={loading}
+                className="w-full bg-[#7B2FFF] hover:bg-[#6320d4] disabled:opacity-60 text-white py-3 rounded-xl font-semibold text-sm transition flex items-center justify-center gap-2"
               >
-                Send OTP <FiArrowRight size={15} />
+                {loading ? "Sending..." : <> Send OTP <FiArrowRight size={15} /> </>}
               </button>
             </>
           )}
@@ -125,7 +185,14 @@ export default function LoginPage() {
                     value={val}
                     onChange={(e) => handleOtpChange(e.target.value, idx)}
                     onKeyDown={(e) => handleOtpKeyDown(e, idx)}
-                    className="w-11 h-12 text-center text-lg font-bold border border-gray-200 rounded-xl outline-none focus:border-[#7B2FFF] transition"
+                    onPaste={handleOtpPaste}
+                    className={`w-11 h-12 text-center text-lg font-bold border-2 rounded-xl outline-none transition ${
+                        errors.otp
+                          ? "border-red-400"
+                          : val
+                          ? "border-[#7B2FFF]"
+                          : "border-gray-300"
+                      }`}
                   />
                 ))}
               </div>
@@ -140,9 +207,10 @@ export default function LoginPage() {
 
               <button
                 onClick={handleVerifyOtp}
-                className="w-full bg-[#7B2FFF] hover:bg-[#6320d4] text-white py-3 rounded-xl font-semibold text-sm transition"
+                disabled={loading}
+                className="w-full bg-[#7B2FFF] hover:bg-[#6320d4] disabled:opacity-60 text-white py-3 rounded-xl font-semibold text-sm transition"
               >
-                Verify &amp; Continue
+                {loading ? "Verifying..." : "Verify & Continue"}
               </button>
             </>
           )}
@@ -248,7 +316,11 @@ export default function LoginPage() {
                   : "You're now logged in."}
               </p>
               <button
-                onClick={() => navigate("/")}
+                onClick={() => {
+                  const params = new URLSearchParams(location.search);
+                  const returnTo = params.get("returnTo") || "/";
+                  navigate(returnTo, { replace: true });
+                }}
                 className="w-full bg-[#7B2FFF] hover:bg-[#6320d4] text-white py-3 rounded-xl font-semibold text-sm transition"
               >
                 Go to Home

@@ -1,6 +1,8 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { FiChevronDown, FiMenu, FiX, FiUser } from "react-icons/fi";
+import { FiChevronDown, FiMenu, FiX, FiUser, FiEye, FiHeart, FiPhone, FiEdit2 } from "react-icons/fi";
+import axios from "axios";
+import { properties } from "../data/properties";
 
 const PROJECT_ID_MAP = {
   "Anuar Towers": 1,
@@ -218,7 +220,7 @@ function NavItem({ label, menuData, onItemClick, onNavigate }) {
   if (!hasDropdown) {
     return (
       <button
-        className="flex items-center gap-1 px-3 py-2 rounded-md border-none text-sm font-medium cursor-pointer whitespace-nowrap bg-transparent text-[#333] hover:bg-[#f3eeff] hover:text-[#7B2FFF] transition-colors duration-150"
+        className="flex items-center gap-1 px-2 py-2 rounded-md border-none text-sm font-medium cursor-pointer whitespace-nowrap bg-transparent text-[#333] hover:bg-[#f3eeff] hover:text-[#7B2FFF] transition-colors duration-150"
         onClick={() => onNavigate("/news")}
       >
         {label}
@@ -234,7 +236,7 @@ function NavItem({ label, menuData, onItemClick, onNavigate }) {
       onMouseLeave={() => setOpen(false)}
     >
       <button
-        className={`flex items-center gap-1 px-3 py-2 rounded-md border-none text-sm font-medium cursor-pointer whitespace-nowrap transition-colors duration-150 ${
+        className={`flex items-center gap-1 px-2 py-2 rounded-md border-none text-sm font-medium cursor-pointer whitespace-nowrap transition-colors duration-150 ${
           open ? "bg-[#f3eeff] text-[#7B2FFF]" : "bg-transparent text-[#333] hover:bg-[#f3eeff] hover:text-[#7B2FFF]"
         }`}
         onClick={() => setOpen((prev) => !prev)}
@@ -263,7 +265,43 @@ function NavItem({ label, menuData, onItemClick, onNavigate }) {
 export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [mobileActiveMenu, setMobileActiveMenu] = useState(null);
+  const [user, setUser] = useState(null);
+  const [profileOpen, setProfileOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState("viewed");
+
+  const DUMMY_ACTIVITY = {
+    viewed: [properties[0], properties[1], properties[2]],
+    saved: [properties[1], properties[3]],
+    contacted: [properties[2], properties[0]],
+  };
+  const profileRef = useRef(null);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    axios
+      .get(`${import.meta.env.VITE_API_URL}/api/system-users/me`, { withCredentials: true })
+      .then(({ data }) => {
+        if (data.success) {
+          setUser(data.data);
+          localStorage.setItem("isAuthenticated", "true");
+        } else {
+          localStorage.removeItem("isAuthenticated");
+        }
+      })
+      .catch(() => localStorage.removeItem("isAuthenticated"));
+  }, []);
+
+  useEffect(() => {
+    function handler(e) {
+      if (profileRef.current && !profileRef.current.contains(e.target)) setProfileOpen(false);
+    }
+    if (profileOpen) document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [profileOpen]);
+
+  const profile = user?.ownerProfile;
+  const displayName = profile?.fullName || user?.mobile || "";
+  const initials = displayName ? displayName.charAt(0).toUpperCase() : "U";
 
   const handleItemClick = (menuLabel, item) => {
     setMobileOpen(false);
@@ -310,19 +348,19 @@ export default function Navbar() {
 
   return (
     <>
-      <nav className="sticky top-0 z-[200] bg-white shadow-[0_2px_8px_rgba(0,0,0,0.08)] flex items-center h-[62px] px-4 md:px-6 overflow-visible">
+      <nav className="sticky top-0 z-[200] bg-white shadow-[0_2px_8px_rgba(0,0,0,0.08)] flex items-center h-[62px] px-4 md:px-6 overflow-visible gap-4">
         {/* Logo */}
         <div
-          className="flex items-center gap-1.5 cursor-pointer z-10 ml-2 md:flex-1 md:pl-28"
+          className="flex items-center gap-1.5 cursor-pointer z-10 flex-shrink-0"
           onClick={() => navigate("/")}
         >
-          <span className="text-xl font-extrabold text-[#1a1a2e] tracking-tight">
+          <span className="text-base 2xl:text-xl font-extrabold text-[#1a1a2e] tracking-tight">
             Real<span className="text-[#7B2FFF]">Square</span>
           </span>
         </div>
 
-        {/* Desktop nav — each item manages its own dropdown */}
-        <div className="hidden md:flex items-center justify-around absolute left-1/2 -translate-x-1/2 w-[650px] overflow-visible z-20">
+        {/* Desktop nav */}
+        <div className="hidden md:flex items-center justify-center flex-1 gap-1 overflow-visible z-20">
           {Object.keys(menus).map((label) => (
             <NavItem
               key={label}
@@ -335,14 +373,7 @@ export default function Navbar() {
         </div>
 
         {/* Desktop right actions */}
-        <div className="hidden md:flex items-center justify-end gap-9 z-10 flex-1">
-          <div className="flex items-center gap-1.5 bg-amber-50 border border-amber-200 rounded-full px-3 py-1.5">
-            <span className="text-base leading-none">🪙</span>
-            <span className="text-sm font-bold text-amber-500">1,250</span>
-          </div>
-          <a href="#" className="text-[13px] font-medium text-[#444] no-underline whitespace-nowrap hover:text-[#7B2FFF] transition-colors">
-            Download App
-          </a>
+        <div className="hidden md:flex items-center justify-end gap-4 z-10 flex-shrink-0">
           <button
             onClick={() => navigate("/list-property")}
             className="flex items-center gap-1.5 border-none bg-transparent text-sm font-bold text-[#1a1a2e] cursor-pointer whitespace-nowrap hover:text-[#7B2FFF] transition-colors"
@@ -350,21 +381,128 @@ export default function Navbar() {
             List Property
             <span className="bg-[#7B2FFF] text-white text-[10px] font-bold px-1.5 py-0.5 rounded tracking-wide">FREE</span>
           </button>
-          <button
-            onClick={() => navigate("/login")}
-            className="flex items-center gap-1.5 bg-[#7B2FFF] border-none rounded-full px-4 py-1.5 cursor-pointer text-white text-sm font-semibold hover:bg-[#6320d4] transition"
-          >
-            <FiUser size={15} />
-            Login
-          </button>
+
+          {user ? (
+            <div ref={profileRef} className="relative">
+              <button
+                onClick={() => setProfileOpen((p) => !p)}
+                className="flex items-center gap-2 border-none bg-transparent cursor-pointer"
+              >
+                {profile?.profilePhoto ? (
+                  <img src={profile.profilePhoto} alt={displayName} className="w-8 h-8 rounded-full object-cover border-2 border-[#7B2FFF]" />
+                ) : (
+                  <div className="w-8 h-8 rounded-full bg-[#7B2FFF] flex items-center justify-center text-white text-sm font-bold">
+                    {initials}
+                  </div>
+                )}
+                <span className="text-sm font-semibold text-[#1a1a2e] max-w-[100px] truncate">{displayName}</span>
+                <FiChevronDown size={13} className={`opacity-60 transition-transform duration-200 ${profileOpen ? "rotate-180" : ""}`} />
+              </button>
+
+              {profileOpen && (
+                <div className="absolute top-full right-[-24px] mt-2 w-[340px] bg-white rounded-xl shadow-[0_12px_48px_rgba(0,0,0,0.14)] z-[300] p-4">
+                  <div className="flex items-center gap-3 mb-3 pb-3 border-b border-gray-100">
+                    {profile?.profilePhoto ? (
+                      <img src={profile.profilePhoto} alt={displayName} className="w-10 h-10 rounded-full object-cover flex-shrink-0" />
+                    ) : (
+                      <div className="w-10 h-10 rounded-full bg-[#7B2FFF] flex items-center justify-center text-white font-bold flex-shrink-0">
+                        {initials}
+                      </div>
+                    )}
+                    <div className="overflow-hidden flex-1">
+                      <p className="text-sm font-bold text-[#1a1a2e] truncate">{displayName}</p>
+                      <p className="text-xs text-gray-400 truncate">+91 {user.mobile}</p>
+                      {user.role && <p className="text-[11px] text-[#7B2FFF] font-semibold mt-0.5">{user.role.name}</p>}
+                      <div className="flex items-center gap-1 mt-1">
+                        <span className="text-sm leading-none">🪙</span>
+                        <span className="text-xs font-bold text-amber-500">1,250 coins</span>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => { setProfileOpen(false); navigate("/profile"); }}
+                      className="flex items-center gap-1 px-2 py-1 rounded-lg hover:bg-[#f5f0ff] text-[#7B2FFF] transition flex-shrink-0 text-xs font-semibold"
+                    >
+                      Edit
+                      <FiEdit2 size={12} />
+                    </button>
+                  </div>
+
+                  {/* Activity tabs */}
+
+                  {/* Activity tabs */}
+                  <div className="flex gap-2 mb-3">
+                    {[
+                      { key: "viewed", label: "Viewed", icon: <FiEye size={12} /> },
+                      { key: "saved", label: "Saved", icon: <FiHeart size={12} /> },
+                      { key: "contacted", label: "Contacted", icon: <FiPhone size={12} /> },
+                    ].map(({ key, label, icon }) => (
+                      <button
+                        key={key}
+                        onClick={() => setActiveTab(key)}
+                        className={`flex-1 flex flex-col items-center gap-0.5 py-2 rounded-xl border text-xs font-semibold transition ${
+                          activeTab === key
+                            ? "bg-[#7B2FFF] border-[#7B2FFF] text-white"
+                            : "border-gray-200 text-gray-500 hover:border-[#7B2FFF] hover:text-[#7B2FFF]"
+                        }`}
+                      >
+                        {icon}
+                        <span>{label}</span>
+                        <span className={`text-[11px] font-bold ${activeTab === key ? "text-white" : "text-[#7B2FFF]"}`}>
+                          {DUMMY_ACTIVITY[key].length}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Property list */}
+                  <div className="flex flex-col gap-2 mb-3 max-h-[220px] overflow-y-auto pr-0.5">
+                    {DUMMY_ACTIVITY[activeTab].map((p) => (
+                      <div
+                        key={p.id}
+                        onClick={() => { setProfileOpen(false); navigate(`/property/${p.id}`); }}
+                        className="flex gap-2.5 items-center p-2 rounded-xl border border-gray-100 hover:border-[#7B2FFF] hover:bg-[#f5f0ff] cursor-pointer transition"
+                      >
+                        <img src={p.image} alt={p.title} className="w-14 h-12 rounded-lg object-cover flex-shrink-0" />
+                        <div className="overflow-hidden">
+                          <p className="text-xs font-semibold text-[#1a1a2e] truncate">{p.title}</p>
+                          <p className="text-[11px] text-gray-400 truncate">{p.location}</p>
+                          <p className="text-[11px] font-bold text-[#7B2FFF]">{p.price}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="border-t border-gray-100 pt-2">
+                    <button
+                      onClick={() => {
+                        axios.post(`${import.meta.env.VITE_API_URL}/api/system-users/logout`, {}, { withCredentials: true })
+                          .finally(() => {
+                            setProfileOpen(false);
+                            localStorage.removeItem("isAuthenticated");
+                            setUser(null);
+                          });
+                      }}
+                      className="w-full text-left text-sm text-red-500 bg-transparent border-none cursor-pointer py-1.5 hover:text-red-600 transition-colors"
+                    >
+                      Logout
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          ) : (
+            <button
+              onClick={() => navigate("/login")}
+              className="flex items-center gap-1.5 bg-[#7B2FFF] border-none rounded-full px-4 py-1.5 cursor-pointer text-white text-sm font-semibold hover:bg-[#6320d4] transition"
+            >
+              <FiUser size={15} />
+              Login
+            </button>
+          )}
         </div>
 
-        {/* Mobile — Download App + hamburger */}
+        {/* Mobile — hamburger */}
         <div className="md:hidden ml-auto flex items-center gap-7 mr-2">
-          <a href="#" className="text-[13px] font-medium text-[#444] no-underline hover:text-[#7B2FFF] transition-colors whitespace-nowrap flex items-center gap-1">
-            Download App
-            <span className="bg-[#7B2FFF] text-white text-[10px] font-bold px-1.5 py-0.5 rounded tracking-wide">NEW</span>
-          </a>
           <button
             className="bg-transparent border-none cursor-pointer text-[#333] p-1"
             onClick={() => setMobileOpen((prev) => !prev)}
