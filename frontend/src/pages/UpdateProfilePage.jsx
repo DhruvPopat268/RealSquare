@@ -20,6 +20,20 @@ async function geocode(name) {
 
 const BASE_URL = import.meta.env.VITE_API_URL;
 
+const ROLE_IDS = {
+  customer: import.meta.env.VITE_CUSTOMER_ROLE_ID,
+  owner:    import.meta.env.VITE_OWNER_ROLE_ID,
+  broker:   import.meta.env.VITE_BROKER_ROLE_ID,
+  builder:  import.meta.env.VITE_BUILDER_ROLE_ID,
+};
+
+const ROLES = [
+  { key: "customer", label: "Customer",           icon: "🏠", desc: "Looking to buy or rent a property" },
+  { key: "owner",    label: "Owner",               icon: "🔑", desc: "I own properties and want to list them" },
+  { key: "broker",   label: "Broker / Agent",      icon: "🤝", desc: "I help clients buy, sell or rent" },
+  { key: "builder",  label: "Builder / Developer", icon: "🏗️", desc: "I develop and sell real estate projects" },
+];
+
 const OWNER_BUSINESS_TYPES = [
   { value: "private_owner", label: "Private Owner" },
   { value: "real_estate_investment_trust", label: "Real Estate Investment Trust" },
@@ -588,6 +602,7 @@ export default function UpdateProfilePage() {
   const navigate = useNavigate();
 
   const [role, setRole] = useState(null);
+  const [noRole, setNoRole] = useState(false);
   const [mobile, setMobile] = useState("");
   const [form, setForm] = useState({});
   const [errors, setErrors] = useState({});
@@ -601,9 +616,13 @@ export default function UpdateProfilePage() {
       .then((r) => r.json())
       .then(({ data }) => {
         const detectedRole = detectRole(data);
-        setRole(detectedRole);
         setMobile(data.mobile || "");
-        setForm(buildFormFromUser(data, detectedRole));
+        if (!data.role) {
+          setNoRole(true);
+        } else {
+          setRole(detectedRole);
+          setForm(buildFormFromUser(data, detectedRole));
+        }
       })
       .finally(() => setFetching(false));
   }, []);
@@ -625,6 +644,7 @@ export default function UpdateProfilePage() {
     try {
       const fd = new FormData();
 
+      if (noRole) fd.append("role", ROLE_IDS[role]);
       if (form.profilePhotoFile) fd.append("profilePhoto", form.profilePhotoFile);
 
       if (role === "customer") {
@@ -747,9 +767,30 @@ export default function UpdateProfilePage() {
           </div>
 
           {/* Role badge */}
-          {role && (
+          {role && !noRole && (
             <div className="inline-flex items-center gap-1.5 bg-[#f5f0ff] border border-[#e0d4ff] rounded-full px-3 py-1 mb-6">
               <span className="text-xs font-semibold text-[#7B2FFF] capitalize">{role}</span>
+            </div>
+          )}
+
+          {/* Role selection for users without a role */}
+          {noRole && (
+            <div className="mb-6">
+              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">I am a *</p>
+              <div className="grid grid-cols-2 gap-3">
+                {ROLES.map((r) => (
+                  <button key={r.key}
+                    onClick={() => { setRole(r.key); setForm(buildFormFromUser({}, r.key)); setErrors({}); }}
+                    className={`flex flex-col items-start gap-1 p-4 rounded-xl border-2 text-left transition cursor-pointer ${
+                      role === r.key ? "border-[#7B2FFF] bg-[#f5f0ff]" : "border-gray-200 bg-white hover:border-[#7B2FFF] hover:bg-[#faf8ff]"
+                    }`}
+                  >
+                    <span className="text-2xl">{r.icon}</span>
+                    <span className={`text-sm font-bold ${role === r.key ? "text-[#7B2FFF]" : "text-[#1a1a2e]"}`}>{r.label}</span>
+                    <span className="text-xs text-gray-400 leading-snug">{r.desc}</span>
+                  </button>
+                ))}
+              </div>
             </div>
           )}
 
