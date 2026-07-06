@@ -69,12 +69,11 @@ export default function PlacesAutocomplete({ value, onChange, placeholder, types
     clearTimeout(debounceRef.current);
     if (!val.trim()) { setSuggestions([]); setShowDropdown(false); setSearching(false); return; }
     setSearching(true);
-    debounceRef.current = setTimeout(() => fetchSuggestions(val), 400);
+    debounceRef.current = setTimeout(() => fetchSuggestions(val), 300);
   };
 
   const handleSelect = (description) => {
-    const name = description.split(",")[0].trim();
-    onChange(name);
+    onChange(description);
     setSuggestions([]);
     setShowDropdown(false);
   };

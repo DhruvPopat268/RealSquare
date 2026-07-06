@@ -1,23 +1,20 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { FiArrowLeft, FiArrowRight, FiCheck } from "react-icons/fi";
+import { FiArrowLeft, FiArrowRight } from "react-icons/fi";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 
 const BASE_URL = import.meta.env.VITE_API_URL;
 
-const PROFILE_TYPES = ["Owner", "Broker", "Developer/Builder", "Customer"];
-
-const STEPS = { MOBILE: "mobile", OTP: "otp", PROFILE_SETUP: "profile_setup", DONE: "done" };
+const STEPS = { MOBILE: "mobile", OTP: "otp" };
 
 export default function LoginPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const [step, setStep] = useState(STEPS.MOBILE);
+  const firstOtpRef = useRef();
   const [mobile, setMobile] = useState("");
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
-  const [isNewUser, setIsNewUser] = useState(false);
-  const [profile, setProfile] = useState({ type: "", name: "", mobile: "", email: "" });
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
 
@@ -38,8 +35,8 @@ export default function LoginPage() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Failed to send OTP");
-      setProfile((p) => ({ ...p, mobile }));
       setStep(STEPS.OTP);
+      setTimeout(() => firstOtpRef.current?.focus(), 50);
     } catch (err) {
       setErrors({ mobile: err.message });
     } finally {
@@ -91,28 +88,19 @@ export default function LoginPage() {
       if (!res.ok) throw new Error(data.message || "Invalid OTP");
       await fetch(`${BASE_URL}/api/system-users/me`, { credentials: "include" });
       if (data.data.isNew) {
-        setIsNewUser(true);
-        setStep(STEPS.PROFILE_SETUP);
+        const params = new URLSearchParams(location.search);
+        const returnTo = params.get("returnTo") || "/";
+        navigate(`/complete-profile?returnTo=${encodeURIComponent(returnTo)}`, { state: { mobile } });
       } else {
-        setStep(STEPS.DONE);
+        const params = new URLSearchParams(location.search);
+        const returnTo = params.get("returnTo") || "/";
+        navigate(returnTo, { replace: true });
       }
     } catch (err) {
       setErrors({ otp: err.message });
     } finally {
       setLoading(false);
     }
-  };
-
-  // ── Step 3: Profile Setup ───────────────────────────────────────────────
-  const handleProfileSubmit = () => {
-    const e = {};
-    if (!profile.type) e.type = "Select a profile type";
-    if (!profile.name.trim()) e.name = "Name is required";
-    if (!/^\d{10}$/.test(profile.mobile)) e.mobile = "Enter a valid 10-digit number";
-    if (profile.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(profile.email))
-      e.email = "Enter a valid email";
-    setErrors(e);
-    if (Object.keys(e).length === 0) setStep(STEPS.DONE);
   };
 
   return (
@@ -179,6 +167,7 @@ export default function LoginPage() {
                   <input
                     key={idx}
                     id={`otp-${idx}`}
+                    ref={idx === 0 ? firstOtpRef : null}
                     type="text"
                     inputMode="numeric"
                     maxLength={1}
@@ -215,118 +204,6 @@ export default function LoginPage() {
             </>
           )}
 
-          {/* ── PROFILE SETUP STEP ── */}
-          {step === STEPS.PROFILE_SETUP && (
-            <>
-              <div className="flex items-center gap-2 bg-green-50 border border-green-200 rounded-xl px-4 py-3 mb-6">
-                <FiCheck size={16} className="text-green-500 flex-shrink-0" />
-                <p className="text-sm text-green-700 font-medium">You're new here! Set up your profile to get started.</p>
-              </div>
-
-              <h2 className="text-xl font-extrabold text-[#1a1a2e] mb-1">Profile Setup</h2>
-              <p className="text-sm text-gray-400 mb-6">Tell us a bit about yourself</p>
-
-              <div className="flex flex-col gap-4">
-                {/* Profile Type */}
-                <div>
-                  <label className="text-xs font-semibold text-gray-500 mb-1.5 block uppercase tracking-wide">I am a *</label>
-                  <div className="flex flex-wrap gap-2">
-                    {PROFILE_TYPES.map((type) => (
-                      <button
-                        key={type}
-                        onClick={() => setProfile((p) => ({ ...p, type }))}
-                        className={`px-3 py-1.5 rounded-full border text-sm font-medium transition ${
-                          profile.type === type
-                            ? "bg-[#7B2FFF] border-[#7B2FFF] text-white"
-                            : "border-gray-200 text-gray-500 bg-white hover:border-[#7B2FFF] hover:text-[#7B2FFF]"
-                        }`}
-                      >
-                        {type}
-                      </button>
-                    ))}
-                  </div>
-                  {errors.type && <p className="text-xs text-red-500 mt-1">{errors.type}</p>}
-                </div>
-
-                {/* Name */}
-                <div>
-                  <label className="text-xs font-semibold text-gray-500 mb-1.5 block uppercase tracking-wide">Full Name *</label>
-                  <input
-                    type="text"
-                    placeholder="Your full name"
-                    value={profile.name}
-                    onChange={(e) => setProfile((p) => ({ ...p, name: e.target.value }))}
-                    className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#7B2FFF] transition"
-                  />
-                  {errors.name && <p className="text-xs text-red-500 mt-1">{errors.name}</p>}
-                </div>
-
-                {/* Mobile */}
-                <div>
-                  <label className="text-xs font-semibold text-gray-500 mb-1.5 block uppercase tracking-wide">Mobile Number *</label>
-                  <div className="flex items-center border border-gray-200 rounded-xl overflow-hidden focus-within:border-[#7B2FFF] transition">
-                    <span className="px-3 text-sm text-gray-500 border-r border-gray-200 py-3 bg-gray-50">+91</span>
-                    <input
-                      type="tel"
-                      maxLength={10}
-                      placeholder="Mobile number"
-                      value={profile.mobile}
-                      onChange={(e) => setProfile((p) => ({ ...p, mobile: e.target.value.replace(/\D/, "") }))}
-                      className="flex-1 px-3 py-3 text-sm outline-none"
-                    />
-                  </div>
-                  {errors.mobile && <p className="text-xs text-red-500 mt-1">{errors.mobile}</p>}
-                </div>
-
-                {/* Email */}
-                <div>
-                  <label className="text-xs font-semibold text-gray-500 mb-1.5 block uppercase tracking-wide">Email <span className="normal-case text-gray-400">(optional)</span></label>
-                  <input
-                    type="email"
-                    placeholder="your@email.com"
-                    value={profile.email}
-                    onChange={(e) => setProfile((p) => ({ ...p, email: e.target.value }))}
-                    className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#7B2FFF] transition"
-                  />
-                  {errors.email && <p className="text-xs text-red-500 mt-1">{errors.email}</p>}
-                </div>
-              </div>
-
-              <button
-                onClick={handleProfileSubmit}
-                className="w-full mt-6 bg-[#7B2FFF] hover:bg-[#6320d4] text-white py-3 rounded-xl font-semibold text-sm transition"
-              >
-                Complete Setup
-              </button>
-            </>
-          )}
-
-          {/* ── DONE STEP ── */}
-          {step === STEPS.DONE && (
-            <div className="text-center py-4">
-              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <FiCheck size={32} className="text-green-500" />
-              </div>
-              <h2 className="text-xl font-extrabold text-[#1a1a2e] mb-2">
-                {isNewUser ? `Welcome, ${profile.name || "there"}! 🎉` : "Welcome back!"}
-              </h2>
-              <p className="text-sm text-gray-400 mb-6">
-                {isNewUser
-                  ? `Your profile is set up as a ${profile.type}. Start exploring RealSquare!`
-                  : "You're now logged in."}
-              </p>
-              <button
-                onClick={() => {
-                  const params = new URLSearchParams(location.search);
-                  const returnTo = params.get("returnTo") || "/";
-                  navigate(returnTo, { replace: true });
-                }}
-                className="w-full bg-[#7B2FFF] hover:bg-[#6320d4] text-white py-3 rounded-xl font-semibold text-sm transition"
-              >
-                Go to Home
-              </button>
-            </div>
-          )}
 
         </div>
       </div>

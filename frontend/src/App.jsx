@@ -25,6 +25,8 @@ import OwnersPage from "./pages/OwnersPage";
 import EMICalculator from "./pages/EMICalculator";
 import PropertyValueCalculator from "./pages/PropertyValueCalculator";
 import LoginPage from "./pages/LoginPage";
+import CompleteProfilePage from "./pages/CompleteProfilePage";
+import UpdateProfilePage from "./pages/UpdateProfilePage";
 import ListPropertyPage from "./pages/ListPropertyPage";
 import PageSpinner from "./components/PageSpinner";
 import "./App.css";
@@ -86,6 +88,8 @@ function App() {
       <Route path="/emi-calculator" element={<EMICalculator />} />
       <Route path="/property-value-calculator" element={<PropertyValueCalculator />} />
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/complete-profile" element={<CompleteProfilePage />} />
+      <Route path="/profile" element={<UpdateProfilePage />} />
       <Route path="/list-property" element={<ListPropertyPage />} />
     </Routes>
   );

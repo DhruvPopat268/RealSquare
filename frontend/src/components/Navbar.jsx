@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { FiChevronDown, FiMenu, FiX, FiUser, FiEye, FiHeart, FiPhone, FiEdit2 } from "react-icons/fi";
+import { FiChevronDown, FiMenu, FiX, FiUser, FiEye, FiHeart, FiPhone, FiEdit2, FiRefreshCw, FiAlertTriangle } from "react-icons/fi";
 import axios from "axios";
 import { properties } from "../data/properties";
 
@@ -268,6 +268,8 @@ export default function Navbar() {
   const [user, setUser] = useState(null);
   const [profileOpen, setProfileOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("viewed");
+  const [showSwitchModal, setShowSwitchModal] = useState(false);
+  const [switchSelected, setSwitchSelected] = useState(null);
 
   const DUMMY_ACTIVITY = {
     viewed: [properties[0], properties[1], properties[2]],
@@ -299,9 +301,22 @@ export default function Navbar() {
     return () => document.removeEventListener("mousedown", handler);
   }, [profileOpen]);
 
-  const profile = user?.ownerProfile;
-  const displayName = profile?.fullName || user?.mobile || "";
-  const initials = displayName ? displayName.charAt(0).toUpperCase() : "U";
+  const profile = user?.customerProfile || user?.ownerProfile || user?.brokerProfile || user?.builderProfile;
+  const displayName = profile?.fullName || profile?.name || "";
+  const isIncomplete = !displayName;
+  const navLabel = displayName || user?.mobile || "";
+
+  const currentRole = user?.role?.name?.toLowerCase()?.includes("owner") ? "owner"
+    : user?.role?.name?.toLowerCase()?.includes("broker") || user?.role?.name?.toLowerCase()?.includes("agent") ? "broker"
+    : user?.role?.name?.toLowerCase()?.includes("builder") || user?.role?.name?.toLowerCase()?.includes("developer") ? "builder"
+    : "customer";
+
+  const SWITCH_ROLES = [
+    { key: "customer", label: "Customer",           icon: "🏠", desc: "Looking to buy or rent" },
+    { key: "owner",    label: "Owner",               icon: "🔑", desc: "I own properties" },
+    { key: "broker",   label: "Broker / Agent",      icon: "🤝", desc: "I help clients buy, sell or rent" },
+    { key: "builder",  label: "Builder / Developer", icon: "🏗️", desc: "I develop real estate projects" },
+  ];
 
   const handleItemClick = (menuLabel, item) => {
     setMobileOpen(false);
@@ -360,7 +375,7 @@ export default function Navbar() {
         </div>
 
         {/* Desktop nav */}
-        <div className="hidden md:flex items-center justify-center flex-1 gap-1 overflow-visible z-20">
+        <div className="hidden md:flex items-center justify-center absolute left-1/2 -translate-x-1/2 gap-1 overflow-visible z-20">
           {Object.keys(menus).map((label) => (
             <NavItem
               key={label}
@@ -373,7 +388,7 @@ export default function Navbar() {
         </div>
 
         {/* Desktop right actions */}
-        <div className="hidden md:flex items-center justify-end gap-4 z-10 flex-shrink-0">
+        <div className="hidden md:flex items-center justify-end gap-4 z-10 flex-shrink-0 ml-auto">
           <button
             onClick={() => navigate("/list-property")}
             className="flex items-center gap-1.5 border-none bg-transparent text-sm font-bold text-[#1a1a2e] cursor-pointer whitespace-nowrap hover:text-[#7B2FFF] transition-colors"
@@ -382,35 +397,115 @@ export default function Navbar() {
             <span className="bg-[#7B2FFF] text-white text-[10px] font-bold px-1.5 py-0.5 rounded tracking-wide">FREE</span>
           </button>
 
+          {/* Switch Role Modal */}
+          {showSwitchModal && (
+            <div className="fixed inset-0 z-[500] flex items-center justify-center px-4" onClick={() => { setShowSwitchModal(false); setSwitchSelected(null); }}>
+              <div className="absolute inset-0 bg-black/50" />
+              <div className="relative bg-white rounded-2xl shadow-[0_16px_60px_rgba(0,0,0,0.18)] w-full max-w-[420px] p-6" onClick={(e) => e.stopPropagation()}>
+                <button onClick={() => { setShowSwitchModal(false); setSwitchSelected(null); }} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 bg-transparent border-none cursor-pointer p-0">
+                  <FiX size={18} />
+                </button>
+                <div className="flex items-start gap-3 bg-red-50 border border-red-200 rounded-xl px-4 py-3 mb-5">
+                  <FiAlertTriangle size={16} className="text-red-500 flex-shrink-0 mt-0.5" />
+                  <p className="text-xs text-red-600 leading-relaxed">
+                    Switching your profile role will <span className="font-bold">permanently delete</span> your current <span className="font-semibold capitalize">{currentRole}</span> profile data. This action cannot be undone.
+                  </p>
+                </div>
+                <h3 className="text-base font-extrabold text-[#1a1a2e] mb-1">Switch Profile Role</h3>
+                <p className="text-xs text-gray-400 mb-4">Select the role you want to switch to. Your current profile data will be deleted and you'll set up a new profile.</p>
+                <div className="grid grid-cols-2 gap-2 mb-5">
+                  {SWITCH_ROLES.filter((r) => r.key !== currentRole).map((r) => (
+                    <button
+                      key={r.key}
+                      onClick={() => setSwitchSelected(r.key)}
+                      className={`flex flex-col items-start gap-1 p-3 rounded-xl border-2 text-left transition cursor-pointer ${
+                        switchSelected === r.key ? "border-[#7B2FFF] bg-[#f5f0ff]" : "border-gray-200 hover:border-[#7B2FFF] hover:bg-[#faf8ff]"
+                      }`}
+                    >
+                      <span className="text-xl">{r.icon}</span>
+                      <span className={`text-xs font-bold ${switchSelected === r.key ? "text-[#7B2FFF]" : "text-[#1a1a2e]"}`}>{r.label}</span>
+                      <span className="text-[11px] text-gray-400 leading-snug">{r.desc}</span>
+                    </button>
+                  ))}
+                </div>
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => { setShowSwitchModal(false); setSwitchSelected(null); }}
+                    className="flex-1 py-2.5 rounded-xl border border-gray-200 text-sm font-semibold text-gray-500 hover:border-gray-300 bg-transparent cursor-pointer transition"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={async () => {
+                      if (!switchSelected) return;
+                      await fetch(`${import.meta.env.VITE_API_URL}/api/system-users/delete-account`, {
+                        method: "DELETE",
+                        credentials: "include",
+                      });
+                      setShowSwitchModal(false);
+                      setProfileOpen(false);
+                      setSwitchSelected(null);
+                      navigate("/");
+                    }}
+                    disabled={!switchSelected}
+                    className="flex-1 py-2.5 rounded-xl bg-red-500 hover:bg-red-600 disabled:opacity-40 text-white text-sm font-semibold cursor-pointer transition border-none"
+                  >
+                    Delete & Switch
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
           {user ? (
             <div ref={profileRef} className="relative">
               <button
                 onClick={() => setProfileOpen((p) => !p)}
                 className="flex items-center gap-2 border-none bg-transparent cursor-pointer"
               >
-                {profile?.profilePhoto ? (
-                  <img src={profile.profilePhoto} alt={displayName} className="w-8 h-8 rounded-full object-cover border-2 border-[#7B2FFF]" />
-                ) : (
-                  <div className="w-8 h-8 rounded-full bg-[#7B2FFF] flex items-center justify-center text-white text-sm font-bold">
-                    {initials}
-                  </div>
-                )}
-                <span className="text-sm font-semibold text-[#1a1a2e] max-w-[100px] truncate">{displayName}</span>
+                <div className="relative flex-shrink-0">
+                  {profile?.profilePhoto ? (
+                    <img src={profile.profilePhoto} alt={navLabel} className="w-8 h-8 rounded-full object-cover border-2 border-[#7B2FFF]" />
+                  ) : (
+                    <div className="w-8 h-8 rounded-full bg-[#f3eeff] border-2 border-[#7B2FFF] flex items-center justify-center">
+                      <FiUser size={15} className="text-[#7B2FFF]" />
+                    </div>
+                  )}
+                  {isIncomplete && (
+                    <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-orange-400 border-2 border-white" />
+                  )}
+                </div>
+                <div className="flex flex-col items-start">
+                  <span className="text-sm font-semibold text-[#1a1a2e] max-w-[100px] truncate leading-tight">{navLabel}</span>
+                  {isIncomplete && (
+                    <span className="text-[10px] font-semibold text-orange-400 leading-tight">Incomplete</span>
+                  )}
+                </div>
                 <FiChevronDown size={13} className={`opacity-60 transition-transform duration-200 ${profileOpen ? "rotate-180" : ""}`} />
               </button>
 
               {profileOpen && (
                 <div className="absolute top-full right-[-24px] mt-2 w-[340px] bg-white rounded-xl shadow-[0_12px_48px_rgba(0,0,0,0.14)] z-[300] p-4">
                   <div className="flex items-center gap-3 mb-3 pb-3 border-b border-gray-100">
-                    {profile?.profilePhoto ? (
-                      <img src={profile.profilePhoto} alt={displayName} className="w-10 h-10 rounded-full object-cover flex-shrink-0" />
-                    ) : (
-                      <div className="w-10 h-10 rounded-full bg-[#7B2FFF] flex items-center justify-center text-white font-bold flex-shrink-0">
-                        {initials}
-                      </div>
-                    )}
+                    <div className="relative flex-shrink-0">
+                      {profile?.profilePhoto ? (
+                        <img src={profile.profilePhoto} alt={navLabel} className="w-10 h-10 rounded-full object-cover" />
+                      ) : (
+                        <div className="w-10 h-10 rounded-full bg-[#f3eeff] border-2 border-[#7B2FFF] flex items-center justify-center">
+                          <FiUser size={18} className="text-[#7B2FFF]" />
+                        </div>
+                      )}
+                      {isIncomplete && (
+                        <span className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-orange-400 border-2 border-white" />
+                      )}
+                    </div>
                     <div className="overflow-hidden flex-1">
-                      <p className="text-sm font-bold text-[#1a1a2e] truncate">{displayName}</p>
+                      <div className="flex items-center gap-2">
+                        <p className="text-sm font-bold text-[#1a1a2e] truncate">{navLabel}</p>
+                        {isIncomplete && (
+                          <span className="text-[10px] font-semibold text-white bg-orange-400 px-1.5 py-0.5 rounded-full flex-shrink-0">Incomplete</span>
+                        )}
+                      </div>
                       <p className="text-xs text-gray-400 truncate">+91 {user.mobile}</p>
                       {user.role && <p className="text-[11px] text-[#7B2FFF] font-semibold mt-0.5">{user.role.name}</p>}
                       <div className="flex items-center gap-1 mt-1">
@@ -424,6 +519,13 @@ export default function Navbar() {
                     >
                       Edit
                       <FiEdit2 size={12} />
+                    </button>
+                    <button
+                      onClick={() => { setShowSwitchModal(true); setSwitchSelected(null); }}
+                      className="flex items-center gap-1 px-2 py-1 rounded-lg hover:bg-[#fff0f0] text-red-400 hover:text-red-500 transition flex-shrink-0 text-xs font-semibold border border-red-200 hover:border-red-300"
+                    >
+                      <FiRefreshCw size={11} />
+                      Switch
                     </button>
                   </div>
 
@@ -480,6 +582,7 @@ export default function Navbar() {
                             setProfileOpen(false);
                             localStorage.removeItem("isAuthenticated");
                             setUser(null);
+                            navigate("/");
                           });
                       }}
                       className="w-full text-left text-sm text-red-500 bg-transparent border-none cursor-pointer py-1.5 hover:text-red-600 transition-colors"
