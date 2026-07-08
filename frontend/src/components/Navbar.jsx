@@ -508,10 +508,16 @@ export default function Navbar() {
                       </div>
                       <p className="text-xs text-gray-400 truncate">+91 {user.mobile}</p>
                       {user.role && <p className="text-[11px] text-[#7B2FFF] font-semibold mt-0.5">{user.role.name}</p>}
-                      <div className="flex items-center gap-1 mt-1">
+                      <div className="flex items-center gap-1.5 mt-1">
                         <span className="text-sm leading-none">🪙</span>
                         <span className="text-xs font-bold text-amber-500">1,250 coins</span>
                       </div>
+                      <button
+                        onClick={() => { setProfileOpen(false); navigate("/deposit-coins"); }}
+                        className="mt-1 text-[10px] font-semibold text-[#7B2FFF] bg-[#f5f0ff] border border-[#e0d4ff] rounded-full px-2.5 py-0.5 cursor-pointer hover:bg-[#ede5ff] transition w-fit"
+                      >
+                        + Deposit Coins
+                      </button>
                     </div>
                     <button
                       onClick={() => { setProfileOpen(false); navigate("/profile"); }}
