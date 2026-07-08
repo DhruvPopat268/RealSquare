@@ -44,11 +44,11 @@ export default function DepositCoinsPage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Failed to create order");
 
-      const { orderId, amount: orderAmount, currency, keyId } = data.data;
+      const { orderId, amount: orderAmount, currency } = data.data;
 
       await new Promise((resolve, reject) => {
         const rzp = new window.Razorpay({
-          key: keyId,
+          key: import.meta.env.VITE_RAZORPAY_KEY_ID,
           amount: orderAmount,
           currency: currency || "INR",
           order_id: orderId,
