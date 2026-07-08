@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FiArrowLeft, FiZap } from "react-icons/fi";
 import Navbar from "../components/Navbar";
@@ -35,7 +35,7 @@ export default function DepositCoinsPage() {
       const loaded = await loadRazorpay();
       if (!loaded) throw new Error("Failed to load payment gateway");
 
-      const res = await fetch(`${BASE_URL}/api/mixed/purchase-coins/order`, {
+      const res = await fetch(`${BASE_URL}/api/mixed/purchase-coins/create-order`, {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
@@ -44,30 +44,33 @@ export default function DepositCoinsPage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Failed to create order");
 
-      const { orderId, amount: orderAmount, currency } = data.data;
+      const { orderId, amount: orderAmount, currency, transactionId } = data.data;
 
-      await new Promise((resolve, reject) => {
-        const rzp = new window.Razorpay({
-          key: import.meta.env.VITE_RAZORPAY_KEY_ID,
-          amount: orderAmount,
-          currency: currency || "INR",
-          order_id: orderId,
-          name: "RealSquare",
-          description: `Purchase ${amount} coins`,
-          theme: { color: "#7B2FFF" },
-          handler: () => {
-            setSuccess(true);
-            resolve();
+      const rzp = new window.Razorpay({
+        key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+        amount: orderAmount,
+        currency: currency || "INR",
+        order_id: orderId,
+        name: "RealSquare",
+        description: `Purchase ${amount} coins`,
+        theme: { color: "#7B2FFF" },
+        handler: () => {
+          setSuccess(true);
+          setLoading(false);
+        },
+        modal: {
+          ondismiss: async () => {
+            await fetch(`${BASE_URL}/api/mixed/purchase-coins/cancel/${transactionId}`, {
+              method: "PATCH",
+              credentials: "include",
+            });
+            setLoading(false);
           },
-          modal: {
-            ondismiss: () => reject(new Error("Payment cancelled")),
-          },
-        });
-        rzp.open();
+        },
       });
+      rzp.open();
     } catch (err) {
-      if (err.message !== "Payment cancelled") setError(err.message);
-    } finally {
+      setError(err.message);
       setLoading(false);
     }
   };
