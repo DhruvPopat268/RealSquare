@@ -1,9 +1,10 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { FiArrowLeft, FiZap, FiArrowUpCircle, FiArrowDownCircle } from "react-icons/fi";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import CoinIcon from "../components/CoinIcon";
+import PageSpinner from "../components/PageSpinner";
 
 const BASE_URL = import.meta.env.VITE_API_URL;
 
@@ -40,17 +41,26 @@ export default function DepositCoinsPage() {
   const [selectedOffer, setSelectedOffer] = useState(null);
   const [wallet, setWallet] = useState(null);
   const [transactions, setTransactions] = useState([]);
+  const [txPage, setTxPage] = useState(1);
+  const [txHasMore, setTxHasMore] = useState(true);
+  const [txLoading, setTxLoading] = useState(false);
+  const [txInitialLoading, setTxInitialLoading] = useState(true);
+  const sentinelRef = useRef(null);
 
-  const fetchWalletData = useCallback(() => {
-    fetch(`${BASE_URL}/api/mixed/coins-transactions`, { credentials: "include" })
-      .then((r) => r.json())
-      .then((d) => {
-        if (d.success) {
-          setWallet(d.data.wallet);
-          setTransactions(d.data.transactions);
-        }
-      })
-      .catch(() => {});
+  const fetchWalletData = useCallback(async (pageNum) => {
+    setTxLoading(true);
+    try {
+      const res = await fetch(`${BASE_URL}/api/mixed/coins-transactions?page=${pageNum}&limit=10`, { credentials: "include" });
+      const d = await res.json();
+      if (d.success) {
+        setWallet(d.data.wallet);
+        setTransactions((prev) => pageNum === 1 ? d.data.transactions : [...prev, ...d.data.transactions]);
+        setTxHasMore(d.data.transactions.length === 10);
+      }
+    } finally {
+      setTxLoading(false);
+      setTxInitialLoading(false);
+    }
   }, []);
 
   useEffect(() => {
@@ -58,8 +68,23 @@ export default function DepositCoinsPage() {
       .then((r) => r.json())
       .then((d) => { if (d.success) setOffers(d.data); })
       .catch(() => {});
-    fetchWalletData();
+    fetchWalletData(1);
   }, [fetchWalletData]);
+
+  useEffect(() => {
+    if (!txHasMore || txLoading) return;
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) {
+        setTxPage((prev) => {
+          const next = prev + 1;
+          fetchWalletData(next);
+          return next;
+        });
+      }
+    }, { threshold: 1.0 });
+    if (sentinelRef.current) observer.observe(sentinelRef.current);
+    return () => observer.disconnect();
+  }, [txHasMore, txLoading, fetchWalletData]);
 
   const coinsCount = selectedOffer ? selectedOffer.coins : Number(coins) || 0;
   const amount = selectedOffer ? selectedOffer.amount : Number(coins) || 0;
@@ -90,7 +115,7 @@ export default function DepositCoinsPage() {
         amount: orderAmount, currency: currency || "INR", order_id: orderId,
         name: "RealSquare", description: `Purchase ${coinsCount} coins`,
         theme: { color: "#7B2FFF" },
-        handler: () => { setLoading(false); fetchWalletData(); setCoins(""); setSelectedOffer(null); },
+        handler: () => { setLoading(false); setTxPage(1); setTransactions([]); fetchWalletData(1); setCoins(""); setSelectedOffer(null); },
         modal: {
           ondismiss: async () => {
             await fetch(`${BASE_URL}/api/mixed/purchase-coins/cancel/${transactionId}`, {
@@ -109,6 +134,7 @@ export default function DepositCoinsPage() {
 
   return (
     <>
+      <PageSpinner />
       <Navbar />
       <div className="min-h-[calc(100vh-62px)] bg-[#f7f8fa] px-4 py-10">
         <div className="max-w-5xl mx-auto">
@@ -167,7 +193,11 @@ export default function DepositCoinsPage() {
             {/* Left — Transactions */}
             <div className="flex-1 bg-white rounded-2xl shadow-[0_2px_16px_rgba(0,0,0,0.07)] p-5">
               <p className="text-sm font-extrabold text-[#1a1a2e] mb-4">Transaction History</p>
-              {transactions.length === 0 ? (
+              {txInitialLoading ? (
+                <div className="flex flex-col gap-3">
+                  {[...Array(4)].map((_, i) => <div key={i} className="h-14 rounded-xl bg-gray-100 animate-pulse" />)}
+                </div>
+              ) : transactions.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-12 text-gray-300">
                   <CoinIcon size={40} />
                   <p className="text-sm mt-3">No transactions yet</p>
@@ -193,11 +223,19 @@ export default function DepositCoinsPage() {
                           <p className={`text-sm font-extrabold ${isCredit ? "text-green-500" : "text-red-400"}`}>
                             {isCredit ? "+" : "-"}{tx.coins.toLocaleString("en-IN")}
                           </p>
-
                         </div>
                       </div>
                     );
                   })}
+                  <div ref={sentinelRef} className="h-1" />
+                  {txLoading && !txInitialLoading && (
+                    <div className="flex flex-col gap-3 mt-2">
+                      {[...Array(3)].map((_, i) => <div key={i} className="h-14 rounded-xl bg-gray-100 animate-pulse" />)}
+                    </div>
+                  )}
+                  {!txHasMore && (
+                    <p className="text-center text-xs text-gray-400 py-3">No more transactions</p>
+                  )}
                 </div>
               )}
             </div>

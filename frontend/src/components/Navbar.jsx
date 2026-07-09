@@ -513,12 +513,6 @@ export default function Navbar() {
                         <CoinIcon size={16} />
                         <span className="text-xs font-bold text-amber-500">1,250 coins</span>
                       </div>
-                      <button
-                        onClick={() => { setProfileOpen(false); navigate("/deposit-coins"); }}
-                        className="mt-1 text-[10px] font-semibold text-[#7B2FFF] bg-[#f5f0ff] border border-[#e0d4ff] rounded-full px-2.5 py-0.5 cursor-pointer hover:bg-[#ede5ff] transition w-fit"
-                      >
-                        + Deposit Coins
-                      </button>
                     </div>
                     <button
                       onClick={() => { setProfileOpen(false); navigate("/profile"); }}
@@ -533,6 +527,20 @@ export default function Navbar() {
                     >
                       <FiRefreshCw size={11} />
                       Switch
+                    </button>
+                  </div>
+                  <div className="flex gap-2 mb-3 pb-3 border-b border-gray-100">
+                    <button
+                      onClick={() => { setProfileOpen(false); navigate("/deposit-coins"); }}
+                      className="flex-1 text-[10px] font-semibold text-gray-700 bg-white border border-gray-900 rounded-lg py-1.5 cursor-pointer hover:bg-gray-50 transition text-center"
+                    >
+                      + Deposit Coins
+                    </button>
+                    <button
+                      onClick={() => { setProfileOpen(false); navigate("/payment-transactions"); }}
+                      className="flex-1 text-[10px] font-semibold text-gray-700 bg-white border border-gray-900 rounded-lg py-1.5 cursor-pointer hover:bg-gray-50 transition text-center"
+                    >
+                      Transactions
                     </button>
                   </div>
 
