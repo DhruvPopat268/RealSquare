@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { FiCheck, FiPhone, FiArrowRight, FiX, FiStar } from "react-icons/fi";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import CoinIcon from "../components/CoinIcon";
 import PageSpinner from "../components/PageSpinner";
 
 
@@ -192,7 +193,7 @@ function TabSection({ title, subtitle, items, renderPreview }) {
                 {item.name}
               </span>
               <span className="flex items-center gap-0.5 text-[11px] font-bold text-amber-500">
-                🪙 {item.coins}
+                <CoinIcon size={13} /> {item.coins}
               </span>
             </button>
           ))}
@@ -213,7 +214,7 @@ function TabSection({ title, subtitle, items, renderPreview }) {
             {/* Coin price + Unlock button */}
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2 bg-amber-50 border border-amber-200 rounded-xl px-4 py-2.5">
-                <span className="text-xl">🪙</span>
+                <CoinIcon size={28} />
                 <div>
                   <p className="text-[11px] text-amber-600 font-medium leading-none mb-0.5">Required Coins</p>
                   <p className="text-lg font-extrabold text-amber-500 leading-none">{current.coins}</p>

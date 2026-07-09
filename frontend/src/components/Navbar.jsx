@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { FiChevronDown, FiMenu, FiX, FiUser, FiEye, FiHeart, FiPhone, FiEdit2, FiRefreshCw, FiAlertTriangle } from "react-icons/fi";
 import axios from "axios";
 import { properties } from "../data/properties";
+import CoinIcon from "./CoinIcon";
 
 const PROJECT_ID_MAP = {
   "Anuar Towers": 1,
@@ -509,7 +510,7 @@ export default function Navbar() {
                       <p className="text-xs text-gray-400 truncate">+91 {user.mobile}</p>
                       {user.role && <p className="text-[11px] text-[#7B2FFF] font-semibold mt-0.5">{user.role.name}</p>}
                       <div className="flex items-center gap-1.5 mt-1">
-                        <span className="text-sm leading-none">🪙</span>
+                        <CoinIcon size={16} />
                         <span className="text-xs font-bold text-amber-500">1,250 coins</span>
                       </div>
                       <button
