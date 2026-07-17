@@ -225,11 +225,11 @@ export default function PlansPage() {
                         <>
                           <div className="flex items-center gap-1">
                             <CoinIcon size={18} />
-                            <span className="text-2xl font-extrabold text-[#7B2FFF]">{plan.coins.toLocaleString("en-IN")}</span>
+                            <span className="text-2xl font-extrabold text-[#7B2FFF]">{(plan.coins ?? 0).toLocaleString("en-IN")}</span>
                             <span className="text-xs text-gray-400 self-end mb-1">coins</span>
                           </div>
                           <span className="text-xs text-gray-400">or</span>
-                          <span className="text-2xl font-extrabold text-[#1a1a2e]">₹{plan.amount.toLocaleString("en-IN")}</span>
+                          <span className="text-2xl font-extrabold text-[#1a1a2e]">₹{(plan.amount ?? 0).toLocaleString("en-IN")}</span>
                         </>
                       )}
                     </div>
@@ -274,7 +274,7 @@ export default function PlansPage() {
                           className="w-full py-2.5 rounded-xl text-sm font-semibold border-none cursor-pointer transition disabled:opacity-60 bg-[#7B2FFF] hover:bg-[#6320d4] text-white flex items-center justify-center gap-1.5"
                         >
                           <FiZap size={14} />
-                          {purchasing === `${plan._id}-online` ? "Processing..." : `Pay ₹${plan.amount.toLocaleString("en-IN")} Online`}
+                          {purchasing === `${plan._id}-online` ? "Processing..." : `Pay ₹${(plan.amount ?? 0).toLocaleString("en-IN")} Online`}
                         </button>
                       </div>
                     )}
@@ -300,7 +300,7 @@ export default function PlansPage() {
               <p className="text-sm text-gray-400">
                 You are about to purchase the <span className="font-bold text-[#1a1a2e]">{confirmPlan.name}</span> plan using
               </p>
-              <p className="text-2xl font-extrabold text-[#7B2FFF] mt-2">{confirmPlan.coins.toLocaleString("en-IN")} coins</p>
+              <p className="text-2xl font-extrabold text-[#7B2FFF] mt-2">{(confirmPlan.coins ?? 0).toLocaleString("en-IN")} coins</p>
               <p className="text-xs text-gray-400 mt-1">This will be deducted from your wallet balance.</p>
             </div>
             {error && <p className="text-xs text-red-500 text-center mb-3">{error}</p>}
