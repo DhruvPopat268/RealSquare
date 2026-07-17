@@ -30,6 +30,7 @@ import UpdateProfilePage from "./pages/UpdateProfilePage";
 import ListPropertyPage from "./pages/ListPropertyPage";
 import DepositCoinsPage from "./pages/DepositCoinsPage";
 import PaymentTransactionsPage from "./pages/PaymentTransactionsPage";
+import PlansPage from "./pages/PlansPage";
 import PageSpinner from "./components/PageSpinner";
 import "./App.css";
 
@@ -95,6 +96,7 @@ function App() {
       <Route path="/list-property" element={<ListPropertyPage />} />
       <Route path="/deposit-coins" element={<DepositCoinsPage />} />
       <Route path="/payment-transactions" element={<PaymentTransactionsPage />} />
+      <Route path="/plans" element={<PlansPage />} />
     </Routes>
   );
 }

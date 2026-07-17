@@ -287,6 +287,10 @@ export default function Navbar() {
         if (data.success) {
           setUser(data.data);
           localStorage.setItem("isAuthenticated", "true");
+          if (sessionStorage.getItem("openProfile") === "1") {
+            sessionStorage.removeItem("openProfile");
+            setProfileOpen(true);
+          }
         } else {
           localStorage.removeItem("isAuthenticated");
         }
@@ -511,7 +515,7 @@ export default function Navbar() {
                       {user.role && <p className="text-[11px] text-[#7B2FFF] font-semibold mt-0.5">{user.role.name}</p>}
                       <div className="flex items-center gap-1.5 mt-1">
                         <CoinIcon size={16} />
-                        <span className="text-xs font-bold text-amber-500">1,250 coins</span>
+                        <span className="text-xs font-bold text-amber-500">{(user.coinsBalance ?? 0).toLocaleString()} coins</span>
                       </div>
                     </div>
                     <button
@@ -528,6 +532,40 @@ export default function Navbar() {
                       <FiRefreshCw size={11} />
                       Switch
                     </button>
+                  </div>
+                  <div className="mb-3 pb-3 border-b border-gray-100">
+                  {user.activePlan ? (
+                    <div>
+                      <div className="flex items-center justify-between mb-1.5">
+                        <span className="text-[11px] font-bold text-gray-500 uppercase tracking-wide">Current Plan</span>
+                        <span className="text-[11px] font-bold text-[#7B2FFF] bg-[#f3eeff] px-2 py-0.5 rounded-full">{user.activePlan.name}</span>
+                      </div>
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-[11px] text-gray-400">Properties used</span>
+                        <span className="text-[11px] font-semibold text-[#1a1a2e]">{user.activePlan.propertiesUsed} / {user.activePlan.numberOfPropertiesGiven}</span>
+                      </div>
+                      <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden mb-1.5">
+                        <div
+                          className="h-full bg-[#7B2FFF] rounded-full transition-all"
+                          style={{ width: `${user.activePlan.numberOfPropertiesGiven > 0 ? Math.min((user.activePlan.propertiesUsed / user.activePlan.numberOfPropertiesGiven) * 100, 100) : 0}%` }}
+                        />
+                      </div>
+                      <p className="text-[10px] text-gray-400">Expires: {user.activePlan.expiryDate}</p>
+                    </div>
+                  ) : (
+                    <div>
+                      <span className="text-[11px] font-bold text-gray-500 uppercase tracking-wide">Current Plan</span>
+                      <div className="mt-1.5 flex flex-col items-center gap-2 border border-dashed border-gray-200 rounded-xl py-3 px-3">
+                        <p className="text-[11px] text-gray-400 text-center">No active plan found. Click below to purchase a plan.</p>
+                        <button
+                          onClick={() => { setProfileOpen(false); navigate("/plans"); }}
+                          className="text-[11px] font-semibold text-[#7B2FFF] bg-[#f3eeff] border-none rounded-lg px-3 py-1 cursor-pointer hover:bg-[#ebe4ff] transition"
+                        >
+                          Purchase Plan →
+                        </button>
+                      </div>
+                    </div>
+                  )}
                   </div>
                   <div className="flex gap-2 mb-3 pb-3 border-b border-gray-100">
                     <button
