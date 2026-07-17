@@ -223,13 +223,19 @@ export default function PlansPage() {
                         <span className="text-2xl font-extrabold text-green-500">Free</span>
                       ) : (
                         <>
-                          <div className="flex items-center gap-1">
-                            <CoinIcon size={18} />
-                            <span className="text-2xl font-extrabold text-[#7B2FFF]">{(plan.coins ?? 0).toLocaleString("en-IN")}</span>
-                            <span className="text-xs text-gray-400 self-end mb-1">coins</span>
-                          </div>
-                          <span className="text-xs text-gray-400">or</span>
-                          <span className="text-2xl font-extrabold text-[#1a1a2e]">₹{(plan.amount ?? 0).toLocaleString("en-IN")}</span>
+                          {plan.coins != null && (
+                            <div className="flex items-center gap-1">
+                              <CoinIcon size={18} />
+                              <span className="text-2xl font-extrabold text-[#7B2FFF]">{plan.coins.toLocaleString("en-IN")}</span>
+                              <span className="text-xs text-gray-400 self-end mb-1">coins</span>
+                            </div>
+                          )}
+                          {plan.coins != null && plan.amount != null && (
+                            <span className="text-xs text-gray-400">or</span>
+                          )}
+                          {plan.amount != null && (
+                            <span className="text-2xl font-extrabold text-[#1a1a2e]">₹{plan.amount.toLocaleString("en-IN")}</span>
+                          )}
                         </>
                       )}
                     </div>
@@ -260,22 +266,26 @@ export default function PlansPage() {
                       </button>
                     ) : (
                       <div className="flex flex-col gap-2">
-                        <button
-                          onClick={() => setConfirmPlan(plan)}
-                          disabled={!!purchasing}
-                          className="w-full py-2.5 rounded-xl text-sm font-semibold border-2 border-[#7B2FFF] text-[#7B2FFF] bg-white hover:bg-[#f3eeff] cursor-pointer transition disabled:opacity-60 flex items-center justify-center gap-1.5"
-                        >
-                          <CoinIcon size={15} />
-                          {purchasing === `${plan._id}-coins` ? "Processing..." : "Pay with Coins"}
-                        </button>
-                        <button
-                          onClick={() => handlePurchaseOnline(plan)}
-                          disabled={!!purchasing}
-                          className="w-full py-2.5 rounded-xl text-sm font-semibold border-none cursor-pointer transition disabled:opacity-60 bg-[#7B2FFF] hover:bg-[#6320d4] text-white flex items-center justify-center gap-1.5"
-                        >
-                          <FiZap size={14} />
-                          {purchasing === `${plan._id}-online` ? "Processing..." : `Pay ₹${(plan.amount ?? 0).toLocaleString("en-IN")} Online`}
-                        </button>
+                        {plan.coins != null && (
+                          <button
+                            onClick={() => setConfirmPlan(plan)}
+                            disabled={!!purchasing}
+                            className="w-full py-2.5 rounded-xl text-sm font-semibold border-2 border-[#7B2FFF] text-[#7B2FFF] bg-white hover:bg-[#f3eeff] cursor-pointer transition disabled:opacity-60 flex items-center justify-center gap-1.5"
+                          >
+                            <CoinIcon size={15} />
+                            {purchasing === `${plan._id}-coins` ? "Processing..." : "Pay with Coins"}
+                          </button>
+                        )}
+                        {plan.amount != null && (
+                          <button
+                            onClick={() => handlePurchaseOnline(plan)}
+                            disabled={!!purchasing}
+                            className="w-full py-2.5 rounded-xl text-sm font-semibold border-none cursor-pointer transition disabled:opacity-60 bg-[#7B2FFF] hover:bg-[#6320d4] text-white flex items-center justify-center gap-1.5"
+                          >
+                            <FiZap size={14} />
+                            {purchasing === `${plan._id}-online` ? "Processing..." : `Pay ₹${plan.amount.toLocaleString("en-IN")} Online`}
+                          </button>
+                        )}
                       </div>
                     )}
                   </div>
