@@ -33,17 +33,25 @@ export default function PlansPage() {
   useEffect(() => {
     fetch(`${BASE_URL}/api/system-users/me`, { credentials: "include" })
       .then((r) => r.json())
-      .then((d) => { setActivePlan(d.success ? (d.data.activePlan ?? null) : null); })
-      .catch(() => setActivePlan(null));
-
-    fetch(`${BASE_URL}/api/mixed/purchased-plans/active-plans`, { credentials: "include" })
+      .then((d) => {
+        const ap = d.success ? (d.data.activePlan ?? null) : null;
+        setActivePlan(ap);
+        const url = ap !== null
+          ? `${BASE_URL}/api/mixed/purchased-plans/active-plans?userWantToUpgrade=true`
+          : `${BASE_URL}/api/mixed/purchased-plans/active-plans`;
+        return fetch(url, { credentials: "include" });
+      })
       .then((r) => r.json())
       .then((d) => { if (d.success) setPlans(d.data); })
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
 
-  const filtered = plans.filter((p) => p.expiryType === activeTab);
+  const filtered = plans.filter((p) => {
+    if (p.expiryType !== activeTab) return false;
+    if (activePlan !== null && p.planType === "Free" && !p.currentPlan) return false;
+    return true;
+  });
 
   const handleFree = async (plan) => {
     setPurchasing(`${plan._id}-free`);
@@ -72,7 +80,10 @@ export default function PlansPage() {
     setPurchasing(`${plan._id}-coins`);
     setError("");
     try {
-      const res = await fetch(`${BASE_URL}/api/mixed/purchased-plans/purchase`, {
+      const endpoint = activePlan !== null
+        ? `${BASE_URL}/api/mixed/purchased-plans/change-plan`
+        : `${BASE_URL}/api/mixed/purchased-plans/purchase`;
+      const res = await fetch(endpoint, {
         method: "POST", credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ planId: plan._id }),
@@ -99,7 +110,10 @@ export default function PlansPage() {
       const loaded = await loadRazorpay();
       if (!loaded) throw new Error("Failed to load payment gateway");
 
-      const res = await fetch(`${BASE_URL}/api/mixed/purchased-plans/create-order`, {
+      const orderEndpoint = activePlan !== null
+        ? `${BASE_URL}/api/mixed/purchased-plans/change-plan-order`
+        : `${BASE_URL}/api/mixed/purchased-plans/create-order`;
+      const res = await fetch(orderEndpoint, {
         method: "POST", credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ planId: plan._id }),
@@ -147,15 +161,32 @@ export default function PlansPage() {
               <FiArrowLeft size={20} />
             </button>
             <div>
-              <h2 className="text-xl font-extrabold text-[#1a1a2e]">Choose a Plan</h2>
-              <p className="text-sm text-gray-400 mt-0.5">Select the plan that fits your needs</p>
+              <h2 className="text-xl font-extrabold text-[#1a1a2e]">{activePlan !== null ? "Change Plan" : "Choose a Plan"}</h2>
+              <p className="text-sm text-gray-400 mt-0.5">{activePlan !== null ? "Switch to a different plan" : "Select the plan that fits your needs"}</p>
             </div>
           </div>
 
           {error && <p className="text-xs text-red-500 mb-4 mt-2">{error}</p>}
 
+          {/* Upgrade notice */}
+          {!loading && activePlan !== null && (
+            <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3 mt-4 mb-2">
+              <p className="text-[11px] font-bold text-red-500 uppercase tracking-wide mb-2">⚠️ Keep in mind</p>
+              <ul className="flex flex-col gap-1.5 list-none p-0 m-0">
+                <li className="flex items-start gap-2 text-xs text-red-600">
+                  <span className="mt-0.5 flex-shrink-0">1.</span>
+                  If you change your plan, your current active plan will be completely removed — no benefits, unused listings, or leads will be carried forward.
+                </li>
+                <li className="flex items-start gap-2 text-xs text-red-600">
+                  <span className="mt-0.5 flex-shrink-0">2.</span>
+                  You can change your plan using coins from your wallet or via online payment.
+                </li>
+              </ul>
+            </div>
+          )}
+
           {/* Tabs */}
-          {!loading && activePlan === null && (
+          {!loading && (
             <div className="flex justify-center gap-2 mb-8 mt-6">
               {EXPIRY_TABS.map((tab) => (
                 <button
@@ -180,20 +211,6 @@ export default function PlansPage() {
                 <div key={i} className="h-72 rounded-2xl bg-gray-100 animate-pulse" />
               ))}
             </div>
-          ) : activePlan !== null ? (
-            <div className="flex flex-col items-center justify-center py-20 gap-3">
-              <div className="w-14 h-14 rounded-full bg-[#f3eeff] flex items-center justify-center">
-                <FiCheck size={28} className="text-[#7B2FFF]" />
-              </div>
-              <p className="text-base font-extrabold text-[#1a1a2e]">You already have an active plan</p>
-              <p className="text-sm text-gray-400">Your <span className="font-semibold text-[#7B2FFF]">{activePlan.name}</span> plan is active until {activePlan.expiryDate}.</p>
-              <button
-                onClick={() => navigate(-1)}
-                className="mt-2 px-5 py-2 rounded-full bg-[#7B2FFF] text-white text-sm font-semibold border-none cursor-pointer hover:bg-[#6320d4] transition"
-              >
-                Go Back
-              </button>
-            </div>
           ) : filtered.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-20 text-gray-300">
               <FiZap size={40} />
@@ -203,11 +220,21 @@ export default function PlansPage() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
               {filtered.map((plan) => {
                 const isFree = plan.planType === "Free";
+                const isCurrent = plan.currentPlan === true;
                 return (
-                  <div
-                    key={plan._id}
-                    className="bg-white rounded-2xl shadow-[0_2px_16px_rgba(0,0,0,0.07)] p-6 flex flex-col relative overflow-hidden"
-                  >
+                  <div key={plan._id} className="relative">
+                    {isCurrent && (
+                      <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10">
+                        <span className="bg-[#1a1a2e] text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wide whitespace-nowrap">
+                          Current Plan
+                        </span>
+                      </div>
+                    )}
+                    <div
+                      className={`bg-white rounded-2xl shadow-[0_2px_16px_rgba(0,0,0,0.07)] p-6 flex flex-col relative overflow-hidden h-full ${
+                        isCurrent ? "border-2 border-[#1a1a2e]" : ""
+                      }`}
+                    >
                     {isFree && (
                       <span className="absolute top-4 right-4 bg-green-100 text-green-600 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide">
                         Free
@@ -257,14 +284,16 @@ export default function PlansPage() {
                     </ul>
 
                     {isFree ? (
-                      <button
-                        onClick={() => handleFree(plan)}
-                        disabled={purchasing === `${plan._id}-free`}
-                        className="w-full py-2.5 rounded-xl text-sm font-semibold border-none cursor-pointer transition disabled:opacity-60 bg-green-500 hover:bg-green-600 text-white"
-                      >
-                        {purchasing === `${plan._id}-free` ? "Activating..." : "Activate Free Plan"}
-                      </button>
-                    ) : (
+                      !isCurrent && (
+                        <button
+                          onClick={() => handleFree(plan)}
+                          disabled={purchasing === `${plan._id}-free`}
+                          className="w-full py-2.5 rounded-xl text-sm font-semibold border-none cursor-pointer transition disabled:opacity-60 bg-green-500 hover:bg-green-600 text-white"
+                        >
+                          {purchasing === `${plan._id}-free` ? "Activating..." : "Activate Free Plan"}
+                        </button>
+                      )
+                    ) : isCurrent ? null : (
                       <div className="flex flex-col gap-2">
                         {plan.coins != null && (
                           <button
@@ -288,6 +317,7 @@ export default function PlansPage() {
                         )}
                       </div>
                     )}
+                    </div>
                   </div>
                 );
               })}

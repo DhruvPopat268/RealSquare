@@ -520,7 +520,7 @@ export default function Navbar() {
                     </div>
                     <button
                       onClick={() => { setProfileOpen(false); navigate("/profile"); }}
-                      className="flex items-center gap-1 px-2 py-1 rounded-lg hover:bg-[#f5f0ff] text-[#7B2FFF] transition flex-shrink-0 text-xs font-semibold"
+                      className="flex items-center gap-1 px-2 py-1 rounded-lg hover:bg-gray-100 text-[#1a1a2e] transition flex-shrink-0 text-xs font-semibold"
                     >
                       Edit
                       <FiEdit2 size={12} />
@@ -537,8 +537,16 @@ export default function Navbar() {
                   {user.activePlan ? (
                     <div>
                       <div className="flex items-center justify-between mb-1.5">
-                        <span className="text-[11px] font-bold text-gray-500 uppercase tracking-wide">Current Plan</span>
-                        <span className="text-[11px] font-bold text-[#7B2FFF] bg-[#f3eeff] px-2 py-0.5 rounded-full">{user.activePlan.name}</span>
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-[11px] font-bold text-gray-500 uppercase tracking-wide">Current Plan</span>
+                          <span className="text-[11px] font-bold text-[#7B2FFF] bg-[#f3eeff] px-2 py-0.5 rounded-full">{user.activePlan.name}</span>
+                        </div>
+                        <button
+                          onClick={() => { setProfileOpen(false); navigate("/plans"); }}
+                          className="text-[10px] font-bold text-white bg-amber-400 border-none rounded-lg px-2 py-1 cursor-pointer hover:bg-amber-500 transition"
+                        >
+                          Change Plan
+                        </button>
                       </div>
                       <div className="flex items-center justify-between mb-1">
                         <span className="text-[11px] text-gray-400">Properties used</span>
