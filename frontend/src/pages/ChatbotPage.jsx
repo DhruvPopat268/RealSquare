@@ -7,6 +7,8 @@ import { useChatbot } from "../chatbot/useChatbot";
 import { propertyListingFlow } from "../chatbot/PropertyListingFlow";
 import ChatbotPlacesInput from "../chatbot/ChatbotPlacesInput";
 import ChatbotMultiSelect from "../chatbot/ChatbotMultiSelect";
+import ChatbotNumberInput from "../chatbot/ChatbotNumberInput";
+import ChatbotDateInput from "../chatbot/ChatbotDateInput";
 
 function BotAvatar() {
   return (
@@ -89,6 +91,8 @@ export default function ChatbotPage() {
     requestAnimationFrame(() => { el.scrollTop = el.scrollHeight; });
   }, [messages, isTyping, quickReplies, customInput]);
 
+  const inputRef = useRef(null);
+
   const canSend = awaitingInput && input.trim().length > 0;
 
   const submit = () => {
@@ -109,7 +113,13 @@ export default function ChatbotPage() {
 
   const showPlacesInput      = !!customInput && customInput.type === "places";
   const showMultiSelectInput = !!customInput && customInput.type === "multiselect";
-  const showTextInput        = awaitingInput && !showPlacesInput && !showMultiSelectInput;
+  const showNumberInput      = !!customInput && customInput.type === "number";
+  const showDateInput        = !!customInput && customInput.type === "date";
+  const showTextInput        = awaitingInput && !showPlacesInput && !showMultiSelectInput && !showNumberInput && !showDateInput;
+
+  useEffect(() => {
+    if (showTextInput) inputRef.current?.focus();
+  }, [showTextInput]);
 
   return (
     <>
@@ -167,9 +177,26 @@ export default function ChatbotPage() {
                   minSelect={customInput.minSelect ?? 1}
                   onSubmit={(val) => handleUserReply(val)}
                 />
+              ) : showNumberInput ? (
+                <ChatbotNumberInput
+                  key={customInput.key}
+                  placeholder={customInput.placeholder}
+                  min={customInput.min ?? 0}
+                  allowZero={customInput.allowZero ?? false}
+                  onSubmit={(val) => handleUserReply(val)}
+                />
+              ) : showDateInput ? (
+                <ChatbotDateInput
+                  key={customInput.key}
+                  placeholder={customInput.placeholder}
+                  minDate={customInput.minDate}
+                  maxDate={customInput.maxDate}
+                  onSubmit={(val) => handleUserReply(val)}
+                />
               ) : (
                 <>
                   <input
+                    ref={inputRef}
                     type="text"
                     value={input}
                     onChange={(e) => setInput(e.target.value)}

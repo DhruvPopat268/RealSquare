@@ -9,11 +9,10 @@ export const PURPOSE_KEY_MAP = {
 };
 
 // Construction status options for sellInfo
-export const CONSTRUCTION_STATUS_OPTIONS = ["Ready to Move", "Under Construction", "New Launch"];
+export const CONSTRUCTION_STATUS_OPTIONS = ["Ready to Move", "Under Construction"];
 export const CONSTRUCTION_STATUS_MAP = {
   "Ready to Move":      "ReadyToMove",
   "Under Construction": "UnderConstruction",
-  "New Launch":         "NewLaunch",
 };
 
 // Security deposit type options for rentInfo
@@ -49,13 +48,12 @@ export const PG_ROOM_TYPE_MAP        = {
 export const COMMERCIAL_ZONE_TYPE_OPTIONS = ["Industrial", "Commercial", "Residential", "SEZ", "OpenSpaces", "Agricultural", "Others"];
 export const COMMERCIAL_LOCATION_HUB_OPTIONS = ["IT Park", "Business Park", "Mall", "Commercial Project", "Residential Project", "Retail Complex/Building", "Market/High Street", "Others"];
 export const COMMERCIAL_OWNERSHIP_OPTIONS = ["Freehold", "Leasehold", "CooperativeSociety", "PowerOfAttorney"];
-export const COMMERCIAL_POSSESSION_OPTIONS = ["Ready to Move", "Under Construction"];
-export const COMMERCIAL_POSSESSION_MAP = { "Ready to Move": "ReadyToMove", "Under Construction": "UnderConstruction" };
 
 // IDs from env — residential plot type IDs (comma separated)
 export const RESIDENTIAL_PLOT_IDS    = (import.meta.env.VITE_RESIDENTIAL_PROPERTY_TYPE_PLOT_IDS ?? "").split(",").filter(Boolean);
 export const COMMERCIAL_PLOT_IDS     = (import.meta.env.VITE_COMMERCIAL_PROPERTY_TYPE_PLOT_IDS  ?? "").split(",").filter(Boolean);
 export const COMMERCIAL_OFFICE_IDS   = (import.meta.env.VITE_COMMERCIAL_PROPERTY_TYPE_OFFICE_IDS ?? "").split(",").filter(Boolean);
+export const COMMERCIAL_OTHERS_IDS   = (import.meta.env.VITE_COMMERCIAL_PROPERTY_TYPE_OTHERS_IDS ?? "").split(",").filter(Boolean);
 
 // Category IDs from env
 export const CATEGORY_RESIDENTIAL_ID = import.meta.env.VITE_CATEGORY_RESIDENTIAL_ID;

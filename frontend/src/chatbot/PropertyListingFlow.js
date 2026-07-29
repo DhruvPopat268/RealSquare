@@ -4,13 +4,13 @@ import {
   CONSTRUCTION_STATUS_OPTIONS, CONSTRUCTION_STATUS_MAP,
   SECURITY_DEPOSIT_OPTIONS, SECURITY_DEPOSIT_MAP,
   AREA_UNIT_OPTIONS, BHK_OPTIONS, FURNISH_TYPE_OPTIONS,
-  RESIDENTIAL_PLOT_IDS, COMMERCIAL_PLOT_IDS, COMMERCIAL_OFFICE_IDS,
+  RESIDENTIAL_PLOT_IDS, COMMERCIAL_PLOT_IDS, COMMERCIAL_OFFICE_IDS, COMMERCIAL_OTHERS_IDS,
   CATEGORY_RESIDENTIAL_ID, CATEGORY_COMMERCIAL_ID,
   LISTING_TYPE_SELL_ID, LISTING_TYPE_PG_ID,
   PG_FOR_OPTIONS, PG_SUITED_FOR_OPTIONS, PG_MEALS_OPTIONS,
   PG_COMMON_AREA_OPTIONS, PG_ROOM_TYPE_OPTIONS, PG_ROOM_TYPE_MAP,
   COMMERCIAL_ZONE_TYPE_OPTIONS, COMMERCIAL_LOCATION_HUB_OPTIONS,
-  COMMERCIAL_OWNERSHIP_OPTIONS, COMMERCIAL_POSSESSION_OPTIONS, COMMERCIAL_POSSESSION_MAP,
+  COMMERCIAL_OWNERSHIP_OPTIONS,
 } from "./chatbotConstants";
 import { fetchActivePurposes, fetchActiveCategories, fetchPropertyTypes, fetchActiveCities } from "./chatbotApi";
 
@@ -114,8 +114,23 @@ export async function propertyListingFlow(step, answer, collectedData, { botSay,
   if (step === "property_type") {
     if (!answer) return;
     const matched = collectedData._propertyTypes?.find((t) => t.label === answer);
+    const isCommPlot   = COMMERCIAL_PLOT_IDS.includes(matched?.value);
+    const isCommOthers = COMMERCIAL_OTHERS_IDS.includes(matched?.value);
+    if (isCommPlot) {
+      const updated = { ...collectedData, propertyTypeId: matched?.value ?? null, propertyTypeName: answer };
+      setCollectedData(() => updated);
+      await botSay("Great! In which city is the property located?");
+      setCustomInput({ type: "places", mode: "city", placeholder: "Search for a city..." });
+      goTo("city", updated);
+      return;
+    }
     const updated = { ...collectedData, propertyTypeId: matched?.value ?? null, propertyTypeName: answer };
     setCollectedData(() => updated);
+    if (isCommOthers) {
+      await botSay("What is the property type name?", [], true);
+      goTo("comm_others_type", updated);
+      return;
+    }
     await botSay("Great! In which city is the property located?");
     setCustomInput({ type: "places", mode: "city", placeholder: "Search for a city..." });
     goTo("city", updated);
@@ -173,8 +188,8 @@ export async function propertyListingFlow(step, answer, collectedData, { botSay,
     const isPlot        = RESIDENTIAL_PLOT_IDS.includes(updated.propertyTypeId);
 
     const isCommercial = updated.categoryId === CATEGORY_COMMERCIAL_ID;
-    const isCommPlot   = COMMERCIAL_PLOT_IDS.includes(updated.propertyTypeId);
-    const isPG         = updated.listingTypeId === LISTING_TYPE_PG_ID;
+    const isCommPlot    = COMMERCIAL_PLOT_IDS.includes(updated.propertyTypeId);
+    const isPG          = updated.listingTypeId === LISTING_TYPE_PG_ID;
     if (isResidential && isPG) {
       goTo("pg_name", updated);
     } else if (isResidential && isPlot) {
@@ -182,7 +197,7 @@ export async function propertyListingFlow(step, answer, collectedData, { botSay,
     } else if (isResidential && !isPlot) {
       goTo("res_society", updated);
     } else if (isCommercial && isCommPlot) {
-      await botSay("🚧 Commercial plot listing is coming soon! Stay tuned.");
+      goTo("comm_plot_society", updated);
     } else if (isCommercial) {
       goTo("comm_society", updated);
     } else {
@@ -211,17 +226,14 @@ export async function propertyListingFlow(step, answer, collectedData, { botSay,
     if (!answer) return;
     const updated = { ...collectedData, _pgFor: answer };
     setCollectedData(() => updated);
-    await botSay("What is the total number of beds available?", [], true);
+    await botSay("What is the total number of beds available?");
+    setCustomInput({ type: "number", key: "pg_total_beds", placeholder: "Total beds available..." });
     goTo("pg_total_beds", updated);
     return;
   }
 
   if (step === "pg_total_beds") {
     if (!answer) return;
-    if (isNaN(answer) || Number(answer) <= 0) {
-      await botSay("Please enter a valid number of beds.", [], true);
-      return;
-    }
     const updated = { ...collectedData, _pgTotalBeds: Number(answer) };
     setCollectedData(() => updated);
     await botSay("Best suited for? (select all that apply)");
@@ -254,7 +266,8 @@ export async function propertyListingFlow(step, answer, collectedData, { botSay,
       setCustomInput({ type: "multiselect", key: "pg_meals_list", options: PG_MEALS_OPTIONS, minSelect: 1 });
       goTo("pg_meals_list", updated);
     } else {
-      await botSay("What is the notice period in days? (e.g. 30)", [], true);
+      await botSay("What is the notice period in days?");
+      setCustomInput({ type: "number", key: "pg_notice_period", placeholder: "Notice period in days...", allowZero: true });
       goTo("pg_notice_period", { ...updated, _pgMeals: [] });
     }
     return;
@@ -270,30 +283,24 @@ export async function propertyListingFlow(step, answer, collectedData, { botSay,
     }
     const updated = { ...collectedData, _pgMeals: selected };
     setCollectedData(() => updated);
-    await botSay("What is the notice period in days? (e.g. 30)", [], true);
+    await botSay("What is the notice period in days?");
+    setCustomInput({ type: "number", key: "pg_notice_period", placeholder: "Notice period in days...", allowZero: true });
     goTo("pg_notice_period", updated);
     return;
   }
 
   if (step === "pg_notice_period") {
     if (!answer) return;
-    if (isNaN(answer) || Number(answer) < 0) {
-      await botSay("Please enter a valid number of days.", [], true);
-      return;
-    }
     const updated = { ...collectedData, _pgNoticePeriod: Number(answer) };
     setCollectedData(() => updated);
-    await botSay("What is the lock-in period in days? (e.g. 90)", [], true);
+    await botSay("What is the lock-in period in days?");
+    setCustomInput({ type: "number", key: "pg_lockin_period", placeholder: "Lock-in period in days...", allowZero: true });
     goTo("pg_lockin_period", updated);
     return;
   }
 
   if (step === "pg_lockin_period") {
     if (!answer) return;
-    if (isNaN(answer) || Number(answer) < 0) {
-      await botSay("Please enter a valid number of days.", [], true);
-      return;
-    }
     const updated = { ...collectedData, _pgLockinPeriod: Number(answer) };
     setCollectedData(() => updated);
     await botSay("Which common areas are available? (select all that apply)");
@@ -318,43 +325,34 @@ export async function propertyListingFlow(step, answer, collectedData, { botSay,
     if (!answer) return;
     const updated = { ...collectedData, _pgRoomType: PG_ROOM_TYPE_MAP[answer] ?? answer };
     setCollectedData(() => updated);
-    await botSay("How many beds are available in this room type?", [], true);
+    await botSay("How many beds are available in this room type?");
+    setCustomInput({ type: "number", key: "pg_room_beds", placeholder: "Number of beds..." });
     goTo("pg_room_beds", updated);
     return;
   }
 
   if (step === "pg_room_beds") {
     if (!answer) return;
-    if (isNaN(answer) || Number(answer) <= 0) {
-      await botSay("Please enter a valid number of beds.", [], true);
-      return;
-    }
     const updated = { ...collectedData, _pgRoomBeds: Number(answer) };
     setCollectedData(() => updated);
-    await botSay("What is the rent for this room type? (in ₹, e.g. 8000)", [], true);
+    await botSay("What is the rent for this room type? (in ₹)");
+    setCustomInput({ type: "number", key: "pg_room_rent", placeholder: "Rent amount in ₹..." });
     goTo("pg_room_rent", updated);
     return;
   }
 
   if (step === "pg_room_rent") {
     if (!answer) return;
-    if (isNaN(answer) || Number(answer) <= 0) {
-      await botSay("Please enter a valid rent amount.", [], true);
-      return;
-    }
     const updated = { ...collectedData, _pgRoomRent: Number(answer) };
     setCollectedData(() => updated);
-    await botSay("What is the security deposit for this room type? (in ₹, e.g. 16000)", [], true);
+    await botSay("What is the security deposit for this room type? (in ₹)");
+    setCustomInput({ type: "number", key: "pg_room_deposit", placeholder: "Security deposit in ₹...", allowZero: true });
     goTo("pg_room_deposit", updated);
     return;
   }
 
   if (step === "pg_room_deposit") {
     if (!answer) return;
-    if (isNaN(answer) || Number(answer) < 0) {
-      await botSay("Please enter a valid deposit amount.", [], true);
-      return;
-    }
     const newRoom = {
       roomType:       collectedData._pgRoomType,
       bedsAvailable:  collectedData._pgRoomBeds,
@@ -404,8 +402,136 @@ export async function propertyListingFlow(step, answer, collectedData, { botSay,
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
+  // COMMERCIAL PLOT BRANCH  (commercialDetails)
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  if (step === "comm_plot_society") {
+    if (!answer) {
+      await botSay("What is the society or park name?", [], true);
+      return;
+    }
+    const updated = { ...collectedData, _commPlotSociety: answer };
+    setCollectedData(() => updated);
+    await botSay("What is the zone type?", COMMERCIAL_ZONE_TYPE_OPTIONS);
+    goTo("comm_plot_zone", updated);
+    return;
+  }
+
+  if (step === "comm_plot_zone") {
+    if (!answer) return;
+    const updated = { ...collectedData, _commPlotZone: answer };
+    setCollectedData(() => updated);
+    await botSay("What is the location hub?", COMMERCIAL_LOCATION_HUB_OPTIONS);
+    goTo("comm_plot_location_hub", updated);
+    return;
+  }
+
+  if (step === "comm_plot_location_hub") {
+    if (!answer) return;
+    const updated = { ...collectedData, _commPlotLocationHub: answer };
+    setCollectedData(() => updated);
+    await botSay("What unit is the plot area in?", AREA_UNIT_OPTIONS);
+    goTo("comm_plot_area_unit", updated);
+    return;
+  }
+
+  if (step === "comm_plot_area_unit") {
+    if (!answer) return;
+    const updated = { ...collectedData, _commPlotAreaUnit: answer };
+    setCollectedData(() => updated);
+    await botSay("What is the plot area value?");
+    setCustomInput({ type: "number", key: "comm_plot_area_value", placeholder: "Plot area value..." });
+    goTo("comm_plot_area_value", updated);
+    return;
+  }
+
+  if (step === "comm_plot_area_value") {
+    if (!answer) return;
+    const updated = { ...collectedData, _commPlotAreaValue: Number(answer) };
+    setCollectedData(() => updated);
+    await botSay("What is the length of the plot in feet?");
+    setCustomInput({ type: "number", key: "comm_plot_length", placeholder: "Plot length in feet..." });
+    goTo("comm_plot_length", updated);
+    return;
+  }
+
+  if (step === "comm_plot_length") {
+    if (!answer) return;
+    const updated = { ...collectedData, _commPlotLength: Number(answer) };
+    setCollectedData(() => updated);
+    await botSay("What is the width of the plot in feet?");
+    setCustomInput({ type: "number", key: "comm_plot_width", placeholder: "Plot width in feet..." });
+    goTo("comm_plot_width", updated);
+    return;
+  }
+
+  if (step === "comm_plot_width") {
+    if (!answer) return;
+    const width      = Number(answer);
+    const length     = collectedData._commPlotLength;
+    const areaValue  = collectedData._commPlotAreaValue;
+    const unit       = collectedData._commPlotAreaUnit;
+    const rawProduct = length * width;
+    const converted  = unit === "sqyd" ? rawProduct / 9 : unit === "sqmt" ? rawProduct / 10.764 : rawProduct;
+    const mismatch   = Math.abs(converted - areaValue) > 1;
+    if (mismatch) {
+      await botSay(
+        `❌ The plot area doesn't match!\n\n` +
+        `• You entered area: ${areaValue} ${unit}\n` +
+        `• Length × Width = ${length} × ${width} ft = ${converted.toFixed(2)} ${unit}\n\n` +
+        `Please re-enter the correct plot area, length, and width.`
+      );
+      const retry = { ...collectedData };
+      delete retry._commPlotAreaValue;
+      delete retry._commPlotLength;
+      setCollectedData(() => retry);
+      await botSay("What is the plot area value?");
+      setCustomInput({ type: "number", key: "comm_plot_area_value_retry", placeholder: "Plot area value..." });
+      goTo("comm_plot_area_value", retry);
+      return;
+    }
+    const updated = { ...collectedData, _commPlotWidth: width };
+    setCollectedData(() => updated);
+    await botSay("What is the ownership type?", COMMERCIAL_OWNERSHIP_OPTIONS);
+    goTo("comm_plot_ownership", updated);
+    return;
+  }
+
+  if (step === "comm_plot_ownership") {
+    if (!answer) return;
+    const updated = {
+      ...collectedData,
+      detailsKey: "commercialDetails",
+      commercialDetails: {
+        societyName: collectedData._commPlotSociety,
+        zoneType:    collectedData._commPlotZone,
+        locationHub: collectedData._commPlotLocationHub,
+        plotArea:    { value: collectedData._commPlotAreaValue, unit: collectedData._commPlotAreaUnit },
+        length:      collectedData._commPlotLength,
+        width:       collectedData._commPlotWidth,
+        ownership:   answer,
+      },
+    };
+    ["_commPlotSociety","_commPlotZone","_commPlotLocationHub","_commPlotAreaUnit",
+     "_commPlotAreaValue","_commPlotLength","_commPlotWidth"].forEach((k) => delete updated[k]);
+    setCollectedData(() => updated);
+    goTo("purpose_questions", updated);
+    return;
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
   // COMMERCIAL BRANCH  (commercialDetails)
   // ═══════════════════════════════════════════════════════════════════════════
+
+  if (step === "comm_others_type") {
+    if (!answer) return;
+    const updated = { ...collectedData, _commOthersType: answer };
+    setCollectedData(() => updated);
+    await botSay("Great! In which city is the property located?");
+    setCustomInput({ type: "places", mode: "city", placeholder: "Search for a city..." });
+    goTo("city", updated);
+    return;
+  }
 
   if (step === "comm_society") {
     if (!answer) {
@@ -432,50 +558,36 @@ export async function propertyListingFlow(step, answer, collectedData, { botSay,
     if (!answer) return;
     const updated = { ...collectedData, _commLocationHub: answer };
     setCollectedData(() => updated);
-    await botSay("What unit is the built-up area in?", AREA_UNIT_OPTIONS);
+    await botSay("What unit are the areas in? (built-up & carpet)", AREA_UNIT_OPTIONS);
     goTo("comm_builtup_unit", updated);
     return;
   }
 
   if (step === "comm_builtup_unit") {
     if (!answer) return;
-    const updated = { ...collectedData, _commBuiltUpUnit: answer };
+    const updated = { ...collectedData, _commAreaUnit: answer };
     setCollectedData(() => updated);
-    await botSay("What is the built-up area value? (e.g. 5000)", [], true);
+    await botSay("What is the built-up area value?");
+    setCustomInput({ type: "number", key: "comm_builtup_value", placeholder: "Built-up area value..." });
     goTo("comm_builtup_value", updated);
     return;
   }
 
   if (step === "comm_builtup_value") {
     if (!answer) return;
-    if (isNaN(answer) || Number(answer) <= 0) {
-      await botSay("Please enter a valid number for built-up area.", [], true);
-      return;
-    }
     const updated = { ...collectedData, _commBuiltUpValue: Number(answer) };
     setCollectedData(() => updated);
-    await botSay("What unit is the carpet area in?", AREA_UNIT_OPTIONS);
-    goTo("comm_carpet_unit", updated);
-    return;
-  }
-
-  if (step === "comm_carpet_unit") {
-    if (!answer) return;
-    const updated = { ...collectedData, _commCarpetUnit: answer };
-    setCollectedData(() => updated);
-    await botSay("What is the carpet area value? (e.g. 4200)", [], true);
+    await botSay(`What is the carpet area value? (in ${collectedData._commAreaUnit})`);
+    setCustomInput({ type: "number", key: "comm_carpet_value", placeholder: "Carpet area value..." });
     goTo("comm_carpet_value", updated);
     return;
   }
 
   if (step === "comm_carpet_value") {
     if (!answer) return;
-    if (isNaN(answer) || Number(answer) <= 0) {
-      await botSay("Please enter a valid number for carpet area.", [], true);
-      return;
-    }
     if (Number(answer) > collectedData._commBuiltUpValue) {
-      await botSay(`❌ Carpet area cannot be greater than built-up area (${collectedData._commBuiltUpValue} ${collectedData._commBuiltUpUnit}).\n\nPlease enter a valid carpet area.`, [], true);
+      await botSay(`❌ Carpet area cannot be greater than built-up area (${collectedData._commBuiltUpValue} ${collectedData._commAreaUnit}).\n\nPlease enter a valid carpet area.`);
+      setCustomInput({ type: "number", key: "comm_carpet_value_retry", placeholder: "Carpet area value..." });
       return;
     }
     const updated = { ...collectedData, _commCarpetValue: Number(answer) };
@@ -489,17 +601,14 @@ export async function propertyListingFlow(step, answer, collectedData, { botSay,
     if (!answer) return;
     const updated = { ...collectedData, _commOwnership: answer };
     setCollectedData(() => updated);
-    await botSay("How many total floors does the building have? (e.g. 10)", [], true);
+    await botSay("How many total floors does the building have?");
+    setCustomInput({ type: "number", key: "comm_total_floors", placeholder: "Total number of floors..." });
     goTo("comm_total_floors", updated);
     return;
   }
 
   if (step === "comm_total_floors") {
     if (!answer) return;
-    if (isNaN(answer) || Number(answer) <= 0) {
-      await botSay("Please enter a valid number of floors.", [], true);
-      return;
-    }
     const totalFloors = Number(answer);
     const updated = { ...collectedData, _commTotalFloors: totalFloors };
     setCollectedData(() => updated);
@@ -521,11 +630,11 @@ export async function propertyListingFlow(step, answer, collectedData, { botSay,
     setCollectedData(() => updated);
     const isOffice = COMMERCIAL_OFFICE_IDS.includes(collectedData.propertyTypeId);
     if (isOffice) {
-      await botSay("What is the minimum number of seats? (e.g. 20)", [], true);
+      await botSay("What is the minimum number of seats?");
+      setCustomInput({ type: "number", key: "comm_office_seats", placeholder: "Minimum seats..." });
       goTo("comm_office_seats", updated);
     } else {
-      await botSay("What is the possession status?", COMMERCIAL_POSSESSION_OPTIONS);
-      goTo("comm_possession", updated);
+      goTo("comm_build", updated);
     }
     return;
   }
@@ -534,96 +643,46 @@ export async function propertyListingFlow(step, answer, collectedData, { botSay,
 
   if (step === "comm_office_seats") {
     if (!answer) return;
-    if (isNaN(answer) || Number(answer) <= 0) {
-      await botSay("Please enter a valid number of seats.", [], true);
-      return;
-    }
     const updated = { ...collectedData, _commOfficeSeats: Number(answer) };
     setCollectedData(() => updated);
-    await botSay("What is the minimum number of cabins? (e.g. 5)", [], true);
+    await botSay("What is the minimum number of cabins?");
+    setCustomInput({ type: "number", key: "comm_office_cabins", placeholder: "Minimum cabins...", allowZero: true });
     goTo("comm_office_cabins", updated);
     return;
   }
 
   if (step === "comm_office_cabins") {
     if (!answer) return;
-    if (isNaN(answer) || Number(answer) < 0) {
-      await botSay("Please enter a valid number of cabins.", [], true);
-      return;
-    }
     const updated = { ...collectedData, _commOfficeCabins: Number(answer) };
     setCollectedData(() => updated);
-    await botSay("What is the minimum number of meeting rooms? (e.g. 2)", [], true);
+    await botSay("What is the minimum number of meeting rooms?");
+    setCustomInput({ type: "number", key: "comm_office_meeting", placeholder: "Minimum meeting rooms...", allowZero: true });
     goTo("comm_office_meeting", updated);
     return;
   }
 
   if (step === "comm_office_meeting") {
     if (!answer) return;
-    if (isNaN(answer) || Number(answer) < 0) {
-      await botSay("Please enter a valid number of meeting rooms.", [], true);
-      return;
-    }
     const updated = { ...collectedData, _commOfficeMeeting: Number(answer) };
     setCollectedData(() => updated);
-    await botSay("What is the possession status?", COMMERCIAL_POSSESSION_OPTIONS);
-    goTo("comm_possession", updated);
+    goTo("comm_build", updated);
     return;
   }
 
   // ── Possession ───────────────────────────────────────────────────────────────
 
-  if (step === "comm_possession") {
-    if (!answer) return;
-    const status  = COMMERCIAL_POSSESSION_MAP[answer];
-    const updated = { ...collectedData, _commPossessionStatus: status };
-    setCollectedData(() => updated);
-    if (status === "ReadyToMove") {
-      await botSay("What is the age of the property in years? (e.g. 3)", [], true);
-      goTo("comm_possession_age", updated);
-    } else {
-      await botSay("From which date will it be available? (e.g. 2026-06-01)", [], true);
-      goTo("comm_possession_date", updated);
-    }
-    return;
-  }
-
-  if (step === "comm_possession_age") {
-    if (!answer) return;
-    if (isNaN(answer) || Number(answer) < 0) {
-      await botSay("Please enter a valid age in years.", [], true);
-      return;
-    }
-    const isOffice = COMMERCIAL_OFFICE_IDS.includes(collectedData.propertyTypeId);
-    const updated  = { ...collectedData, _commPossessionAge: Number(answer) };
-    setCollectedData(() => updated);
-    goTo("comm_build", updated);
-    return;
-  }
-
-  if (step === "comm_possession_date") {
-    if (!answer) return;
-    const updated = { ...collectedData, _commPossessionDate: answer };
-    setCollectedData(() => updated);
-    goTo("comm_build", updated);
-    return;
-  }
-
   if (step === "comm_build") {
-    const isOffice   = COMMERCIAL_OFFICE_IDS.includes(collectedData.propertyTypeId);
-    const possession = collectedData._commPossessionStatus === "ReadyToMove"
-      ? { status: "ReadyToMove", ageOfProperty: collectedData._commPossessionAge }
-      : { status: "UnderConstruction", availableFrom: collectedData._commPossessionDate };
+    const isOffice = COMMERCIAL_OFFICE_IDS.includes(collectedData.propertyTypeId);
     const updated = {
       ...collectedData,
       detailsKey: "commercialDetails",
       commercialDetails: {
         societyName: collectedData._commSociety,
-        possession,
+        ...(collectedData._commOthersType && { propertyType: collectedData._commOthersType }),
         zoneType:    collectedData._commZone,
         locationHub: collectedData._commLocationHub,
-        builtUpArea: { value: collectedData._commBuiltUpValue, unit: collectedData._commBuiltUpUnit },
-        carpetArea:  { value: collectedData._commCarpetValue,  unit: collectedData._commCarpetUnit },
+        builtUpArea: { value: collectedData._commBuiltUpValue, unit: collectedData._commAreaUnit },
+        carpetArea:  { value: collectedData._commCarpetValue,  unit: collectedData._commAreaUnit },
         ownership:   collectedData._commOwnership,
         totalFloors: collectedData._commTotalFloors,
         yourFloor:   collectedData._commYourFloor,
@@ -634,10 +693,9 @@ export async function propertyListingFlow(step, answer, collectedData, { botSay,
         }),
       },
     };
-    ["_commSociety","_commZone","_commLocationHub","_commBuiltUpUnit","_commBuiltUpValue",
-     "_commCarpetUnit","_commCarpetValue","_commOwnership","_commTotalFloors","_commYourFloor",
-     "_commOfficeSeats","_commOfficeCabins","_commOfficeMeeting",
-     "_commPossessionStatus","_commPossessionAge","_commPossessionDate"].forEach((k) => delete updated[k]);
+    ["_commSociety","_commOthersType","_commZone","_commLocationHub","_commAreaUnit","_commBuiltUpValue",
+     "_commCarpetValue","_commOwnership","_commTotalFloors","_commYourFloor",
+     "_commOfficeSeats","_commOfficeCabins","_commOfficeMeeting"].forEach((k) => delete updated[k]);
     setCollectedData(() => updated);
     goTo("purpose_questions", updated);
     return;
@@ -663,43 +721,34 @@ export async function propertyListingFlow(step, answer, collectedData, { botSay,
     if (!answer) return;
     const updated = { ...collectedData, _plotAreaUnit: answer };
     setCollectedData(() => updated);
-    await botSay("What is the plot area value? (e.g. 2400)", [], true);
+    await botSay("What is the plot area value?");
+    setCustomInput({ type: "number", key: "plot_area_value", placeholder: "Plot area value..." });
     goTo("plot_area_value", updated);
     return;
   }
 
   if (step === "plot_area_value") {
     if (!answer) return;
-    if (isNaN(answer) || Number(answer) <= 0) {
-      await botSay("Please enter a valid number for plot area.", [], true);
-      return;
-    }
     const updated = { ...collectedData, _plotAreaValue: Number(answer) };
     setCollectedData(() => updated);
-    await botSay("What is the length of the plot in feet?", [], true);
+    await botSay("What is the length of the plot in feet?");
+    setCustomInput({ type: "number", key: "plot_length", placeholder: "Plot length in feet..." });
     goTo("plot_length", updated);
     return;
   }
 
   if (step === "plot_length") {
     if (!answer) return;
-    if (isNaN(answer) || Number(answer) <= 0) {
-      await botSay("Please enter a valid number for length.", [], true);
-      return;
-    }
     const updated = { ...collectedData, _plotLength: Number(answer) };
     setCollectedData(() => updated);
-    await botSay("What is the width of the plot in feet?", [], true);
+    await botSay("What is the width of the plot in feet?");
+    setCustomInput({ type: "number", key: "plot_width", placeholder: "Plot width in feet..." });
     goTo("plot_width", updated);
     return;
   }
 
   if (step === "plot_width") {
     if (!answer) return;
-    if (isNaN(answer) || Number(answer) <= 0) {
-      await botSay("Please enter a valid number for width.", [], true);
-      return;
-    }
     const width       = Number(answer);
     const length      = collectedData._plotLength;
     const areaValue   = collectedData._plotAreaValue;
@@ -718,7 +767,8 @@ export async function propertyListingFlow(step, answer, collectedData, { botSay,
       delete retry._plotAreaValue;
       delete retry._plotLength;
       setCollectedData(() => retry);
-      await botSay("What is the plot area value? (e.g. 2400)", [], true);
+      await botSay("What is the plot area value?");
+      setCustomInput({ type: "number", key: "plot_area_value_retry", placeholder: "Plot area value..." });
       goTo("plot_area_value", retry);
       return;
     }
@@ -767,17 +817,14 @@ export async function propertyListingFlow(step, answer, collectedData, { botSay,
     if (!answer) return;
     const updated = { ...collectedData, _resAreaUnit: answer };
     setCollectedData(() => updated);
-    await botSay("What is the built-up area value? (e.g. 1200)", [], true);
+    await botSay("What is the built-up area value?");
+    setCustomInput({ type: "number", key: "res_area_value", placeholder: "Built-up area value..." });
     goTo("res_area_value", updated);
     return;
   }
 
   if (step === "res_area_value") {
     if (!answer) return;
-    if (isNaN(answer) || Number(answer) <= 0) {
-      await botSay("Please enter a valid number for built-up area.", [], true);
-      return;
-    }
     const updated = { ...collectedData, _resAreaValue: Number(answer) };
     setCollectedData(() => updated);
     await botSay("What is the furnishing status?", FURNISH_TYPE_OPTIONS);
@@ -815,10 +862,12 @@ export async function propertyListingFlow(step, answer, collectedData, { botSay,
     if (isPG) {
       goTo("summary", collectedData);
     } else if (isSell) {
-      await botSay("What is the expected sale price? (in ₹, e.g. 8500000)", [], true);
+      await botSay("What is the expected sale price? (in ₹)");
+      setCustomInput({ type: "number", key: "sell_price", placeholder: "Expected sale price in ₹..." });
       goTo("sell_price", collectedData);
     } else {
-      await botSay("What is the monthly rent? (in ₹, e.g. 15000)", [], true);
+      await botSay("What is the monthly rent? (in ₹)");
+      setCustomInput({ type: "number", key: "rent_monthly", placeholder: "Monthly rent in ₹..." });
       goTo("rent_monthly", collectedData);
     }
     return;
@@ -827,10 +876,6 @@ export async function propertyListingFlow(step, answer, collectedData, { botSay,
   // ── Sell flow ─────────────────────────────────────────────────────────────
   if (step === "sell_price") {
     if (!answer) return;
-    if (isNaN(answer) || Number(answer) <= 0) {
-      await botSay("Please enter a valid price amount.", [], true);
-      return;
-    }
     const updated = { ...collectedData, _sellPrice: Number(answer) };
     setCollectedData(() => updated);
     await botSay("What is the construction status?", CONSTRUCTION_STATUS_OPTIONS);
@@ -840,14 +885,48 @@ export async function propertyListingFlow(step, answer, collectedData, { botSay,
 
   if (step === "sell_status") {
     if (!answer) return;
+    const status  = CONSTRUCTION_STATUS_MAP[answer];
+    const updated = { ...collectedData, _sellStatus: status };
+    setCollectedData(() => updated);
+    if (status === "ReadyToMove") {
+      await botSay("What is the age of the property in years?");
+      setCustomInput({ type: "number", key: "sell_age", placeholder: "Age in years...", allowZero: true });
+      goTo("sell_age", updated);
+    } else {
+      await botSay("From which date will it be available?");
+      setCustomInput({ type: "date", key: "sell_available_from", minDate: new Date().toISOString().split("T")[0] });
+      goTo("sell_available_from", updated);
+    }
+    return;
+  }
+
+  if (step === "sell_age") {
+    if (!answer) return;
     const updated = {
       ...collectedData,
       sellInfo: {
         price:              collectedData._sellPrice,
-        constructionStatus: CONSTRUCTION_STATUS_MAP[answer],
+        constructionStatus: collectedData._sellStatus,
+        ageOfProperty:      Number(answer),
       },
     };
-    delete updated._sellPrice;
+    ["_sellPrice", "_sellStatus"].forEach((k) => delete updated[k]);
+    setCollectedData(() => updated);
+    goTo("summary", updated);
+    return;
+  }
+
+  if (step === "sell_available_from") {
+    if (!answer) return;
+    const updated = {
+      ...collectedData,
+      sellInfo: {
+        price:              collectedData._sellPrice,
+        constructionStatus: collectedData._sellStatus,
+        availableFrom:      answer,
+      },
+    };
+    ["_sellPrice", "_sellStatus"].forEach((k) => delete updated[k]);
     setCollectedData(() => updated);
     goTo("summary", updated);
     return;
@@ -856,13 +935,10 @@ export async function propertyListingFlow(step, answer, collectedData, { botSay,
   // ── Rent / PG flow ────────────────────────────────────────────────────────
   if (step === "rent_monthly") {
     if (!answer) return;
-    if (isNaN(answer) || Number(answer) <= 0) {
-      await botSay("Please enter a valid monthly rent amount.", [], true);
-      return;
-    }
     const updated = { ...collectedData, _rentMonthly: Number(answer) };
     setCollectedData(() => updated);
-    await botSay("From which date is the property available? (e.g. 2025-08-01)", [], true);
+    await botSay("From which date is the property available?");
+    setCustomInput({ type: "date", key: "rent_available_from", minDate: new Date().toISOString().split("T")[0] });
     goTo("rent_available_from", updated);
     return;
   }
@@ -882,7 +958,8 @@ export async function propertyListingFlow(step, answer, collectedData, { botSay,
     if (depositType === "Custom") {
       const updated = { ...collectedData, _depositType: depositType };
       setCollectedData(() => updated);
-      await botSay("Please enter the custom security deposit amount (in ₹):", [], true);
+      await botSay("Please enter the custom security deposit amount (in ₹)");
+      setCustomInput({ type: "number", key: "rent_deposit_custom", placeholder: "Custom deposit amount in ₹..." });
       goTo("rent_deposit_custom", updated);
     } else {
       const updated = {
@@ -902,10 +979,6 @@ export async function propertyListingFlow(step, answer, collectedData, { botSay,
 
   if (step === "rent_deposit_custom") {
     if (!answer) return;
-    if (isNaN(answer) || Number(answer) <= 0) {
-      await botSay("Please enter a valid deposit amount.", [], true);
-      return;
-    }
     const updated = {
       ...collectedData,
       rentInfo: {
