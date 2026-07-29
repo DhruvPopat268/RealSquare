@@ -395,7 +395,7 @@ export default function Navbar() {
         {/* Desktop right actions */}
         <div className="hidden md:flex items-center justify-end gap-4 z-10 flex-shrink-0 ml-auto">
           <button
-            onClick={() => navigate("/list-property")}
+            onClick={() => navigate("/chatbot")}
             className="flex items-center gap-1.5 border-none bg-transparent text-sm font-bold text-[#1a1a2e] cursor-pointer whitespace-nowrap hover:text-[#7B2FFF] transition-colors"
           >
             List Property
@@ -756,7 +756,7 @@ export default function Navbar() {
             {/* Bottom CTA */}
             <div className="px-5 py-5 border-t border-gray-100">
               <button
-                onClick={() => { setMobileOpen(false); navigate("/list-property"); }}
+                onClick={() => { setMobileOpen(false); navigate("/chatbot"); }}
                 className="w-full bg-[#7B2FFF] text-white border-none px-4 py-3 rounded-xl text-sm font-bold cursor-pointer"
               >
                 List Property FREE

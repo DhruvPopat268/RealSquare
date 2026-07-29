@@ -28,6 +28,7 @@ import LoginPage from "./pages/LoginPage";
 import CompleteProfilePage from "./pages/CompleteProfilePage";
 import UpdateProfilePage from "./pages/UpdateProfilePage";
 import ListPropertyPage from "./pages/ListPropertyPage";
+import ChatbotPage from "./pages/ChatbotPage";
 import DepositCoinsPage from "./pages/DepositCoinsPage";
 import PaymentTransactionsPage from "./pages/PaymentTransactionsPage";
 import PlansPage from "./pages/PlansPage";
@@ -94,6 +95,7 @@ function App() {
       <Route path="/complete-profile" element={<CompleteProfilePage />} />
       <Route path="/profile" element={<UpdateProfilePage />} />
       <Route path="/list-property" element={<ListPropertyPage />} />
+      <Route path="/chatbot" element={<ChatbotPage />} />
       <Route path="/deposit-coins" element={<DepositCoinsPage />} />
       <Route path="/payment-transactions" element={<PaymentTransactionsPage />} />
       <Route path="/plans" element={<PlansPage />} />
