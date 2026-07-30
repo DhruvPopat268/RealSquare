@@ -8,11 +8,11 @@ import {
   CATEGORY_RESIDENTIAL_ID, CATEGORY_COMMERCIAL_ID,
   LISTING_TYPE_SELL_ID, LISTING_TYPE_PG_ID,
   PG_FOR_OPTIONS, PG_SUITED_FOR_OPTIONS, PG_MEALS_OPTIONS,
-  PG_COMMON_AREA_OPTIONS, PG_ROOM_TYPE_OPTIONS, PG_ROOM_TYPE_MAP,
+  PG_COMMON_AREA_OPTIONS, PG_ROOM_TYPE_OPTIONS,
   COMMERCIAL_ZONE_TYPE_OPTIONS, COMMERCIAL_LOCATION_HUB_OPTIONS,
   COMMERCIAL_OWNERSHIP_OPTIONS,
 } from "./chatbotConstants";
-import { fetchActivePurposes, fetchActiveCategories, fetchPropertyTypes, fetchActiveCities } from "./chatbotApi";
+import { fetchActivePurposes, fetchActiveCategories, fetchPropertyTypes, fetchActiveCities, fetchFurnishingsAmenities } from "./chatbotApi";
 
 export async function propertyListingFlow(step, answer, collectedData, { botSay, setCollectedData, goTo, setCustomInput }) {
 
@@ -50,10 +50,17 @@ export async function propertyListingFlow(step, answer, collectedData, { botSay,
   if (step === "project_fallback") {
     if (!answer) return;
     if (answer === "Yes, continue") {
-      const fresh = {};
-      setCollectedData(() => fresh);
-      await botSay("Are you listing a Property or a Project?", LISTING_MODE_OPTIONS);
-      goTo("listing_mode", fresh);
+      const updated = { ...collectedData, listingMode: "Property Listing" };
+      setCollectedData(() => updated);
+      try {
+        await botSay("Fetching options...");
+        const purposes = await fetchActivePurposes();
+        await botSay("What are you looking to do with this property?", purposes.map((p) => p.label));
+        setCollectedData(() => ({ ...updated, _purposes: purposes }));
+        goTo("purpose", { ...updated, _purposes: purposes });
+      } catch {
+        await botSay("⚠️ Failed to load options. Please refresh and try again.");
+      }
     } else {
       await botSay("👋 No problem! Come back when Project Listing is available. You can close this window.");
     }
@@ -323,11 +330,18 @@ export async function propertyListingFlow(step, answer, collectedData, { botSay,
 
   if (step === "pg_room_type") {
     if (!answer) return;
-    const updated = { ...collectedData, _pgRoomType: PG_ROOM_TYPE_MAP[answer] ?? answer };
+    const isSingleSharing = answer === "1 Sharing";
+    const updated = { ...collectedData, _pgRoomType: answer, _pgRoomBeds: isSingleSharing ? 1 : undefined };
     setCollectedData(() => updated);
-    await botSay("How many beds are available in this room type?");
-    setCustomInput({ type: "number", key: "pg_room_beds", placeholder: "Number of beds..." });
-    goTo("pg_room_beds", updated);
+    if (isSingleSharing) {
+      await botSay("What is the rent for this room type? (in ₹)");
+      setCustomInput({ type: "number", key: "pg_room_rent", placeholder: "Rent amount in ₹..." });
+      goTo("pg_room_rent", updated);
+    } else {
+      await botSay("How many beds are available in this room type?");
+      setCustomInput({ type: "number", key: "pg_room_beds", placeholder: "Number of beds..." });
+      goTo("pg_room_beds", updated);
+    }
     return;
   }
 
@@ -377,20 +391,21 @@ export async function propertyListingFlow(step, answer, collectedData, { botSay,
       await botSay("What is the room type?", PG_ROOM_TYPE_OPTIONS);
       goTo("pg_room_type", collectedData);
     } else {
+      const ex = collectedData.pgDetails ?? {};
       const updated = {
         ...collectedData,
         detailsKey: "pgDetails",
         pgDetails: {
-          pgName:           collectedData._pgName,
-          pgFor:            collectedData._pgFor,
-          totalBedsAvailable: collectedData._pgTotalBeds,
-          bestSuitedFor:    collectedData._pgSuitedFor,
-          mealsAvailable:   collectedData._pgMealsAvailable,
-          meals:            collectedData._pgMeals ?? [],
-          noticePeriod:     collectedData._pgNoticePeriod,
-          lockInPeriod:     collectedData._pgLockinPeriod,
-          commonAreas:      collectedData._pgCommonAreas,
-          rooms:            collectedData._pgRooms,
+          pgName:             collectedData._pgName             ?? ex.pgName,
+          pgFor:              collectedData._pgFor              ?? ex.pgFor,
+          totalBedsAvailable: collectedData._pgTotalBeds        ?? ex.totalBedsAvailable,
+          bestSuitedFor:      collectedData._pgSuitedFor        ?? ex.bestSuitedFor,
+          mealsAvailable:     collectedData._pgMealsAvailable   ?? ex.mealsAvailable,
+          meals:              collectedData._pgMeals            ?? ex.meals ?? [],
+          noticePeriod:       collectedData._pgNoticePeriod     ?? ex.noticePeriod,
+          lockInPeriod:       collectedData._pgLockinPeriod     ?? ex.lockInPeriod,
+          commonAreas:        collectedData._pgCommonAreas      ?? ex.commonAreas,
+          rooms:              collectedData._pgRooms            ?? ex.rooms,
         },
       };
       ["_pgName","_pgFor","_pgTotalBeds","_pgSuitedFor","_pgMealsAvailable","_pgMeals",
@@ -499,16 +514,19 @@ export async function propertyListingFlow(step, answer, collectedData, { botSay,
 
   if (step === "comm_plot_ownership") {
     if (!answer) return;
+    const ex = collectedData.commercialDetails ?? {};
     const updated = {
       ...collectedData,
       detailsKey: "commercialDetails",
       commercialDetails: {
-        societyName: collectedData._commPlotSociety,
-        zoneType:    collectedData._commPlotZone,
-        locationHub: collectedData._commPlotLocationHub,
-        plotArea:    { value: collectedData._commPlotAreaValue, unit: collectedData._commPlotAreaUnit },
-        length:      collectedData._commPlotLength,
-        width:       collectedData._commPlotWidth,
+        societyName: collectedData._commPlotSociety    ?? ex.societyName,
+        zoneType:    collectedData._commPlotZone       ?? ex.zoneType,
+        locationHub: collectedData._commPlotLocationHub ?? ex.locationHub,
+        plotArea:    collectedData._commPlotAreaValue != null
+          ? { value: collectedData._commPlotAreaValue, unit: collectedData._commPlotAreaUnit }
+          : ex.plotArea,
+        length:      collectedData._commPlotLength     ?? ex.length,
+        width:       collectedData._commPlotWidth      ?? ex.width,
         ownership:   answer,
       },
     };
@@ -673,23 +691,29 @@ export async function propertyListingFlow(step, answer, collectedData, { botSay,
 
   if (step === "comm_build") {
     const isOffice = COMMERCIAL_OFFICE_IDS.includes(collectedData.propertyTypeId);
+    const ex = collectedData.commercialDetails ?? {};
+    const areaUnit = collectedData._commAreaUnit ?? ex.builtUpArea?.unit;
     const updated = {
       ...collectedData,
       detailsKey: "commercialDetails",
       commercialDetails: {
-        societyName: collectedData._commSociety,
-        ...(collectedData._commOthersType && { propertyType: collectedData._commOthersType }),
-        zoneType:    collectedData._commZone,
-        locationHub: collectedData._commLocationHub,
-        builtUpArea: { value: collectedData._commBuiltUpValue, unit: collectedData._commAreaUnit },
-        carpetArea:  { value: collectedData._commCarpetValue,  unit: collectedData._commAreaUnit },
-        ownership:   collectedData._commOwnership,
-        totalFloors: collectedData._commTotalFloors,
-        yourFloor:   collectedData._commYourFloor,
+        societyName: collectedData._commSociety      ?? ex.societyName,
+        ...((collectedData._commOthersType ?? ex.propertyType) && { propertyType: collectedData._commOthersType ?? ex.propertyType }),
+        zoneType:    collectedData._commZone         ?? ex.zoneType,
+        locationHub: collectedData._commLocationHub  ?? ex.locationHub,
+        builtUpArea: collectedData._commBuiltUpValue != null
+          ? { value: collectedData._commBuiltUpValue, unit: areaUnit }
+          : ex.builtUpArea,
+        carpetArea:  collectedData._commCarpetValue != null
+          ? { value: collectedData._commCarpetValue, unit: areaUnit }
+          : ex.carpetArea,
+        ownership:   collectedData._commOwnership    ?? ex.ownership,
+        totalFloors: collectedData._commTotalFloors  ?? ex.totalFloors,
+        yourFloor:   collectedData._commYourFloor    ?? ex.yourFloor,
         ...(isOffice && {
-          minSeats:        collectedData._commOfficeSeats,
-          minCabins:       collectedData._commOfficeCabins,
-          minMeetingRooms: collectedData._commOfficeMeeting,
+          minSeats:        collectedData._commOfficeSeats    ?? ex.minSeats,
+          minCabins:       collectedData._commOfficeCabins   ?? ex.minCabins,
+          minMeetingRooms: collectedData._commOfficeMeeting  ?? ex.minMeetingRooms,
         }),
       },
     };
@@ -772,13 +796,14 @@ export async function propertyListingFlow(step, answer, collectedData, { botSay,
       goTo("plot_area_value", retry);
       return;
     }
+    const ex = collectedData.plotDetails ?? {};
     const updated = {
       ...collectedData,
       detailsKey: "plotDetails",
       plotDetails: {
-        societyName: collectedData._plotSociety,
-        plotArea:    { value: areaValue, unit },
-        length,
+        societyName: collectedData._plotSociety ?? ex.societyName,
+        plotArea:    collectedData._plotAreaValue != null ? { value: areaValue, unit } : ex.plotArea,
+        length:      collectedData._plotLength   ?? ex.length,
         width,
       },
     };
@@ -834,19 +859,59 @@ export async function propertyListingFlow(step, answer, collectedData, { botSay,
 
   if (step === "res_furnish") {
     if (!answer) return;
+    const existing = collectedData.residentialDetails ?? {};
     const updated = {
       ...collectedData,
+      _resFurnishType: answer,
       detailsKey: "residentialDetails",
       residentialDetails: {
-        societyName: collectedData._resSociety,
-        bhk:         collectedData._resBhk,
-        builtUpArea: { value: collectedData._resAreaValue, unit: collectedData._resAreaUnit },
+        societyName: collectedData._resSociety  ?? existing.societyName,
+        bhk:         collectedData._resBhk      ?? existing.bhk,
+        builtUpArea: collectedData._resAreaValue != null
+          ? { value: collectedData._resAreaValue, unit: collectedData._resAreaUnit }
+          : existing.builtUpArea,
         furnishType: answer,
         furnishings: [],
         amenities:   [],
       },
     };
     ["_resSociety", "_resBhk", "_resAreaValue", "_resAreaUnit"].forEach((k) => delete updated[k]);
+    setCollectedData(() => updated);
+    try {
+      const faData = await fetchFurnishingsAmenities();
+      const msg = answer === "Unfurnished"
+        ? "Now let's select the amenities available at this property.\n\nClick the button below to open the selection."
+        : "Now let's select the furnishings and amenities available at this property.\n\nClick the button below to open the selection.";
+      await botSay(msg);
+      setCustomInput({
+        type: "furnishamenities",
+        key: "res_furnish_amenities",
+        furnishType: answer,
+        furnishings: faData.furnishings,
+        amenities:   faData.amenities,
+      });
+      const withMeta = { ...updated, _furnishingsMeta: faData.furnishings, _amenitiesMeta: faData.amenities };
+      setCollectedData(() => withMeta);
+      goTo("res_furnish_amenities", withMeta);
+    } catch {
+      await botSay("⚠️ Failed to load furnishings & amenities. Please refresh and try again.");
+    }
+    return;
+  }
+
+  if (step === "res_furnish_amenities") {
+    if (!answer) return;
+    const payload = collectedData._furnishAmenitiesPayload ?? { furnishings: [], amenities: [] };
+    const updated = {
+      ...collectedData,
+      residentialDetails: {
+        ...collectedData.residentialDetails,
+        furnishings: payload.furnishings,
+        amenities:   payload.amenities,
+      },
+    };
+    delete updated._resFurnishType;
+    delete updated._furnishAmenitiesPayload;
     setCollectedData(() => updated);
     goTo("purpose_questions", updated);
     return;
@@ -999,44 +1064,111 @@ export async function propertyListingFlow(step, answer, collectedData, { botSay,
 
   if (step === "summary") {
     const d = collectedData;
-    const detailsObj = d[d.detailsKey];
-    const purposeObj = d[d.purposeKey ?? "sellInfo"];
-    await botSay(
-      `✅ All details collected!\n\n` +
-      `• Purpose: ${d.listingTypeName}\n` +
-      `• Category: ${d.categoryName}\n` +
-      `• Type: ${d.propertyTypeName}\n` +
-      `• City: ${d.cityName}\n` +
-      `• Locality: ${d.locality?.address}\n` +
-      `• Details: ${JSON.stringify(detailsObj, null, 2)}\n` +
-      `• ${d.purposeKey ?? "sellInfo"}: ${JSON.stringify(purposeObj, null, 2)}\n\n` +
-      `Ready to submit? 🚀`,
-      ["Yes, Submit", "No, Cancel"]
-    );
-    goTo("submit", collectedData);
+    const details  = d[d.detailsKey]  ?? {};
+    const purpose  = d[d.purposeKey ?? "sellInfo"] ?? {};
+
+    // ── format details block ──
+    const detailLines = [];
+    if (details.societyName)  detailLines.push(`  • Society / Name   : ${details.societyName}`);
+    if (details.bhk !== undefined) detailLines.push(`  • BHK              : ${details.bhk === 0 ? "1 RK" : `${details.bhk} BHK`}`);
+    if (details.builtUpArea)  detailLines.push(`  • Built-up Area    : ${details.builtUpArea.value} ${details.builtUpArea.unit}`);
+    if (details.carpetArea)   detailLines.push(`  • Carpet Area      : ${details.carpetArea.value} ${details.carpetArea.unit}`);
+    if (details.plotArea)     detailLines.push(`  • Plot Area        : ${details.plotArea.value} ${details.plotArea.unit}`);
+    if (details.length)       detailLines.push(`  • Length           : ${details.length} ft`);
+    if (details.width)        detailLines.push(`  • Width            : ${details.width} ft`);
+    if (details.furnishType)  detailLines.push(`  • Furnish Type     : ${details.furnishType}`);
+    if (details.zoneType)     detailLines.push(`  • Zone Type        : ${details.zoneType}`);
+    if (details.locationHub)  detailLines.push(`  • Location Hub     : ${details.locationHub}`);
+    if (details.ownership)    detailLines.push(`  • Ownership        : ${details.ownership}`);
+    if (details.totalFloors !== undefined) detailLines.push(`  • Total Floors     : ${details.totalFloors}`);
+    if (details.yourFloor  !== undefined) detailLines.push(`  • Your Floor       : ${details.yourFloor === 0 ? "Ground" : details.yourFloor}`);
+    if (details.minSeats   !== undefined) detailLines.push(`  • Min Seats        : ${details.minSeats}`);
+    if (details.minCabins  !== undefined) detailLines.push(`  • Min Cabins       : ${details.minCabins}`);
+    if (details.minMeetingRooms !== undefined) detailLines.push(`  • Min Meeting Rooms: ${details.minMeetingRooms}`);
+    // furnishings
+    if (details.furnishings?.length > 0) {
+      detailLines.push(`  • Furnishings      :`);
+      details.furnishings.forEach((f, i) => {
+        const name = d._furnishingsMeta?.find((x) => x._id === f.furnishingId)?.name ?? f.furnishingId;
+        detailLines.push(`      ${i + 1}). ${name}${f.count > 1 ? ` ( ${f.count} )` : ""}`);
+      });
+    }
+    // amenities
+    if (details.amenities?.length > 0) {
+      detailLines.push(`  • Amenities        :`);
+      details.amenities.forEach((a, i) => {
+        const name = d._amenitiesMeta?.find((x) => x._id === a.amenityId)?.name ?? a.amenityId;
+        detailLines.push(`      ${i + 1}). ${name}`);
+      });
+    }
+    // PG details
+    if (details.pgName)       detailLines.push(`  • PG Name          : ${details.pgName}`);
+    if (details.pgFor)        detailLines.push(`  • PG For           : ${details.pgFor}`);
+    if (details.totalBedsAvailable !== undefined) detailLines.push(`  • Total Beds       : ${details.totalBedsAvailable}`);
+    if (details.bestSuitedFor?.length) detailLines.push(`  • Best Suited For  : ${details.bestSuitedFor.join(", ")}`);
+    if (details.mealsAvailable !== undefined) detailLines.push(`  • Meals Available  : ${details.mealsAvailable ? "Yes" : "No"}`);
+    if (details.meals?.length) detailLines.push(`  • Meals            : ${details.meals.join(", ")}`);
+    if (details.noticePeriod  !== undefined) detailLines.push(`  • Notice Period    : ${details.noticePeriod} days`);
+    if (details.lockInPeriod  !== undefined) detailLines.push(`  • Lock-in Period   : ${details.lockInPeriod} days`);
+    if (details.commonAreas?.length) detailLines.push(`  • Common Areas     : ${details.commonAreas.join(", ")}`);
+    if (details.rooms?.length) {
+      detailLines.push(`  • Rooms            :`);
+      details.rooms.forEach((r, i) => {
+        detailLines.push(`      ${i + 1}). ${r.roomType} — ${r.bedsAvailable} beds — ₹${r.rent} rent — ₹${r.securityDeposit} deposit`);
+      });
+    }
+
+    // ── format purpose block ──
+    const purposeLines = [];
+    if (purpose.price          !== undefined) purposeLines.push(`  • Sale Price       : ₹${purpose.price.toLocaleString()}`);
+    if (purpose.constructionStatus)           purposeLines.push(`  • Construction     : ${purpose.constructionStatus}`);
+    if (purpose.ageOfProperty  !== undefined) purposeLines.push(`  • Age of Property  : ${purpose.ageOfProperty} yrs`);
+    if (purpose.availableFrom)                purposeLines.push(`  • Available From   : ${purpose.availableFrom}`);
+    if (purpose.monthlyRent    !== undefined) purposeLines.push(`  • Monthly Rent     : ₹${purpose.monthlyRent.toLocaleString()}`);
+    if (purpose.securityDeposit) {
+      const dep = purpose.securityDeposit;
+      purposeLines.push(`  • Security Deposit : ${dep.type}${dep.amount ? ` — ₹${dep.amount.toLocaleString()}` : ""}`);
+    }
+
+    const purposeLabel = d.purposeKey === "rentInfo" ? "Rent Info" : d.purposeKey === "pgDetails" ? "PG Info" : "Sell Info";
+
+    const msg =
+      `✅ All details collected! Please review before submitting.\n\n` +
+      `📋 Basic Info :\n` +
+      `  • Purpose  : ${d.listingTypeName}\n` +
+      `  • Category : ${d.categoryName}\n` +
+      `  • Type     : ${d.propertyTypeName}\n` +
+      `  • City     : ${d.cityName}\n` +
+      `  • Locality : ${d.locality?.address}\n\n` +
+      `🏠 Property Details :\n${detailLines.join("\n")}\n\n` +
+      `💰 ${purposeLabel} :\n${purposeLines.join("\n")}\n\n` +
+      `Ready to submit? 🚀`;
+
+    await botSay(msg, ["Yes, Submit", "Edit Last Question"]);
+    goTo("submit", d);
     return;
   }
 
   // ── Submit ────────────────────────────────────────────────────────────────
   if (step === "submit") {
     if (!answer) return;
-    if (answer === "No, Cancel") {
-      await botSay("No problem! Your progress has been saved. You can close this window.");
+    if (answer === "Edit Last Question") {
+      goTo("edit_last", collectedData);
       return;
     }
+    await botSay("Submitting your listing...");
     const d = collectedData;
     const payload = {
-      categoryId:                    d.categoryId,
-      listingTypeId:                 d.listingTypeId,
-      propertyTypeId:                d.propertyTypeId,
-      cityId:                        d.cityId,
-      locality:                      d.locality,
-      [d.detailsKey]:                d[d.detailsKey],
-      [d.purposeKey ?? "sellInfo"]:  d[d.purposeKey ?? "sellInfo"],
+      categoryId:                   d.categoryId,
+      listingTypeId:                d.listingTypeId,
+      propertyTypeId:               d.propertyTypeId,
+      cityId:                       d.cityId,
+      locality:                     d.locality,
+      [d.detailsKey]:               d[d.detailsKey],
+      [d.purposeKey ?? "sellInfo"]: d[d.purposeKey ?? "sellInfo"],
     };
-    await botSay("Submitting your listing...");
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/properties/list`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/mixed/property-listings`, {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
@@ -1044,10 +1176,51 @@ export async function propertyListingFlow(step, answer, collectedData, { botSay,
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Submission failed");
-      await botSay("🎉 Your property has been listed successfully! Our team will review and publish it within 24 hours.");
+      await botSay(`🎉 ${data.message}`);
     } catch (err) {
       await botSay(`⚠️ Failed to submit: ${err.message}\n\nPlease try again.`, ["Retry"]);
       goTo("submit_retry", collectedData);
+    }
+    return;
+  }
+
+  // ── Edit Last Question ────────────────────────────────────────────────────
+  if (step === "edit_last") {
+    const d = collectedData;
+    const isSell = d.listingTypeId === LISTING_TYPE_SELL_ID;
+    const isPG   = d.listingTypeId === LISTING_TYPE_PG_ID;
+    if (isPG) {
+      // last PG question was rooms
+      await botSay("What is the room type?", PG_ROOM_TYPE_OPTIONS);
+      goTo("pg_room_type", d);
+    } else if (isSell) {
+      // restore temp keys from sellInfo so sell_age / sell_available_from can rebuild correctly
+      const restored = {
+        ...d,
+        _sellPrice:  d.sellInfo?.price,
+        _sellStatus: d.sellInfo?.constructionStatus,
+      };
+      setCollectedData(() => restored);
+      const status = d.sellInfo?.constructionStatus;
+      if (status === "ReadyToMove") {
+        await botSay("What is the age of the property in years?");
+        setCustomInput({ type: "number", key: "sell_age_edit", placeholder: "Age in years...", allowZero: true });
+        goTo("sell_age", restored);
+      } else {
+        await botSay("From which date will it be available?");
+        setCustomInput({ type: "date", key: "sell_available_from_edit", minDate: new Date().toISOString().split("T")[0] });
+        goTo("sell_available_from", restored);
+      }
+    } else {
+      // rent — restore temp keys from rentInfo so rent_deposit_type can rebuild correctly
+      const restored = {
+        ...d,
+        _rentMonthly:      d.rentInfo?.monthlyRent,
+        _rentAvailableFrom: d.rentInfo?.availableFrom,
+      };
+      setCollectedData(() => restored);
+      await botSay("What is the security deposit?", SECURITY_DEPOSIT_OPTIONS);
+      goTo("rent_deposit_type", restored);
     }
     return;
   }

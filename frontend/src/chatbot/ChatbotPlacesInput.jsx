@@ -32,6 +32,9 @@ export default function ChatbotPlacesInput({ mode = "city", cityName = "", onSub
   const debounceRef                   = useRef(null);
   const serviceRef                    = useRef(null);
   const inputWrapRef                  = useRef(null);
+  const inputRef                      = useRef(null);
+
+  useEffect(() => { inputRef.current?.focus(); }, []);
 
   useEffect(() => {
     loadGoogleMapsScript().then(() => {
@@ -121,6 +124,7 @@ export default function ChatbotPlacesInput({ mode = "city", cityName = "", onSub
       <div className="flex items-center border border-gray-200 rounded-xl focus-within:border-[#7B2FFF] transition bg-white">
         <FiSearch size={15} className="ml-3 text-gray-400 flex-shrink-0" />
         <input
+          ref={inputRef}
           type="text"
           value={query}
           onChange={handleChange}

@@ -35,14 +35,10 @@ export const FURNISH_TYPE_OPTIONS = ["Unfurnished", "Semi-Furnished", "Fully Fur
 
 // PG options
 export const PG_FOR_OPTIONS          = ["Boys", "Girls", "Both"];
-export const PG_SUITED_FOR_OPTIONS   = ["Students", "Professionals", "Family"];
+export const PG_SUITED_FOR_OPTIONS   = ["Students", "Professionals"];
 export const PG_MEALS_OPTIONS        = ["Breakfast", "Lunch", "Dinner"];
-export const PG_COMMON_AREA_OPTIONS  = ["Kitchen", "Gym", "Parking", "Laundry", "TV Room", "Terrace"];
+export const PG_COMMON_AREA_OPTIONS  = ["Living Room", "Kitchen", "Dining Area", "Bathroom", "Balcony", "Terrace", "Laundry Room", "Study Room", "Gym", "Parking"];
 export const PG_ROOM_TYPE_OPTIONS    = ["1 Sharing", "2 Sharing", "3 Sharing", "4 Sharing", "5 Sharing", "6 Sharing", "7 Sharing"];
-export const PG_ROOM_TYPE_MAP        = {
-  "1 Sharing": "Single", "2 Sharing": "Double", "3 Sharing": "Triple",
-  "4 Sharing": "4 Sharing", "5 Sharing": "5 Sharing", "6 Sharing": "6 Sharing", "7 Sharing": "7 Sharing",
-};
 
 // Commercial options
 export const COMMERCIAL_ZONE_TYPE_OPTIONS = ["Industrial", "Commercial", "Residential", "SEZ", "OpenSpaces", "Agricultural", "Others"];

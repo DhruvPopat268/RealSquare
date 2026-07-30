@@ -34,3 +34,9 @@ export async function fetchActiveCities() {
   const { data } = await axios.get(`${API}/api/mixed/property-listings/active-cities`, config);
   return data.data.map((c) => ({ label: c.name, value: c._id }));
 }
+
+// ── Furnishings & Amenities ───────────────────────────────────────────────────
+export async function fetchFurnishingsAmenities() {
+  const { data } = await axios.get(`${API}/api/mixed/property-listings/active-furnishings-amenities`, config);
+  return data.data;
+}

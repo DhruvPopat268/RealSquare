@@ -13,12 +13,15 @@ export function useChatbot(runStep) {
   const [isTyping, setIsTyping]           = useState(false);
   const [quickReplies, setQuickReplies]   = useState([]);
   const [awaitingInput, setAwaitingInput] = useState(false);
-  const [customInput, setCustomInput]     = useState(null); // { type, mode, cityName, placeholder }
+  const [customInput, setCustomInput]     = useState(null);
   const [collectedData, setCollectedData] = useState({});
 
   const stepRef          = useRef("init");
+  const prevStepRef      = useRef("init");
   const collectedDataRef = useRef({});
   const hasStartedRef    = useRef(false);
+  // snapshot of bot state just before the last user reply
+  const lastQuestionSnapRef = useRef(null); // { quickReplies, customInput, awaitingInput }
 
   const updateCollectedData = useCallback((updater) => {
     setCollectedData((prev) => {
@@ -43,24 +46,39 @@ export function useChatbot(runStep) {
         addMessage({ from: "bot", text });
         if (options.length > 0) setQuickReplies(options);
         if (freeInput) setAwaitingInput(true);
+        // update current question tracker
+        currentQuestionRef.current = { text, quickReplies: options, customInput: null, awaitingInput: freeInput };
         resolve();
       }, 750);
     });
   }, [addMessage]);
 
+  const setCustomInputAndSnap = useCallback((config) => {
+    setCustomInput(config);
+    // update current question tracker with customInput
+    if (config) {
+      currentQuestionRef.current = { ...currentQuestionRef.current, customInput: config, quickReplies: [], awaitingInput: false };
+    }
+  }, []);
+
+  // track current question state in a ref so handleUserReply can snapshot it
+  const currentQuestionRef = useRef({ text: "", quickReplies: [], customInput: null, awaitingInput: false });
+
   const goTo = useCallback((nextStep, latestData) => {
     stepRef.current = nextStep;
     const data = latestData ?? collectedDataRef.current;
-    runStep(nextStep, null, data, { botSay, setCollectedData: updateCollectedData, goTo, setCustomInput });
-  }, [botSay, runStep, updateCollectedData]);
+    runStep(nextStep, null, data, { botSay, setCollectedData: updateCollectedData, goTo, setCustomInput: setCustomInputAndSnap });
+  }, [botSay, runStep, setCustomInputAndSnap, updateCollectedData]);
 
   const handleUserReply = useCallback((text, extraData = {}) => {
     if (!text.trim()) return;
+    prevStepRef.current = stepRef.current;
+    // snapshot the current question BEFORE moving forward
+    lastQuestionSnapRef.current = { ...currentQuestionRef.current };
     setQuickReplies([]);
     setAwaitingInput(false);
     setCustomInput(null);
     addMessage({ from: "user", text });
-    // merge any extra data (e.g. lat/lng from places) before running the step
     if (Object.keys(extraData).length > 0) {
       collectedDataRef.current = { ...collectedDataRef.current, ...extraData };
       setCollectedData(collectedDataRef.current);
@@ -69,9 +87,28 @@ export function useChatbot(runStep) {
       botSay,
       setCollectedData: updateCollectedData,
       goTo,
-      setCustomInput,
+      setCustomInput: setCustomInputAndSnap,
     });
-  }, [addMessage, botSay, goTo, runStep, updateCollectedData]);
+  }, [addMessage, botSay, goTo, runStep, setCustomInputAndSnap, updateCollectedData]);
+
+  const editLastAnswer = useCallback(() => {
+    const snap = lastQuestionSnapRef.current;
+    if (!snap) return;
+    stepRef.current = prevStepRef.current;
+    // restore currentQuestionRef so next handleUserReply snapshots correctly
+    currentQuestionRef.current = { ...snap };
+    setIsTyping(true);
+    setQuickReplies([]);
+    setCustomInput(null);
+    setAwaitingInput(false);
+    setTimeout(() => {
+      setIsTyping(false);
+      addMessage({ from: "bot", text: snap.text });
+      setQuickReplies(snap.quickReplies);
+      setCustomInput(snap.customInput);
+      setAwaitingInput(snap.awaitingInput);
+    }, 250);
+  }, [addMessage]);
 
   const startFlow = useCallback(() => {
     if (hasStartedRef.current) return;
@@ -79,8 +116,8 @@ export function useChatbot(runStep) {
     collectedDataRef.current = {};
     setCollectedData({});
     stepRef.current = "init";
-    runStep("init", null, {}, { botSay, setCollectedData: updateCollectedData, goTo, setCustomInput });
-  }, [botSay, goTo, runStep, updateCollectedData]);
+    runStep("init", null, {}, { botSay, setCollectedData: updateCollectedData, goTo, setCustomInput: setCustomInputAndSnap });
+  }, [botSay, goTo, runStep, setCustomInputAndSnap, updateCollectedData]);
 
   return {
     messages,
@@ -90,6 +127,7 @@ export function useChatbot(runStep) {
     customInput,
     collectedData,
     handleUserReply,
+    editLastAnswer,
     startFlow,
   };
 }

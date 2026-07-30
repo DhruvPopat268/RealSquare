@@ -396,10 +396,9 @@ export default function Navbar() {
         <div className="hidden md:flex items-center justify-end gap-4 z-10 flex-shrink-0 ml-auto">
           <button
             onClick={() => navigate("/chatbot")}
-            className="flex items-center gap-1.5 border-none bg-transparent text-sm font-bold text-[#1a1a2e] cursor-pointer whitespace-nowrap hover:text-[#7B2FFF] transition-colors"
+            className="flex items-center gap-1.5 border-none bg-[#7B2FFF] text-sm font-bold text-white cursor-pointer whitespace-nowrap hover:bg-[#6320d4] transition-colors px-4 py-2 rounded-xl"
           >
             List Property
-            <span className="bg-[#7B2FFF] text-white text-[10px] font-bold px-1.5 py-0.5 rounded tracking-wide">FREE</span>
           </button>
 
           {/* Switch Role Modal */}
@@ -759,7 +758,7 @@ export default function Navbar() {
                 onClick={() => { setMobileOpen(false); navigate("/chatbot"); }}
                 className="w-full bg-[#7B2FFF] text-white border-none px-4 py-3 rounded-xl text-sm font-bold cursor-pointer"
               >
-                List Property FREE
+                List Property
               </button>
             </div>
           </div>

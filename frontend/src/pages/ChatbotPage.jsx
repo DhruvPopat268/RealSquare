@@ -8,6 +8,7 @@ import { propertyListingFlow } from "../chatbot/PropertyListingFlow";
 import ChatbotPlacesInput from "../chatbot/ChatbotPlacesInput";
 import ChatbotMultiSelect from "../chatbot/ChatbotMultiSelect";
 import ChatbotNumberInput from "../chatbot/ChatbotNumberInput";
+import ChatbotFurnishAmenitiesInput from "../chatbot/ChatbotFurnishAmenitiesInput";
 import ChatbotDateInput from "../chatbot/ChatbotDateInput";
 
 function BotAvatar() {
@@ -48,7 +49,7 @@ function UserMessage({ text }) {
   return (
     <div className="flex items-end gap-2 justify-end">
       <div className="max-w-[75%] bg-[#7B2FFF] rounded-2xl rounded-br-sm px-4 py-3 shadow-sm">
-        <p className="text-sm text-white leading-relaxed">{text}</p>
+        <p className="text-sm text-white leading-relaxed whitespace-pre-line">{text}</p>
       </div>
       <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center flex-shrink-0 text-xs font-bold text-gray-600">
         You
@@ -78,7 +79,7 @@ export default function ChatbotPage() {
   const [input, setInput] = useState("");
   const chatContainerRef = useRef(null);
 
-  const { messages, isTyping, quickReplies, awaitingInput, customInput, handleUserReply, startFlow } =
+  const { messages, isTyping, quickReplies, awaitingInput, customInput, handleUserReply, editLastAnswer, startFlow } =
     useChatbot(propertyListingFlow);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -92,6 +93,8 @@ export default function ChatbotPage() {
   }, [messages, isTyping, quickReplies, customInput]);
 
   const inputRef = useRef(null);
+
+  const lastUserMsgId = [...messages].reverse().find((m) => m.from === "user")?.id;
 
   const canSend = awaitingInput && input.trim().length > 0;
 
@@ -111,11 +114,12 @@ export default function ChatbotPage() {
     }
   };
 
-  const showPlacesInput      = !!customInput && customInput.type === "places";
-  const showMultiSelectInput = !!customInput && customInput.type === "multiselect";
-  const showNumberInput      = !!customInput && customInput.type === "number";
-  const showDateInput        = !!customInput && customInput.type === "date";
-  const showTextInput        = awaitingInput && !showPlacesInput && !showMultiSelectInput && !showNumberInput && !showDateInput;
+  const showPlacesInput           = !!customInput && customInput.type === "places";
+  const showMultiSelectInput      = !!customInput && customInput.type === "multiselect";
+  const showNumberInput           = !!customInput && customInput.type === "number";
+  const showDateInput             = !!customInput && customInput.type === "date";
+  const showFurnishAmenitiesInput = !!customInput && customInput.type === "furnishamenities";
+  const showTextInput             = awaitingInput && !showPlacesInput && !showMultiSelectInput && !showNumberInput && !showDateInput && !showFurnishAmenitiesInput;
 
   useEffect(() => {
     if (showTextInput) inputRef.current?.focus();
@@ -144,14 +148,26 @@ export default function ChatbotPage() {
           {/* Chat window */}
           <div
             className="bg-white rounded-2xl border border-gray-200 shadow-sm flex flex-col overflow-hidden"
-            style={{ height: "calc(100vh - 260px)", minHeight: 400 }}
+            style={{ height: "calc(100vh - 210px)", minHeight: 400 }}
           >
             {/* Messages area */}
             <div ref={chatContainerRef} className="flex-1 overflow-y-auto px-4 py-5 flex flex-col gap-4 scrollbar-none">
               {messages.map((msg) =>
                 msg.from === "bot"
                   ? <BotMessage key={msg.id} text={msg.text} />
-                  : <UserMessage key={msg.id} text={msg.text} />
+                  : (
+                    <div key={msg.id} className="flex flex-col items-end gap-1">
+                      <UserMessage text={msg.text} />
+                      {msg.id === lastUserMsgId && !isTyping && (
+                        <button
+                          onClick={editLastAnswer}
+                          className="mr-10 text-xs text-[#7B2FFF] hover:underline bg-transparent border-none cursor-pointer px-1"
+                        >
+                          ✏️ Edit
+                        </button>
+                      )}
+                    </div>
+                  )
               )}
               {isTyping && <TypingIndicator />}
               {!isTyping && quickReplies.length > 0 && (
@@ -192,6 +208,14 @@ export default function ChatbotPage() {
                   minDate={customInput.minDate}
                   maxDate={customInput.maxDate}
                   onSubmit={(val) => handleUserReply(val)}
+                />
+              ) : showFurnishAmenitiesInput ? (
+                <ChatbotFurnishAmenitiesInput
+                  key={customInput.key}
+                  furnishType={customInput.furnishType}
+                  furnishings={customInput.furnishings}
+                  amenities={customInput.amenities}
+                  onSubmit={(val) => handleUserReply(val.displayText, { _furnishAmenitiesPayload: { furnishings: val.furnishings, amenities: val.amenities } })}
                 />
               ) : (
                 <>
