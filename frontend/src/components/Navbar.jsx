@@ -266,6 +266,7 @@ function NavItem({ label, menuData, onItemClick, onNavigate }) {
 export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [mobileActiveMenu, setMobileActiveMenu] = useState(null);
+  const [mobileProfileOpen, setMobileProfileOpen] = useState(false);
   const [user, setUser] = useState(null);
   const [profileOpen, setProfileOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("viewed");
@@ -634,7 +635,7 @@ export default function Navbar() {
                     ))}
                   </div>
 
-                  <div className="border-t border-gray-100 pt-2">
+                  <div className="border-t border-gray-100 pt-3">
                     <button
                       onClick={() => {
                         axios.post(`${import.meta.env.VITE_API_URL}/api/system-users/logout`, {}, { withCredentials: true })
@@ -645,7 +646,7 @@ export default function Navbar() {
                             navigate("/");
                           });
                       }}
-                      className="w-full text-left text-sm text-red-500 bg-transparent border-none cursor-pointer py-1.5 hover:text-red-600 transition-colors"
+                      className="w-full bg-red-500 text-white border-none px-4 py-3 rounded-xl text-sm font-bold cursor-pointer hover:bg-red-600 transition"
                     >
                       Logout
                     </button>
@@ -664,14 +665,52 @@ export default function Navbar() {
           )}
         </div>
 
-        {/* Mobile — hamburger */}
-        <div className="md:hidden ml-auto flex items-center gap-7 mr-2">
-          <button
-            className="bg-transparent border-none cursor-pointer text-[#333] p-1"
-            onClick={() => setMobileOpen((prev) => !prev)}
-          >
-            {mobileOpen ? <FiX size={24} /> : <FiMenu size={24} />}
-          </button>
+        {/* Mobile — right side */}
+        <div className="md:hidden ml-auto flex items-center gap-2 mr-2">
+          {!user && (
+            <button
+              onClick={() => navigate("/login")}
+              className="flex items-center gap-1.5 bg-[#7B2FFF] border-none rounded-full px-4 py-1.5 cursor-pointer text-white text-sm font-semibold hover:bg-[#6320d4] transition"
+            >
+              <FiUser size={15} />
+              Login
+            </button>
+          )}
+          {user && (
+            <button
+              onClick={() => navigate("/chatbot")}
+              className="flex items-center gap-1.5 bg-[#7B2FFF] border-none rounded-full px-4 py-1.5 cursor-pointer text-white text-sm font-semibold hover:bg-[#6320d4] transition"
+            >
+              List Property
+            </button>
+          )}
+          {user ? (
+            <button
+              onClick={() => setMobileOpen((prev) => !prev)}
+              className="flex items-center gap-1 border-none bg-transparent cursor-pointer"
+            >
+              <div className="relative flex-shrink-0">
+                {profile?.profilePhoto ? (
+                  <img src={profile.profilePhoto} alt={navLabel} className="w-8 h-8 rounded-full object-cover border-2 border-[#7B2FFF]" />
+                ) : (
+                  <div className="w-8 h-8 rounded-full bg-[#f3eeff] border-2 border-[#7B2FFF] flex items-center justify-center">
+                    <FiUser size={15} className="text-[#7B2FFF]" />
+                  </div>
+                )}
+                {isIncomplete && (
+                  <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-orange-400 border-2 border-white" />
+                )}
+              </div>
+              <FiChevronDown size={13} className={`opacity-60 transition-transform duration-200 ${mobileOpen ? "rotate-180" : ""}`} />
+            </button>
+          ) : (
+            <button
+              className="bg-transparent border-none cursor-pointer text-[#333] p-1"
+              onClick={() => setMobileOpen((prev) => !prev)}
+            >
+              {mobileOpen ? <FiX size={24} /> : <FiMenu size={24} />}
+            </button>
+          )}
         </div>
       </nav>
 
@@ -701,6 +740,60 @@ export default function Navbar() {
 
             {/* Nav links */}
             <div className="flex flex-col flex-1 overflow-y-auto px-5 py-4 gap-1">
+
+              {/* Mobile profile section — shown when logged in, always expanded */}
+              {user && (
+                <div className="mb-3 pb-3 border-b border-gray-100">
+                  {/* Header */}
+                  <div className="flex items-center gap-3 py-2 px-2">
+                    <div className="relative flex-shrink-0">
+                      {profile?.profilePhoto ? (
+                        <img src={profile.profilePhoto} alt={navLabel} className="w-10 h-10 rounded-full object-cover border-2 border-[#7B2FFF]" />
+                      ) : (
+                        <div className="w-10 h-10 rounded-full bg-[#f3eeff] border-2 border-[#7B2FFF] flex items-center justify-center">
+                          <FiUser size={18} className="text-[#7B2FFF]" />
+                        </div>
+                      )}
+                      {isIncomplete && (
+                        <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-orange-400 border-2 border-white" />
+                      )}
+                    </div>
+                    <div className="flex flex-col items-start flex-1 overflow-hidden">
+                      <span className="text-sm font-bold text-[#1a1a2e] truncate">{navLabel}</span>
+                      <span className="text-xs text-gray-400">+91 {user.mobile}</span>
+                      {user.role && <span className="text-[11px] text-[#7B2FFF] font-semibold">{user.role.name}</span>}
+                    </div>
+                  </div>
+                  {/* Coins + Edit + Switch */}
+                  <div className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg mx-2 mb-2">
+                    <CoinIcon size={16} />
+                    <span className="text-xs font-bold text-amber-500 flex-1">{(user.coinsBalance ?? 0).toLocaleString()} coins</span>
+                    <button onClick={() => { setMobileOpen(false); navigate("/profile"); }} className="flex items-center gap-1 px-2 py-1 rounded-lg hover:bg-white/60 text-[#1a1a2e] transition text-xs font-semibold border-none bg-transparent cursor-pointer">Edit <FiEdit2 size={11} /></button>
+                    <button onClick={() => { setShowSwitchModal(true); setSwitchSelected(null); }} className="flex items-center gap-1 px-2 py-1 rounded-lg hover:bg-[#fff0f0] text-red-400 hover:text-red-500 transition text-xs font-semibold border border-red-200 hover:border-red-300 bg-transparent cursor-pointer"><FiRefreshCw size={11} />Switch</button>
+                  </div>
+                  {/* Plan */}
+                  {user.activePlan ? (
+                    <div className="px-2 py-2 border border-gray-100 rounded-xl mx-2 mb-2">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-[11px] font-bold text-[#7B2FFF]">{user.activePlan.name}</span>
+                        <button onClick={() => { setMobileOpen(false); navigate("/plans"); }} className="text-[10px] font-bold text-white bg-amber-400 border-none rounded-lg px-2 py-0.5 cursor-pointer">Change Plan</button>
+                      </div>
+                      <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                        <div className="h-full bg-[#7B2FFF] rounded-full" style={{ width: `${user.activePlan.numberOfPropertiesGiven > 0 ? Math.min((user.activePlan.propertiesUsed / user.activePlan.numberOfPropertiesGiven) * 100, 100) : 0}%` }} />
+                      </div>
+                      <p className="text-[10px] text-gray-400 mt-1">Expires: {user.activePlan.expiryDate}</p>
+                    </div>
+                  ) : (
+                    <button onClick={() => { setMobileOpen(false); navigate("/plans"); }} className="text-[11px] font-semibold text-[#7B2FFF] bg-[#f3eeff] border-none rounded-lg px-3 py-2 cursor-pointer w-full text-left mx-2 mb-2">Purchase Plan →</button>
+                  )}
+                  {/* Quick actions */}
+                  <div className="flex gap-2 mx-2 mb-2">
+                    <button onClick={() => { setMobileOpen(false); navigate("/deposit-coins"); }} className="flex-1 text-[11px] font-semibold text-gray-700 bg-white border border-gray-200 rounded-lg py-1.5 cursor-pointer hover:bg-gray-50 transition">+ Deposit Coins</button>
+                    <button onClick={() => { setMobileOpen(false); navigate("/payment-transactions"); }} className="flex-1 text-[11px] font-semibold text-gray-700 bg-white border border-gray-200 rounded-lg py-1.5 cursor-pointer hover:bg-gray-50 transition">Transactions</button>
+                  </div>
+                </div>
+              )}
+
               {Object.keys(menus).map((label) => {
                 const hasMenu = menus[label] !== null;
                 const isOpen = mobileActiveMenu === label;
@@ -755,10 +848,18 @@ export default function Navbar() {
             {/* Bottom CTA */}
             <div className="px-5 py-5 border-t border-gray-100">
               <button
-                onClick={() => { setMobileOpen(false); navigate("/chatbot"); }}
-                className="w-full bg-[#7B2FFF] text-white border-none px-4 py-3 rounded-xl text-sm font-bold cursor-pointer"
+                onClick={() => {
+                  axios.post(`${import.meta.env.VITE_API_URL}/api/system-users/logout`, {}, { withCredentials: true })
+                    .finally(() => {
+                      setMobileOpen(false);
+                      localStorage.removeItem("isAuthenticated");
+                      setUser(null);
+                      navigate("/");
+                    });
+                }}
+                className="w-full bg-red-500 text-white border-none px-4 py-3 rounded-xl text-sm font-bold cursor-pointer hover:bg-red-600 transition"
               >
-                List Property
+                Logout
               </button>
             </div>
           </div>
