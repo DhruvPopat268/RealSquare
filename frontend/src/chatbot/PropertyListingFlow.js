@@ -347,7 +347,16 @@ export async function propertyListingFlow(step, answer, collectedData, { botSay,
 
   if (step === "pg_room_beds") {
     if (!answer) return;
-    const updated = { ...collectedData, _pgRoomBeds: Number(answer) };
+    const beds = Number(answer);
+    // derive max from room type label e.g. "3 Sharing" → 3
+    const maxBeds = Number(collectedData._pgRoomType?.split(" ")[0]) || Infinity;
+    if (beds < 1 || beds > maxBeds) {
+      await botSay(`❌ For "${collectedData._pgRoomType}", beds available must be between 1 and ${maxBeds}.\n\nPlease enter a valid number.`);
+      setCustomInput({ type: "number", key: "pg_room_beds_retry", placeholder: "Number of beds..." });
+      goTo("pg_room_beds", collectedData);
+      return;
+    }
+    const updated = { ...collectedData, _pgRoomBeds: beds };
     setCollectedData(() => updated);
     await botSay("What is the rent for this room type? (in ₹)");
     setCustomInput({ type: "number", key: "pg_room_rent", placeholder: "Rent amount in ₹..." });
@@ -411,7 +420,7 @@ export async function propertyListingFlow(step, answer, collectedData, { botSay,
       ["_pgName","_pgFor","_pgTotalBeds","_pgSuitedFor","_pgMealsAvailable","_pgMeals",
        "_pgNoticePeriod","_pgLockinPeriod","_pgCommonAreas","_pgRooms"].forEach((k) => delete updated[k]);
       setCollectedData(() => updated);
-      goTo("summary", updated);
+      goTo("ask_images", updated);
     }
     return;
   }
@@ -925,7 +934,7 @@ export async function propertyListingFlow(step, answer, collectedData, { botSay,
     const isSell = collectedData.listingTypeId === LISTING_TYPE_SELL_ID;
     const isPG   = collectedData.listingTypeId === LISTING_TYPE_PG_ID;
     if (isPG) {
-      goTo("summary", collectedData);
+      goTo("ask_images", collectedData);
     } else if (isSell) {
       await botSay("What is the expected sale price? (in ₹)");
       setCustomInput({ type: "number", key: "sell_price", placeholder: "Expected sale price in ₹..." });
@@ -977,7 +986,7 @@ export async function propertyListingFlow(step, answer, collectedData, { botSay,
     };
     ["_sellPrice", "_sellStatus"].forEach((k) => delete updated[k]);
     setCollectedData(() => updated);
-    goTo("summary", updated);
+    goTo("ask_images", updated);
     return;
   }
 
@@ -993,7 +1002,7 @@ export async function propertyListingFlow(step, answer, collectedData, { botSay,
     };
     ["_sellPrice", "_sellStatus"].forEach((k) => delete updated[k]);
     setCollectedData(() => updated);
-    goTo("summary", updated);
+    goTo("ask_images", updated);
     return;
   }
 
@@ -1037,7 +1046,7 @@ export async function propertyListingFlow(step, answer, collectedData, { botSay,
       };
       ["_rentMonthly", "_rentAvailableFrom", "_depositType"].forEach((k) => delete updated[k]);
       setCollectedData(() => updated);
-      goTo("summary", updated);
+      goTo("ask_images", updated);
     }
     return;
   }
@@ -1054,6 +1063,40 @@ export async function propertyListingFlow(step, answer, collectedData, { botSay,
     };
     ["_rentMonthly", "_rentAvailableFrom", "_depositType"].forEach((k) => delete updated[k]);
     setCollectedData(() => updated);
+    goTo("ask_images", updated);
+    return;
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // IMAGE UPLOAD
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  if (step === "ask_images") {
+    await botSay("Would you like to upload images of your property?\n\n📸 You can upload up to 20 images", ["Upload images", "Skip"]);
+    goTo("images_choice", collectedData);
+    return;
+  }
+
+  if (step === "images_choice") {
+    if (!answer) return;
+    if (answer === "Skip") {
+      const updated = { ...collectedData, _images: [] };
+      setCollectedData(() => updated);
+      goTo("summary", updated);
+    } else {
+      await botSay("Great! Please upload your images (max 20).\n\nClick the upload area below to select images.");
+      setCustomInput({ type: "images", key: "property_images" });
+      goTo("images_upload", collectedData);
+    }
+    return;
+  }
+
+  if (step === "images_upload") {
+    if (!answer) return;
+    const images = collectedData._uploadedImages ?? [];
+    const updated = { ...collectedData, _images: images };
+    setCollectedData(() => updated);
+    await botSay(`✅ ${images.length} image${images.length > 1 ? "s" : ""} uploaded successfully!`);
     goTo("summary", updated);
     return;
   }
@@ -1144,7 +1187,7 @@ export async function propertyListingFlow(step, answer, collectedData, { botSay,
       `💰 ${purposeLabel} :\n${purposeLines.join("\n")}\n\n` +
       `Ready to submit? 🚀`;
 
-    await botSay(msg, ["Yes, Submit", "Edit Last Question"]);
+    await botSay(msg, ["Yes, Submit"]);
     goTo("submit", d);
     return;
   }
@@ -1152,13 +1195,12 @@ export async function propertyListingFlow(step, answer, collectedData, { botSay,
   // ── Submit ────────────────────────────────────────────────────────────────
   if (step === "submit") {
     if (!answer) return;
-    if (answer === "Edit Last Question") {
-      goTo("edit_last", collectedData);
-      return;
-    }
-    await botSay("Submitting your listing...");
+
     const d = collectedData;
-    const payload = {
+    const images = d._images ?? [];
+    const hasImages = images.length > 0;
+
+    const listingPayload = {
       categoryId:                   d.categoryId,
       listingTypeId:                d.listingTypeId,
       propertyTypeId:               d.propertyTypeId,
@@ -1167,19 +1209,50 @@ export async function propertyListingFlow(step, answer, collectedData, { botSay,
       [d.detailsKey]:               d[d.detailsKey],
       [d.purposeKey ?? "sellInfo"]: d[d.purposeKey ?? "sellInfo"],
     };
+
+    // ── Step 1: Create the property listing ──────────────────────────────
+    let propertyId;
     try {
+      await botSay("⏳ Submitting your property listing...");
       const res = await fetch(`${import.meta.env.VITE_API_URL}/api/mixed/property-listings`, {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+        body: JSON.stringify(listingPayload),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.message || "Submission failed");
-      await botSay(`🎉 ${data.message}`);
+      if (!res.ok) throw new Error(data.message || "Failed to list property");
+      propertyId = data.data?._id;
     } catch (err) {
-      await botSay(`⚠️ Failed to submit: ${err.message}\n\nPlease try again.`, ["Retry"]);
+      await botSay(`⚠️ Failed to list property: ${err.message}\n\nPlease try again after some time.`, ["Retry"]);
       goTo("submit_retry", collectedData);
+      return;
+    }
+
+    // ── Step 2: Upload images (if any) ───────────────────────────────────
+    if (!hasImages) {
+      await botSay("🎉 Your property has been listed successfully!");
+      return;
+    }
+
+    // Show animated loading — keep saying dots while media uploads
+    await botSay("📸 Uploading your images, please wait...");
+
+    try {
+      const formData = new FormData();
+      formData.append("propertyId", propertyId);
+      images.forEach((file) => formData.append("images", file));
+
+      const mediaRes = await fetch(`${import.meta.env.VITE_API_URL}/api/mixed/property-listings/media`, {
+        method: "POST",
+        credentials: "include",
+        body: formData,
+      });
+      const mediaData = await mediaRes.json();
+      if (!mediaRes.ok) throw new Error(mediaData.message || "Image upload failed");
+      await botSay(`🎉 ${mediaData.message}`);
+    } catch (err) {
+      await botSay(`⚠️ Property listed but image upload failed: ${err.message}\n\nYou can try uploading images later.`);
     }
     return;
   }

@@ -15,6 +15,7 @@ export function useChatbot(runStep) {
   const [awaitingInput, setAwaitingInput] = useState(false);
   const [customInput, setCustomInput]     = useState(null);
   const [collectedData, setCollectedData] = useState({});
+  const [currentStep, setCurrentStep]     = useState("init");
 
   const stepRef          = useRef("init");
   const prevStepRef      = useRef("init");
@@ -66,6 +67,7 @@ export function useChatbot(runStep) {
 
   const goTo = useCallback((nextStep, latestData) => {
     stepRef.current = nextStep;
+    setCurrentStep(nextStep);
     const data = latestData ?? collectedDataRef.current;
     runStep(nextStep, null, data, { botSay, setCollectedData: updateCollectedData, goTo, setCustomInput: setCustomInputAndSnap });
   }, [botSay, runStep, setCustomInputAndSnap, updateCollectedData]);
@@ -126,6 +128,7 @@ export function useChatbot(runStep) {
     awaitingInput,
     customInput,
     collectedData,
+    currentStep,
     handleUserReply,
     editLastAnswer,
     startFlow,

@@ -312,6 +312,12 @@ export default function Navbar() {
   const isIncomplete = !displayName;
   const navLabel = displayName || user?.mobile || "";
 
+  const canListProperty = user && [
+    import.meta.env.VITE_OWNER_ROLE_ID,
+    import.meta.env.VITE_BROKER_ROLE_ID,
+    import.meta.env.VITE_BUILDER_ROLE_ID,
+  ].includes(user.role?._id);
+
   const currentRole = user?.role?.name?.toLowerCase()?.includes("owner") ? "owner"
     : user?.role?.name?.toLowerCase()?.includes("broker") || user?.role?.name?.toLowerCase()?.includes("agent") ? "broker"
     : user?.role?.name?.toLowerCase()?.includes("builder") || user?.role?.name?.toLowerCase()?.includes("developer") ? "builder"
@@ -395,12 +401,14 @@ export default function Navbar() {
 
         {/* Desktop right actions */}
         <div className="hidden md:flex items-center justify-end gap-4 z-10 flex-shrink-0 ml-auto">
-          <button
-            onClick={() => navigate("/chatbot")}
-            className="flex items-center gap-1.5 border-none bg-[#7B2FFF] text-sm font-bold text-white cursor-pointer whitespace-nowrap hover:bg-[#6320d4] transition-colors px-4 py-2 rounded-xl"
-          >
-            List Property
-          </button>
+          {canListProperty && (
+            <button
+              onClick={() => navigate("/chatbot")}
+              className="flex items-center gap-1.5 border-none bg-[#7B2FFF] text-sm font-bold text-white cursor-pointer whitespace-nowrap hover:bg-[#6320d4] transition-colors px-4 py-2 rounded-xl"
+            >
+              List Property
+            </button>
+          )}
 
           {/* Switch Role Modal */}
           {showSwitchModal && (
@@ -676,7 +684,7 @@ export default function Navbar() {
               Login
             </button>
           )}
-          {user && (
+          {canListProperty && (
             <button
               onClick={() => navigate("/chatbot")}
               className="flex items-center gap-1.5 bg-[#7B2FFF] border-none rounded-full px-4 py-1.5 cursor-pointer text-white text-sm font-semibold hover:bg-[#6320d4] transition"

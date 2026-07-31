@@ -1,8 +1,15 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { FiSend, FiHome } from "react-icons/fi";
+import { FiSend, FiHome, FiLock } from "react-icons/fi";
+import axios from "axios";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+
+const ALLOWED_ROLES = [
+  import.meta.env.VITE_OWNER_ROLE_ID,
+  import.meta.env.VITE_BROKER_ROLE_ID,
+  import.meta.env.VITE_BUILDER_ROLE_ID,
+];
 import { useChatbot } from "../chatbot/useChatbot";
 import { propertyListingFlow } from "../chatbot/PropertyListingFlow";
 import ChatbotPlacesInput from "../chatbot/ChatbotPlacesInput";
@@ -10,6 +17,7 @@ import ChatbotMultiSelect from "../chatbot/ChatbotMultiSelect";
 import ChatbotNumberInput from "../chatbot/ChatbotNumberInput";
 import ChatbotFurnishAmenitiesInput from "../chatbot/ChatbotFurnishAmenitiesInput";
 import ChatbotDateInput from "../chatbot/ChatbotDateInput";
+import ChatbotImageUpload from "../chatbot/ChatbotImageUpload";
 
 function BotAvatar() {
   return (
@@ -77,13 +85,27 @@ function QuickReplies({ options, onSelect }) {
 export default function ChatbotPage() {
   const navigate = useNavigate();
   const [input, setInput] = useState("");
+  const [allowed, setAllowed] = useState(null); // null = loading, true/false
   const chatContainerRef = useRef(null);
 
-  const { messages, isTyping, quickReplies, awaitingInput, customInput, handleUserReply, editLastAnswer, startFlow } =
+  useEffect(() => {
+    axios
+      .get(`${import.meta.env.VITE_API_URL}/api/system-users/me`, { withCredentials: true })
+      .then(({ data }) => {
+        if (data.success && ALLOWED_ROLES.includes(data.data?.role?._id)) {
+          setAllowed(true);
+        } else {
+          setAllowed(false);
+        }
+      })
+      .catch(() => setAllowed(false));
+  }, []);
+
+  const { messages, isTyping, quickReplies, awaitingInput, customInput, handleUserReply, editLastAnswer, startFlow, currentStep } =
     useChatbot(propertyListingFlow);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => { startFlow(); }, []);
+  useEffect(() => { if (allowed) startFlow(); }, [allowed]);
 
   // scroll only the chat container, never the page
   useEffect(() => {
@@ -119,11 +141,50 @@ export default function ChatbotPage() {
   const showNumberInput           = !!customInput && customInput.type === "number";
   const showDateInput             = !!customInput && customInput.type === "date";
   const showFurnishAmenitiesInput = !!customInput && customInput.type === "furnishamenities";
-  const showTextInput             = awaitingInput && !showPlacesInput && !showMultiSelectInput && !showNumberInput && !showDateInput && !showFurnishAmenitiesInput;
+  const showImageInput            = !!customInput && customInput.type === "images";
+  const showTextInput             = awaitingInput && !showPlacesInput && !showMultiSelectInput && !showNumberInput && !showDateInput && !showFurnishAmenitiesInput && !showImageInput;
 
   useEffect(() => {
     if (showTextInput) inputRef.current?.focus();
   }, [showTextInput]);
+
+  if (allowed === null) {
+    return (
+      <>
+        <Navbar />
+        <div className="min-h-[calc(100vh-62px)] bg-[#f7f8fa] flex items-center justify-center">
+          <div className="w-8 h-8 border-4 border-[#7B2FFF] border-t-transparent rounded-full animate-spin" />
+        </div>
+        <Footer />
+      </>
+    );
+  }
+
+  if (!allowed) {
+    return (
+      <>
+        <Navbar />
+        <div className="min-h-[calc(100vh-62px)] bg-[#f7f8fa] flex items-center justify-center px-4">
+          <div className="bg-white rounded-2xl shadow-[0_8px_40px_rgba(0,0,0,0.10)] w-full max-w-[420px] p-10 flex flex-col items-center text-center">
+            <div className="w-16 h-16 rounded-full bg-[#f3eeff] flex items-center justify-center mb-5">
+              <FiLock size={28} className="text-[#7B2FFF]" />
+            </div>
+            <h2 className="text-xl font-extrabold text-[#1a1a2e] mb-2">Access Restricted</h2>
+            <p className="text-sm text-gray-400 leading-relaxed mb-6">
+              You don't have permission to list a property. Only Owners, Brokers, and Builders can access this page.
+            </p>
+            <button
+              onClick={() => navigate("/")}
+              className="w-full bg-[#7B2FFF] hover:bg-[#6320d4] text-white py-3 rounded-xl font-semibold text-sm transition"
+            >
+              Back to Home
+            </button>
+          </div>
+        </div>
+        <Footer />
+      </>
+    );
+  }
 
   return (
     <>
@@ -158,7 +219,7 @@ export default function ChatbotPage() {
                   : (
                     <div key={msg.id} className="flex flex-col items-end gap-1">
                       <UserMessage text={msg.text} />
-                      {msg.id === lastUserMsgId && !isTyping && (
+                      {msg.id === lastUserMsgId && !isTyping && currentStep !== "submit" && (
                         <button
                           onClick={editLastAnswer}
                           className="mr-10 text-xs text-[#7B2FFF] hover:underline bg-transparent border-none cursor-pointer px-1"
@@ -178,7 +239,7 @@ export default function ChatbotPage() {
             <div className="border-t border-gray-100" />
 
             {/* Input bar */}
-            <div className="px-4 py-3 flex items-center gap-3">
+            <div className="px-4 py-3 flex items-end gap-3">
               {showPlacesInput ? (
                 <ChatbotPlacesInput
                   mode={customInput.mode}
@@ -216,6 +277,17 @@ export default function ChatbotPage() {
                   furnishings={customInput.furnishings}
                   amenities={customInput.amenities}
                   onSubmit={(val) => handleUserReply(val.displayText, { _furnishAmenitiesPayload: { furnishings: val.furnishings, amenities: val.amenities } })}
+                />
+              ) : showImageInput ? (
+                <ChatbotImageUpload
+                  key={customInput.key}
+                  onSubmit={(files) => {
+                    const count = files.length;
+                    handleUserReply(
+                      `${count} image${count > 1 ? "s" : ""} selected`,
+                      { _uploadedImages: files }
+                    );
+                  }}
                 />
               ) : (
                 <>
