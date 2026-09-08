@@ -12,7 +12,7 @@ import {
   COMMERCIAL_ZONE_TYPE_OPTIONS, COMMERCIAL_LOCATION_HUB_OPTIONS,
   COMMERCIAL_OWNERSHIP_OPTIONS,
 } from "./chatbotConstants";
-import { fetchActivePurposes, fetchActiveCategories, fetchPropertyTypes, fetchActiveCities, fetchFurnishingsAmenities } from "./chatbotApi";
+import { fetchActivePurposes, fetchActiveCategories, fetchPropertyTypes, fetchFurnishingsAmenities } from "./chatbotApi";
 
 export async function propertyListingFlow(step, answer, collectedData, { botSay, setCollectedData, goTo, setCustomInput }) {
 
@@ -147,31 +147,11 @@ export async function propertyListingFlow(step, answer, collectedData, { botSay,
   // ── Q5: City ──────────────────────────────────────────────────────────────
   if (step === "city") {
     if (!answer) return;
-    try {
-      const cities = await fetchActiveCities();
-      const matched = cities.find((c) => c.label.toLowerCase() === answer.toLowerCase());
-      if (!matched) {
-        await botSay(`🚧 Sorry, our service is not available in ${answer} yet. We're coming soon!\n\nWould you like to try a different city?`, ["Yes, try another city"]);
-        goTo("city_retry", collectedData);
-        return;
-      }
-      const updated = { ...collectedData, cityId: matched.value, cityName: answer };
-      setCollectedData(() => updated);
-      await botSay(`Perfect! Now, what's the exact locality or address in ${answer}?`);
-      setCustomInput({ type: "places", mode: "locality", cityName: answer, placeholder: `Search locality in ${answer}...` });
-      goTo("locality", updated);
-    } catch {
-      await botSay("⚠️ Failed to validate city. Please refresh and try again.");
-    }
-    return;
-  }
-
-  // ── City retry ────────────────────────────────────────────────────────────
-  if (step === "city_retry") {
-    if (!answer) return;
-    await botSay("Sure! Which city is the property located in?");
-    setCustomInput({ type: "places", mode: "city", placeholder: "Search for a city..." });
-    goTo("city", collectedData);
+    const updated = { ...collectedData, cityName: answer };
+    setCollectedData(() => updated);
+    await botSay(`Perfect! Now, what's the exact locality or address in ${answer}?`);
+    setCustomInput({ type: "places", mode: "locality", cityName: answer, placeholder: `Search locality in ${answer}...` });
+    goTo("locality", updated);
     return;
   }
 
@@ -1204,7 +1184,6 @@ export async function propertyListingFlow(step, answer, collectedData, { botSay,
       categoryId:                   d.categoryId,
       listingTypeId:                d.listingTypeId,
       propertyTypeId:               d.propertyTypeId,
-      cityId:                       d.cityId,
       locality:                     d.locality,
       [d.detailsKey]:               d[d.detailsKey],
       [d.purposeKey ?? "sellInfo"]: d[d.purposeKey ?? "sellInfo"],
