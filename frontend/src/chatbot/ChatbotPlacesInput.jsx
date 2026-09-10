@@ -68,8 +68,8 @@ export default function ChatbotPlacesInput({ mode = "city", cityName = "", onSub
     if (!value.trim() || !serviceRef.current) { setSuggestions([]); setLoading(false); return; }
 
     const request = mode === "city"
-      ? { input: value, componentRestrictions: { country: "in" }, types: ["(cities)"] }
-      : { input: `${value}, ${cityName}`, componentRestrictions: { country: "in" }, types: ["geocode", "establishment"] };
+      ? { input: value, types: ["(cities)"] }
+      : { input: `${value}, ${cityName}`, types: ["geocode", "establishment"] };
 
     serviceRef.current.getPlacePredictions(request, (results, status) => {
       setLoading(false);
