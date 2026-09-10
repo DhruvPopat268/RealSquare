@@ -86,6 +86,7 @@ export default function ChatbotPage() {
   const navigate = useNavigate();
   const [input, setInput] = useState("");
   const [allowed, setAllowed] = useState(null); // null = loading, true/false
+  const [canListStatus, setCanListStatus] = useState(null); // null = loading, { canList, message }
   const chatContainerRef = useRef(null);
 
   useEffect(() => {
@@ -94,18 +95,29 @@ export default function ChatbotPage() {
       .then(({ data }) => {
         if (data.success && ALLOWED_ROLES.includes(data.data?.role?._id)) {
           setAllowed(true);
+          // only check can-list if role is allowed
+          return axios.get(`${import.meta.env.VITE_API_URL}/api/mixed/property-listings/can-list`, { withCredentials: true });
         } else {
           setAllowed(false);
+          setCanListStatus({ canList: false });
+          return null;
         }
       })
-      .catch(() => setAllowed(false));
+      .then((res) => {
+        if (!res) return;
+        setCanListStatus({ canList: res.data.canList, message: res.data.message });
+      })
+      .catch(() => {
+        setAllowed(false);
+        setCanListStatus({ canList: false });
+      });
   }, []);
 
   const { messages, isTyping, quickReplies, awaitingInput, customInput, handleUserReply, editLastAnswer, startFlow, currentStep } =
     useChatbot(propertyListingFlow);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => { if (allowed) startFlow(); }, [allowed]);
+  useEffect(() => { if (allowed && canListStatus?.canList) startFlow(); }, [allowed, canListStatus]);
 
   // scroll only the chat container, never the page
   useEffect(() => {
@@ -148,7 +160,7 @@ export default function ChatbotPage() {
     if (showTextInput) inputRef.current?.focus();
   }, [showTextInput]);
 
-  if (allowed === null) {
+  if (allowed === null || canListStatus === null) {
     return (
       <>
         <Navbar />
@@ -176,6 +188,38 @@ export default function ChatbotPage() {
             <button
               onClick={() => navigate("/")}
               className="w-full bg-[#7B2FFF] hover:bg-[#6320d4] text-white py-3 rounded-xl font-semibold text-sm transition"
+            >
+              Back to Home
+            </button>
+          </div>
+        </div>
+        <Footer />
+      </>
+    );
+  }
+
+  if (!canListStatus.canList) {
+    return (
+      <>
+        <Navbar />
+        <div className="min-h-[calc(100vh-62px)] bg-[#f7f8fa] flex items-center justify-center px-4">
+          <div className="bg-white rounded-2xl shadow-[0_8px_40px_rgba(0,0,0,0.10)] w-full max-w-[420px] p-10 flex flex-col items-center text-center">
+            <div className="w-16 h-16 rounded-full bg-red-50 flex items-center justify-center mb-5">
+              <FiLock size={28} className="text-red-500" />
+            </div>
+            <h2 className="text-xl font-extrabold text-[#1a1a2e] mb-2">No Listing Credits</h2>
+            <p className="text-sm text-gray-400 leading-relaxed mb-6">
+              {canListStatus.message || "You have no listing credits remaining. Please purchase a plan to list more properties."}
+            </p>
+            <button
+              onClick={() => navigate("/plans")}
+              className="w-full bg-[#7B2FFF] hover:bg-[#6320d4] text-white py-3 rounded-xl font-semibold text-sm transition mb-3"
+            >
+              View Plans
+            </button>
+            <button
+              onClick={() => navigate("/")}
+              className="w-full border border-gray-200 text-gray-500 hover:border-gray-300 py-3 rounded-xl font-semibold text-sm transition bg-transparent cursor-pointer"
             >
               Back to Home
             </button>

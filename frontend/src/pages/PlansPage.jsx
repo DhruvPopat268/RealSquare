@@ -64,7 +64,10 @@ export default function PlansPage() {
     setPurchasing(`${plan._id}-free`);
     setError("");
     try {
-      const res = await fetch(`${BASE_URL}/api/mixed/purchased-plans/purchase`, {
+      const endpoint = activePlan !== null
+        ? `${BASE_URL}/api/mixed/purchased-plans/change-plan`
+        : `${BASE_URL}/api/mixed/purchased-plans/purchase`;
+      const res = await fetch(endpoint, {
         method: "POST", credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ planId: plan._id }),
@@ -168,7 +171,7 @@ export default function PlansPage() {
               <FiArrowLeft size={20} />
             </button>
             <div>
-              <h2 className="text-xl font-extrabold text-[#1a1a2e]">{activePlan !== null ? "Change Plan" : "Choose a Plan"}</h2>
+              <h2 className="text-xl font-extrabold text-[#1a1a2e]">{activePlan !== null ? "Change Listing Plan" : "Choose a Plan"}</h2>
               <p className="text-sm text-gray-400 mt-0.5">{activePlan !== null ? "Switch to a different plan" : "Select the plan that fits your needs"}</p>
             </div>
           </div>
@@ -182,7 +185,7 @@ export default function PlansPage() {
               <ul className="flex flex-col gap-1.5 list-none p-0 m-0">
                 <li className="flex items-start gap-2 text-xs text-red-600">
                   <span className="mt-0.5 flex-shrink-0">1.</span>
-                  If you change your plan, your current active plan will be completely removed — no benefits, unused listings, or leads will be carried forward.
+                  If you change your plan, your current active plan will be completely removed — no benefits or unused listings will be carried forward.
                 </li>
                 <li className="flex items-start gap-2 text-xs text-red-600">
                   <span className="mt-0.5 flex-shrink-0">2.</span>
