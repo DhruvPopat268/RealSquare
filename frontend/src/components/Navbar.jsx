@@ -558,15 +558,19 @@ export default function Navbar() {
                       </div>
                       <div className="flex items-center justify-between mb-1">
                         <span className="text-[11px] text-gray-400">Properties used</span>
-                        <span className="text-[11px] font-semibold text-[#1a1a2e]">{user.activePlan.propertiesUsed} / {user.activePlan.numberOfPropertiesGiven}</span>
+                        <span className="text-[11px] font-semibold text-[#1a1a2e]">
+                          {user.activePlan.propertiesUsed} / {user.activePlan.numberOfPropertiesGiven === -1 ? "Unlimited" : user.activePlan.numberOfPropertiesGiven}
+                        </span>
                       </div>
-                      <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden mb-1.5">
-                        <div
-                          className="h-full bg-[#7B2FFF] rounded-full transition-all"
-                          style={{ width: `${user.activePlan.numberOfPropertiesGiven > 0 ? Math.min((user.activePlan.propertiesUsed / user.activePlan.numberOfPropertiesGiven) * 100, 100) : 0}%` }}
-                        />
-                      </div>
-                      <p className="text-[10px] text-gray-400">Expires: {user.activePlan.expiryDate}</p>
+                      {user.activePlan.numberOfPropertiesGiven !== -1 && (
+                        <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden mb-1.5">
+                          <div
+                            className="h-full bg-[#7B2FFF] rounded-full transition-all"
+                            style={{ width: `${Math.min((user.activePlan.propertiesUsed / user.activePlan.numberOfPropertiesGiven) * 100, 100)}%` }}
+                          />
+                        </div>
+                      )}
+                      <p className="text-[10px] text-gray-400">Expires: {user.activePlan.expiryDate ? new Date(user.activePlan.expiryDate).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }) : "Never"}</p>
                     </div>
                   ) : (
                     <div>
