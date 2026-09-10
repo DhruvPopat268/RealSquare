@@ -7,7 +7,6 @@ import CoinIcon from "../components/CoinIcon";
 import PageSpinner from "../components/PageSpinner";
 
 const BASE_URL = import.meta.env.VITE_API_URL;
-const EXPIRY_TABS = ["Weekly", "Monthly", "Yearly"];
 
 function loadRazorpay() {
   return new Promise((resolve) => {
@@ -24,8 +23,9 @@ export default function PlansPage() {
   const navigate = useNavigate();
   const [plans, setPlans] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [activePlan, setActivePlan] = useState(undefined); // undefined = loading, null = no plan
-  const [activeTab, setActiveTab] = useState("Monthly");
+  const [activePlan, setActivePlan] = useState(undefined);
+  const [expiryTabs, setExpiryTabs] = useState([]);
+  const [activeTab, setActiveTab] = useState(null); // null = All
   const [confirmPlan, setConfirmPlan] = useState(null);
   const [purchasing, setPurchasing] = useState(null);
   const [error, setError] = useState("");
@@ -42,16 +42,23 @@ export default function PlansPage() {
         return fetch(url, { credentials: "include" });
       })
       .then((r) => r.json())
-      .then((d) => { if (d.success) setPlans(d.data); })
+      .then((d) => {
+        if (d.success) {
+          setPlans(d.data);
+          setExpiryTabs(d.expiryTabs ?? []);
+          setActiveTab(d.expiryTabs?.length ? d.expiryTabs[0] : null);
+        }
+      })
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
 
-  const filtered = plans.filter((p) => {
-    if (p.expiryType !== activeTab) return false;
-    if (activePlan !== null && p.planType === "Free" && !p.currentPlan) return false;
-    return true;
-  });
+  const filtered = activeTab === null ? plans : plans.filter((p) => p.expiryInDays === activeTab);
+
+  function tabLabel(days) {
+    if (days === -1) return "Never Expires";
+    return `${days} Day${days === 1 ? "" : "s"}`;
+  }
 
   const handleFree = async (plan) => {
     setPurchasing(`${plan._id}-free`);
@@ -166,7 +173,7 @@ export default function PlansPage() {
             </div>
           </div>
 
-          {error && <p className="text-xs text-red-500 mb-4 mt-2">{error}</p>}
+          {error && <p className="text-xs flex justify-center text-red-500 mb-4 mt-2">{error}</p>}
 
           {/* Upgrade notice */}
           {!loading && activePlan !== null && (
@@ -185,20 +192,20 @@ export default function PlansPage() {
             </div>
           )}
 
-          {/* Tabs */}
-          {!loading && (
-            <div className="flex justify-center gap-2 mb-8 mt-6">
-              {EXPIRY_TABS.map((tab) => (
+          {/* Dynamic Expiry Tabs */}
+          {!loading && expiryTabs.length > 1 && (
+            <div className="flex items-center justify-center gap-2 flex-wrap mt-4 mb-2">
+              {expiryTabs.map((tab) => (
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
-                  className={`px-5 py-2 rounded-full text-sm font-semibold border transition cursor-pointer ${
+                  className={`px-4 py-1.5 rounded-full text-xs font-semibold border transition cursor-pointer ${
                     activeTab === tab
-                      ? "bg-[#7B2FFF] text-white border-[#7B2FFF]"
-                      : "bg-white text-gray-500 border-gray-200 hover:border-[#7B2FFF] hover:text-[#7B2FFF]"
+                      ? "bg-[#1a1a2e] text-white border-[#1a1a2e]"
+                      : "bg-white text-gray-500 border-gray-200 hover:border-[#1a1a2e] hover:text-[#1a1a2e]"
                   }`}
                 >
-                  {tab}
+                  {tabLabel(tab)}
                 </button>
               ))}
             </div>
@@ -214,12 +221,12 @@ export default function PlansPage() {
           ) : filtered.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-20 text-gray-300">
               <FiZap size={40} />
-              <p className="text-sm mt-3 text-gray-400">No plans available for {activeTab}</p>
+              <p className="text-sm mt-3 text-gray-400">No plans available</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
               {filtered.map((plan) => {
-                const isFree = plan.planType === "Free";
+                const isFree = plan.coins === 0 && plan.amount === 0;
                 const isCurrent = plan.currentPlan === true;
                 return (
                   <div key={plan._id} className="relative">
@@ -250,17 +257,17 @@ export default function PlansPage() {
                         <span className="text-2xl font-extrabold text-green-500">Free</span>
                       ) : (
                         <>
-                          {plan.coins != null && (
+                          {plan.coins > 0 && (
                             <div className="flex items-center gap-1">
                               <CoinIcon size={18} />
                               <span className="text-2xl font-extrabold text-[#7B2FFF]">{plan.coins.toLocaleString("en-IN")}</span>
                               <span className="text-xs text-gray-400 self-end mb-1">coins</span>
                             </div>
                           )}
-                          {plan.coins != null && plan.amount != null && (
+                          {plan.coins > 0 && plan.amount > 0 && (
                             <span className="text-xs text-gray-400">or</span>
                           )}
-                          {plan.amount != null && (
+                          {plan.amount > 0 && (
                             <span className="text-2xl font-extrabold text-[#1a1a2e]">₹{plan.amount.toLocaleString("en-IN")}</span>
                           )}
                         </>
@@ -275,11 +282,7 @@ export default function PlansPage() {
                       </li>
                       <li className="flex items-center gap-2 text-xs text-gray-600">
                         <FiCheck size={13} className="text-[#7B2FFF] flex-shrink-0" />
-                        {plan.leadsPerDay} leads / day
-                      </li>
-                      <li className="flex items-center gap-2 text-xs text-gray-600">
-                        <FiCheck size={13} className="text-[#7B2FFF] flex-shrink-0" />
-                        Valid for 1 {plan.expiryType.replace("ly", "").toLowerCase()}
+                        {plan.expiryInDays === -1 ? "Never expires" : `Valid for ${plan.expiryInDays} day${plan.expiryInDays === 1 ? "" : "s"}`}
                       </li>
                     </ul>
 
