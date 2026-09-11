@@ -545,10 +545,10 @@ export default function Navbar() {
                   {user.activePlan ? (
                     <div>
                       <div className="flex items-center justify-between mb-1.5">
-                        <div className="flex items-center gap-1.5">
-                          <span className="text-[11px] font-bold text-gray-500 uppercase tracking-wide">Current Plan</span>
-                          <span className="text-[11px] font-bold text-[#7B2FFF] bg-[#f3eeff] px-2 py-0.5 rounded-full">{user.activePlan.name}</span>
-                        </div>
+                        <span className="text-[11px] font-bold text-gray-500 uppercase tracking-wide">Current Plan</span>
+                      </div>
+                      <div className="flex items-center justify-between mb-1.5">
+                        <span className="text-[11px] font-bold text-[#7B2FFF] bg-[#f3eeff] px-2 py-0.5 rounded-full">{user.activePlan.name}</span>
                         <button
                           onClick={() => { setProfileOpen(false); navigate("/plans"); }}
                           className="text-[10px] font-bold text-white bg-amber-400 border-none rounded-lg px-2 py-1 cursor-pointer hover:bg-amber-500 transition"
@@ -570,7 +570,7 @@ export default function Navbar() {
                           />
                         </div>
                       )}
-                      <p className="text-[10px] text-gray-400">Expires: {user.activePlan.expiryDate ? new Date(user.activePlan.expiryDate).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }) : "Never"}</p>
+                      <p className="text-[10px] text-gray-400">Expires: {user.activePlan.expiryDate ? user.activePlan.expiryDate.replace(/\b(am|pm)\b/i, (m) => m.toUpperCase()) : "Never"}</p>
                     </div>
                   ) : (
                     <div>
@@ -786,6 +786,9 @@ export default function Navbar() {
                   {/* Plan */}
                   {user.activePlan ? (
                     <div className="px-2 py-2 border border-gray-100 rounded-xl mx-2 mb-2">
+                      <div className="mb-1">
+                        <span className="text-[11px] font-bold text-gray-500 uppercase tracking-wide">Current Plan</span>
+                      </div>
                       <div className="flex items-center justify-between mb-1">
                         <span className="text-[11px] font-bold text-[#7B2FFF]">{user.activePlan.name}</span>
                         <button onClick={() => { setMobileOpen(false); navigate("/plans"); }} className="text-[10px] font-bold text-white bg-amber-400 border-none rounded-lg px-2 py-0.5 cursor-pointer">Change Listing Plan</button>
@@ -793,7 +796,7 @@ export default function Navbar() {
                       <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
                         <div className="h-full bg-[#7B2FFF] rounded-full" style={{ width: `${user.activePlan.numberOfPropertiesGiven > 0 ? Math.min((user.activePlan.propertiesUsed / user.activePlan.numberOfPropertiesGiven) * 100, 100) : 0}%` }} />
                       </div>
-                      <p className="text-[10px] text-gray-400 mt-1">Expires: {user.activePlan.expiryDate}</p>
+                      <p className="text-[10px] text-gray-400 mt-1">Expires: {user.activePlan.expiryDate ? user.activePlan.expiryDate.replace(/\b(am|pm)\b/i, (m) => m.toUpperCase()) : "Never"}</p>
                     </div>
                   ) : (
                     <button onClick={() => { setMobileOpen(false); navigate("/plans"); }} className="text-[11px] font-semibold text-[#7B2FFF] bg-[#f3eeff] border-none rounded-lg px-3 py-2 cursor-pointer w-full text-left mx-2 mb-2">Purchase Plan →</button>
