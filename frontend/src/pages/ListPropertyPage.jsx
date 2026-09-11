@@ -27,7 +27,7 @@ const PROJECT_TYPES = ["Apartment Project", "Villa Project", "Plot/Land Project"
 const BHK_OPTIONS = ["1 RK", "1 BHK", "2 BHK", "3 BHK", "4 BHK", "4+ BHK"];
 const AREA_UNITS = ["Square Feet", "Square Yard", "Square Meter"];
 const FLOOR_OPTIONS = ["Ground", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15+"];
-const FURNISHING = ["Unfurnished", "Semi-Furnished", "Fully Furnished"];
+const FURNISHING = ["Unfurnished", "Semi-Furnished", "Fully-Furnished"];
 const AVAILABILITY = ["Ready to Move", "Under Construction", "New Launch"];
 const AMENITY_LIST = ["Lift", "Parking", "Power Backup", "Swimming Pool", "Gymnasium", "Club House", "Security", "Garden", "Intercom", "Gas Pipeline"];
 

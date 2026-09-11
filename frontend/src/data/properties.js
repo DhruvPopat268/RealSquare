@@ -616,7 +616,7 @@ export const pgProperties = [
     reraId: "PG301",
     lastUpdated: "May 12, 2026",
     emiStarts: null,
-    highlights: ["Fully furnished"],
+    highlights: ["Fully-Furnished"],
     nearbyPlaces: [],
     floorPlans: [],
     amenities: [

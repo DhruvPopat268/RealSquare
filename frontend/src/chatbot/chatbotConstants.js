@@ -31,7 +31,7 @@ export const AREA_UNIT_OPTIONS = ["sqft", "sqyd", "sqmt"];
 export const BHK_OPTIONS = ["1 RK", "1 BHK", "2 BHK", "3 BHK", "4 BHK", "5 BHK", "6 BHK", "7 BHK", "8 BHK", "9 BHK", "10 BHK", "11 BHK", "12 BHK"];
 
 // Furnish type options
-export const FURNISH_TYPE_OPTIONS = ["Unfurnished", "Semi-Furnished", "Fully Furnished"];
+export const FURNISH_TYPE_OPTIONS = ["Unfurnished", "Semi-Furnished", "Fully-Furnished"];
 
 // PG options
 export const PG_FOR_OPTIONS          = ["Boys", "Girls", "Both"];

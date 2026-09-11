@@ -31,7 +31,7 @@ function calculate(form) {
   else if (floor === 0) pricePerSqft *= 0.95;
 
   // Furnishing
-  const furnMap = { Unfurnished: 1.0, "Semi-Furnished": 1.10, "Fully Furnished": 1.18 };
+  const furnMap = { Unfurnished: 1.0, "Semi-Furnished": 1.10, "Fully-Furnished": 1.18 };
   pricePerSqft *= furnMap[form.furnishing] || 1;
 
   // Amenities
@@ -192,7 +192,7 @@ export default function PropertyValueCalculator() {
               <div className="grid grid-cols-2 gap-4">
                 <FIELD label="Furnishing Status">
                   <SELECT value={form.furnishing} onChange={set("furnishing")}
-                    options={["Unfurnished", "Semi-Furnished", "Fully Furnished"]} />
+                    options={["Unfurnished", "Semi-Furnished", "Fully-Furnished"]} />
                 </FIELD>
                 <FIELD label="Amenities">
                   <SELECT value={form.amenities} onChange={set("amenities")}
@@ -243,7 +243,7 @@ export default function PropertyValueCalculator() {
                       {[
                         { label: "City Base Rate", impact: "Neutral", color: "bg-gray-200" },
                         { label: "Property Age", impact: Number(form.age) <= 5 ? "Positive" : Number(form.age) <= 10 ? "Neutral" : "Negative", color: Number(form.age) <= 5 ? "bg-green-400" : Number(form.age) <= 10 ? "bg-gray-200" : "bg-red-400" },
-                        { label: "Furnishing", impact: form.furnishing === "Fully Furnished" ? "Positive" : form.furnishing === "Unfurnished" ? "Neutral" : "Positive", color: form.furnishing === "Unfurnished" ? "bg-gray-200" : "bg-green-400" },
+                        { label: "Furnishing", impact: form.furnishing === "Fully-Furnished" ? "Positive" : form.furnishing === "Unfurnished" ? "Neutral" : "Positive", color: form.furnishing === "Unfurnished" ? "bg-gray-200" : "bg-green-400" },
                         { label: "Amenities", impact: form.amenities === "Premium" ? "High Positive" : form.amenities === "Standard" ? "Positive" : "Neutral", color: form.amenities === "Basic" ? "bg-gray-200" : "bg-green-400" },
                         { label: "Condition", impact: form.condition === "Excellent" ? "Positive" : form.condition === "Poor" ? "Negative" : "Neutral", color: form.condition === "Excellent" ? "bg-green-400" : form.condition === "Poor" ? "bg-red-400" : "bg-gray-200" },
                         { label: "Parking", impact: form.parking === "Yes" ? "Positive" : "Neutral", color: form.parking === "Yes" ? "bg-green-400" : "bg-gray-200" },

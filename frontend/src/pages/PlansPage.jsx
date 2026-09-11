@@ -197,14 +197,14 @@ export default function PlansPage() {
 
           {/* Dynamic Expiry Tabs */}
           {!loading && expiryTabs.length > 1 && (
-            <div className="flex items-center justify-center gap-2 flex-wrap mt-4 mb-2">
+            <div className="flex items-center justify-center gap-2 flex-wrap mt-4 mb-8">
               {expiryTabs.map((tab) => (
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
-                  className={`px-4 py-1.5 rounded-full text-xs font-semibold border transition cursor-pointer ${
+                  className={`px-4 py-1.5 rounded-full text-lg font-semibold border transition cursor-pointer ${
                     activeTab === tab
-                      ? "bg-[#1a1a2e] text-white border-[#1a1a2e]"
+                      ? "bg-[#7B2FFF] text-white border-[#7B2FFF]"
                       : "bg-white text-gray-500 border-gray-200 hover:border-[#1a1a2e] hover:text-[#1a1a2e]"
                   }`}
                 >
