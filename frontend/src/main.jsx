@@ -7,7 +7,21 @@ import App from './App.jsx'
 
 function ScrollToTop() {
   const { pathname } = useLocation();
-  useEffect(() => { window.scrollTo(0, 0); }, [pathname]);
+  
+  useEffect(() => {
+    // Immediate scroll
+    window.scrollTo(0, 0);
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+    
+    // Also scroll after a delay to ensure content is loaded
+    const timer = setTimeout(() => {
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    }, 100);
+    
+    return () => clearTimeout(timer);
+  }, [pathname]);
+  
   return null;
 }
 

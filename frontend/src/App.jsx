@@ -32,6 +32,7 @@ import ChatbotPage from "./pages/ChatbotPage";
 import DepositCoinsPage from "./pages/DepositCoinsPage";
 import PaymentTransactionsPage from "./pages/PaymentTransactionsPage";
 import PlansPage from "./pages/PlansPage";
+import MyListingsPage from "./pages/MyListingsPage";
 import PageSpinner from "./components/PageSpinner";
 import "./App.css";
 
@@ -99,6 +100,7 @@ function App() {
       <Route path="/deposit-coins" element={<DepositCoinsPage />} />
       <Route path="/payment-transactions" element={<PaymentTransactionsPage />} />
       <Route path="/plans" element={<PlansPage />} />
+      <Route path="/my-property-listings" element={<MyListingsPage />} />
     </Routes>
   );
 }

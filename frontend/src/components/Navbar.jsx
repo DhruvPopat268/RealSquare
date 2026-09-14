@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { FiChevronDown, FiMenu, FiX, FiUser, FiEye, FiHeart, FiPhone, FiEdit2, FiRefreshCw, FiAlertTriangle } from "react-icons/fi";
+import { FiChevronDown, FiMenu, FiX, FiUser, FiEye, FiHeart, FiPhone, FiEdit2, FiRefreshCw, FiAlertTriangle, FiList } from "react-icons/fi";
 import axios from "axios";
 import { properties } from "../data/properties";
 import CoinIcon from "./CoinIcon";
@@ -316,7 +316,7 @@ export default function Navbar() {
     import.meta.env.VITE_OWNER_ROLE_ID,
     import.meta.env.VITE_BROKER_ROLE_ID,
     import.meta.env.VITE_BUILDER_ROLE_ID,
-  ].includes(user.role?._id);
+  ].includes(user.role?._id) && user.myPropertyListingAllowed;
 
   const currentRole = user?.role?.name?.toLowerCase()?.includes("owner") ? "owner"
     : user?.role?.name?.toLowerCase()?.includes("broker") || user?.role?.name?.toLowerCase()?.includes("agent") ? "broker"
@@ -602,6 +602,20 @@ export default function Navbar() {
                     </button>
                   </div>
 
+                  {/* My Listings button — only for owners/brokers/builders */}
+                  {canListProperty && (
+                    <div className="mb-3 pb-3 border-b border-gray-100">
+                      <button
+                        onClick={() => { setProfileOpen(false); navigate("/my-property-listings"); }}
+                        className="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl border border-gray-200 hover:border-[#7B2FFF] hover:bg-[#f5f0ff] text-[#1a1a2e] hover:text-[#7B2FFF] transition group"
+                      >
+                        <FiList size={14} className="text-[#7B2FFF] flex-shrink-0" />
+                        <span className="text-xs font-semibold flex-1 text-left">My Property Listings</span>
+                        <span className="text-[11px] text-gray-400 group-hover:text-[#7B2FFF]">→</span>
+                      </button>
+                    </div>
+                  )}
+
                   {/* Activity tabs */}
 
                   {/* Activity tabs */}
@@ -806,6 +820,19 @@ export default function Navbar() {
                     <button onClick={() => { setMobileOpen(false); navigate("/deposit-coins"); }} className="flex-1 text-[11px] font-semibold text-gray-700 bg-white border border-gray-200 rounded-lg py-1.5 cursor-pointer hover:bg-gray-50 transition">+ Deposit Coins</button>
                     <button onClick={() => { setMobileOpen(false); navigate("/payment-transactions"); }} className="flex-1 text-[11px] font-semibold text-gray-700 bg-white border border-gray-200 rounded-lg py-1.5 cursor-pointer hover:bg-gray-50 transition">Transactions</button>
                   </div>
+                  {/* My Property Listings — only for owners/brokers/builders */}
+                  {canListProperty && (
+                    <div className="mx-2 mb-1">
+                      <button
+                        onClick={() => { setMobileOpen(false); navigate("/my-property-listings"); }}
+                        className="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl border border-gray-200 hover:border-[#7B2FFF] hover:bg-[#f5f0ff] text-[#1a1a2e] hover:text-[#7B2FFF] transition group bg-white cursor-pointer"
+                      >
+                        <FiList size={14} className="text-[#7B2FFF] flex-shrink-0" />
+                        <span className="text-xs font-semibold flex-1 text-left">My Property Listings</span>
+                        <span className="text-[11px] text-gray-400 group-hover:text-[#7B2FFF]">→</span>
+                      </button>
+                    </div>
+                  )}
                 </div>
               )}
 
