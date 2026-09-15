@@ -32,15 +32,20 @@ export async function fetchMyListings({ page, limit, status, purposeId, category
     config
   );
 
-  // Preview mode: { success, data: [] }
-  // Paginated mode: { success, data: [], pagination: {} }
-  if (data.pagination) {
+  // Preview mode:  { success, data: { properties: [] } }
+  // Paginated mode: { success, data: { properties: [], pagination: {}, stats?: {} } }
+  const payload = data.data ?? {};
+
+  if (payload.pagination) {
     return {
-      listings:   data.data ?? [],
-      pagination: data.pagination,
+      listings:   payload.properties ?? [],
+      pagination: payload.pagination,
+      stats:      payload.stats ?? null, // only present on page 1
     };
   }
-  return data.data ?? [];
+
+  // Preview mode — return flat array for navbar compatibility
+  return payload.properties ?? [];
 }
 
 /**

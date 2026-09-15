@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import {
   FiArrowLeft, FiHome, FiMapPin, FiCalendar, FiList,
   FiPlus, FiRefreshCw, FiEdit2, FiChevronLeft, FiChevronRight,
-  FiFilter, FiChevronDown, FiX,
+  FiFilter, FiChevronDown, FiX, FiGrid,
 } from "react-icons/fi";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
@@ -52,7 +52,7 @@ function formatDate(iso) {
   return d.toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
 }
 
-// ── Skeleton card ─────────────────────────────────────────────────────────────
+// ── Skeleton card (list) ──────────────────────────────────────────────────────
 function SkeletonCard() {
   return (
     <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden flex flex-col sm:flex-row animate-pulse">
@@ -62,6 +62,143 @@ function SkeletonCard() {
         <div className="h-3 bg-gray-100 rounded w-1/2" />
         <div className="h-5 bg-gray-100 rounded w-1/3 mt-1" />
         <div className="h-3 bg-gray-100 rounded w-2/3" />
+      </div>
+    </div>
+  );
+}
+
+// ── Skeleton card (grid) ──────────────────────────────────────────────────────
+function SkeletonGridCard() {
+  return (
+    <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden animate-pulse">
+      <div className="h-[200px] bg-gray-100" />
+      <div className="p-3 flex flex-col gap-2.5">
+        <div className="h-4 bg-gray-100 rounded w-3/4" />
+        <div className="h-3 bg-gray-100 rounded w-1/2" />
+        <div className="h-5 bg-gray-100 rounded w-2/5" />
+        <div className="h-3 bg-gray-100 rounded w-2/3" />
+      </div>
+    </div>
+  );
+}
+
+// ── Grid card ─────────────────────────────────────────────────────────────────
+function GridCard({ listing }) {
+  const navigate = useNavigate();
+  const status = STATUS_CONFIG[listing.status] ?? STATUS_CONFIG.Inactive;
+  const type   = TYPE_CONFIG[listing.listingType] ?? { bg: "bg-gray-100", text: "text-gray-600" };
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+  const images = listing.media?.images?.length
+    ? listing.media.images
+    : listing.thumbnail ? [listing.thumbnail] : [];
+
+  const nextImage = (e) => { e.stopPropagation(); if (images.length > 1) setCurrentImageIndex((p) => (p + 1) % images.length); };
+  const prevImage = (e) => { e.stopPropagation(); if (images.length > 1) setCurrentImageIndex((p) => (p - 1 + images.length) % images.length); };
+
+  return (
+    <div
+      className="bg-white rounded-2xl border border-gray-100 hover:border-[#7B2FFF] hover:shadow-md transition-all cursor-pointer overflow-hidden group flex flex-col"
+      onClick={() => navigate(`/property/${listing._id}`)}
+    >
+      {/* Image */}
+      <div className="relative h-[200px] bg-[#f3eeff] flex items-center justify-center overflow-hidden flex-shrink-0">
+        {images.length > 0 ? (
+          <>
+            <img
+              src={images[currentImageIndex]}
+              alt={listing.title}
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+            />
+            {images.length > 1 && (
+              <>
+                <button onClick={prevImage} className="absolute left-2 top-1/2 -translate-y-1/2 w-6 h-6 bg-black/60 hover:bg-black/80 text-white rounded-full flex items-center justify-center transition opacity-0 group-hover:opacity-100">
+                  <FiChevronLeft size={12} />
+                </button>
+                <button onClick={nextImage} className="absolute right-2 top-1/2 -translate-y-1/2 w-6 h-6 bg-black/60 hover:bg-black/80 text-white rounded-full flex items-center justify-center transition opacity-0 group-hover:opacity-100">
+                  <FiChevronRight size={12} />
+                </button>
+                <div className="absolute bottom-2 right-2 bg-black/60 text-white text-[10px] px-1.5 py-0.5 rounded-full">
+                  {currentImageIndex + 1}/{images.length}
+                </div>
+              </>
+            )}
+          </>
+        ) : (
+          <FiHome size={28} className="text-[#c4aaff]" />
+        )}
+
+        {/* Top badges */}
+        <div className="absolute top-2 left-2 right-2 flex items-center justify-between">
+          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${type.bg} ${type.text}`}>
+            {listing.listingType}
+          </span>
+          <span className={`flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full ${status.bg} ${status.text}`}>
+            <span className={`w-1.5 h-1.5 rounded-full ${status.dot}`} />
+            {status.label}
+          </span>
+        </div>
+
+        {/* Edit button overlay */}
+        <div className="absolute bottom-2 left-2" onClick={(e) => e.stopPropagation()}>
+          <button
+            onClick={() => {/* TODO: navigate to edit page */}}
+            className="flex items-center gap-1 px-2 py-1 bg-white/90 hover:bg-white text-gray-600 hover:text-[#7B2FFF] rounded-lg text-[10px] font-semibold shadow-sm transition opacity-0 group-hover:opacity-100"
+          >
+            <FiEdit2 size={10} />
+            Edit
+          </button>
+        </div>
+      </div>
+
+      {/* Details */}
+      <div className="p-3 flex flex-col flex-1">
+        <h3 className="text-sm font-bold text-[#1a1a2e] truncate leading-snug mb-0.5">{listing.title}</h3>
+        {listing.category && (
+          <span className="text-[11px] text-gray-400 mb-1.5">{listing.category}</span>
+        )}
+
+        {/* Badges */}
+        <div className="flex flex-wrap gap-1 mb-2">
+          {listing.furnishType && (
+            <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-blue-100 text-blue-700">{listing.furnishType}</span>
+          )}
+          {listing.pgFor && (
+            <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-pink-100 text-pink-700">
+              {listing.pgFor === "Both" ? "Boys & Girls" : `${listing.pgFor} Only`}
+            </span>
+          )}
+          {listing.builtUpArea?.value && (
+            <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-600">
+              {listing.builtUpArea.value} {listing.builtUpArea.unit || "sqft"}
+            </span>
+          )}
+          {listing.plotArea?.value && (
+            <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-green-100 text-green-700">
+              {listing.plotArea.value} {listing.plotArea.unit || "sqft"} Plot
+            </span>
+          )}
+        </div>
+
+        <p className="text-base font-extrabold text-[#7B2FFF] mb-1">
+          {listing.price ?? <span className="text-sm font-semibold text-gray-400">Price on request</span>}
+        </p>
+
+        {(listing.address || listing.cityName) && (
+          <div className="flex items-center gap-1 text-[11px] text-gray-500">
+            <FiMapPin size={10} className="flex-shrink-0" />
+            <span className="truncate">{[listing.address, listing.cityName].filter(Boolean).join(", ")}</span>
+          </div>
+        )}
+
+        <div className="mt-auto pt-2 border-t border-gray-100 flex justify-end mt-2">
+          {listing.createdAt && (
+            <div className="flex items-center gap-1 text-[10px] text-gray-400">
+              <FiCalendar size={9} />
+              <span>{formatDate(listing.createdAt)}</span>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
@@ -303,9 +440,13 @@ export default function MyListingsPage() {
   const [page,        setPage]        = useState(1);
   const [hasMore,     setHasMore]     = useState(true);
   const [totalCount,  setTotalCount]  = useState(0);
+  const [stats,       setStats]       = useState(null); // { total, Active, UnderReview, ... }
   const [loading,     setLoading]     = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [error,       setError]       = useState(null);
+
+  // ── Layout view ───────────────────────────────────────────────────────────
+  const [view, setView] = useState("grid"); // "grid" | "list"
 
   // ── Filter options ────────────────────────────────────────────────────────
   const [purposes,      setPurposes]      = useState([]);
@@ -365,11 +506,13 @@ export default function MyListingsPage() {
         typeId:     filters.typeId     || undefined,
       });
 
-      const { listings: newListings, pagination } = result;
+      const { listings: newListings, pagination, stats: pageStats } = result;
       setListings((prev) => replace ? newListings : [...prev, ...newListings]);
       setHasMore(pagination.hasMore);
       setTotalCount(pagination.totalCount);
       setPage(pageNum);
+      // stats only returned on page 1 — keep existing value on subsequent pages
+      if (pageStats) setStats(pageStats);
     } catch (err) {
       setError(err?.response?.data?.message ?? "Failed to load listings");
     } finally {
@@ -439,8 +582,8 @@ export default function MyListingsPage() {
       <PageSpinner />
       <Navbar />
 
-      <div className="min-h-screen bg-[#f9f9fb]">
-        <div className="max-w-4xl mx-auto px-4 py-8">
+      <div className={`min-h-screen bg-[#f9f9fb]`}>
+        <div className={`mx-auto px-4 py-8 ${view === "grid" ? "max-w-6xl" : "max-w-4xl"}`}>
 
           {/* Header */}
           <div className="flex items-center gap-3 mb-6">
@@ -461,15 +604,64 @@ export default function MyListingsPage() {
               </p>
             </div>
             {!loading && (
-              <button
-                onClick={() => navigate("/chatbot")}
-                className="ml-auto flex items-center gap-1.5 px-4 py-2 bg-[#7B2FFF] text-white rounded-xl text-xs font-bold hover:bg-[#6320d4] transition"
-              >
-                <FiPlus size={13} />
-                New Listing
-              </button>
+              <div className="ml-auto flex items-center gap-2">
+                {/* Grid / List toggle */}
+                <div className="flex items-center gap-0.5 border border-gray-200 rounded-xl p-1 bg-white">
+                  <button
+                    onClick={() => setView("grid")}
+                    title="Grid view"
+                    className={`p-1.5 rounded-lg transition-colors ${view === "grid" ? "bg-[#7B2FFF] text-white" : "text-gray-400 hover:text-[#7B2FFF]"}`}
+                  >
+                    <FiGrid size={14} />
+                  </button>
+                  <button
+                    onClick={() => setView("list")}
+                    title="List view"
+                    className={`p-1.5 rounded-lg transition-colors ${view === "list" ? "bg-[#7B2FFF] text-white" : "text-gray-400 hover:text-[#7B2FFF]"}`}
+                  >
+                    <FiList size={14} />
+                  </button>
+                </div>
+                <button
+                  onClick={() => navigate("/chatbot")}
+                  className="flex items-center gap-1.5 px-4 py-2 bg-[#7B2FFF] text-white rounded-xl text-xs font-bold hover:bg-[#6320d4] transition"
+                >
+                  <FiPlus size={13} />
+                  New Listing
+                </button>
+              </div>
             )}
           </div>
+
+          {/* ── Stats Cards ──────────────────────────────────────────────── */}
+          {stats && !loading && (
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mb-5">
+              <div className="bg-white border border-gray-100 rounded-2xl p-3 text-center hover:shadow-md transition">
+                <p className="text-xs text-gray-500 font-semibold mb-1">Total</p>
+                <p className="text-2xl font-extrabold text-[#7B2FFF]">{stats.total || 0}</p>
+              </div>
+              <div className="bg-white border border-green-200 rounded-2xl p-3 text-center hover:shadow-md transition">
+                <p className="text-xs text-green-600 font-semibold mb-1">Active</p>
+                <p className="text-2xl font-extrabold text-green-600">{stats.Active || 0}</p>
+              </div>
+              <div className="bg-white border border-amber-200 rounded-2xl p-3 text-center hover:shadow-md transition">
+                <p className="text-xs text-amber-600 font-semibold mb-1">Under Review</p>
+                <p className="text-2xl font-extrabold text-amber-600">{stats.UnderReview || 0}</p>
+              </div>
+              <div className="bg-white border border-blue-200 rounded-2xl p-3 text-center hover:shadow-md transition">
+                <p className="text-xs text-blue-600 font-semibold mb-1">Rented</p>
+                <p className="text-2xl font-extrabold text-blue-600">{stats.Rented || 0}</p>
+              </div>
+              <div className="bg-white border border-teal-200 rounded-2xl p-3 text-center hover:shadow-md transition">
+                <p className="text-xs text-teal-600 font-semibold mb-1">Sold</p>
+                <p className="text-2xl font-extrabold text-teal-600">{stats.Sold || 0}</p>
+              </div>
+              <div className="bg-white border border-red-200 rounded-2xl p-3 text-center hover:shadow-md transition">
+                <p className="text-xs text-red-600 font-semibold mb-1">Rejected</p>
+                <p className="text-2xl font-extrabold text-red-600">{stats.Rejected || 0}</p>
+              </div>
+            </div>
+          )}
 
           {/* ── Filter panel ─────────────────────────────────────────────── */}
           <div className="bg-white border border-gray-100 rounded-2xl p-4 mb-5 shadow-sm">
@@ -558,9 +750,15 @@ export default function MyListingsPage() {
 
           {/* ── Content ──────────────────────────────────────────────────── */}
           {loading ? (
-            <div className="flex flex-col gap-4">
-              {[1, 2, 3].map((i) => <SkeletonCard key={i} />)}
-            </div>
+            view === "grid" ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {[1, 2, 3, 4, 5, 6].map((i) => <SkeletonGridCard key={i} />)}
+              </div>
+            ) : (
+              <div className="flex flex-col gap-4">
+                {[1, 2, 3].map((i) => <SkeletonCard key={i} />)}
+              </div>
+            )
           ) : error ? (
             <div className="flex flex-col items-center justify-center py-20 gap-4">
               <p className="text-sm text-red-500 font-medium">{error}</p>
@@ -576,11 +774,19 @@ export default function MyListingsPage() {
             <EmptyState filtered={hasAppliedFilters} navigate={navigate} />
           ) : (
             <>
-              <div className="flex flex-col gap-4">
-                {listings.map((listing) => (
-                  <ListingCard key={listing._id} listing={listing} />
-                ))}
-              </div>
+              {view === "grid" ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {listings.map((listing) => (
+                    <GridCard key={listing._id} listing={listing} />
+                  ))}
+                </div>
+              ) : (
+                <div className="flex flex-col gap-4">
+                  {listings.map((listing) => (
+                    <ListingCard key={listing._id} listing={listing} />
+                  ))}
+                </div>
+              )}
 
               <div ref={sentinelRef} className="h-1" />
               {loadingMore && <LoadingMore />}
