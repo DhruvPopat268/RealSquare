@@ -7,6 +7,9 @@ import {
   FiArrowLeft,
   FiChevronLeft,
   FiChevronRight,
+  FiExternalLink,
+  FiUser,
+  FiCalendar,
 } from "react-icons/fi";
 import { properties, newlyAddedProperties, rentProperties, commercialProperties, pgProperties, plotProperties } from "../data/properties";
 import PageSpinner from "../components/PageSpinner";
@@ -181,37 +184,63 @@ export default function PropertyDetail() {
             {!property._isApiListing && (
               <p className="text-purple-700 font-medium mb-2">by {property.developer}</p>
             )}
-            <div className="flex items-center gap-2 text-gray-600">
-              <FiMapPin />
-              {property.location}
-              {property._isApiListing && property.locality?.latitude && property.locality?.longitude && (
-                <a
-                  href={`https://www.google.com/maps?q=${property.locality.latitude},${property.locality.longitude}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="ml-1 text-[#5E23DC] text-sm font-medium hover:underline flex-shrink-0"
-                >
-                  View on Map →
-                </a>
-              )}
+
+            {/* Address row */}
+            <div className="flex items-start gap-2 text-gray-600 mt-1">
+              <FiMapPin className="mt-0.5 flex-shrink-0" />
+              <span>{property.location}</span>
             </div>
-            {property._isApiListing && (
-              <div className="flex items-center gap-3 mt-2 text-sm text-gray-500">
-                {property.listedBy?.name && (
-                  <span>Listed by <span className="text-purple-700 font-medium">{property.listedBy.name}</span></span>
-                )}
-                {property.listedBy?.name && property.createdAt && <span>·</span>}
-                {property.createdAt && (
-                  <span>{new Date(property.createdAt).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })}</span>
-                )}
-              </div>
+
+            {/* View on Map — pill button, only for API listings with coords */}
+            {property._isApiListing && property.locality?.latitude && property.locality?.longitude && (
+              <a
+                href={`https://www.google.com/maps?q=${property.locality.latitude},${property.locality.longitude}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 mt-3 px-4 py-1.5 rounded-full border border-[#5E23DC] text-[#5E23DC] text-sm font-medium hover:bg-[#5E23DC] hover:text-white transition-colors w-fit"
+              >
+                <FiExternalLink size={13} />
+                View on Map
+              </a>
             )}
           </div>
 
-          <div className="lg:text-right">
+          <div className="lg:text-right flex flex-col items-start lg:items-end gap-3">
             <h2 className="text-4xl font-bold text-black mt-[52px]">{property.price}</h2>
             {!property._isApiListing && property.emiStarts && (
-              <p className="text-purple-700 font-medium mt-2">EMI starts at {property.emiStarts}</p>
+              <p className="text-purple-700 font-medium">EMI starts at {property.emiStarts}</p>
+            )}
+            {/* Listed by + date — right-aligned card strip */}
+            {property._isApiListing && (property.listedBy?.name || property.createdAt) && (
+              <div className="flex items-center gap-4 bg-white border border-gray-100 rounded-xl px-4 py-3 shadow-sm">
+                {property.listedBy?.name && (
+                  <div className="flex items-center gap-2 text-sm">
+                    <span className="w-7 h-7 rounded-full bg-purple-100 flex items-center justify-center flex-shrink-0">
+                      <FiUser size={13} className="text-[#5E23DC]" />
+                    </span>
+                    <div className="leading-tight text-left">
+                      <p className="text-[11px] text-gray-400 uppercase tracking-wide">Listed by</p>
+                      <p className="font-semibold text-gray-800 text-sm">{property.listedBy.name}</p>
+                    </div>
+                  </div>
+                )}
+                {property.listedBy?.name && property.createdAt && (
+                  <div className="w-px h-8 bg-gray-200" />
+                )}
+                {property.createdAt && (
+                  <div className="flex items-center gap-2 text-sm">
+                    <span className="w-7 h-7 rounded-full bg-purple-100 flex items-center justify-center flex-shrink-0">
+                      <FiCalendar size={13} className="text-[#5E23DC]" />
+                    </span>
+                    <div className="leading-tight text-left">
+                      <p className="text-[11px] text-gray-400 uppercase tracking-wide">Listed on</p>
+                      <p className="font-semibold text-gray-800 text-sm">
+                        {new Date(property.createdAt).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })}
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
             )}
           </div>
         </div>
