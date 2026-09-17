@@ -320,32 +320,50 @@ function buildFormFromUser(user, role) {
     const p = user.ownerProfile || {};
     const b = p.businessDetails || {};
     return {
-      fullName: p.fullName || "", email: p.email || "", profilePhoto: p.profilePhoto || "",
-      bizLogo: b.logo || "", bizName: b.name || "", bizType: b.type || "",
-      gstNumber: b.gstNumber || "", bizEmail: b.email || "", bizMobile: b.mobile || "", website: b.website || "",
+      fullName: user.name || p.fullName || "",
+      email: user.email || p.email || "",
+      profilePhoto: user.profilePhoto || p.profilePhoto || "",
+      bizLogo: b.logo || "",
+      bizName: b.name || "",
+      bizType: b.type || "",
+      gstNumber: b.gstNumber || "",
+      bizEmail: b.email || "",
+      bizMobile: b.mobile || "",
+      website: b.website || "",
     };
   }
   if (role === "broker") {
     const p = user.brokerProfile || {};
     return {
-      fullName: p.fullName || "", email: p.email || "", profilePhoto: p.profilePhoto || "",
-      agencyName: p.agencyName || "", yearsOfExperience: p.yearsOfExperience ?? "", bio: p.bio || "",
+      fullName: user.name || p.fullName || "",
+      email: user.email || p.email || "",
+      profilePhoto: user.profilePhoto || p.profilePhoto || "",
+      agencyName: p.agencyName || "",
+      yearsOfExperience: p.yearsOfExperience ?? "",
+      bio: p.bio || "",
     };
   }
   if (role === "builder") {
     const p = user.builderProfile || {};
     return {
-      name: p.name || "", email: p.email || "", profilePhoto: p.profilePhoto || "",
-      gstNumber: p.gstNumber || "", cinNumber: p.cinNumber || "",
-      foundedYear: p.foundedYear ?? "", totalProjectsDelivered: p.totalProjectsDelivered ?? "",
+      name: user.name || p.name || "",
+      email: user.email || p.email || "",
+      profilePhoto: user.profilePhoto || p.profilePhoto || "",
+      gstNumber: p.gstNumber || "",
+      cinNumber: p.cinNumber || "",
+      foundedYear: p.foundedYear ?? "",
+      totalProjectsDelivered: p.totalProjectsDelivered ?? "",
       location: p.location?.name || "",
     };
   }
   // customer
   const p = user.customerProfile || {};
   return {
-    fullName: p.fullName || "", email: p.email || "", profilePhoto: p.profilePhoto || "",
-    location: p.location?.name || "", bio: p.bio || "",
+    fullName: user.name || p.fullName || "",
+    email: user.email || p.email || "",
+    profilePhoto: user.profilePhoto || p.profilePhoto || "",
+    location: p.location?.name || "",
+    bio: p.bio || "",
   };
 }
 
@@ -757,13 +775,15 @@ export default function UpdateProfilePage() {
               <h2 className="text-xl font-extrabold text-[#1a1a2e]">Edit Profile</h2>
               <p className="text-sm text-gray-400 mt-0.5">Update your profile information</p>
             </div>
-            <button
-              onClick={() => setShowSwitchModal(true)}
-              className="flex items-center gap-1.5 text-xs font-semibold text-[#7B2FFF] border border-[#7B2FFF] bg-transparent hover:bg-[#f5f0ff] rounded-xl px-3 py-1.5 cursor-pointer transition flex-shrink-0"
-            >
-              <FiRefreshCw size={12} />
-              Switch Role
-            </button>
+            {!noRole && (
+              <button
+                onClick={() => setShowSwitchModal(true)}
+                className="flex items-center gap-1.5 text-xs font-semibold text-[#7B2FFF] border border-[#7B2FFF] bg-transparent hover:bg-[#f5f0ff] rounded-xl px-3 py-1.5 cursor-pointer transition flex-shrink-0"
+              >
+                <FiRefreshCw size={12} />
+                Switch Role
+              </button>
+            )}
           </div>
 
           {/* Role badge */}

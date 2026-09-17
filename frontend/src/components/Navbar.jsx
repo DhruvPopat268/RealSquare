@@ -307,21 +307,33 @@ export default function Navbar() {
     return () => document.removeEventListener("mousedown", handler);
   }, [profileOpen]);
 
+  // Extract profile based on role type
   const profile = user?.customerProfile || user?.ownerProfile || user?.brokerProfile || user?.builderProfile;
-  const displayName = profile?.fullName || profile?.name || "";
-  const isIncomplete = !displayName;
+  
+  // Get display name from appropriate location based on user type
+  // For owners: name is at top level (user.name)
+  // For others: it's in profile.fullName or profile.name
+  const displayName = user?.name || profile?.fullName || profile?.name || "";
+  
+  // Use backend's isProfileCompleted field (checks mobile, name, and role)
+  const isIncomplete = !user?.isProfileCompleted;
   const navLabel = displayName || user?.mobile || "";
 
-  const canListProperty = user && [
-    import.meta.env.VITE_OWNER_ROLE_ID,
-    import.meta.env.VITE_BROKER_ROLE_ID,
-    import.meta.env.VITE_BUILDER_ROLE_ID,
-  ].includes(user.role?._id) && user.myPropertyListingAllowed;
+
 
   const currentRole = user?.role?.name?.toLowerCase()?.includes("owner") ? "owner"
     : user?.role?.name?.toLowerCase()?.includes("broker") || user?.role?.name?.toLowerCase()?.includes("agent") ? "broker"
     : user?.role?.name?.toLowerCase()?.includes("builder") || user?.role?.name?.toLowerCase()?.includes("developer") ? "builder"
     : "customer";
+
+  // Show "My Property Listings" if user has listing-allowed role OR has existing listings
+  const canViewMyListings = user && (
+    [
+      import.meta.env.VITE_OWNER_ROLE_ID,
+      import.meta.env.VITE_BROKER_ROLE_ID,
+      import.meta.env.VITE_BUILDER_ROLE_ID,
+    ].includes(user.role?._id) || user.myPropertyListingAllowed
+  );
 
   const SWITCH_ROLES = [
     { key: "customer", label: "Customer",           icon: "🏠", desc: "Looking to buy or rent" },
@@ -401,14 +413,12 @@ export default function Navbar() {
 
         {/* Desktop right actions */}
         <div className="hidden md:flex items-center justify-end gap-4 z-10 flex-shrink-0 ml-auto">
-          {canListProperty && (
-            <button
+          <button
               onClick={() => navigate("/chatbot")}
               className="flex items-center gap-1.5 border-none bg-[#7B2FFF] text-sm font-bold text-white cursor-pointer whitespace-nowrap hover:bg-[#6320d4] transition-colors px-4 py-2 rounded-xl"
             >
               List Property
             </button>
-          )}
 
           {/* Switch Role Modal */}
           {showSwitchModal && (
@@ -477,8 +487,8 @@ export default function Navbar() {
                 className="flex items-center gap-2 border-none bg-transparent cursor-pointer"
               >
                 <div className="relative flex-shrink-0">
-                  {profile?.profilePhoto ? (
-                    <img src={profile.profilePhoto} alt={navLabel} className="w-8 h-8 rounded-full object-cover border-2 border-[#7B2FFF]" />
+                  {user?.profilePhoto ? (
+                    <img src={user.profilePhoto} alt={navLabel} className="w-8 h-8 rounded-full object-cover border-2 border-[#7B2FFF]" />
                   ) : (
                     <div className="w-8 h-8 rounded-full bg-[#f3eeff] border-2 border-[#7B2FFF] flex items-center justify-center">
                       <FiUser size={15} className="text-[#7B2FFF]" />
@@ -498,11 +508,11 @@ export default function Navbar() {
               </button>
 
               {profileOpen && (
-                <div className="absolute top-full right-[-24px] mt-2 w-[340px] bg-white rounded-xl shadow-[0_12px_48px_rgba(0,0,0,0.14)] z-[300] p-4">
+                <div className="absolute top-full right-[-24px] mt-2 w-[340px] max-h-[calc(100vh-100px)] overflow-y-auto bg-white rounded-xl shadow-[0_12px_48px_rgba(0,0,0,0.14)] z-[300] p-4">
                   <div className="flex items-center gap-3 mb-3 pb-3 border-b border-gray-100">
                     <div className="relative flex-shrink-0">
-                      {profile?.profilePhoto ? (
-                        <img src={profile.profilePhoto} alt={navLabel} className="w-10 h-10 rounded-full object-cover" />
+                      {user?.profilePhoto ? (
+                        <img src={user.profilePhoto} alt={navLabel} className="w-10 h-10 rounded-full object-cover" />
                       ) : (
                         <div className="w-10 h-10 rounded-full bg-[#f3eeff] border-2 border-[#7B2FFF] flex items-center justify-center">
                           <FiUser size={18} className="text-[#7B2FFF]" />
@@ -602,8 +612,8 @@ export default function Navbar() {
                     </button>
                   </div>
 
-                  {/* My Listings button — only for owners/brokers/builders */}
-                  {canListProperty && (
+                  {/* My Listings button */}
+                  {canViewMyListings && (
                     <div className="mb-3 pb-3 border-b border-gray-100">
                       <button
                         onClick={() => { setProfileOpen(false); navigate("/my-property-listings"); }}
@@ -702,22 +712,20 @@ export default function Navbar() {
               Login
             </button>
           )}
-          {canListProperty && (
-            <button
+          <button
               onClick={() => navigate("/chatbot")}
               className="flex items-center gap-1.5 bg-[#7B2FFF] border-none rounded-full px-4 py-1.5 cursor-pointer text-white text-sm font-semibold hover:bg-[#6320d4] transition"
             >
               List Property
             </button>
-          )}
           {user ? (
             <button
               onClick={() => setMobileOpen((prev) => !prev)}
               className="flex items-center gap-1 border-none bg-transparent cursor-pointer"
             >
               <div className="relative flex-shrink-0">
-                {profile?.profilePhoto ? (
-                  <img src={profile.profilePhoto} alt={navLabel} className="w-8 h-8 rounded-full object-cover border-2 border-[#7B2FFF]" />
+                {user?.profilePhoto ? (
+                  <img src={user.profilePhoto} alt={navLabel} className="w-8 h-8 rounded-full object-cover border-2 border-[#7B2FFF]" />
                 ) : (
                   <div className="w-8 h-8 rounded-full bg-[#f3eeff] border-2 border-[#7B2FFF] flex items-center justify-center">
                     <FiUser size={15} className="text-[#7B2FFF]" />
@@ -820,8 +828,8 @@ export default function Navbar() {
                     <button onClick={() => { setMobileOpen(false); navigate("/deposit-coins"); }} className="flex-1 text-[11px] font-semibold text-gray-700 bg-white border border-gray-200 rounded-lg py-1.5 cursor-pointer hover:bg-gray-50 transition">+ Deposit Coins</button>
                     <button onClick={() => { setMobileOpen(false); navigate("/payment-transactions"); }} className="flex-1 text-[11px] font-semibold text-gray-700 bg-white border border-gray-200 rounded-lg py-1.5 cursor-pointer hover:bg-gray-50 transition">Transactions</button>
                   </div>
-                  {/* My Property Listings — only for owners/brokers/builders */}
-                  {canListProperty && (
+                  {/* My Property Listings */}
+                  {canViewMyListings && (
                     <div className="mx-2 mb-1">
                       <button
                         onClick={() => { setMobileOpen(false); navigate("/my-property-listings"); }}

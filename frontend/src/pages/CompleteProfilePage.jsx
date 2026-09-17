@@ -134,25 +134,24 @@ function CustomerFields({ form, setForm, errors, mobile }) {
   return (
     <>
       <div className="flex justify-center mb-2">
-        <PhotoUpload label="Profile Photo" value={form.profilePhotoPreview}
+        <PhotoUpload label="Profile Photo (Optional)" value={form.profilePhotoPreview}
           onChange={(url, file) => setForm((p) => ({ ...p, profilePhotoPreview: url, profilePhotoFile: file }))}
         />
       </div>
-      {errors.profilePhotoFile && <p className="text-xs text-red-500 text-center -mt-1">{errors.profilePhotoFile}</p>}
       <InputField label="Full Name" required error={errors.fullName}>
         <TextInput value={form.fullName} onChange={(e) => setForm((p) => ({ ...p, fullName: e.target.value }))} placeholder="Your full name" />
       </InputField>
       <InputField label="Mobile Number" required>
         <TextInput value={mobile} readOnly prefix="+91" />
       </InputField>
-      <InputField label="Email" required error={errors.email}>
-        <TextInput type="email" value={form.email} onChange={(e) => setForm((p) => ({ ...p, email: e.target.value }))} placeholder="your@email.com" />
+      <InputField label="Email" error={errors.email}>
+        <TextInput type="email" value={form.email} onChange={(e) => setForm((p) => ({ ...p, email: e.target.value }))} placeholder="your@email.com (optional)" />
       </InputField>
-      <InputField label="Location" required error={errors.location}>
-        <PlacesAutocomplete value={form.location} onChange={(val) => setForm((p) => ({ ...p, location: val }))} placeholder="City or area you're looking in" />
+      <InputField label="Location" error={errors.location}>
+        <PlacesAutocomplete value={form.location} onChange={(val) => setForm((p) => ({ ...p, location: val }))} placeholder="City or area you're looking in (optional)" />
       </InputField>
-      <InputField label="Bio" required error={errors.bio}>
-        <TextareaInput value={form.bio} onChange={(e) => setForm((p) => ({ ...p, bio: e.target.value }))} placeholder="Tell us a bit about yourself" />
+      <InputField label="Bio" error={errors.bio}>
+        <TextareaInput value={form.bio} onChange={(e) => setForm((p) => ({ ...p, bio: e.target.value }))} placeholder="Tell us a bit about yourself (optional)" />
       </InputField>
     </>
   );
@@ -162,23 +161,22 @@ function OwnerFields({ form, setForm, errors, mobile }) {
   return (
     <>
       <div className="flex justify-center mb-2">
-        <PhotoUpload label="Profile Photo" value={form.profilePhotoPreview}
+        <PhotoUpload label="Profile Photo (Optional)" value={form.profilePhotoPreview}
           onChange={(url, file) => setForm((p) => ({ ...p, profilePhotoPreview: url, profilePhotoFile: file }))}
         />
       </div>
-      {errors.profilePhotoFile && <p className="text-xs text-red-500 text-center -mt-1">{errors.profilePhotoFile}</p>}
       <InputField label="Full Name" required error={errors.fullName}>
         <TextInput value={form.fullName} onChange={(e) => setForm((p) => ({ ...p, fullName: e.target.value }))} placeholder="Your full name" />
       </InputField>
       <InputField label="Mobile Number" required>
         <TextInput value={mobile} readOnly prefix="+91" />
       </InputField>
-      <InputField label="Email" required error={errors.email}>
-        <TextInput type="email" value={form.email} onChange={(e) => setForm((p) => ({ ...p, email: e.target.value }))} placeholder="your@email.com" />
+      <InputField label="Email" error={errors.email}>
+        <TextInput type="email" value={form.email} onChange={(e) => setForm((p) => ({ ...p, email: e.target.value }))} placeholder="your@email.com (optional)" />
       </InputField>
 
       <div className="border-t border-gray-100 pt-4 mt-2">
-        <p className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-4">Business Details</p>
+        <p className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-4">Business Details <span className="normal-case font-normal">(optional)</span></p>
         <div className="flex flex-col gap-4">
           <div className="flex justify-center">
             <PhotoUpload label="Company Logo" value={form.bizLogoPreview}
@@ -186,22 +184,22 @@ function OwnerFields({ form, setForm, errors, mobile }) {
               shape="square" icon={FiImage}
             />
           </div>
-          <InputField label="Business Name" required error={errors.bizName}>
+          <InputField label="Business Name" error={errors.bizName}>
             <TextInput value={form.bizName} onChange={(e) => setForm((p) => ({ ...p, bizName: e.target.value }))} placeholder="Your business / firm name" />
           </InputField>
-          <InputField label="Business Type" required error={errors.bizType}>
+          <InputField label="Business Type" error={errors.bizType}>
             <SelectInput value={form.bizType} onChange={(e) => setForm((p) => ({ ...p, bizType: e.target.value }))} options={OWNER_BUSINESS_TYPES} placeholder="Select business type" />
           </InputField>
-          <InputField label="GST Number" required error={errors.gstNumber}>
+          <InputField label="GST Number" error={errors.gstNumber}>
             <TextInput value={form.gstNumber} onChange={(e) => setForm((p) => ({ ...p, gstNumber: e.target.value }))} placeholder="GST number" />
           </InputField>
-          <InputField label="Business Email" required error={errors.bizEmail}>
+          <InputField label="Business Email" error={errors.bizEmail}>
             <TextInput type="email" value={form.bizEmail} onChange={(e) => setForm((p) => ({ ...p, bizEmail: e.target.value }))} placeholder="business@email.com" />
           </InputField>
-          <InputField label="Business Mobile" required error={errors.bizMobile}>
+          <InputField label="Business Mobile" error={errors.bizMobile}>
             <TextInput value={form.bizMobile} onChange={(e) => setForm((p) => ({ ...p, bizMobile: e.target.value.replace(/\D/, "") }))} placeholder="Business contact number" prefix="+91" maxLength={10} />
           </InputField>
-          <InputField label="Website" required error={errors.website}>
+          <InputField label="Website" error={errors.website}>
             <TextInput value={form.website} onChange={(e) => setForm((p) => ({ ...p, website: e.target.value }))} placeholder="https://yourwebsite.com" />
           </InputField>
         </div>
@@ -214,28 +212,27 @@ function BrokerFields({ form, setForm, errors, mobile }) {
   return (
     <>
       <div className="flex justify-center mb-2">
-        <PhotoUpload label="Profile Photo" value={form.profilePhotoPreview}
+        <PhotoUpload label="Profile Photo (Optional)" value={form.profilePhotoPreview}
           onChange={(url, file) => setForm((p) => ({ ...p, profilePhotoPreview: url, profilePhotoFile: file }))}
         />
       </div>
-      {errors.profilePhotoFile && <p className="text-xs text-red-500 text-center -mt-1">{errors.profilePhotoFile}</p>}
       <InputField label="Full Name" required error={errors.fullName}>
         <TextInput value={form.fullName} onChange={(e) => setForm((p) => ({ ...p, fullName: e.target.value }))} placeholder="Your full name" />
       </InputField>
       <InputField label="Mobile Number" required>
         <TextInput value={mobile} readOnly prefix="+91" />
       </InputField>
-      <InputField label="Email" required error={errors.email}>
-        <TextInput type="email" value={form.email} onChange={(e) => setForm((p) => ({ ...p, email: e.target.value }))} placeholder="your@email.com" />
+      <InputField label="Email" error={errors.email}>
+        <TextInput type="email" value={form.email} onChange={(e) => setForm((p) => ({ ...p, email: e.target.value }))} placeholder="your@email.com (optional)" />
       </InputField>
-      <InputField label="Agency Name" required error={errors.agencyName}>
-        <TextInput value={form.agencyName} onChange={(e) => setForm((p) => ({ ...p, agencyName: e.target.value }))} placeholder="Your agency or firm name" />
+      <InputField label="Agency Name" error={errors.agencyName}>
+        <TextInput value={form.agencyName} onChange={(e) => setForm((p) => ({ ...p, agencyName: e.target.value }))} placeholder="Your agency or firm name (optional)" />
       </InputField>
-      <InputField label="Years of Experience" required error={errors.yearsOfExperience}>
-        <TextInput type="number" value={form.yearsOfExperience} onChange={(e) => setForm((p) => ({ ...p, yearsOfExperience: e.target.value }))} placeholder="e.g. 5" />
+      <InputField label="Years of Experience" error={errors.yearsOfExperience}>
+        <TextInput type="number" value={form.yearsOfExperience} onChange={(e) => setForm((p) => ({ ...p, yearsOfExperience: e.target.value }))} placeholder="e.g. 5 (optional)" />
       </InputField>
-      <InputField label="Bio" required error={errors.bio}>
-        <TextareaInput value={form.bio} onChange={(e) => setForm((p) => ({ ...p, bio: e.target.value }))} placeholder="Brief professional summary" />
+      <InputField label="Bio" error={errors.bio}>
+        <TextareaInput value={form.bio} onChange={(e) => setForm((p) => ({ ...p, bio: e.target.value }))} placeholder="Brief professional summary (optional)" />
       </InputField>
     </>
   );
@@ -245,34 +242,33 @@ function BuilderFields({ form, setForm, errors, mobile }) {
   return (
     <>
       <div className="flex justify-center mb-2">
-        <PhotoUpload label="Profile Photo" value={form.profilePhotoPreview}
+        <PhotoUpload label="Profile Photo (Optional)" value={form.profilePhotoPreview}
           onChange={(url, file) => setForm((p) => ({ ...p, profilePhotoPreview: url, profilePhotoFile: file }))}
         />
       </div>
-      {errors.profilePhotoFile && <p className="text-xs text-red-500 text-center -mt-1">{errors.profilePhotoFile}</p>}
       <InputField label="Company / Builder Name" required error={errors.name}>
         <TextInput value={form.name} onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))} placeholder="Your company name" />
       </InputField>
       <InputField label="Mobile Number" required>
         <TextInput value={mobile} readOnly prefix="+91" />
       </InputField>
-      <InputField label="Email" required error={errors.email}>
-        <TextInput type="email" value={form.email} onChange={(e) => setForm((p) => ({ ...p, email: e.target.value }))} placeholder="your@email.com" />
+      <InputField label="Email" error={errors.email}>
+        <TextInput type="email" value={form.email} onChange={(e) => setForm((p) => ({ ...p, email: e.target.value }))} placeholder="your@email.com (optional)" />
       </InputField>
-      <InputField label="GST Number" required error={errors.gstNumber}>
-        <TextInput value={form.gstNumber} onChange={(e) => setForm((p) => ({ ...p, gstNumber: e.target.value }))} placeholder="GST number" />
+      <InputField label="GST Number" error={errors.gstNumber}>
+        <TextInput value={form.gstNumber} onChange={(e) => setForm((p) => ({ ...p, gstNumber: e.target.value }))} placeholder="GST number (optional)" />
       </InputField>
-      <InputField label="CIN Number" required error={errors.cinNumber}>
-        <TextInput value={form.cinNumber} onChange={(e) => setForm((p) => ({ ...p, cinNumber: e.target.value }))} placeholder="Corporate Identification Number" />
+      <InputField label="CIN Number" error={errors.cinNumber}>
+        <TextInput value={form.cinNumber} onChange={(e) => setForm((p) => ({ ...p, cinNumber: e.target.value }))} placeholder="Corporate Identification Number (optional)" />
       </InputField>
-      <InputField label="Founded Year" required error={errors.foundedYear}>
-        <TextInput type="number" value={form.foundedYear} onChange={(e) => setForm((p) => ({ ...p, foundedYear: e.target.value }))} placeholder="e.g. 2005" />
+      <InputField label="Founded Year" error={errors.foundedYear}>
+        <TextInput type="number" value={form.foundedYear} onChange={(e) => setForm((p) => ({ ...p, foundedYear: e.target.value }))} placeholder="e.g. 2005 (optional)" />
       </InputField>
-      <InputField label="Total Projects Delivered" required error={errors.totalProjectsDelivered}>
-        <TextInput type="number" value={form.totalProjectsDelivered} onChange={(e) => setForm((p) => ({ ...p, totalProjectsDelivered: e.target.value }))} placeholder="e.g. 12" />
+      <InputField label="Total Projects Delivered" error={errors.totalProjectsDelivered}>
+        <TextInput type="number" value={form.totalProjectsDelivered} onChange={(e) => setForm((p) => ({ ...p, totalProjectsDelivered: e.target.value }))} placeholder="e.g. 12 (optional)" />
       </InputField>
-      <InputField label="Location / HQ City" required error={errors.location}>
-        <PlacesAutocomplete value={form.location} onChange={(val) => setForm((p) => ({ ...p, location: val }))} placeholder="City where your HQ is based" />
+      <InputField label="Location / HQ City" error={errors.location}>
+        <PlacesAutocomplete value={form.location} onChange={(val) => setForm((p) => ({ ...p, location: val }))} placeholder="City where your HQ is based (optional)" />
       </InputField>
       <div className="flex justify-center">
         <PhotoUpload label="Business Logo (optional)" value={form.bizLogoPreview}
@@ -309,39 +305,18 @@ export default function CompleteProfilePage() {
 
   const validate = () => {
     const e = {};
-    if (!form.profilePhotoFile) e.profilePhotoFile = "Profile photo is required";
+    // Only validate name (required)
     if (selectedRole !== "builder") {
-      if (!form.fullName.trim()) e.fullName = "Full name is required";
+      if (!form.fullName?.trim()) e.fullName = "Full name is required";
     } else {
-      if (!form.name.trim()) e.name = "Company name is required";
+      if (!form.name?.trim()) e.name = "Company name is required";
     }
-    if (!form.email.trim()) e.email = "Email is required";
-    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) e.email = "Enter a valid email";
-
-    if (selectedRole === "customer") {
-      if (!form.location.trim()) e.location = "Location is required";
-      if (!form.bio.trim()) e.bio = "Bio is required";
+    
+    // Validate email format if provided (optional)
+    if (form.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
+      e.email = "Enter a valid email";
     }
-    if (selectedRole === "owner") {
-      if (!form.bizName.trim()) e.bizName = "Business name is required";
-      if (!form.bizType) e.bizType = "Business type is required";
-      if (!form.gstNumber.trim()) e.gstNumber = "GST number is required";
-      if (!form.bizEmail.trim()) e.bizEmail = "Business email is required";
-      if (!form.bizMobile.trim()) e.bizMobile = "Business mobile is required";
-      if (!form.website.trim()) e.website = "Website is required";
-    }
-    if (selectedRole === "broker") {
-      if (!form.agencyName.trim()) e.agencyName = "Agency name is required";
-      if (!form.yearsOfExperience) e.yearsOfExperience = "Years of experience is required";
-      if (!form.bio.trim()) e.bio = "Bio is required";
-    }
-    if (selectedRole === "builder") {
-      if (!form.gstNumber.trim()) e.gstNumber = "GST number is required";
-      if (!form.cinNumber.trim()) e.cinNumber = "CIN number is required";
-      if (!form.foundedYear) e.foundedYear = "Founded year is required";
-      if (!form.totalProjectsDelivered) e.totalProjectsDelivered = "Total projects is required";
-      if (!form.location.trim()) e.location = "Location is required";
-    }
+    
     return e;
   };
 
@@ -354,50 +329,61 @@ export default function CompleteProfilePage() {
     try {
       const fd = new FormData();
       fd.append("role", ROLE_IDS[selectedRole]);
-      fd.append("profilePhoto", form.profilePhotoFile);
+      
+      // Only append profilePhoto if provided
+      if (form.profilePhotoFile) {
+        fd.append("profilePhoto", form.profilePhotoFile);
+      }
 
       if (selectedRole === "customer") {
         fd.append("fullName", form.fullName);
-        fd.append("email", form.email);
-        fd.append("bio", form.bio);
-        const coords = await geocode(form.location);
-        fd.append("location.name", form.location);
-        fd.append("location.latitude", coords?.latitude ?? "");
-        fd.append("location.longitude", coords?.longitude ?? "");
+        if (form.email) fd.append("email", form.email);
+        if (form.bio) fd.append("bio", form.bio);
+        if (form.location) {
+          const coords = await geocode(form.location);
+          fd.append("location.name", form.location);
+          if (coords) {
+            fd.append("location.latitude", coords.latitude);
+            fd.append("location.longitude", coords.longitude);
+          }
+        }
       }
 
       if (selectedRole === "owner") {
         fd.append("fullName", form.fullName);
-        fd.append("email", form.email);
-        fd.append("businessDetails.name", form.bizName);
-        fd.append("businessDetails.type", form.bizType);
-        fd.append("businessDetails.gstNumber", form.gstNumber);
-        fd.append("businessDetails.email", form.bizEmail);
-        fd.append("businessDetails.mobile", form.bizMobile);
-        fd.append("businessDetails.website", form.website);
+        if (form.email) fd.append("email", form.email);
+        if (form.bizName) fd.append("businessDetails.name", form.bizName);
+        if (form.bizType) fd.append("businessDetails.type", form.bizType);
+        if (form.gstNumber) fd.append("businessDetails.gstNumber", form.gstNumber);
+        if (form.bizEmail) fd.append("businessDetails.email", form.bizEmail);
+        if (form.bizMobile) fd.append("businessDetails.mobile", form.bizMobile);
+        if (form.website) fd.append("businessDetails.website", form.website);
         if (form.bizLogoFile) fd.append("businessLogo", form.bizLogoFile);
       }
 
       if (selectedRole === "broker") {
         fd.append("fullName", form.fullName);
-        fd.append("email", form.email);
-        fd.append("agencyName", form.agencyName);
-        fd.append("yearsOfExperience", form.yearsOfExperience);
-        fd.append("bio", form.bio);
+        if (form.email) fd.append("email", form.email);
+        if (form.agencyName) fd.append("agencyName", form.agencyName);
+        if (form.yearsOfExperience) fd.append("yearsOfExperience", form.yearsOfExperience);
+        if (form.bio) fd.append("bio", form.bio);
       }
 
       if (selectedRole === "builder") {
         fd.append("name", form.name);
-        fd.append("email", form.email);
-        fd.append("gstNumber", form.gstNumber);
-        fd.append("cinNumber", form.cinNumber);
-        fd.append("foundedYear", form.foundedYear);
-        fd.append("totalProjectsDelivered", form.totalProjectsDelivered);
-        const coords = await geocode(form.location);
-        fd.append("location.name", form.location);
-        fd.append("location.latitude", coords?.latitude ?? "");
-        fd.append("location.longitude", coords?.longitude ?? "");
-        if (form.bizLogoFile) fd.append("businessLogo", form.bizLogoFile);
+        if (form.email) fd.append("email", form.email);
+        if (form.gstNumber) fd.append("gstNumber", form.gstNumber);
+        if (form.cinNumber) fd.append("cinNumber", form.cinNumber);
+        if (form.foundedYear) fd.append("foundedYear", form.foundedYear);
+        if (form.totalProjectsDelivered) fd.append("totalProjectsDelivered", form.totalProjectsDelivered);
+        if (form.location) {
+          const coords = await geocode(form.location);
+          fd.append("location.name", form.location);
+          if (coords) {
+            fd.append("location.latitude", coords.latitude);
+            fd.append("location.longitude", coords.longitude);
+          }
+        }
       }
 
       const res = await fetch(`${BASE_URL}/api/system-users/complete-profile`, {
