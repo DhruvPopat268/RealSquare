@@ -745,6 +745,19 @@ export async function propertyListingFlow(step, answer, collectedData, { botSay,
         : "Profile → My Property Listings → Edit Property";
       await botSay(`⚠️ Property listed but image upload failed: ${err.message}\n\nYou can try uploading images from ${editPath}.`);
     }
+    await botSay("Do you want to do more listing?", ["Yes", "No"]);
+    goTo("ask_more_listing", collectedData);
+    return;
+  }
+
+  // ── Ask more listing ──────────────────────────────────────────────────────
+  if (step === "ask_more_listing") {
+    if (!answer) return;
+    if (answer === "Yes") {
+      await botSay("Great! Starting a new listing... 🔄");
+      setTimeout(() => window.location.reload(), 1000);
+    }
+    // No — do nothing, just leave the chat as is
     return;
   }
 
