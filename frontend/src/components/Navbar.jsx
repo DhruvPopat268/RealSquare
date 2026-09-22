@@ -617,11 +617,24 @@ export default function Navbar() {
                     <div className="mb-3 pb-3 border-b border-gray-100">
                       <button
                         onClick={() => { setProfileOpen(false); navigate("/my-property-listings"); }}
-                        className="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl border border-gray-200 hover:border-[#7B2FFF] hover:bg-[#f5f0ff] text-[#1a1a2e] hover:text-[#7B2FFF] transition group"
+                        className={`w-full flex items-center gap-2 px-3 py-2.5 rounded-xl border transition group ${
+                          user?.rejectedPropertiesCount > 0
+                            ? "border-red-300 bg-red-50 hover:border-red-400 hover:bg-red-100"
+                            : "border-gray-200 hover:border-[#7B2FFF] hover:bg-[#f5f0ff]"
+                        }`}
                       >
-                        <FiList size={14} className="text-[#7B2FFF] flex-shrink-0" />
-                        <span className="text-xs font-semibold flex-1 text-left">My Property Listings</span>
-                        <span className="text-[11px] text-gray-400 group-hover:text-[#7B2FFF]">→</span>
+                        <FiList size={14} className={user?.rejectedPropertiesCount > 0 ? "text-red-500 flex-shrink-0" : "text-[#7B2FFF] flex-shrink-0"} />
+                        <span className={`text-xs font-semibold flex-1 text-left ${user?.rejectedPropertiesCount > 0 ? "text-red-600" : "text-[#1a1a2e] group-hover:text-[#7B2FFF]"}`}>
+                          My Property Listings
+                        </span>
+                        {user?.rejectedPropertiesCount > 0 ? (
+                          <span className="flex items-center gap-1 text-[10px] font-bold text-red-600 bg-red-100 border border-red-300 px-1.5 py-0.5 rounded-full">
+                            <FiAlertTriangle size={10} />
+                            {user.rejectedPropertiesCount} Action Required
+                          </span>
+                        ) : (
+                          <span className="text-[11px] text-gray-400 group-hover:text-[#7B2FFF]">→</span>
+                        )}
                       </button>
                     </div>
                   )}
@@ -833,11 +846,24 @@ export default function Navbar() {
                     <div className="mx-2 mb-1">
                       <button
                         onClick={() => { setMobileOpen(false); navigate("/my-property-listings"); }}
-                        className="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl border border-gray-200 hover:border-[#7B2FFF] hover:bg-[#f5f0ff] text-[#1a1a2e] hover:text-[#7B2FFF] transition group bg-white cursor-pointer"
+                        className={`w-full flex items-center gap-2 px-3 py-2.5 rounded-xl border transition group cursor-pointer ${
+                          user?.rejectedPropertiesCount > 0
+                            ? "border-red-300 bg-red-50 hover:border-red-400 hover:bg-red-100"
+                            : "border-gray-200 hover:border-[#7B2FFF] hover:bg-[#f5f0ff] bg-white"
+                        }`}
                       >
-                        <FiList size={14} className="text-[#7B2FFF] flex-shrink-0" />
-                        <span className="text-xs font-semibold flex-1 text-left">My Property Listings</span>
-                        <span className="text-[11px] text-gray-400 group-hover:text-[#7B2FFF]">→</span>
+                        <FiList size={14} className={user?.rejectedPropertiesCount > 0 ? "text-red-500 flex-shrink-0" : "text-[#7B2FFF] flex-shrink-0"} />
+                        <span className={`text-xs font-semibold flex-1 text-left ${user?.rejectedPropertiesCount > 0 ? "text-red-600" : "text-[#1a1a2e] group-hover:text-[#7B2FFF]"}`}>
+                          My Property Listings
+                        </span>
+                        {user?.rejectedPropertiesCount > 0 ? (
+                          <span className="flex items-center gap-1 text-[10px] font-bold text-red-600 bg-red-100 border border-red-300 px-1.5 py-0.5 rounded-full">
+                            <FiAlertTriangle size={10} />
+                            {user.rejectedPropertiesCount} Action Required
+                          </span>
+                        ) : (
+                          <span className="text-[11px] text-gray-400 group-hover:text-[#7B2FFF]">→</span>
+                        )}
                       </button>
                     </div>
                   )}

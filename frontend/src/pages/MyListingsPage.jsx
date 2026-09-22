@@ -1,9 +1,10 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 import {
   FiArrowLeft, FiHome, FiMapPin, FiCalendar, FiList,
   FiPlus, FiRefreshCw, FiEdit2, FiChevronLeft, FiChevronRight,
-  FiFilter, FiChevronDown, FiX, FiGrid,
+  FiFilter, FiChevronDown, FiX, FiGrid, FiAlertTriangle,
 } from "react-icons/fi";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
@@ -139,16 +140,7 @@ function GridCard({ listing }) {
           </span>
         </div>
 
-        {/* Edit button overlay */}
-        <div className="absolute bottom-2 left-2" onClick={(e) => e.stopPropagation()}>
-          <button
-            onClick={() => {/* TODO: navigate to edit page */}}
-            className="flex items-center gap-1 px-2 py-1 bg-white/90 hover:bg-white text-gray-600 hover:text-[#7B2FFF] rounded-lg text-[10px] font-semibold shadow-sm transition opacity-0 group-hover:opacity-100"
-          >
-            <FiEdit2 size={10} />
-            Edit
-          </button>
-        </div>
+
       </div>
 
       {/* Details */}
@@ -191,13 +183,22 @@ function GridCard({ listing }) {
           </div>
         )}
 
-        <div className="mt-auto pt-2 border-t border-gray-100 flex justify-end mt-2">
+        <div className="mt-auto pt-2 border-t border-gray-100 flex items-center justify-between mt-2">
           {listing.createdAt && (
             <div className="flex items-center gap-1 text-[10px] text-gray-400">
               <FiCalendar size={9} />
               <span>{formatDate(listing.createdAt)}</span>
             </div>
           )}
+          <div onClick={(e) => e.stopPropagation()}>
+            <button
+              onClick={() => navigate(`/edit-property/${listing._id}`)}
+              className="flex items-center gap-1 px-2.5 py-1.5 bg-[#7B2FFF] text-white rounded-lg text-[11px] font-semibold hover:bg-[#6320d4] transition"
+            >
+              <FiEdit2 size={11} />
+              Edit
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -322,8 +323,8 @@ function ListingCard({ listing }) {
               {status.label}
             </span>
             <button
-              onClick={() => {/* TODO: navigate to edit page */}}
-              className="flex items-center gap-1 px-2.5 py-1.5 border border-gray-200 text-gray-600 rounded-lg text-[11px] font-semibold hover:border-[#7B2FFF] hover:text-[#7B2FFF] hover:bg-[#f5f0ff] transition"
+              onClick={() => navigate(`/edit-property/${listing._id}`)}
+              className="flex items-center gap-1 px-2.5 py-1.5 bg-[#7B2FFF] text-white rounded-lg text-[11px] font-semibold hover:bg-[#6320d4] transition"
             >
               <FiEdit2 size={11} />
               Edit
@@ -434,6 +435,16 @@ function EndOfList({ total }) {
 // ── Page ──────────────────────────────────────────────────────────────────────
 export default function MyListingsPage() {
   const navigate = useNavigate();
+
+  // ── Rejected properties count from /me ───────────────────────────────────
+  const [rejectedCount, setRejectedCount] = useState(0);
+
+  useEffect(() => {
+    axios
+      .get(`${import.meta.env.VITE_API_URL}/api/system-users/me`, { withCredentials: true })
+      .then((res) => { if (res.data.success) setRejectedCount(res.data.data.rejectedPropertiesCount ?? 0); })
+      .catch(() => {});
+  }, []);
 
   // ── Listing / pagination state ────────────────────────────────────────────
   const [listings,    setListings]    = useState([]);
@@ -632,6 +643,32 @@ export default function MyListingsPage() {
               </div>
             )}
           </div>
+
+          {/* ── Rejected properties banner ───────────────────────────────── */}
+          {rejectedCount > 0 && (
+            <div className="flex items-center gap-3 px-4 py-3 mb-5 bg-red-50 border border-red-200 rounded-2xl">
+              <div className="flex items-center justify-center w-8 h-8 rounded-full bg-red-100 shrink-0">
+                <FiAlertTriangle size={16} className="text-red-500" />
+              </div>
+              <div className="flex-1">
+                <p className="text-sm font-bold text-red-700">
+                  {rejectedCount} {rejectedCount === 1 ? "listing requires" : "listings require"} your attention
+                </p>
+                <p className="text-xs text-red-500 mt-0.5">
+                  {rejectedCount === 1 ? "A property listing was" : "Some property listings were"} rejected. Please review the reasons and relist or update accordingly.
+                </p>
+              </div>
+              <button
+                onClick={() => {
+                  setPendingFilters((prev) => ({ ...prev, status: "Rejected" }));
+                  setAppliedFilters((prev) => ({ ...prev, status: "Rejected" }));
+                }}
+                className="shrink-0 text-xs font-bold text-red-600 bg-red-100 hover:bg-red-200 border border-red-300 px-3 py-1.5 rounded-lg transition"
+              >
+                View Rejected
+              </button>
+            </div>
+          )}
 
           {/* ── Stats Cards ──────────────────────────────────────────────── */}
           {stats && !loading && (

@@ -1,4 +1,5 @@
-import { FiMaximize2, FiLayers, FiCalendar } from "react-icons/fi";
+import { FiMaximize2, FiLayers } from "react-icons/fi";
+import FurnishingsAmenitiesDisplay from "./FurnishingsAmenitiesDisplay";
 
 function formatArea(area) {
   if (!area?.value) return null;
@@ -45,7 +46,6 @@ export default function CommercialDetails({ data, listing }) {
   const rentInfo = listing.rentInfo;
   const propTypeName = listing.propertyType?.name ?? "";
 
-  // Determine if this is office type (has seats/cabin fields)
   const isOffice =
     propTypeName.toLowerCase().includes("office") ||
     data.minSeats != null ||
@@ -148,7 +148,6 @@ export default function CommercialDetails({ data, listing }) {
             <FiLayers className="text-[#5E23DC]" />
             Floor Information
           </h2>
-
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {data.totalFloors != null && (
               <div>
@@ -156,7 +155,6 @@ export default function CommercialDetails({ data, listing }) {
                 <p className="font-semibold text-lg">{data.totalFloors}</p>
               </div>
             )}
-
             {data.yourFloor && (
               <div>
                 <p className="text-gray-500 text-sm mb-1">Unit Floor</p>
@@ -167,11 +165,10 @@ export default function CommercialDetails({ data, listing }) {
         </div>
       )}
 
-      {/* Office Specifications — only for office type */}
+      {/* Office Specifications */}
       {isOffice && (data.minSeats != null || data.minCabins != null || data.minMeetingRooms != null) && (
         <div className="bg-white rounded-2xl p-6">
           <h2 className="text-2xl font-bold mb-6">Office Facilities</h2>
-
           <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
             {data.minSeats != null && (
               <div className="p-4 bg-purple-50 rounded-xl text-center">
@@ -179,14 +176,12 @@ export default function CommercialDetails({ data, listing }) {
                 <p className="text-gray-600 text-sm mt-1">Workstations / Seats</p>
               </div>
             )}
-
             {data.minCabins != null && (
               <div className="p-4 bg-blue-50 rounded-xl text-center">
                 <p className="text-3xl font-bold text-blue-600">{data.minCabins}+</p>
                 <p className="text-gray-600 text-sm mt-1">Private Cabins</p>
               </div>
             )}
-
             {data.minMeetingRooms != null && (
               <div className="p-4 bg-green-50 rounded-xl text-center">
                 <p className="text-3xl font-bold text-green-600">{data.minMeetingRooms}+</p>
@@ -196,6 +191,13 @@ export default function CommercialDetails({ data, listing }) {
           </div>
         </div>
       )}
+
+      {/* Furnishings & Amenities — card grid display */}
+      <FurnishingsAmenitiesDisplay
+        furnishType={data.furnishType}
+        furnishings={data.furnishings ?? []}
+        amenities={data.amenities ?? []}
+      />
 
     </div>
   );

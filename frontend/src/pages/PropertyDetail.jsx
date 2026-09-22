@@ -10,6 +10,7 @@ import {
   FiExternalLink,
   FiUser,
   FiCalendar,
+  FiEdit2,
 } from "react-icons/fi";
 import { properties, newlyAddedProperties, rentProperties, commercialProperties, pgProperties, plotProperties } from "../data/properties";
 import PageSpinner from "../components/PageSpinner";
@@ -51,6 +52,16 @@ export default function PropertyDetail() {
   const [apiListing, setApiListing] = useState(null);
   const [apiLoading, setApiLoading] = useState(false);
   const [apiError, setApiError] = useState(null);
+
+  // Current logged-in user (to show edit button for owner)
+  const [currentUserId, setCurrentUserId] = useState(null);
+
+  useEffect(() => {
+    fetch(`${API}/api/system-users/me`, { credentials: "include" })
+      .then((r) => r.json())
+      .then((data) => { if (data.success) setCurrentUserId(data.data._id); })
+      .catch(() => {});
+  }, []);
 
   const handleWishlistToggle = () => {
     const newState = !wishlist;
@@ -284,6 +295,14 @@ export default function PropertyDetail() {
               <button onClick={handleWishlistToggle} className="bg-white shadow-md px-4 py-2 rounded-xl flex items-center gap-2 text-sm font-medium">
                 <FiHeart className={wishlist ? "text-red-500 fill-red-500" : ""} /> SAVE
               </button>
+              {property._isApiListing && currentUserId && property.listedBy?.id?.toString() === currentUserId && (
+                <button
+                  onClick={() => navigate(`/edit-property/${property._id}`)}
+                  className="bg-[#7B2FFF] shadow-md px-4 py-2 rounded-xl flex items-center gap-2 text-sm font-medium text-white hover:bg-[#6320d4] transition"
+                >
+                  <FiEdit2 size={14} /> EDIT
+                </button>
+              )}
             </div>
           </div>
         )}
