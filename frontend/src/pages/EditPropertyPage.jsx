@@ -8,6 +8,7 @@ import PageSpinner from "../components/PageSpinner";
 import ImageEditor from "../components/editForms/ImageEditor";
 import PropertyTypeEditForm from "../components/editForms/PropertyTypeEditForm";
 import LocationAutocomplete from "../components/LocationAutocomplete";
+import CityAutocomplete from "../components/CityAutocomplete";
 import { Section, Grid, FormField, TextInput, SelectField } from "../components/editForms/EditFormShared";
 
 const API = import.meta.env.VITE_API_URL;
@@ -56,6 +57,13 @@ export default function EditPropertyPage() {
   const [newFiles, setNewFiles] = useState([]);
   const [saving, setSaving] = useState(false);
   const [toast, setToast] = useState(null);
+
+  // Auto-dismiss toast after 4 seconds
+  useEffect(() => {
+    if (!toast) return;
+    const t = setTimeout(() => setToast(null), 4000);
+    return () => clearTimeout(t);
+  }, [toast]);
 
   // Furnishings & amenities
   const [furnishingsAmenities, setFurnishingsAmenities] = useState({ furnishings: [], amenities: [] });
@@ -149,9 +157,6 @@ export default function EditPropertyPage() {
   const buildDiffPayload = () => {
     const payload = {
       propertyListingId: id,
-      listingTypeId: form.listingTypeId, // Always send
-      categoryId: form.categoryId, // Always send
-      propertyTypeId: form.propertyTypeId, // Always send
     };
 
     // Helper to deep compare values
@@ -265,6 +270,17 @@ export default function EditPropertyPage() {
   // Submit
   const handleSubmit = async () => {
     if (saving) return;
+
+    // ── Frontend validation ───────────────────────────────────────────────────
+    if (!form.cityName?.trim()) {
+      setToast({ type: "error", message: "City is required. Please select a city." });
+      return;
+    }
+    if (!form.locality?.address?.trim()) {
+      setToast({ type: "error", message: "Address is required. Please select a locality." });
+      return;
+    }
+
     setSaving(true);
 
     try {
@@ -278,7 +294,6 @@ export default function EditPropertyPage() {
       if (!patchRes.data.success) {
         throw new Error(patchRes.data.message ?? "Update failed");
       }
-
       // 2. Only call media API if images actually changed:
       //    - new files were added, OR
       //    - existing images were reordered or deleted
@@ -287,6 +302,8 @@ export default function EditPropertyPage() {
         newFiles.length > 0 ||
         images.length !== originalImages.length ||
         images.some((url, i) => url !== originalImages[i]);
+
+      let finalMessage = patchRes.data.message ?? "Property updated successfully!";
 
       if (imagesChanged) {
         const formData = new FormData();
@@ -306,12 +323,15 @@ export default function EditPropertyPage() {
         if (!mediaRes.data.success) {
           throw new Error(mediaRes.data.message ?? "Image update failed");
         }
+        // Prefer the media API message if images changed (it mentions review status)
+        finalMessage = mediaRes.data.message ?? finalMessage;
       }
 
-      setToast({ type: "success", message: "Property updated successfully!" });
+      setToast({ type: "success", message: finalMessage });
       setTimeout(() => navigate("/my-property-listings"), 2000);
     } catch (err) {
-      setToast({ type: "error", message: err.message ?? "Failed to update property" });
+      const message = err.response?.data?.message ?? err.message ?? "Failed to update property";
+      setToast({ type: "error", message });
     } finally {
       setSaving(false);
     }
@@ -442,34 +462,34 @@ export default function EditPropertyPage() {
         {/* Listing Identity */}
         <Section title="Listing Details">
           <Grid>
-            <FormField label="Listing Purpose" required>
+            <FormField label="Listing Purpose">
               <SelectField
                 value={form.listingTypeId ?? ""}
-                onChange={(v) => handleFormChange("listingTypeId", v)}
+                onChange={() => {}}
                 options={purposes.map((p) => ({ value: p._id, label: p.name }))}
                 placeholder="Select purpose"
-                disabled={saving || optionsLoading}
+                disabled={true}
               />
             </FormField>
 
-            <FormField label="Property Category" required>
+            <FormField label="Property Category">
               <SelectField
                 value={form.categoryId ?? ""}
-                onChange={(v) => handleFormChange("categoryId", v)}
+                onChange={() => {}}
                 options={categories.map((c) => ({ value: c._id, label: c.name }))}
                 placeholder="Select category"
-                disabled={saving || optionsLoading}
+                disabled={true}
               />
             </FormField>
 
-            {form.categoryId && (
-              <FormField label="Property Type" required>
+            {form.categoryId && form.listingTypeId !== LISTING_TYPE_PG_ID && (
+              <FormField label="Property Type">
                 <SelectField
                   value={form.propertyTypeId ?? ""}
-                  onChange={(v) => handleFormChange("propertyTypeId", v)}
+                  onChange={() => {}}
                   options={propertyTypes.map((t) => ({ value: t._id, label: t.name }))}
                   placeholder="Select property type"
-                  disabled={saving || propertyTypes.length === 0}
+                  disabled={true}
                 />
               </FormField>
             )}
@@ -480,10 +500,18 @@ export default function EditPropertyPage() {
         <Section title="Basic Information">
           <Grid>
             <FormField label="City">
-              <TextInput
+              <CityAutocomplete
                 value={form.cityName ?? ""}
                 onChange={(v) => handleFormChange("cityName", v)}
-                placeholder="City name"
+                onSelect={({ city }) => {
+                  // When city changes, clear locality so user re-picks it
+                  setForm((prev) => ({
+                    ...prev,
+                    cityName: city,
+                    locality: {},
+                  }));
+                }}
+                placeholder="Search city..."
                 disabled={saving}
               />
             </FormField>
@@ -499,8 +527,8 @@ export default function EditPropertyPage() {
                   });
                 }}
                 placeholder={form.cityName ? "Search location..." : "Select city first"}
-                disabled={saving || !form.cityName} // Disable if city is not selected
-                cityName={form.cityName} // Pass cityName to filter suggestions
+                disabled={saving || !form.cityName}
+                cityName={form.cityName}
               />
             </FormField>
           </Grid>
