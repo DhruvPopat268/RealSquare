@@ -597,23 +597,24 @@ export default function MyListingsPage() {
         <div className={`mx-auto px-4 py-8 ${view === "grid" ? "max-w-6xl" : "max-w-4xl"}`}>
 
           {/* Header */}
-          <div className="flex items-center gap-3 mb-6">
+          <div className="mb-6">
             <button
-              onClick={() => navigate(-1)}
-              className="flex items-center justify-center w-9 h-9 rounded-xl border border-gray-200 hover:border-[#7B2FFF] hover:bg-[#f5f0ff] text-gray-500 hover:text-[#7B2FFF] transition bg-white"
+              onClick={() => navigate("/")}
+              className="flex items-center gap-1.5 text-sm text-gray-400 hover:text-[#7B2FFF] transition mb-3"
             >
-              <FiArrowLeft size={16} />
+              <FiArrowLeft size={14} /> Back to Home
             </button>
-            <div>
-              <h1 className="text-xl font-extrabold text-[#1a1a2e] leading-tight">My Listings</h1>
-              <p className="text-xs text-gray-400 mt-0.5">
-                {loading
-                  ? "Loading your properties…"
-                  : totalCount > 0
-                    ? `${totalCount} propert${totalCount !== 1 ? "ies" : "y"} found`
-                    : "All properties you have listed on RealSquare"}
-              </p>
-            </div>
+            <div className="flex items-center gap-3">
+              <div>
+                <h1 className="text-xl font-extrabold text-[#1a1a2e] leading-tight">My Property Listings</h1>
+                <p className="text-xs text-gray-400 mt-0.5">
+                  {loading
+                    ? "Loading your properties…"
+                    : totalCount > 0
+                      ? `${totalCount} propert${totalCount !== 1 ? "ies" : "y"} found`
+                      : "All properties you have listed on RealSquare"}
+                </p>
+              </div>
             {!loading && (
               <div className="ml-auto flex items-center gap-2">
                 {/* Grid / List toggle */}
@@ -642,6 +643,7 @@ export default function MyListingsPage() {
                 </button>
               </div>
             )}
+          </div>
           </div>
 
           {/* ── Rejected properties banner ───────────────────────────────── */}
