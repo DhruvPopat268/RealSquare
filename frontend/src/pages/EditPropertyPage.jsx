@@ -281,6 +281,15 @@ export default function EditPropertyPage() {
       return;
     }
 
+    // ── Commercial carpet area validation ─────────────────────────────────────
+    const com = form.commercialDetails;
+    if (com?.builtUpArea?.value && com?.carpetArea?.value) {
+      if (Number(com.carpetArea.value) > Number(com.builtUpArea.value)) {
+        setToast({ type: "error", message: `Carpet area (${com.carpetArea.value}) cannot be greater than built-up area (${com.builtUpArea.value}).` });
+        return;
+      }
+    }
+
     setSaving(true);
 
     try {
@@ -378,12 +387,12 @@ export default function EditPropertyPage() {
 
       <div className="flex-1 mx-auto px-4 py-8 max-w-4xl w-full">
         {/* Header */}
-        <div className="flex items-center gap-3 mb-8">
+        <div className="mb-8">
           <button
             onClick={() => navigate("/my-property-listings")}
-            className="flex items-center justify-center w-9 h-9 rounded-xl border border-gray-200 hover:border-[#7B2FFF] hover:bg-[#f5f0ff] text-gray-500 hover:text-[#7B2FFF] transition bg-white"
+            className="flex items-center gap-1.5 text-sm text-gray-400 hover:text-[#7B2FFF] transition mb-3"
           >
-            <FiArrowLeft size={16} />
+            <FiArrowLeft size={14} /> Back to My Property Listings
           </button>
           <div className="flex-1">
             <h1 className="text-2xl font-bold text-[#1a1a2e]">Edit Property</h1>

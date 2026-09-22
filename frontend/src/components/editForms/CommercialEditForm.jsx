@@ -48,6 +48,9 @@ export default function CommercialEditForm({ listing, form, onChange, furnishing
             </FormField>
             <FormField label="Carpet Area">
               <AreaField value={com.carpetArea?.value ?? ""} unit={com.carpetArea?.unit ?? "sqft"} onValueChange={(v) => setComArea("carpetArea", "value", v)} onUnitChange={(u) => setComArea("carpetArea", "unit", u)} placeholder="Enter area" />
+              {com.carpetArea?.value && com.builtUpArea?.value && Number(com.carpetArea.value) > Number(com.builtUpArea.value) && (
+                <p className="text-xs text-red-500 mt-1">Carpet area cannot be greater than built-up area ({com.builtUpArea.value} {com.builtUpArea.unit ?? "sqft"})</p>
+              )}
             </FormField>
           </Grid>
         </Section>
