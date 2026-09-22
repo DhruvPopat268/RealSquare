@@ -11,6 +11,7 @@ import {
   FiUser,
   FiCalendar,
   FiEdit2,
+  FiStar,
 } from "react-icons/fi";
 import { properties, newlyAddedProperties, rentProperties, commercialProperties, pgProperties, plotProperties } from "../data/properties";
 import PageSpinner from "../components/PageSpinner";
@@ -43,8 +44,9 @@ export default function PropertyDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  const [activeImage, setActiveImage] = useState(0);
+  const [lightbox, setLightbox] = useState(null);
   const [wishlist, setWishlist] = useState(false);
+  const [interested, setInterested] = useState(false);
   const [activeSection, setActiveSection] = useState("Overview");
   const { toast, showToast, setToast } = useWishlistToast();
 
@@ -54,14 +56,7 @@ export default function PropertyDetail() {
   const [apiError, setApiError] = useState(null);
 
   // Current logged-in user (to show edit button for owner)
-  const [currentUserId, setCurrentUserId] = useState(null);
-
-  useEffect(() => {
-    fetch(`${API}/api/system-users/me`, { credentials: "include" })
-      .then((r) => r.json())
-      .then((data) => { if (data.success) setCurrentUserId(data.data._id); })
-      .catch(() => {});
-  }, []);
+  // isListedByCurrentUser is now returned directly from the listing API
 
   const handleWishlistToggle = () => {
     const newState = !wishlist;
@@ -72,10 +67,22 @@ export default function PropertyDetail() {
   // Scroll to top on page load
   useEffect(() => {
     window.scrollTo(0, 0);
-    setActiveImage(0);
+    setLightbox(null);
     setApiListing(null);
     setApiError(null);
   }, [id]);
+
+  // Keyboard navigation for lightbox
+  useEffect(() => {
+    const total = apiListing?.media?.images?.length ?? 0;
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape")     { setLightbox(null); return; }
+      if (e.key === "ArrowLeft")  setLightbox((i) => i !== null && total > 0 ? (i - 1 + total) % total : null);
+      if (e.key === "ArrowRight") setLightbox((i) => i !== null && total > 0 ? (i + 1) % total : null);
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [apiListing]);
 
   // Fetch from API if MongoDB ObjectId
   useEffect(() => {
@@ -256,54 +263,126 @@ export default function PropertyDetail() {
           </div>
         </div>
 
-        {/* IMAGE GALLERY */}
+        {/* IMAGE GALLERY — 4 images, 4th blurred with +N overlay */}
         {gallery.length > 0 && (
-          <div className="relative mb-6 rounded-2xl overflow-hidden group">
-            <img src={gallery[activeImage]} alt="" className="w-full h-[520px] object-cover" />
+          <div className="mb-6">
+            {/* Share / Save / Edit — above the gallery */}
+            <div className="flex justify-end gap-2 mb-5" onClick={(e) => e.stopPropagation()}>
+              <button className="bg-white shadow-md px-3 py-1.5 rounded-xl flex items-center gap-1.5 text-xs font-medium border border-gray-100 hover:shadow-lg transition">
+                <FiShare2 size={12} /> SHARE
+              </button>
+              {property._isApiListing && property.isListedByCurrentUser ? (
+                <button
+                  onClick={() => navigate(`/edit-property/${property._id}`)}
+                  className="bg-[#7B2FFF] shadow-md px-3 py-1.5 rounded-xl flex items-center gap-1.5 text-xs font-medium text-white hover:bg-[#6320d4] transition"
+                >
+                  <FiEdit2 size={12} /> EDIT
+                </button>
+              ) : (
+                <>
+                  <button onClick={handleWishlistToggle} className="bg-white shadow-md px-3 py-1.5 rounded-xl flex items-center gap-1.5 text-xs font-medium border border-gray-100 hover:shadow-lg transition">
+                    <FiHeart size={12} className={wishlist ? "text-red-500 fill-red-500" : ""} /> FAVOURITE
+                  </button>
+                  <button onClick={() => setInterested((v) => !v)} className="bg-white shadow-md px-3 py-1.5 rounded-xl flex items-center gap-1.5 text-xs font-medium border border-gray-100 hover:shadow-lg transition">
+                    <FiStar size={12} className={interested ? "text-yellow-500 fill-yellow-500" : ""} /> INTERESTED
+                  </button>
+                </>
+              )}
+            </div>
 
-            {gallery.length > 1 && (
+            <div className="grid grid-cols-4 gap-2 rounded-2xl overflow-hidden">
+              {gallery.slice(0, 4).map((url, i) => {
+                const isLast     = i === 3;
+                const remaining  = gallery.length - 4;
+                const showOverlay = isLast && remaining > 0;
+
+                return (
+                  <div
+                    key={i}
+                    className="relative cursor-pointer overflow-hidden h-56 rounded-xl"
+                    onClick={() => setLightbox(i)}
+                  >
+                    <img
+                      src={url}
+                      alt={`Property ${i + 1}`}
+                      className={`w-full h-full object-cover transition
+                        ${showOverlay ? "blur-sm brightness-50 scale-105" : "hover:brightness-95"}`}
+                    />
+                    {i === 0 && (
+                      <span className="absolute top-2 left-2 text-[10px] font-bold bg-[#7B2FFF] text-white px-2 py-0.5 rounded-full z-10">
+                        Cover
+                      </span>
+                    )}
+                    {showOverlay && (
+                      <div className="absolute inset-0 flex flex-col items-center justify-center gap-1">
+                        <span className="text-white text-3xl font-bold drop-shadow">+{remaining}</span>
+                        <span className="text-white/80 text-xs font-medium">more photos</span>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* LIGHTBOX */}
+        {lightbox !== null && gallery[lightbox] && (
+          <div
+            className="fixed inset-0 z-[9999] bg-black/90 flex items-center justify-center"
+            onClick={() => setLightbox(null)}
+          >
+            {/* Image */}
+            <img
+              src={gallery[lightbox]}
+              alt=""
+              className="max-h-[85vh] max-w-[85vw] object-contain rounded-lg shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            />
+
+            {/* Close */}
+            <button
+              onClick={() => setLightbox(null)}
+              className="absolute top-4 right-6 text-white text-2xl font-bold hover:opacity-70"
+            >✕</button>
+
+            {/* Counter */}
+            <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-black/50 text-white text-sm px-3 py-1 rounded-full">
+              {lightbox + 1} / {gallery.length}
+            </div>
+
+            {/* Left arrow */}
+            {lightbox > 0 && (
               <button
-                onClick={() => setActiveImage((activeImage - 1 + gallery.length) % gallery.length)}
-                className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-black/50 hover:bg-black/75 text-white rounded-full flex items-center justify-center transition opacity-0 group-hover:opacity-100"
+                onClick={(e) => { e.stopPropagation(); setLightbox((i) => (i - 1 + gallery.length) % gallery.length); }}
+                className="absolute left-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-black/50 hover:bg-black/80 text-white flex items-center justify-center transition"
               >
                 <FiChevronLeft size={20} />
               </button>
             )}
-            {gallery.length > 1 && (
+
+            {/* Right arrow */}
+            {lightbox < gallery.length - 1 && (
               <button
-                onClick={() => setActiveImage((activeImage + 1) % gallery.length)}
-                className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-black/50 hover:bg-black/75 text-white rounded-full flex items-center justify-center transition opacity-0 group-hover:opacity-100"
+                onClick={(e) => { e.stopPropagation(); setLightbox((i) => (i + 1) % gallery.length); }}
+                className="absolute right-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-black/50 hover:bg-black/80 text-white flex items-center justify-center transition"
               >
                 <FiChevronRight size={20} />
               </button>
             )}
-            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/50 text-white text-sm px-3 py-1 rounded-full">
-              {activeImage + 1} / {gallery.length}
-            </div>
-            {gallery.length > 1 && gallery.length <= 10 && (
-              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5">
+
+            {/* Dot indicators */}
+            {gallery.length > 1 && gallery.length <= 20 && (
+              <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex gap-1.5">
                 {gallery.map((_, i) => (
-                  <button key={i} onClick={() => setActiveImage(i)}
-                    className={`w-2 h-2 rounded-full transition-all ${i === activeImage ? "bg-white w-4" : "bg-white/50"}`} />
+                  <button
+                    key={i}
+                    onClick={(e) => { e.stopPropagation(); setLightbox(i); }}
+                    className={`rounded-full transition-all ${i === lightbox ? "w-4 h-2 bg-white" : "w-2 h-2 bg-white/40 hover:bg-white/70"}`}
+                  />
                 ))}
               </div>
             )}
-            <div className="absolute top-5 right-5 flex gap-3">
-              <button className="bg-white shadow-md px-4 py-2 rounded-xl flex items-center gap-2 text-sm font-medium">
-                <FiShare2 /> SHARE
-              </button>
-              <button onClick={handleWishlistToggle} className="bg-white shadow-md px-4 py-2 rounded-xl flex items-center gap-2 text-sm font-medium">
-                <FiHeart className={wishlist ? "text-red-500 fill-red-500" : ""} /> SAVE
-              </button>
-              {property._isApiListing && currentUserId && property.listedBy?.id?.toString() === currentUserId && (
-                <button
-                  onClick={() => navigate(`/edit-property/${property._id}`)}
-                  className="bg-[#7B2FFF] shadow-md px-4 py-2 rounded-xl flex items-center gap-2 text-sm font-medium text-white hover:bg-[#6320d4] transition"
-                >
-                  <FiEdit2 size={14} /> EDIT
-                </button>
-              )}
-            </div>
           </div>
         )}
 
