@@ -12,13 +12,39 @@ import {
   FiCalendar,
   FiEdit2,
   FiStar,
+  FiZap,
+  FiAlertTriangle,
 } from "react-icons/fi";
 import { properties, newlyAddedProperties, rentProperties, commercialProperties, pgProperties, plotProperties } from "../data/properties";
 import PageSpinner from "../components/PageSpinner";
 import WishlistToast, { useWishlistToast } from "../components/WishlistToast";
 import PropertyTypeDetails from "../components/PropertyTypeDetails";
+import {
+  markListingInactive,
+  markListingActive,
+  markListingSold,
+  markListingRented,
+} from "../utils/myListingsApi";
+import { getAvailableStatusOptions, OPTION_COLOR_CONFIG } from "../utils/listingStatusOptions";
 
 const API = import.meta.env.VITE_API_URL;
+
+// Map apiAction → function
+const STATUS_API_FN = {
+  markInactive: markListingInactive,
+  markActive:   markListingActive,
+  markSold:     markListingSold,
+  markRented:   markListingRented,
+};
+
+const STATUS_CONFIG = {
+  Active:      { label: "Active",       bg: "bg-green-100", text: "text-green-700",  dot: "bg-green-500"  },
+  UnderReview: { label: "Under Review", bg: "bg-amber-100", text: "text-amber-700",  dot: "bg-amber-400"  },
+  Rejected:    { label: "Rejected",     bg: "bg-red-100",   text: "text-red-600",    dot: "bg-red-500"    },
+  Sold:        { label: "Sold",         bg: "bg-blue-100",  text: "text-blue-600",   dot: "bg-blue-500"   },
+  Rented:      { label: "Rented",       bg: "bg-blue-100",  text: "text-blue-600",   dot: "bg-blue-500"   },
+  Inactive:    { label: "Inactive",     bg: "bg-gray-100",  text: "text-gray-500",   dot: "bg-gray-400"   },
+};
 
 // 24-char hex = MongoDB ObjectId
 const isMongoId = (id) => /^[a-f\d]{24}$/i.test(id);
@@ -55,8 +81,35 @@ export default function PropertyDetail() {
   const [apiLoading, setApiLoading] = useState(false);
   const [apiError, setApiError] = useState(null);
 
-  // Current logged-in user (to show edit button for owner)
-  // isListedByCurrentUser is now returned directly from the listing API
+  // ── Status update modal state ──────────────────────────────────────────────
+  // statusModal: { options, selectedOption, error } | null
+  const [statusModal,   setStatusModal]   = useState(null);
+  const [statusLoading, setStatusLoading] = useState(false);
+
+  const handleOpenStatusModal = () => {
+    if (!apiListing) return;
+    const options = getAvailableStatusOptions(apiListing.status, apiListing.listingType?.id?.toString());
+    if (options.length === 0) return;
+    setStatusModal({ options, selectedOption: options.length === 1 ? options[0] : null, error: null });
+  };
+
+  const handleConfirmStatusUpdate = async () => {
+    if (!statusModal?.selectedOption || !apiListing) return;
+    const apiFn = STATUS_API_FN[statusModal.selectedOption.apiAction];
+    if (!apiFn) return;
+    setStatusLoading(true);
+    try {
+      const result = await apiFn(apiListing._id);
+      if (result.success) {
+        setApiListing((prev) => prev ? { ...prev, status: result.data.status } : prev);
+        setStatusModal(null);
+      }
+    } catch (err) {
+      setStatusModal((prev) => prev ? { ...prev, error: err?.response?.data?.message ?? "Failed to update status" } : null);
+    } finally {
+      setStatusLoading(false);
+    }
+  };
 
   const handleWishlistToggle = () => {
     const newState = !wishlist;
@@ -189,7 +242,7 @@ export default function PropertyDetail() {
             >
               <FiArrowLeft size={16} /> Back to My Property Listings
             </button>
-            <div className="flex items-center gap-3 mb-3">
+            <div className="flex items-center flex-wrap gap-3 mb-3">
               <h1 className="text-4xl font-bold text-gray-900">
                 {property.title}
                 {property._isApiListing && property.listingType?.name && (() => {
@@ -198,6 +251,15 @@ export default function PropertyDetail() {
                   return <span className="text-2xl font-medium text-[#5E23DC]"> ({label})</span>;
                 })()}
               </h1>
+              {property._isApiListing && property.status && (() => {
+                const status = STATUS_CONFIG[property.status] ?? STATUS_CONFIG.Inactive;
+                return (
+                  <span className={`flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full ${status.bg} ${status.text}`}>
+                    <span className={`w-1.5 h-1.5 rounded-full ${status.dot}`} />
+                    {status.label}
+                  </span>
+                );
+              })()}
             </div>
             {!property._isApiListing && (
               <p className="text-purple-700 font-medium mb-2">by {property.developer}</p>
@@ -263,33 +325,46 @@ export default function PropertyDetail() {
           </div>
         </div>
 
+        {/* Share / Save / Edit — always visible */}
+        <div className="flex justify-end gap-2 mb-5" onClick={(e) => e.stopPropagation()}>
+          <button className="bg-white shadow-md px-3 py-1.5 rounded-xl flex items-center gap-1.5 text-xs font-medium border border-gray-100 hover:shadow-lg transition">
+            <FiShare2 size={12} /> SHARE
+          </button>
+          {property._isApiListing && property.isListedByCurrentUser ? (
+            <>
+              {(() => {
+                const statusOptions = getAvailableStatusOptions(property.status, property.listingType?.id?.toString());
+                return statusOptions.length > 0 ? (
+                  <button
+                    onClick={handleOpenStatusModal}
+                    className="bg-amber-500 shadow-md px-3 py-1.5 rounded-xl flex items-center gap-1.5 text-xs font-medium text-white hover:bg-amber-600 transition"
+                  >
+                    <FiZap size={12} /> UPDATE STATUS
+                  </button>
+                ) : null;
+              })()}
+              <button
+                onClick={() => navigate(`/edit-property/${property._id}`)}
+                className="bg-[#7B2FFF] shadow-md px-3 py-1.5 rounded-xl flex items-center gap-1.5 text-xs font-medium text-white hover:bg-[#6320d4] transition"
+              >
+                <FiEdit2 size={12} /> EDIT
+              </button>
+            </>
+          ) : (
+            <>
+              <button onClick={handleWishlistToggle} className="bg-white shadow-md px-3 py-1.5 rounded-xl flex items-center gap-1.5 text-xs font-medium border border-gray-100 hover:shadow-lg transition">
+                <FiHeart size={12} className={wishlist ? "text-red-500 fill-red-500" : ""} /> FAVOURITE
+              </button>
+              <button onClick={() => setInterested((v) => !v)} className="bg-white shadow-md px-3 py-1.5 rounded-xl flex items-center gap-1.5 text-xs font-medium border border-gray-100 hover:shadow-lg transition">
+                <FiStar size={12} className={interested ? "text-yellow-500 fill-yellow-500" : ""} /> INTERESTED
+              </button>
+            </>
+          )}
+        </div>
+
         {/* IMAGE GALLERY — 4 images, 4th blurred with +N overlay */}
         {gallery.length > 0 && (
           <div className="mb-6">
-            {/* Share / Save / Edit — above the gallery */}
-            <div className="flex justify-end gap-2 mb-5" onClick={(e) => e.stopPropagation()}>
-              <button className="bg-white shadow-md px-3 py-1.5 rounded-xl flex items-center gap-1.5 text-xs font-medium border border-gray-100 hover:shadow-lg transition">
-                <FiShare2 size={12} /> SHARE
-              </button>
-              {property._isApiListing && property.isListedByCurrentUser ? (
-                <button
-                  onClick={() => navigate(`/edit-property/${property._id}`)}
-                  className="bg-[#7B2FFF] shadow-md px-3 py-1.5 rounded-xl flex items-center gap-1.5 text-xs font-medium text-white hover:bg-[#6320d4] transition"
-                >
-                  <FiEdit2 size={12} /> EDIT
-                </button>
-              ) : (
-                <>
-                  <button onClick={handleWishlistToggle} className="bg-white shadow-md px-3 py-1.5 rounded-xl flex items-center gap-1.5 text-xs font-medium border border-gray-100 hover:shadow-lg transition">
-                    <FiHeart size={12} className={wishlist ? "text-red-500 fill-red-500" : ""} /> FAVOURITE
-                  </button>
-                  <button onClick={() => setInterested((v) => !v)} className="bg-white shadow-md px-3 py-1.5 rounded-xl flex items-center gap-1.5 text-xs font-medium border border-gray-100 hover:shadow-lg transition">
-                    <FiStar size={12} className={interested ? "text-yellow-500 fill-yellow-500" : ""} /> INTERESTED
-                  </button>
-                </>
-              )}
-            </div>
-
             <div className="grid grid-cols-4 gap-2 rounded-2xl overflow-hidden">
               {gallery.slice(0, 4).map((url, i) => {
                 const isLast     = i === 3;
@@ -587,6 +662,78 @@ export default function PropertyDetail() {
       </div>
 
       <WishlistToast toast={toast} onClose={() => setToast(null)} />
+
+      {/* ── Status update modal ─────────────────────────────────────────── */}
+      {statusModal && (
+        statusModal.selectedOption ? (
+          // Confirmation step
+          <div className="fixed inset-0 z-[9999] flex items-center justify-center px-4">
+            <div className="absolute inset-0 bg-black/40" onClick={() => !statusLoading && setStatusModal(null)} />
+            <div className="relative bg-white rounded-2xl shadow-xl w-full max-w-sm p-6 flex flex-col gap-4">
+              <h3 className="text-base font-extrabold text-gray-900">{statusModal.selectedOption.confirmTitle}</h3>
+              <p className="text-sm text-gray-500 leading-relaxed">{statusModal.selectedOption.confirmMessage}</p>
+              {statusModal.error && (
+                <p className="text-xs text-red-500 flex items-center gap-1.5">
+                  <FiAlertTriangle size={12} /> {statusModal.error}
+                </p>
+              )}
+              <div className="flex gap-2 justify-end mt-1">
+                <button
+                  onClick={() => setStatusModal(null)}
+                  disabled={statusLoading}
+                  className="px-4 py-2 rounded-xl text-xs font-semibold border border-gray-200 text-gray-500 hover:bg-gray-50 transition disabled:opacity-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleConfirmStatusUpdate}
+                  disabled={statusLoading}
+                  className={`px-4 py-2 rounded-xl text-xs font-bold transition disabled:opacity-60 flex items-center gap-1.5 ${(OPTION_COLOR_CONFIG[statusModal.selectedOption.color] ?? OPTION_COLOR_CONFIG.gray).confirmBtn}`}
+                >
+                  {statusLoading ? (
+                    <>
+                      <svg className="animate-spin w-3.5 h-3.5" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+                      </svg>
+                      Updating…
+                    </>
+                  ) : "Confirm"}
+                </button>
+              </div>
+            </div>
+          </div>
+        ) : (
+          // Option picker (multiple options)
+          <div className="fixed inset-0 z-[9999] flex items-center justify-center px-4">
+            <div className="absolute inset-0 bg-black/40" onClick={() => setStatusModal(null)} />
+            <div className="relative bg-white rounded-2xl shadow-xl w-full max-w-sm p-6 flex flex-col gap-4">
+              <div>
+                <h3 className="text-base font-extrabold text-gray-900">Update Status</h3>
+                <p className="text-xs text-gray-400 mt-0.5 truncate">{property?.title}</p>
+              </div>
+              <div className="flex flex-col gap-2">
+                {statusModal.options.map((opt) => {
+                  const colors = OPTION_COLOR_CONFIG[opt.color] ?? OPTION_COLOR_CONFIG.gray;
+                  return (
+                    <button
+                      key={opt.value}
+                      onClick={() => setStatusModal((prev) => prev ? { ...prev, selectedOption: opt } : null)}
+                      className={`w-full flex items-center gap-2 px-4 py-3 rounded-xl text-sm font-semibold text-left transition ${colors.btn}`}
+                    >
+                      <FiZap size={14} />
+                      {opt.label}
+                    </button>
+                  );
+                })}
+              </div>
+              <button onClick={() => setStatusModal(null)} className="text-xs text-gray-400 hover:text-gray-600 text-center transition">
+                Cancel
+              </button>
+            </div>
+          </div>
+        )
+      )}
     </div>
   );
 }

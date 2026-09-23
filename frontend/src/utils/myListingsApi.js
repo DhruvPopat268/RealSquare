@@ -82,3 +82,25 @@ export async function fetchActivePropertyTypes(categoryId) {
   );
   return data.data ?? [];
 }
+
+// ─── Status transition helpers ────────────────────────────────────────────────
+
+export async function markListingInactive(id) {
+  const { data } = await axios.patch(`${API}/api/mixed/property-listings/mark-inactive/${id}`, {}, config);
+  return data;
+}
+
+export async function markListingActive(id) {
+  const { data } = await axios.patch(`${API}/api/mixed/property-listings/mark-active/${id}`, {}, config);
+  return data;
+}
+
+export async function markListingSold(id) {
+  const { data } = await axios.patch(`${API}/api/mixed/property-listings/mark-sold/${id}`, {}, config);
+  return data;
+}
+
+export async function markListingRented(id) {
+  const { data } = await axios.patch(`${API}/api/mixed/property-listings/mark-rented/${id}`, {}, config);
+  return data;
+}

@@ -4,7 +4,7 @@ import axios from "axios";
 import {
   FiArrowLeft, FiHome, FiMapPin, FiCalendar, FiList,
   FiPlus, FiRefreshCw, FiEdit2, FiChevronLeft, FiChevronRight,
-  FiFilter, FiChevronDown, FiX, FiGrid, FiAlertTriangle,
+  FiFilter, FiChevronDown, FiX, FiGrid, FiAlertTriangle, FiZap,
 } from "react-icons/fi";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
@@ -14,7 +14,12 @@ import {
   fetchActivePurposes,
   fetchActiveCategories,
   fetchActivePropertyTypes,
+  markListingInactive,
+  markListingActive,
+  markListingSold,
+  markListingRented,
 } from "../utils/myListingsApi";
+import { getAvailableStatusOptions, OPTION_COLOR_CONFIG } from "../utils/listingStatusOptions";
 
 const PAGE_LIMIT = 10;
 
@@ -46,6 +51,56 @@ const TYPE_CONFIG = {
 };
 
 const EMPTY_FILTERS = { status: "", purposeId: "", categoryId: "", typeId: "" };
+
+// ── Map apiAction → actual API function ───────────────────────────────────────
+const STATUS_API_FN = {
+  markInactive: markListingInactive,
+  markActive:   markListingActive,
+  markSold:     markListingSold,
+  markRented:   markListingRented,
+};
+
+// ── Status update confirmation modal ─────────────────────────────────────────
+function StatusConfirmModal({ option, listing, onConfirm, onCancel, loading }) {
+  const colors = OPTION_COLOR_CONFIG[option.color] ?? OPTION_COLOR_CONFIG.gray;
+  return (
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center px-4">
+      {/* backdrop */}
+      <div className="absolute inset-0 bg-black/40" onClick={onCancel} />
+      <div className="relative bg-white rounded-2xl shadow-xl w-full max-w-sm p-6 flex flex-col gap-4">
+        <h3 className="text-base font-extrabold text-[#1a1a2e]">{option.confirmTitle}</h3>
+        <p className="text-sm text-gray-500 leading-relaxed">{option.confirmMessage}</p>
+        <p className="text-xs text-gray-400 truncate">
+          Listing: <span className="font-semibold text-gray-600">{listing.title}</span>
+        </p>
+        <div className="flex gap-2 justify-end mt-1">
+          <button
+            onClick={onCancel}
+            disabled={loading}
+            className="px-4 py-2 rounded-xl text-xs font-semibold border border-gray-200 text-gray-500 hover:bg-gray-50 transition disabled:opacity-50"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={onConfirm}
+            disabled={loading}
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition disabled:opacity-60 flex items-center gap-1.5 ${colors.confirmBtn}`}
+          >
+            {loading ? (
+              <>
+                <svg className="animate-spin w-3.5 h-3.5" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+                </svg>
+                Updating…
+              </>
+            ) : "Confirm"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 // ── Date formatter ────────────────────────────────────────────────────────────
 function formatDate(iso) {
@@ -84,7 +139,7 @@ function SkeletonGridCard() {
 }
 
 // ── Grid card ─────────────────────────────────────────────────────────────────
-function GridCard({ listing }) {
+function GridCard({ listing, onStatusUpdate }) {
   const navigate = useNavigate();
   const status = STATUS_CONFIG[listing.status] ?? STATUS_CONFIG.Inactive;
   const type   = TYPE_CONFIG[listing.listingType] ?? { bg: "bg-gray-100", text: "text-gray-600" };
@@ -96,6 +151,8 @@ function GridCard({ listing }) {
 
   const nextImage = (e) => { e.stopPropagation(); if (images.length > 1) setCurrentImageIndex((p) => (p + 1) % images.length); };
   const prevImage = (e) => { e.stopPropagation(); if (images.length > 1) setCurrentImageIndex((p) => (p - 1 + images.length) % images.length); };
+
+  const statusOptions = getAvailableStatusOptions(listing.status, listing.listingTypeId);
 
   return (
     <div
@@ -139,8 +196,6 @@ function GridCard({ listing }) {
             {status.label}
           </span>
         </div>
-
-
       </div>
 
       {/* Details */}
@@ -190,7 +245,16 @@ function GridCard({ listing }) {
               <span>{formatDate(listing.createdAt)}</span>
             </div>
           )}
-          <div onClick={(e) => e.stopPropagation()}>
+          <div className="flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
+            {statusOptions.length > 0 && (
+              <button
+                onClick={() => onStatusUpdate(listing, statusOptions)}
+                className="flex items-center gap-1 px-2.5 py-1.5 bg-amber-500 text-white rounded-lg text-[11px] font-semibold hover:bg-amber-600 transition"
+              >
+                <FiZap size={10} />
+                Update Status
+              </button>
+            )}
             <button
               onClick={() => navigate(`/edit-property/${listing._id}`)}
               className="flex items-center gap-1 px-2.5 py-1.5 bg-[#7B2FFF] text-white rounded-lg text-[11px] font-semibold hover:bg-[#6320d4] transition"
@@ -236,7 +300,7 @@ function FilterSelect({ label, value, options, onChange, disabled }) {
 }
 
 // ── Main listing card ─────────────────────────────────────────────────────────
-function ListingCard({ listing }) {
+function ListingCard({ listing, onStatusUpdate }) {
   const navigate = useNavigate();
   const status  = STATUS_CONFIG[listing.status] ?? STATUS_CONFIG.Inactive;
   const type    = TYPE_CONFIG[listing.listingType] ?? { bg: "bg-gray-100", text: "text-gray-600" };
@@ -252,6 +316,8 @@ function ListingCard({ listing }) {
   const prevImage = () => {
     if (images.length > 1) setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length);
   };
+
+  const statusOptions = getAvailableStatusOptions(listing.status, listing.listingTypeId);
 
   return (
     <div
@@ -322,6 +388,15 @@ function ListingCard({ listing }) {
               <span className={`w-1.5 h-1.5 rounded-full ${status.dot}`} />
               {status.label}
             </span>
+            {statusOptions.length > 0 && (
+              <button
+                onClick={() => onStatusUpdate(listing, statusOptions)}
+                className="flex items-center gap-1 px-2.5 py-1.5 bg-amber-500 text-white rounded-lg text-[11px] font-semibold hover:bg-amber-600 transition"
+              >
+                <FiZap size={10} />
+                Update Status
+              </button>
+            )}
             <button
               onClick={() => navigate(`/edit-property/${listing._id}`)}
               className="flex items-center gap-1 px-2.5 py-1.5 bg-[#7B2FFF] text-white rounded-lg text-[11px] font-semibold hover:bg-[#6320d4] transition"
@@ -451,13 +526,13 @@ export default function MyListingsPage() {
   const [page,        setPage]        = useState(1);
   const [hasMore,     setHasMore]     = useState(true);
   const [totalCount,  setTotalCount]  = useState(0);
-  const [stats,       setStats]       = useState(null); // { total, Active, UnderReview, ... }
+  const [stats,       setStats]       = useState(null);
   const [loading,     setLoading]     = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [error,       setError]       = useState(null);
 
   // ── Layout view ───────────────────────────────────────────────────────────
-  const [view, setView] = useState("grid"); // "grid" | "list"
+  const [view, setView] = useState("grid");
 
   // ── Filter options ────────────────────────────────────────────────────────
   const [purposes,      setPurposes]      = useState([]);
@@ -465,11 +540,14 @@ export default function MyListingsPage() {
   const [propertyTypes, setPropertyTypes] = useState([]);
   const [optionsLoading, setOptionsLoading] = useState(true);
 
-  // ── Pending filters (user is editing, not yet applied) ───────────────────
+  // ── Pending filters ───────────────────────────────────────────────────────
   const [pendingFilters, setPendingFilters] = useState(EMPTY_FILTERS);
-
-  // ── Applied filters (what's actually sent to API) ─────────────────────────
   const [appliedFilters, setAppliedFilters] = useState(EMPTY_FILTERS);
+
+  // ── Status update modal state ─────────────────────────────────────────────
+  // statusModal: { listing, options, selectedOption } | null
+  const [statusModal,  setStatusModal]  = useState(null);
+  const [statusLoading, setStatusLoading] = useState(false);
 
   // ── Derived ───────────────────────────────────────────────────────────────
   const hasAppliedFilters  = Object.values(appliedFilters).some(Boolean);
@@ -522,7 +600,6 @@ export default function MyListingsPage() {
       setHasMore(pagination.hasMore);
       setTotalCount(pagination.totalCount);
       setPage(pageNum);
-      // stats only returned on page 1 — keep existing value on subsequent pages
       if (pageStats) setStats(pageStats);
     } catch (err) {
       setError(err?.response?.data?.message ?? "Failed to load listings");
@@ -559,7 +636,7 @@ export default function MyListingsPage() {
     return () => observerRef.current?.disconnect();
   }, [hasMore, loadingMore, loading, page, appliedFilters, loadPage]);
 
-  // ── Handlers ─────────────────────────────────────────────────────────────
+  // ── Filter handlers ───────────────────────────────────────────────────────
   const handleApply = () => {
     if (!hasPendingChanges) return;
     setAppliedFilters({ ...pendingFilters });
@@ -580,7 +657,62 @@ export default function MyListingsPage() {
     loadPage(1, appliedFilters, true);
   };
 
-  // ── Applied filter pill labels (for display) ──────────────────────────────
+  // ── Status update handlers ────────────────────────────────────────────────
+  // Called when user clicks "Status" button on a card
+  const handleOpenStatusModal = (listing, options) => {
+    // If only one option, pre-select it; otherwise let user pick
+    setStatusModal({
+      listing,
+      options,
+      selectedOption: options.length === 1 ? options[0] : null,
+    });
+  };
+
+  // Called when user selects an option from the list inside the modal
+  const handleSelectOption = (option) => {
+    setStatusModal((prev) => prev ? { ...prev, selectedOption: option } : null);
+  };
+
+  // Called when user clicks Confirm inside the modal
+  const handleConfirmStatusUpdate = async () => {
+    if (!statusModal?.selectedOption) return;
+    const { listing, selectedOption } = statusModal;
+    const apiFn = STATUS_API_FN[selectedOption.apiAction];
+    if (!apiFn) return;
+
+    setStatusLoading(true);
+    try {
+      const result = await apiFn(listing._id);
+      if (result.success) {
+        // Optimistically update the listing in the list
+        setListings((prev) =>
+          prev.map((l) =>
+            l._id === listing._id ? { ...l, status: result.data.status } : l
+          )
+        );
+        // Update stats if present
+        if (stats) {
+          setStats((prev) => {
+            if (!prev) return prev;
+            const updated = { ...prev };
+            if (updated[listing.status] > 0) updated[listing.status] -= 1;
+            updated[result.data.status] = (updated[result.data.status] || 0) + 1;
+            return updated;
+          });
+        }
+        setStatusModal(null);
+      }
+    } catch (err) {
+      // Show error inside modal — don't close it
+      setStatusModal((prev) =>
+        prev ? { ...prev, error: err?.response?.data?.message ?? "Failed to update status" } : null
+      );
+    } finally {
+      setStatusLoading(false);
+    }
+  };
+
+  // ── Applied filter pill labels ────────────────────────────────────────────
   const appliedLabels = [
     appliedFilters.status     && STATUS_OPTIONS.find((o) => o._id === appliedFilters.status)?.name,
     appliedFilters.purposeId  && purposes.find((o) => o._id === appliedFilters.purposeId)?.name,
@@ -674,7 +806,7 @@ export default function MyListingsPage() {
 
           {/* ── Stats Cards ──────────────────────────────────────────────── */}
           {stats && !loading && (
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mb-5">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-3 mb-5">
               <div className="bg-white border border-gray-100 rounded-2xl p-3 text-center hover:shadow-md transition">
                 <p className="text-xs text-gray-500 font-semibold mb-1">Total</p>
                 <p className="text-2xl font-extrabold text-[#7B2FFF]">{stats.total || 0}</p>
@@ -694,6 +826,10 @@ export default function MyListingsPage() {
               <div className="bg-white border border-teal-200 rounded-2xl p-3 text-center hover:shadow-md transition">
                 <p className="text-xs text-teal-600 font-semibold mb-1">Sold</p>
                 <p className="text-2xl font-extrabold text-teal-600">{stats.Sold || 0}</p>
+              </div>
+              <div className="bg-white border border-gray-200 rounded-2xl p-3 text-center hover:shadow-md transition">
+                <p className="text-xs text-gray-500 font-semibold mb-1">Inactive</p>
+                <p className="text-2xl font-extrabold text-gray-500">{stats.Inactive || 0}</p>
               </div>
               <div className="bg-white border border-red-200 rounded-2xl p-3 text-center hover:shadow-md transition">
                 <p className="text-xs text-red-600 font-semibold mb-1">Rejected</p>
@@ -816,13 +952,13 @@ export default function MyListingsPage() {
               {view === "grid" ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   {listings.map((listing) => (
-                    <GridCard key={listing._id} listing={listing} />
+                    <GridCard key={listing._id} listing={listing} onStatusUpdate={handleOpenStatusModal} />
                   ))}
                 </div>
               ) : (
                 <div className="flex flex-col gap-4">
                   {listings.map((listing) => (
-                    <ListingCard key={listing._id} listing={listing} />
+                    <ListingCard key={listing._id} listing={listing} onStatusUpdate={handleOpenStatusModal} />
                   ))}
                 </div>
               )}
@@ -837,6 +973,67 @@ export default function MyListingsPage() {
       </div>
 
       <Footer />
+
+      {/* ── Status update modal ─────────────────────────────────────────── */}
+      {statusModal && (
+        statusModal.selectedOption ? (
+          // Confirmation step
+          <StatusConfirmModal
+            option={statusModal.selectedOption}
+            listing={statusModal.listing}
+            loading={statusLoading}
+            onConfirm={handleConfirmStatusUpdate}
+            onCancel={() => setStatusModal(null)}
+          />
+        ) : (
+          // Option picker step (when there are multiple options)
+          <div className="fixed inset-0 z-[9999] flex items-center justify-center px-4">
+            <div className="absolute inset-0 bg-black/40" onClick={() => setStatusModal(null)} />
+            <div className="relative bg-white rounded-2xl shadow-xl w-full max-w-sm p-6 flex flex-col gap-4">
+              <div>
+                <h3 className="text-base font-extrabold text-[#1a1a2e]">Update Status</h3>
+                <p className="text-xs text-gray-400 mt-0.5 truncate">{statusModal.listing.title}</p>
+              </div>
+              <p className="text-sm text-gray-500">
+                Current status:{" "}
+                <span className={`font-bold ${STATUS_CONFIG[statusModal.listing.status]?.text ?? "text-gray-600"}`}>
+                  {STATUS_CONFIG[statusModal.listing.status]?.label ?? statusModal.listing.status}
+                </span>
+              </p>
+              <div className="flex flex-col gap-2">
+                {statusModal.options.map((opt) => {
+                  const colors = OPTION_COLOR_CONFIG[opt.color] ?? OPTION_COLOR_CONFIG.gray;
+                  return (
+                    <button
+                      key={opt.value}
+                      onClick={() => handleSelectOption(opt)}
+                      className={`w-full flex items-center gap-2 px-4 py-3 rounded-xl text-sm font-semibold text-left transition ${colors.btn}`}
+                    >
+                      <FiZap size={14} />
+                      {opt.label}
+                    </button>
+                  );
+                })}
+              </div>
+              <button
+                onClick={() => setStatusModal(null)}
+                className="text-xs text-gray-400 hover:text-gray-600 text-center transition"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        )
+      )}
+
+      {/* ── Error toast for status update ───────────────────────────────── */}
+      {statusModal?.error && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[9999] bg-red-600 text-white text-sm font-semibold px-5 py-3 rounded-xl shadow-lg flex items-center gap-2">
+          <FiAlertTriangle size={14} />
+          {statusModal.error}
+          <button onClick={() => setStatusModal((p) => p ? { ...p, error: null } : null)} className="ml-2 font-bold hover:opacity-70">✕</button>
+        </div>
+      )}
     </>
   );
 }
