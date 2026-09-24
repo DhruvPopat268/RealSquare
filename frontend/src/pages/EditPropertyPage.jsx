@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { FiArrowLeft, FiCheck, FiAlertCircle } from "react-icons/fi";
+import { FiArrowLeft, FiCheck, FiAlertCircle, FiShield } from "react-icons/fi";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import PageSpinner from "../components/PageSpinner";
@@ -98,6 +98,7 @@ export default function EditPropertyPage() {
             pgDetails: data.pgDetails ?? {},
             sellInfo: data.sellInfo ?? {},
             rentInfo: data.rentInfo ?? {},
+            reraId: data.rera?.reraId ?? "",
           };
           setForm(initialForm);
           setOriginalForm(JSON.parse(JSON.stringify(initialForm))); // Deep copy
@@ -242,6 +243,11 @@ export default function EditPropertyPage() {
     }
 
     // NOTE: images intentionally excluded — sent via PATCH /media instead
+
+    // RERA ID — send if changed (empty string = clear RERA)
+    if (hasChanged(form.reraId, originalForm.reraId)) {
+      payload.reraId = form.reraId === "" ? null : form.reraId.trim();
+    }
 
     console.log("Final PATCH payload (only changed fields):", payload);
     return payload;
@@ -541,6 +547,67 @@ export default function EditPropertyPage() {
               />
             </FormField>
           </Grid>
+        </Section>
+
+        {/* RERA Verification */}
+        <Section title="RERA Verification">
+          <div className="flex flex-col gap-4">
+            {/* Existing RERA status badge (from last save) */}
+            {listing.rera?.reraId && (
+              <div className={`flex items-center gap-2.5 px-4 py-3 rounded-xl text-sm font-medium w-fit
+                ${listing.rera.reraStatus === "verified"
+                  ? "bg-green-50 text-green-700 border border-green-200"
+                  : "bg-amber-50 text-amber-700 border border-amber-200"}`}>
+                <FiShield size={15} />
+                {listing.rera.reraStatus === "verified"
+                  ? `RERA Verified — ${listing.rera.reraId}`
+                  : `RERA Unverified — ${listing.rera.reraId}`}
+              </div>
+            )}
+
+            {/* RERA ID input */}
+            <FormField
+              label="RERA Registration ID"
+              hint="Saving with a new or changed RERA ID will automatically verify it. Verification may take a few seconds."
+            >
+              <TextInput
+                value={form.reraId ?? ""}
+                onChange={(v) => handleFormChange("reraId", v)}
+                placeholder="e.g. PR/GJ/VADODARA/VADODARA CITY/CAA01234"
+                disabled={saving}
+              />
+            </FormField>
+
+            {/* Project details (read-only) — shown when verified */}
+            {listing.rera?.reraStatus === "verified" && listing.rera?.projectDetails && (
+              <div className="bg-green-50 border border-green-100 rounded-2xl p-4 grid grid-cols-2 gap-x-6 gap-y-3">
+                <p className="col-span-2 text-xs font-bold text-green-700 mb-1">Verified Project Details</p>
+                {[
+                  ["Project Name",    listing.rera.projectDetails.projectName],
+                  ["Developer",       listing.rera.projectDetails.developerName],
+                  ["Location",        listing.rera.projectDetails.localityOrCity],
+                  ["State",           listing.rera.projectDetails.state],
+                  ["Project Type",    listing.rera.projectDetails.projectType],
+                  ["Status",          listing.rera.projectDetails.status],
+                  ["Completion Date", listing.rera.projectDetails.completionDate],
+                  ["Total Units",     listing.rera.projectDetails.totalUnits],
+                ].filter(([, v]) => v).map(([label, value]) => (
+                  <div key={label} className="flex flex-col gap-0.5">
+                    <span className="text-[10px] font-semibold text-green-600 uppercase tracking-wide">{label}</span>
+                    <span className="text-xs text-gray-700">{value}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Note for unverified */}
+            {listing.rera?.reraStatus === "unverified" && listing.rera?.reraId && (
+              <p className="text-xs text-amber-600 flex items-start gap-1.5">
+                <FiAlertCircle size={13} className="mt-0.5 flex-shrink-0" />
+                Could not verify this RERA ID automatically. You can correct it and save again to retry verification, or leave it as is.
+              </p>
+            )}
+          </div>
         </Section>
 
         {/* Type-specific form */}

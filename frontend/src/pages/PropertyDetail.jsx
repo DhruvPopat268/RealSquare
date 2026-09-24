@@ -14,6 +14,7 @@ import {
   FiStar,
   FiZap,
   FiAlertTriangle,
+  FiShield,
 } from "react-icons/fi";
 import { properties, newlyAddedProperties, rentProperties, commercialProperties, pgProperties, plotProperties } from "../data/properties";
 import PageSpinner from "../components/PageSpinner";
@@ -526,6 +527,44 @@ export default function PropertyDetail() {
               // ── API listing: dynamic type-aware detail components ────────
               <div className="flex flex-col gap-6">
                 <PropertyTypeDetails listing={property} />
+
+                {/* RERA badge — only when reraId exists */}
+                {property.rera?.reraId && (
+                  <div className="bg-white rounded-2xl p-5 flex flex-col gap-3">
+                    <div className="flex items-center gap-3">
+                      <div className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0
+                        ${property.rera.reraStatus === "verified" ? "bg-green-100" : "bg-amber-100"}`}>
+                        <FiShield size={16} className={property.rera.reraStatus === "verified" ? "text-green-600" : "text-amber-500"} />
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-400 uppercase tracking-wide mb-0.5">RERA Registration</p>
+                        <p className="font-semibold text-gray-900 text-sm">{property.rera.reraId}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      {/* Auto-verification badge */}
+                      {property.rera.reraStatus === "verified" ? (
+                        <span className="flex items-center gap-1.5 text-xs font-bold text-green-700 bg-green-50 border border-green-200 px-3 py-1 rounded-full">
+                          <FiShield size={11} /> RERA Verified ✓
+                        </span>
+                      ) : (
+                        <span className="flex items-center gap-1.5 text-xs font-bold text-amber-700 bg-amber-50 border border-amber-200 px-3 py-1 rounded-full">
+                          <FiShield size={11} /> RERA Unverified
+                        </span>
+                      )}
+                      {/* Admin approval badge */}
+                      {property.rera.reraAdminApproved ? (
+                        <span className="flex items-center gap-1.5 text-xs font-bold text-blue-700 bg-blue-50 border border-blue-200 px-3 py-1 rounded-full">
+                          <FiShield size={11} /> Admin Approved ✓
+                        </span>
+                      ) : (
+                        <span className="flex items-center gap-1.5 text-xs font-bold text-gray-500 bg-gray-100 border border-gray-200 px-3 py-1 rounded-full">
+                          <FiShield size={11} /> Admin Approval Pending
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                )}
 
               </div>
             ) : (
