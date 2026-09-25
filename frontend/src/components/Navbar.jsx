@@ -636,6 +636,16 @@ export default function Navbar() {
                           <span className="text-[11px] text-gray-400 group-hover:text-[#7B2FFF]">→</span>
                         )}
                       </button>
+                      <button
+                        onClick={() => { setProfileOpen(false); navigate("/create-inquiry"); }}
+                        className="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl border border-gray-200 hover:border-[#7B2FFF] hover:bg-[#f5f0ff] transition group mt-2"
+                      >
+                        <FiEdit2 size={14} className="text-[#7B2FFF] flex-shrink-0" />
+                        <span className="text-xs font-semibold flex-1 text-left text-[#1a1a2e] group-hover:text-[#7B2FFF]">
+                          Create New Inquiry
+                        </span>
+                        <span className="text-[11px] text-gray-400 group-hover:text-[#7B2FFF]">→</span>
+                      </button>
                     </div>
                   )}
 
@@ -864,6 +874,16 @@ export default function Navbar() {
                         ) : (
                           <span className="text-[11px] text-gray-400 group-hover:text-[#7B2FFF]">→</span>
                         )}
+                      </button>
+                      <button
+                        onClick={() => { setMobileOpen(false); navigate("/create-inquiry"); }}
+                        className="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl border border-gray-200 hover:border-[#7B2FFF] hover:bg-[#f5f0ff] bg-white transition group cursor-pointer mt-2"
+                      >
+                        <FiEdit2 size={14} className="text-[#7B2FFF] flex-shrink-0" />
+                        <span className="text-xs font-semibold flex-1 text-left text-[#1a1a2e] group-hover:text-[#7B2FFF]">
+                          Create New Inquiry
+                        </span>
+                        <span className="text-[11px] text-gray-400 group-hover:text-[#7B2FFF]">→</span>
                       </button>
                     </div>
                   )}

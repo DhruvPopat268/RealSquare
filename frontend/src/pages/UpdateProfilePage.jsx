@@ -1,9 +1,10 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { FiArrowLeft, FiArrowRight, FiCamera, FiImage, FiRefreshCw, FiAlertTriangle, FiX } from "react-icons/fi";
+import { FiArrowLeft, FiArrowRight, FiCamera, FiImage, FiRefreshCw, FiAlertTriangle, FiX, FiMapPin } from "react-icons/fi";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import PlacesAutocomplete from "../components/PlacesAutocomplete";
+import CityAutocomplete from "../components/CityAutocomplete";
 
 async function geocode(name) {
   const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
@@ -149,6 +150,60 @@ function PhotoUpload({ label, value, onChange, shape = "circle", icon: Icon = Fi
   );
 }
 
+// ── Cities for Enquiries field (shared across Owner / Broker / Builder) ───────
+
+function EnquiryCitiesField({ cities, onChange }) {
+  const [inputValue, setInputValue] = useState("");
+
+  const handleSelect = ({ city }) => {
+    if (!city) return;
+    if (cities.includes(city)) { setInputValue(""); return; }
+    onChange([...cities, city]);
+    setInputValue("");
+  };
+
+  const handleRemove = (city) => {
+    onChange(cities.filter((c) => c !== city));
+  };
+
+  return (
+    <div className="border-t border-gray-100 pt-4 mt-2">
+      <p className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-1">Cities for Enquiries</p>
+      <p className="text-xs text-gray-400 mb-3">Select the cities where you handle property enquiries. Customers in these cities will be able to reach you.</p>
+
+      {/* Selected city pills */}
+      {cities.length > 0 && (
+        <div className="flex flex-wrap gap-2 mb-3">
+          {cities.map((city) => (
+            <span
+              key={city}
+              className="flex items-center gap-1.5 bg-[#f3eeff] text-[#7B2FFF] text-xs font-semibold px-3 py-1.5 rounded-full border border-[#e0d4ff]"
+            >
+              <FiMapPin size={11} />
+              {city}
+              <button
+                type="button"
+                onClick={() => handleRemove(city)}
+                className="ml-0.5 text-[#7B2FFF] hover:text-red-500 bg-transparent border-none cursor-pointer p-0 leading-none transition"
+              >
+                <FiX size={12} />
+              </button>
+            </span>
+          ))}
+        </div>
+      )}
+
+      {/* City search input */}
+      <CityAutocomplete
+        value={inputValue}
+        onChange={setInputValue}
+        onSelect={handleSelect}
+        placeholder="Search and add a city..."
+      />
+    </div>
+  );
+}
+
 // ── Role-specific field sets ──────────────────────────────────────────────────
 
 function CustomerFields({ form, setForm, errors, mobile, onChangeMobile }) {
@@ -226,6 +281,10 @@ function OwnerFields({ form, setForm, errors, mobile, onChangeMobile }) {
           </InputField>
         </div>
       </div>
+      <EnquiryCitiesField
+        cities={form.enquiryCities ?? []}
+        onChange={(cities) => setForm((p) => ({ ...p, enquiryCities: cities }))}
+      />
     </>
   );
 }
@@ -258,6 +317,10 @@ function BrokerFields({ form, setForm, errors, mobile, onChangeMobile }) {
       <InputField label="Bio" error={errors.bio}>
         <TextareaInput value={form.bio} onChange={(e) => setForm((p) => ({ ...p, bio: e.target.value }))} placeholder="Brief professional summary (optional)" />
       </InputField>
+      <EnquiryCitiesField
+        cities={form.enquiryCities ?? []}
+        onChange={(cities) => setForm((p) => ({ ...p, enquiryCities: cities }))}
+      />
     </>
   );
 }
@@ -296,6 +359,10 @@ function BuilderFields({ form, setForm, errors, mobile, onChangeMobile }) {
       <InputField label="Location / HQ City" error={errors.location}>
         <PlacesAutocomplete value={form.location || ""} onChange={(val) => setForm((p) => ({ ...p, location: val }))} placeholder="City where your HQ is based" />
       </InputField>
+      <EnquiryCitiesField
+        cities={form.enquiryCities ?? []}
+        onChange={(cities) => setForm((p) => ({ ...p, enquiryCities: cities }))}
+      />
     </>
   );
 }
@@ -330,6 +397,7 @@ function buildFormFromUser(user, role) {
       bizEmail: b.email || "",
       bizMobile: b.mobile || "",
       website: b.website || "",
+      enquiryCities: user.enquiryCities ?? [],
     };
   }
   if (role === "broker") {
@@ -341,6 +409,7 @@ function buildFormFromUser(user, role) {
       agencyName: p.agencyName || "",
       yearsOfExperience: p.yearsOfExperience ?? "",
       bio: p.bio || "",
+      enquiryCities: user.enquiryCities ?? [],
     };
   }
   if (role === "builder") {
@@ -354,6 +423,7 @@ function buildFormFromUser(user, role) {
       foundedYear: p.foundedYear ?? "",
       totalProjectsDelivered: p.totalProjectsDelivered ?? "",
       location: p.location?.name || "",
+      enquiryCities: user.enquiryCities ?? [],
     };
   }
   // customer
@@ -687,6 +757,7 @@ export default function UpdateProfilePage() {
         if (form.bizMobile) fd.append("businessDetails.mobile", form.bizMobile);
         if (form.website) fd.append("businessDetails.website", form.website);
         if (form.bizLogoFile) fd.append("businessLogo", form.bizLogoFile);
+        fd.append("enquiryCities", JSON.stringify(form.enquiryCities ?? []));
       }
 
       if (role === "broker") {
@@ -695,6 +766,7 @@ export default function UpdateProfilePage() {
         if (form.agencyName) fd.append("agencyName", form.agencyName);
         if (form.yearsOfExperience) fd.append("yearsOfExperience", form.yearsOfExperience);
         if (form.bio) fd.append("bio", form.bio);
+        fd.append("enquiryCities", JSON.stringify(form.enquiryCities ?? []));
       }
 
       if (role === "builder") {
@@ -710,6 +782,7 @@ export default function UpdateProfilePage() {
           fd.append("location.latitude", coords?.latitude ?? "");
           fd.append("location.longitude", coords?.longitude ?? "");
         }
+        fd.append("enquiryCities", JSON.stringify(form.enquiryCities ?? []));
       }
 
       const res = await fetch(`${BASE_URL}/api/system-users/update-profile`, {
