@@ -327,13 +327,7 @@ export default function Navbar() {
     : "customer";
 
   // Show "My Property Listings" if user has listing-allowed role OR has existing listings
-  const canViewMyListings = user && (
-    [
-      import.meta.env.VITE_OWNER_ROLE_ID,
-      import.meta.env.VITE_BROKER_ROLE_ID,
-      import.meta.env.VITE_BUILDER_ROLE_ID,
-    ].includes(user.role?._id) || user.myPropertyListingAllowed
-  );
+  const canViewMyListings = user && user.myPropertyListingAllowed === true;
 
   const SWITCH_ROLES = [
     { key: "customer", label: "Customer",           icon: "🏠", desc: "Looking to buy or rent" },
@@ -613,39 +607,43 @@ export default function Navbar() {
                   </div>
 
                   {/* My Listings button */}
-                  {canViewMyListings && (
+                  {(canViewMyListings || user?.isProfileCompleted) && (
                     <div className="mb-3 pb-3 border-b border-gray-100">
-                      <button
-                        onClick={() => { setProfileOpen(false); navigate("/my-property-listings"); }}
-                        className={`w-full flex items-center gap-2 px-3 py-2.5 rounded-xl border transition group ${
-                          user?.rejectedPropertiesCount > 0
-                            ? "border-red-300 bg-red-50 hover:border-red-400 hover:bg-red-100"
-                            : "border-gray-200 hover:border-[#7B2FFF] hover:bg-[#f5f0ff]"
-                        }`}
-                      >
-                        <FiList size={14} className={user?.rejectedPropertiesCount > 0 ? "text-red-500 flex-shrink-0" : "text-[#7B2FFF] flex-shrink-0"} />
-                        <span className={`text-xs font-semibold flex-1 text-left ${user?.rejectedPropertiesCount > 0 ? "text-red-600" : "text-[#1a1a2e] group-hover:text-[#7B2FFF]"}`}>
-                          My Property Listings
-                        </span>
-                        {user?.rejectedPropertiesCount > 0 ? (
-                          <span className="flex items-center gap-1 text-[10px] font-bold text-red-600 bg-red-100 border border-red-300 px-1.5 py-0.5 rounded-full">
-                            <FiAlertTriangle size={10} />
-                            {user.rejectedPropertiesCount} Action Required
+                      {canViewMyListings && (
+                        <button
+                          onClick={() => { setProfileOpen(false); navigate("/my-property-listings"); }}
+                          className={`w-full flex items-center gap-2 px-3 py-2.5 rounded-xl border transition group ${
+                            user?.rejectedPropertiesCount > 0
+                              ? "border-red-300 bg-red-50 hover:border-red-400 hover:bg-red-100"
+                              : "border-gray-200 hover:border-[#7B2FFF] hover:bg-[#f5f0ff]"
+                          }`}
+                        >
+                          <FiList size={14} className={user?.rejectedPropertiesCount > 0 ? "text-red-500 flex-shrink-0" : "text-[#7B2FFF] flex-shrink-0"} />
+                          <span className={`text-xs font-semibold flex-1 text-left ${user?.rejectedPropertiesCount > 0 ? "text-red-600" : "text-[#1a1a2e] group-hover:text-[#7B2FFF]"}`}>
+                            My Property Listings
                           </span>
-                        ) : (
+                          {user?.rejectedPropertiesCount > 0 ? (
+                            <span className="flex items-center gap-1 text-[10px] font-bold text-red-600 bg-red-100 border border-red-300 px-1.5 py-0.5 rounded-full">
+                              <FiAlertTriangle size={10} />
+                              {user.rejectedPropertiesCount} Action Required
+                            </span>
+                          ) : (
+                            <span className="text-[11px] text-gray-400 group-hover:text-[#7B2FFF]">→</span>
+                          )}
+                        </button>
+                      )}
+                      {user?.isProfileCompleted && (
+                        <button
+                          onClick={() => { setProfileOpen(false); navigate("/create-inquiry"); }}
+                          className={`w-full flex items-center gap-2 px-3 py-2.5 rounded-xl border border-gray-200 hover:border-[#7B2FFF] hover:bg-[#f5f0ff] transition group ${canViewMyListings ? "mt-2" : ""}`}
+                        >
+                          <FiEdit2 size={14} className="text-[#7B2FFF] flex-shrink-0" />
+                          <span className="text-xs font-semibold flex-1 text-left text-[#1a1a2e] group-hover:text-[#7B2FFF]">
+                            Create New Inquiry
+                          </span>
                           <span className="text-[11px] text-gray-400 group-hover:text-[#7B2FFF]">→</span>
-                        )}
-                      </button>
-                      <button
-                        onClick={() => { setProfileOpen(false); navigate("/create-inquiry"); }}
-                        className="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl border border-gray-200 hover:border-[#7B2FFF] hover:bg-[#f5f0ff] transition group mt-2"
-                      >
-                        <FiEdit2 size={14} className="text-[#7B2FFF] flex-shrink-0" />
-                        <span className="text-xs font-semibold flex-1 text-left text-[#1a1a2e] group-hover:text-[#7B2FFF]">
-                          Create New Inquiry
-                        </span>
-                        <span className="text-[11px] text-gray-400 group-hover:text-[#7B2FFF]">→</span>
-                      </button>
+                        </button>
+                      )}
                     </div>
                   )}
 
@@ -852,39 +850,43 @@ export default function Navbar() {
                     <button onClick={() => { setMobileOpen(false); navigate("/payment-transactions"); }} className="flex-1 text-[11px] font-semibold text-gray-700 bg-white border border-gray-200 rounded-lg py-1.5 cursor-pointer hover:bg-gray-50 transition">Transactions</button>
                   </div>
                   {/* My Property Listings */}
-                  {canViewMyListings && (
+                  {(canViewMyListings || user?.isProfileCompleted) && (
                     <div className="mx-2 mb-1">
-                      <button
-                        onClick={() => { setMobileOpen(false); navigate("/my-property-listings"); }}
-                        className={`w-full flex items-center gap-2 px-3 py-2.5 rounded-xl border transition group cursor-pointer ${
-                          user?.rejectedPropertiesCount > 0
-                            ? "border-red-300 bg-red-50 hover:border-red-400 hover:bg-red-100"
-                            : "border-gray-200 hover:border-[#7B2FFF] hover:bg-[#f5f0ff] bg-white"
-                        }`}
-                      >
-                        <FiList size={14} className={user?.rejectedPropertiesCount > 0 ? "text-red-500 flex-shrink-0" : "text-[#7B2FFF] flex-shrink-0"} />
-                        <span className={`text-xs font-semibold flex-1 text-left ${user?.rejectedPropertiesCount > 0 ? "text-red-600" : "text-[#1a1a2e] group-hover:text-[#7B2FFF]"}`}>
-                          My Property Listings
-                        </span>
-                        {user?.rejectedPropertiesCount > 0 ? (
-                          <span className="flex items-center gap-1 text-[10px] font-bold text-red-600 bg-red-100 border border-red-300 px-1.5 py-0.5 rounded-full">
-                            <FiAlertTriangle size={10} />
-                            {user.rejectedPropertiesCount} Action Required
+                      {canViewMyListings && (
+                        <button
+                          onClick={() => { setMobileOpen(false); navigate("/my-property-listings"); }}
+                          className={`w-full flex items-center gap-2 px-3 py-2.5 rounded-xl border transition group cursor-pointer ${
+                            user?.rejectedPropertiesCount > 0
+                              ? "border-red-300 bg-red-50 hover:border-red-400 hover:bg-red-100"
+                              : "border-gray-200 hover:border-[#7B2FFF] hover:bg-[#f5f0ff] bg-white"
+                          }`}
+                        >
+                          <FiList size={14} className={user?.rejectedPropertiesCount > 0 ? "text-red-500 flex-shrink-0" : "text-[#7B2FFF] flex-shrink-0"} />
+                          <span className={`text-xs font-semibold flex-1 text-left ${user?.rejectedPropertiesCount > 0 ? "text-red-600" : "text-[#1a1a2e] group-hover:text-[#7B2FFF]"}`}>
+                            My Property Listings
                           </span>
-                        ) : (
+                          {user?.rejectedPropertiesCount > 0 ? (
+                            <span className="flex items-center gap-1 text-[10px] font-bold text-red-600 bg-red-100 border border-red-300 px-1.5 py-0.5 rounded-full">
+                              <FiAlertTriangle size={10} />
+                              {user.rejectedPropertiesCount} Action Required
+                            </span>
+                          ) : (
+                            <span className="text-[11px] text-gray-400 group-hover:text-[#7B2FFF]">→</span>
+                          )}
+                        </button>
+                      )}
+                      {user?.isProfileCompleted && (
+                        <button
+                          onClick={() => { setMobileOpen(false); navigate("/create-inquiry"); }}
+                          className={`w-full flex items-center gap-2 px-3 py-2.5 rounded-xl border border-gray-200 hover:border-[#7B2FFF] hover:bg-[#f5f0ff] bg-white transition group cursor-pointer ${canViewMyListings ? "mt-2" : ""}`}
+                        >
+                          <FiEdit2 size={14} className="text-[#7B2FFF] flex-shrink-0" />
+                          <span className="text-xs font-semibold flex-1 text-left text-[#1a1a2e] group-hover:text-[#7B2FFF]">
+                            Create New Inquiry
+                          </span>
                           <span className="text-[11px] text-gray-400 group-hover:text-[#7B2FFF]">→</span>
-                        )}
-                      </button>
-                      <button
-                        onClick={() => { setMobileOpen(false); navigate("/create-inquiry"); }}
-                        className="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl border border-gray-200 hover:border-[#7B2FFF] hover:bg-[#f5f0ff] bg-white transition group cursor-pointer mt-2"
-                      >
-                        <FiEdit2 size={14} className="text-[#7B2FFF] flex-shrink-0" />
-                        <span className="text-xs font-semibold flex-1 text-left text-[#1a1a2e] group-hover:text-[#7B2FFF]">
-                          Create New Inquiry
-                        </span>
-                        <span className="text-[11px] text-gray-400 group-hover:text-[#7B2FFF]">→</span>
-                      </button>
+                        </button>
+                      )}
                     </div>
                   )}
                 </div>
