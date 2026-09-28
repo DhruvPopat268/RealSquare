@@ -417,10 +417,80 @@ export async function inquiryFlow(step, answer, collectedData, { botSay, setColl
       setTimeout(() => window.location.reload(), 800);
       return;
     }
-    // TODO: wire up to backend API
-    await botSay("✅ Inquiry submitted successfully! Our team will follow up with you shortly. 🎉");
-    await botSay("Would you like to create another inquiry?", ["Yes, create another", "No, I'm done"]);
-    goTo("ask_more", collectedData);
+
+    await botSay("⏳ Submitting your inquiry...");
+
+    try {
+      const d = collectedData;
+
+      // ── Build payload ──────────────────────────────────────────────────
+      const isProperty = d.inquiryType === "Individual Property";
+
+      // Map comm preferences to lowercase API values
+      const commMap = { "Call": "call", "WhatsApp": "whatsapp", "Email": "email", "SMS": "sms" };
+      const preferredCommunication = (d.communicationPreferences ?? []).map((c) => commMap[c] ?? c.toLowerCase());
+
+      const payload = {
+        isProperty,
+        listingType:             d.listingTypeId,
+        preferredCity:           d.preferredCity,
+        budget:                  { min: d.budgetMin, max: d.budgetMax },
+        furnishingType:          d.furnishingPreference,
+        inquiryClassification:   d.leadClassification,
+        lastFollowUpDate:        new Date(d.lastFollowUpDate).toISOString(),
+        preferredCommunication,
+        ...(d.categoryId    && { propertyCategory: d.categoryId }),
+        ...(d.propertyTypeId && { propertyType: d.propertyTypeId }),
+        ...(d.preferredArea && { preferredArea: d.preferredArea }),
+        ...(d.notes         && { remarks: d.notes }),
+      };
+
+      // Area fields — only one of bhk / builtUpArea / plotArea
+      const isPlot       = [...RESIDENTIAL_PLOT_IDS, ...COMMERCIAL_PLOT_IDS].includes(d.propertyTypeId);
+      const isCommercial = d.categoryId === CATEGORY_COMMERCIAL_ID;
+
+      if (d.bhkRequirement !== undefined) {
+        payload.bhk = d.bhkRequirement;
+      } else if (d.requiredArea) {
+        if (isPlot) {
+          payload.plotArea = { value: d.requiredArea.value, unit: d.requiredArea.unit };
+        } else if (isCommercial) {
+          payload.builtUpArea = { value: d.requiredArea.value, unit: d.requiredArea.unit };
+        }
+      }
+
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/mixed/inquiries/create`, {
+        method:      "POST",
+        credentials: "include",
+        headers:     { "Content-Type": "application/json" },
+        body:        JSON.stringify(payload),
+      });
+
+      const json = await res.json();
+
+      if (!res.ok) {
+        await botSay(`❌ Failed to submit: ${json.message ?? "Unknown error"}. Please try again.`, ["Start Over"]);
+        goTo("submit_error", collectedData);
+        return;
+      }
+
+      await botSay(`✅ Inquiry submitted successfully! 🎉\nYour inquiry has been created and assigned to eligible professionals in ${d.preferredCity}.`);
+      await botSay("Would you like to create another inquiry?", ["Yes, create another", "No, I'm done"]);
+      goTo("ask_more", collectedData);
+
+    } catch (err) {
+      await botSay(`❌ Something went wrong: ${err.message ?? "Network error"}. Please try again.`, ["Start Over"]);
+      goTo("submit_error", collectedData);
+    }
+    return;
+  }
+
+  // ── Submit error fallback ─────────────────────────────────────────────────
+  if (step === "submit_error") {
+    if (answer === "Start Over") {
+      await botSay("Starting over... 🔄");
+      setTimeout(() => window.location.reload(), 800);
+    }
     return;
   }
 
