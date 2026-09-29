@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import {
-  FiClipboard, FiMapPin, FiDollarSign, FiCalendar,
+  FiClipboard, FiMapPin, FiCalendar,
   FiMessageSquare, FiHome, FiCheckCircle, FiUser, FiPhone,
   FiFilter, FiChevronDown, FiX, FiLock,
 } from "react-icons/fi";
@@ -158,7 +158,6 @@ function AssignedInquiryCard({ assignment }) {
 
       {/* Budget */}
       <div className="flex items-center gap-2">
-        <FiDollarSign size={14} className="text-[#7B2FFF] flex-shrink-0" />
         <p className="text-sm font-semibold text-[#1a1a2e]">
           {formatBudget(inquiry.budget.min, inquiry.budget.max)}
         </p>
