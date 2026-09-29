@@ -197,11 +197,20 @@ export async function inquiryFlow(step, answer, collectedData, { botSay, setColl
     // ── Q8: Route based on category + property type ──────────────────────
     const categoryId     = updated.categoryId;
     const propertyTypeId = updated.propertyTypeId;
+    const PG_ID          = import.meta.env.VITE_LISTING_TYPE_PG_ID;
+    const isPG           = updated.listingTypeId === PG_ID;
 
     const isResidential  = categoryId === CATEGORY_RESIDENTIAL_ID;
     const isCommercial   = categoryId === CATEGORY_COMMERCIAL_ID;
     const isResPlot      = RESIDENTIAL_PLOT_IDS.includes(propertyTypeId);
     const isCommPlot     = COMMERCIAL_PLOT_IDS.includes(propertyTypeId);
+
+    // PG — no BHK, no area, no furnishing → go straight to lead classification
+    if (isPG) {
+      await botSay("How would you classify this inquiry?", INQUIRY_CLASS_OPTIONS);
+      goTo("lead_classification", updated);
+      return;
+    }
 
     // Case 1: not commercial AND not any plot → ask BHK
     if (!isCommercial && !isResPlot && !isCommPlot) {
@@ -280,8 +289,9 @@ export async function inquiryFlow(step, answer, collectedData, { botSay, setColl
     };
     delete updated._areaUnit;
     setCollectedData(() => updated);
-    await botSay("What furnishing type are you looking for?", FURNISH_TYPE_OPTIONS);
-    goTo("furnishing", updated);
+    // Plots don't have furnishing — skip directly to lead classification
+    await botSay("How would you classify this inquiry?", INQUIRY_CLASS_OPTIONS);
+    goTo("lead_classification", updated);
     return;
   }
 
@@ -396,7 +406,7 @@ export async function inquiryFlow(step, answer, collectedData, { botSay, setColl
       `  • Range           : ${budgetStr}\n\n` +
       `🏠 Property Requirements:\n` +
       `  • ${areaLabel.padEnd(18)}: ${areaStr}\n` +
-      `  • Furnishing      : ${d.furnishingPreference ?? "—"}\n\n` +
+      (d.furnishingPreference ? `  • Furnishing      : ${d.furnishingPreference}\n` : "") + `\n` +
       `🎯 Lead Info:\n` +
       `  • Classification  : ${d.leadClassification ?? "—"}\n` +
       `  • Last Follow-up  : ${d.lastFollowUpDate ?? "—"}\n` +
@@ -435,10 +445,10 @@ export async function inquiryFlow(step, answer, collectedData, { botSay, setColl
         listingType:             d.listingTypeId,
         preferredCity:           d.preferredCity,
         budget:                  { min: d.budgetMin, max: d.budgetMax },
-        furnishingType:          d.furnishingPreference,
         inquiryClassification:   d.leadClassification,
         lastFollowUpDate:        new Date(d.lastFollowUpDate).toISOString(),
         preferredCommunication,
+        ...(d.furnishingPreference && { furnishingType: d.furnishingPreference }),
         ...(d.categoryId    && { propertyCategory: d.categoryId }),
         ...(d.propertyTypeId && { propertyType: d.propertyTypeId }),
         ...(d.preferredArea && { preferredArea: d.preferredArea }),

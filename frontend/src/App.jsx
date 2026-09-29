@@ -35,6 +35,8 @@ import EditPropertyPage from "./pages/EditPropertyPage";
 import PaymentTransactionsPage from "./pages/PaymentTransactionsPage";
 import PlansPage from "./pages/PlansPage";
 import MyListingsPage from "./pages/MyListingsPage";
+import MyInquiriesPage from "./pages/MyInquiriesPage";
+import AssignedInquiriesPage from "./pages/AssignedInquiriesPage";
 import PageSpinner from "./components/PageSpinner";
 import "./App.css";
 
@@ -105,6 +107,8 @@ function App() {
       <Route path="/plans" element={<PlansPage />} />
       <Route path="/edit-property/:id" element={<EditPropertyPage />} />
       <Route path="/my-property-listings" element={<MyListingsPage />} />
+      <Route path="/my-inquiries" element={<MyInquiriesPage />} />
+      <Route path="/assigned-inquiries" element={<AssignedInquiriesPage />} />
       <Route path="/edit-property/:id" element={<EditPropertyPage />} />
     </Routes>
   );

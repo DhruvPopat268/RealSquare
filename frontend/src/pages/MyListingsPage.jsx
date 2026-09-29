@@ -4,11 +4,17 @@ import axios from "axios";
 import {
   FiArrowLeft, FiHome, FiMapPin, FiCalendar, FiList,
   FiPlus, FiRefreshCw, FiEdit2, FiChevronLeft, FiChevronRight,
-  FiFilter, FiChevronDown, FiX, FiGrid, FiAlertTriangle, FiZap,
+  FiFilter, FiChevronDown, FiX, FiGrid, FiAlertTriangle, FiZap, FiLock,
 } from "react-icons/fi";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import PageSpinner from "../components/PageSpinner";
+
+const ALLOWED_ROLES = [
+  import.meta.env.VITE_OWNER_ROLE_ID,
+  import.meta.env.VITE_BROKER_ROLE_ID,
+  import.meta.env.VITE_BUILDER_ROLE_ID,
+];
 import {
   fetchMyListings,
   fetchActivePurposes,
@@ -511,15 +517,25 @@ function EndOfList({ total }) {
 export default function MyListingsPage() {
   const navigate = useNavigate();
 
-  // ── Rejected properties count from /me ───────────────────────────────────
+  // ── Access guard + rejected count from /me ───────────────────────────────
+  const [authLoading,  setAuthLoading]  = useState(true);
+  const [allowed,      setAllowed]      = useState(false);
   const [rejectedCount, setRejectedCount] = useState(0);
 
   useEffect(() => {
     axios
       .get(`${import.meta.env.VITE_API_URL}/api/system-users/me`, { withCredentials: true })
-      .then((res) => { if (res.data.success) setRejectedCount(res.data.data.rejectedPropertiesCount ?? 0); })
-      .catch(() => {});
-  }, []);
+      .then(({ data }) => {
+        if (data.success) {
+          setAllowed(ALLOWED_ROLES.includes(data.data?.role?._id));
+          setRejectedCount(data.data?.rejectedPropertiesCount ?? 0);
+        } else {
+          navigate("/login");
+        }
+      })
+      .catch(() => navigate("/login"))
+      .finally(() => setAuthLoading(false));
+  }, [navigate]);
 
   // ── Listing / pagination state ────────────────────────────────────────────
   const [listings,    setListings]    = useState([]);
@@ -719,6 +735,46 @@ export default function MyListingsPage() {
     appliedFilters.categoryId && categories.find((o) => o._id === appliedFilters.categoryId)?.name,
     appliedFilters.typeId     && propertyTypes.find((o) => o._id === appliedFilters.typeId)?.name,
   ].filter(Boolean);
+
+  // ── Auth loading spinner ─────────────────────────────────────────────────
+  if (authLoading) {
+    return (
+      <>
+        <Navbar />
+        <div className="min-h-[calc(100vh-62px)] bg-[#f7f8fa] flex items-center justify-center">
+          <div className="w-8 h-8 border-4 border-[#7B2FFF] border-t-transparent rounded-full animate-spin" />
+        </div>
+        <Footer />
+      </>
+    );
+  }
+
+  // ── Access restricted ────────────────────────────────────────────────────
+  if (!allowed) {
+    return (
+      <>
+        <Navbar />
+        <div className="min-h-[calc(100vh-62px)] bg-[#f7f8fa] flex items-center justify-center px-4">
+          <div className="bg-white rounded-2xl shadow-[0_8px_40px_rgba(0,0,0,0.10)] w-full max-w-[420px] p-10 flex flex-col items-center text-center">
+            <div className="w-16 h-16 rounded-full bg-[#f3eeff] flex items-center justify-center mb-5">
+              <FiLock size={28} className="text-[#7B2FFF]" />
+            </div>
+            <h2 className="text-xl font-extrabold text-[#1a1a2e] mb-2">Access Restricted</h2>
+            <p className="text-sm text-gray-400 leading-relaxed mb-6">
+              You don't have permission to view property listings. Only Owners, Brokers, and Builders can access this page.
+            </p>
+            <button
+              onClick={() => navigate("/")}
+              className="w-full bg-[#7B2FFF] hover:bg-[#6320d4] text-white py-3 rounded-xl font-semibold text-sm transition"
+            >
+              Back to Home
+            </button>
+          </div>
+        </div>
+        <Footer />
+      </>
+    );
+  }
 
   return (
     <>

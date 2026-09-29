@@ -632,14 +632,24 @@ export default function Navbar() {
                           )}
                         </button>
                       )}
-                      {user?.isProfileCompleted && (
-                        <button
-                          onClick={() => { setProfileOpen(false); navigate("/create-inquiry"); }}
+                      <button
+                          onClick={() => { setProfileOpen(false); navigate("/my-inquiries"); }}
                           className={`w-full flex items-center gap-2 px-3 py-2.5 rounded-xl border border-gray-200 hover:border-[#7B2FFF] hover:bg-[#f5f0ff] transition group ${canViewMyListings ? "mt-2" : ""}`}
                         >
                           <FiEdit2 size={14} className="text-[#7B2FFF] flex-shrink-0" />
                           <span className="text-xs font-semibold flex-1 text-left text-[#1a1a2e] group-hover:text-[#7B2FFF]">
-                            Create New Inquiry
+                            My Inquiries
+                          </span>
+                          <span className="text-[11px] text-gray-400 group-hover:text-[#7B2FFF]">→</span>
+                        </button>
+                      {user?.haveAssignedInquiries && (
+                        <button
+                          onClick={() => { setProfileOpen(false); navigate("/assigned-inquiries"); }}
+                          className="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl border border-gray-200 hover:border-[#7B2FFF] hover:bg-[#f5f0ff] transition group mt-2"
+                        >
+                          <FiEdit2 size={14} className="text-[#7B2FFF] flex-shrink-0" />
+                          <span className="text-xs font-semibold flex-1 text-left text-[#1a1a2e] group-hover:text-[#7B2FFF]">
+                            Assigned Inquiries
                           </span>
                           <span className="text-[11px] text-gray-400 group-hover:text-[#7B2FFF]">→</span>
                         </button>
@@ -875,14 +885,24 @@ export default function Navbar() {
                           )}
                         </button>
                       )}
-                      {user?.isProfileCompleted && (
-                        <button
-                          onClick={() => { setMobileOpen(false); navigate("/create-inquiry"); }}
+                      <button
+                          onClick={() => { setMobileOpen(false); navigate("/my-inquiries"); }}
                           className={`w-full flex items-center gap-2 px-3 py-2.5 rounded-xl border border-gray-200 hover:border-[#7B2FFF] hover:bg-[#f5f0ff] bg-white transition group cursor-pointer ${canViewMyListings ? "mt-2" : ""}`}
                         >
                           <FiEdit2 size={14} className="text-[#7B2FFF] flex-shrink-0" />
                           <span className="text-xs font-semibold flex-1 text-left text-[#1a1a2e] group-hover:text-[#7B2FFF]">
-                            Create New Inquiry
+                            My Inquiries
+                          </span>
+                          <span className="text-[11px] text-gray-400 group-hover:text-[#7B2FFF]">→</span>
+                        </button>
+                      {user?.haveAssignedInquiries && (
+                        <button
+                          onClick={() => { setMobileOpen(false); navigate("/assigned-inquiries"); }}
+                          className="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl border border-gray-200 hover:border-[#7B2FFF] hover:bg-[#f5f0ff] bg-white transition group cursor-pointer mt-2"
+                        >
+                          <FiEdit2 size={14} className="text-[#7B2FFF] flex-shrink-0" />
+                          <span className="text-xs font-semibold flex-1 text-left text-[#1a1a2e] group-hover:text-[#7B2FFF]">
+                            Assigned Inquiries
                           </span>
                           <span className="text-[11px] text-gray-400 group-hover:text-[#7B2FFF]">→</span>
                         </button>
