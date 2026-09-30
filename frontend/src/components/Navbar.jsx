@@ -608,7 +608,7 @@ export default function Navbar() {
                           onClick={() => { setProfileOpen(false); navigate("/enquiry-plans"); }}
                           className="text-[10px] font-bold text-white bg-amber-400 border-none rounded-lg px-2 py-1 cursor-pointer hover:bg-amber-500 transition"
                         >
-                          View Plans
+                          Change Enquiry Plan
                         </button>
                       </div>
                       <div className="flex items-center justify-between mb-1">
@@ -914,7 +914,7 @@ export default function Navbar() {
                       </div>
                       <div className="flex items-center justify-between mb-1">
                         <span className="text-[11px] font-bold text-[#7B2FFF]">{user.activeEnquiryPlan.name}</span>
-                        <button onClick={() => { setMobileOpen(false); navigate("/enquiry-plans"); }} className="text-[10px] font-bold text-white bg-amber-400 border-none rounded-lg px-2 py-0.5 cursor-pointer">View Plans</button>
+                        <button onClick={() => { setMobileOpen(false); navigate("/enquiry-plans"); }} className="text-[10px] font-bold text-white bg-amber-400 border-none rounded-lg px-2 py-0.5 cursor-pointer">Change Enquiry Plan</button>
                       </div>
                       <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
                         <div className="h-full bg-[#7B2FFF] rounded-full" style={{ width: `${user.activeEnquiryPlan.numberOfEnquiriesGiven > 0 ? Math.min((user.activeEnquiryPlan.enquiriesUsed / user.activeEnquiryPlan.numberOfEnquiriesGiven) * 100, 100) : 0}%` }} />
