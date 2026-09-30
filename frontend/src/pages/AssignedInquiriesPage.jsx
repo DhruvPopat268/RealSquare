@@ -8,6 +8,7 @@ import {
 } from "react-icons/fi";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import CoinIcon from "../components/CoinIcon";
 import { fetchAssignedInquiries } from "../utils/inquiryApi";
 import { fetchActivePurposes, fetchActiveCategories, fetchActivePropertyTypes } from "../utils/myListingsApi";
 
@@ -80,7 +81,7 @@ function FilterSelect({ label, value, options, onChange, disabled }) {
 
 // ── Assigned Inquiry Card ─────────────────────────────────────────────────────
 
-function AssignedInquiryCard({ assignment }) {
+function AssignedInquiryCard({ assignment, onPurchase }) {
   const inquiry = assignment.inquiry;
   if (!inquiry) return null;
 
@@ -139,9 +140,13 @@ function AssignedInquiryCard({ assignment }) {
           )}
         </div>
         {!purchased && (
-          <span className="text-[10px] font-bold text-amber-600 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full flex-shrink-0">
-            Locked 🔒
-          </span>
+          <button
+            type="button"
+            onClick={() => onPurchase(assignment)}
+            className="flex items-center gap-1 text-[11px] font-bold text-white bg-[#7B2FFF] hover:bg-[#6320d4] px-3 py-1.5 rounded-lg transition flex-shrink-0 border-none cursor-pointer"
+          >
+            <FiLock size={11} /> Purchase
+          </button>
         )}
       </div>
 
@@ -267,12 +272,16 @@ export default function AssignedInquiriesPage() {
   // ── Access guard ─────────────────────────────────────────────────────────
   const [authLoading, setAuthLoading] = useState(true);
   const [allowed,     setAllowed]     = useState(false);
+  const [userData,    setUserData]    = useState(null);
+  const [purchaseAssignment, setPurchaseAssignment] = useState(null);
+  const [purchaseMethod, setPurchaseMethod] = useState("");
 
   useEffect(() => {
     axios
       .get(`${import.meta.env.VITE_API_URL}/api/system-users/me`, { withCredentials: true })
       .then(({ data }) => {
         if (data.success) {
+          setUserData(data.data);
           setAllowed(ALLOWED_ROLES.includes(data.data?.role?._id));
         } else {
           navigate("/login");
@@ -308,6 +317,10 @@ export default function AssignedInquiriesPage() {
   const hasPendingChanges = Object.keys(EMPTY_FILTERS).some((k) => pendingFilters[k] !== appliedFilters[k])
     || searchInput !== appliedSearch;
   const anyPendingValue   = Object.values(pendingFilters).some(Boolean) || !!searchInput;
+  const enquiryPlan = userData?.activeEnquiryPlan;
+  const planEnquiriesRemaining = Math.max(0, (enquiryPlan?.numberOfEnquiriesGiven ?? 0) - (enquiryPlan?.enquiriesUsed ?? 0));
+  const coinsPerEnquiry = userData?.coinsPerEnquiry ?? 0;
+  const coinsBalance = userData?.coinsBalance ?? 0;
 
   // ── Load filter options on mount
   useEffect(() => {
@@ -615,7 +628,14 @@ export default function AssignedInquiriesPage() {
             <>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {assignments.map((a) => (
-                  <AssignedInquiryCard key={a._id} assignment={a} />
+                  <AssignedInquiryCard
+                    key={a._id}
+                    assignment={a}
+                    onPurchase={(assignment) => {
+                      setPurchaseAssignment(assignment);
+                      setPurchaseMethod("");
+                    }}
+                  />
                 ))}
               </div>
 
@@ -635,6 +655,77 @@ export default function AssignedInquiriesPage() {
 
         </div>
       </div>
+      {purchaseAssignment && (
+        <div
+          className="fixed inset-0 z-[600] flex items-center justify-center bg-black/40 px-4 py-6"
+          onClick={() => setPurchaseAssignment(null)}
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="purchase-inquiry-title"
+            className="w-full max-w-md rounded-2xl bg-white p-5 shadow-2xl sm:p-6"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="mb-5 flex items-start justify-between gap-3">
+              <div>
+                <h2 id="purchase-inquiry-title" className="text-lg font-extrabold text-[#1a1a2e]">Purchase inquiry</h2>
+                <p className="mt-1 text-xs text-gray-500">Choose how you want to unlock the contact details.</p>
+              </div>
+              <button
+                type="button"
+                aria-label="Close purchase options"
+                onClick={() => setPurchaseAssignment(null)}
+                className="rounded-lg border-none bg-gray-100 p-2 text-gray-500 hover:bg-gray-200"
+              >
+                <FiX size={16} />
+              </button>
+            </div>
+
+            <div className="mb-5 rounded-xl border border-gray-100 bg-gray-50 p-3">
+              <p className="text-xs font-semibold text-gray-500">{purchaseAssignment.inquiry?.preferredCity}{purchaseAssignment.inquiry?.preferredArea ? ` · ${purchaseAssignment.inquiry.preferredArea}` : ""}</p>
+              <p className="mt-1 text-sm font-bold text-[#1a1a2e]">{formatBudget(purchaseAssignment.inquiry?.budget?.min ?? 0, purchaseAssignment.inquiry?.budget?.max ?? 0)}</p>
+            </div>
+
+            <div className="flex flex-col gap-3">
+              <button
+                type="button"
+                disabled={planEnquiriesRemaining < 1}
+                onClick={() => setPurchaseMethod("plan")}
+                className={`rounded-xl border p-4 text-left transition disabled:cursor-not-allowed disabled:opacity-50 ${purchaseMethod === "plan" ? "border-[#7B2FFF] bg-[#f7f2ff] ring-2 ring-[#7B2FFF]/15" : "border-gray-200 hover:border-[#7B2FFF]"}`}
+              >
+                <span className="flex items-center justify-between gap-2">
+                  <span className="text-sm font-bold text-[#1a1a2e]">Use enquiry plan</span>
+                  <span className="text-xs font-bold text-[#7B2FFF]">{planEnquiriesRemaining} remaining</span>
+                </span>
+                <span className="mt-1 block text-xs text-gray-500">{enquiryPlan?.name ?? "No active enquiry plan"}</span>
+              </button>
+
+              <button
+                type="button"
+                disabled={coinsBalance < coinsPerEnquiry || coinsPerEnquiry <= 0}
+                onClick={() => setPurchaseMethod("coins")}
+                className={`rounded-xl border p-4 text-left transition disabled:cursor-not-allowed disabled:opacity-50 ${purchaseMethod === "coins" ? "border-[#7B2FFF] bg-[#f7f2ff] ring-2 ring-[#7B2FFF]/15" : "border-gray-200 hover:border-[#7B2FFF]"}`}
+              >
+                <span className="flex items-center justify-between gap-2">
+                  <span className="text-sm font-bold text-[#1a1a2e]">Use coins</span>
+                  <span className="flex items-center gap-1.5 text-xs font-bold text-[#7B2FFF]">
+                    <CoinIcon size={15} />
+                    {coinsPerEnquiry.toLocaleString("en-IN")} coins
+                  </span>
+                </span>
+                <span className="mt-1 block text-xs text-gray-500">Your balance: {coinsBalance.toLocaleString("en-IN")} coins</span>
+              </button>
+            </div>
+
+            {purchaseMethod && (
+              <p className="mt-4 text-center text-xs font-semibold text-[#7B2FFF]">
+                {purchaseMethod === "plan" ? "Enquiry plan selected" : "Coins selected"}
+              </p>
+            )}
+          </div>
+        </div>
+      )}
       <Footer />
     </>
   );

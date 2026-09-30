@@ -55,7 +55,7 @@ frontend/src/
 | `PropertyListPage.jsx` | `/listings` | Browse all property listings |
 | `CreateInquiryPage.jsx` | `/create-inquiry` | Create a new property inquiry |
 | `MyInquiriesPage.jsx` | `/my-inquiries` | Paginated list of user's own inquiries with filters |
-| `AssignedInquiriesPage.jsx` | `/assigned-inquiries` | Inquiries assigned to the user (owners/brokers/builders only) |
+| `AssignedInquiriesPage.jsx` | `/assigned-inquiries` | Inquiries assigned to the user (owners/brokers/builders only); locked cards show a purchase method dialog using `/me` enquiry plan and coin pricing data, with shared `CoinIcon` branding |
 | `PlansPage.jsx` | `/plans` | Listing plan purchase (free, coins, Razorpay) |
 | `EnquiryPlansPage.jsx` | `/enquiry-plans` | Enquiry plan purchase (free, coins, Razorpay) |
 | `DepositCoinsPage.jsx` | `/deposit-coins` | Purchase coins via Razorpay |
