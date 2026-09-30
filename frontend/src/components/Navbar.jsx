@@ -545,11 +545,13 @@ export default function Navbar() {
                       Switch
                     </button>
                   </div>
+                  {/* Current Listing Plan */}
+                  {user.showListingPlan && (
                   <div className="mb-3 pb-3 border-b border-gray-100">
                   {user.activePlan ? (
                     <div>
                       <div className="flex items-center justify-between mb-1.5">
-                        <span className="text-[11px] font-bold text-gray-500 uppercase tracking-wide">Current Plan</span>
+                        <span className="text-[11px] font-bold text-gray-500 uppercase tracking-wide">Current Listing Plan </span>
                       </div>
                       <div className="flex items-center justify-between mb-1.5">
                         <span className="text-[11px] font-bold text-[#7B2FFF] bg-[#f3eeff] px-2 py-0.5 rounded-full">{user.activePlan.name}</span>
@@ -578,7 +580,7 @@ export default function Navbar() {
                     </div>
                   ) : (
                     <div>
-                      <span className="text-[11px] font-bold text-gray-500 uppercase tracking-wide">Current Plan</span>
+                      <span className="text-[11px] font-bold text-gray-500 uppercase tracking-wide">Current Listing Plan </span>
                       <div className="mt-1.5 flex flex-col items-center gap-2 border border-dashed border-gray-200 rounded-xl py-3 px-3">
                         <p className="text-[11px] text-gray-400 text-center">No active plan found. Click below to purchase a plan.</p>
                         <button
@@ -591,6 +593,56 @@ export default function Navbar() {
                     </div>
                   )}
                   </div>
+                  )}
+                  {/* Current Enquiry Plan */}
+                  {user.showEnquiryPlan && (
+                  <div className="mb-3 pb-3 border-b border-gray-100">
+                  {user.activeEnquiryPlan ? (
+                    <div>
+                      <div className="flex items-center justify-between mb-1.5">
+                        <span className="text-[11px] font-bold text-gray-500 uppercase tracking-wide">Current Enquiry Plan</span>
+                      </div>
+                      <div className="flex items-center justify-between mb-1.5">
+                        <span className="text-[11px] font-bold text-[#7B2FFF] bg-[#f3eeff] px-2 py-0.5 rounded-full">{user.activeEnquiryPlan.name}</span>
+                        <button
+                          onClick={() => { setProfileOpen(false); navigate("/enquiry-plans"); }}
+                          className="text-[10px] font-bold text-white bg-amber-400 border-none rounded-lg px-2 py-1 cursor-pointer hover:bg-amber-500 transition"
+                        >
+                          View Plans
+                        </button>
+                      </div>
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-[11px] text-gray-400">Enquiries used</span>
+                        <span className="text-[11px] font-semibold text-[#1a1a2e]">
+                          {user.activeEnquiryPlan.enquiriesUsed} / {user.activeEnquiryPlan.numberOfEnquiriesGiven === -1 ? "Unlimited" : user.activeEnquiryPlan.numberOfEnquiriesGiven}
+                        </span>
+                      </div>
+                      {user.activeEnquiryPlan.numberOfEnquiriesGiven !== -1 && (
+                        <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden mb-1.5">
+                          <div
+                            className="h-full bg-[#7B2FFF] rounded-full transition-all"
+                            style={{ width: `${Math.min((user.activeEnquiryPlan.enquiriesUsed / user.activeEnquiryPlan.numberOfEnquiriesGiven) * 100, 100)}%` }}
+                          />
+                        </div>
+                      )}
+                      <p className="text-[10px] text-gray-400">Expires: {user.activeEnquiryPlan.expiryDate ? user.activeEnquiryPlan.expiryDate.replace(/\b(am|pm)\b/i, (m) => m.toUpperCase()) : "Never"}</p>
+                    </div>
+                  ) : (
+                    <div>
+                      <span className="text-[11px] font-bold text-gray-500 uppercase tracking-wide">Current Enquiry Plan</span>
+                      <div className="mt-1.5 flex flex-col items-center gap-2 border border-dashed border-gray-200 rounded-xl py-3 px-3">
+                        <p className="text-[11px] text-gray-400 text-center">No active plan found. Click below to purchase a plan.</p>
+                        <button
+                          onClick={() => { setProfileOpen(false); navigate("/enquiry-plans"); }}
+                          className="text-[11px] font-semibold text-[#7B2FFF] bg-[#f3eeff] border-none rounded-lg px-3 py-1 cursor-pointer hover:bg-[#ebe4ff] transition"
+                        >
+                          Purchase Plan →
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                  </div>
+                  )}
                   <div className="flex gap-2 mb-3 pb-3 border-b border-gray-100">
                     <button
                       onClick={() => { setProfileOpen(false); navigate("/deposit-coins"); }}
@@ -837,10 +889,10 @@ export default function Navbar() {
                     <button onClick={() => { setShowSwitchModal(true); setSwitchSelected(null); }} className="flex items-center gap-1 px-2 py-1 rounded-lg hover:bg-[#fff0f0] text-red-400 hover:text-red-500 transition text-xs font-semibold border border-red-200 hover:border-red-300 bg-transparent cursor-pointer"><FiRefreshCw size={11} />Switch</button>
                   </div>
                   {/* Plan */}
-                  {user.activePlan ? (
+                  {user.showListingPlan && (user.activePlan ? (
                     <div className="px-2 py-2 border border-gray-100 rounded-xl mx-2 mb-2">
                       <div className="mb-1">
-                        <span className="text-[11px] font-bold text-gray-500 uppercase tracking-wide">Current Plan</span>
+                        <span className="text-[11px] font-bold text-gray-500 uppercase tracking-wide">Current Listing Plan </span>
                       </div>
                       <div className="flex items-center justify-between mb-1">
                         <span className="text-[11px] font-bold text-[#7B2FFF]">{user.activePlan.name}</span>
@@ -853,7 +905,25 @@ export default function Navbar() {
                     </div>
                   ) : (
                     <button onClick={() => { setMobileOpen(false); navigate("/plans"); }} className="text-[11px] font-semibold text-[#7B2FFF] bg-[#f3eeff] border-none rounded-lg px-3 py-2 cursor-pointer w-full text-left mx-2 mb-2">Purchase Plan →</button>
-                  )}
+                  ))}
+                  {/* Enquiry Plan */}
+                  {user.showEnquiryPlan && (user.activeEnquiryPlan ? (
+                    <div className="px-2 py-2 border border-gray-100 rounded-xl mx-2 mb-2">
+                      <div className="mb-1">
+                        <span className="text-[11px] font-bold text-gray-500 uppercase tracking-wide">Current Enquiry Plan</span>
+                      </div>
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-[11px] font-bold text-[#7B2FFF]">{user.activeEnquiryPlan.name}</span>
+                        <button onClick={() => { setMobileOpen(false); navigate("/enquiry-plans"); }} className="text-[10px] font-bold text-white bg-amber-400 border-none rounded-lg px-2 py-0.5 cursor-pointer">View Plans</button>
+                      </div>
+                      <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                        <div className="h-full bg-[#7B2FFF] rounded-full" style={{ width: `${user.activeEnquiryPlan.numberOfEnquiriesGiven > 0 ? Math.min((user.activeEnquiryPlan.enquiriesUsed / user.activeEnquiryPlan.numberOfEnquiriesGiven) * 100, 100) : 0}%` }} />
+                      </div>
+                      <p className="text-[10px] text-gray-400 mt-1">Expires: {user.activeEnquiryPlan.expiryDate ? user.activeEnquiryPlan.expiryDate.replace(/\b(am|pm)\b/i, (m) => m.toUpperCase()) : "Never"}</p>
+                    </div>
+                  ) : (
+                    <button onClick={() => { setMobileOpen(false); navigate("/enquiry-plans"); }} className="text-[11px] font-semibold text-[#7B2FFF] bg-[#f3eeff] border-none rounded-lg px-3 py-2 cursor-pointer w-full text-left mx-2 mb-2">Purchase Enquiry Plan →</button>
+                  ))}
                   {/* Quick actions */}
                   <div className="flex gap-2 mx-2 mb-2">
                     <button onClick={() => { setMobileOpen(false); navigate("/deposit-coins"); }} className="flex-1 text-[11px] font-semibold text-gray-700 bg-white border border-gray-200 rounded-lg py-1.5 cursor-pointer hover:bg-gray-50 transition">+ Deposit Coins</button>

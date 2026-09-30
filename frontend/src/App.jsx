@@ -34,6 +34,7 @@ import DepositCoinsPage from "./pages/DepositCoinsPage";
 import EditPropertyPage from "./pages/EditPropertyPage";
 import PaymentTransactionsPage from "./pages/PaymentTransactionsPage";
 import PlansPage from "./pages/PlansPage";
+import EnquiryPlansPage from "./pages/EnquiryPlansPage";
 import MyListingsPage from "./pages/MyListingsPage";
 import MyInquiriesPage from "./pages/MyInquiriesPage";
 import AssignedInquiriesPage from "./pages/AssignedInquiriesPage";
@@ -105,6 +106,7 @@ function App() {
       <Route path="/deposit-coins" element={<DepositCoinsPage />} />
       <Route path="/payment-transactions" element={<PaymentTransactionsPage />} />
       <Route path="/plans" element={<PlansPage />} />
+      <Route path="/enquiry-plans" element={<EnquiryPlansPage />} />
       <Route path="/edit-property/:id" element={<EditPropertyPage />} />
       <Route path="/my-property-listings" element={<MyListingsPage />} />
       <Route path="/my-inquiries" element={<MyInquiriesPage />} />
