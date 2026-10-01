@@ -28,6 +28,16 @@ export async function fetchMyInquiries({ page = 1, limit = 10, purposeId, catego
   return data.data ?? { inquiries: [], pagination: null, stats: null };
 }
 
+/** Update the status of an inquiry created by the logged-in user. */
+export async function updateMyInquiryStatus({ inquiryId, status }) {
+  const { data } = await axios.patch(
+    `${API}/api/mixed/inquiries/status`,
+    { inquiryId, status },
+    config
+  );
+  return data.data;
+}
+
 /**
  * Fetch inquiries assigned to the logged-in user (paginated + filtered).
  * GET /api/mixed/inquiries/assigned

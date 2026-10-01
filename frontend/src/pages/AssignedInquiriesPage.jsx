@@ -87,6 +87,7 @@ function AssignedInquiryCard({ assignment, onPurchase }) {
 
   const cls = CLASSIFICATION_STYLES[inquiry.inquiryClassification] ?? CLASSIFICATION_STYLES.cold;
   const purchased = assignment.status === "purchased";
+  const inquiryIsUnavailable = inquiry.status !== "active";
 
   const areaDetail =
     inquiry.bhk != null          ? `${inquiry.bhk} BHK`
@@ -95,7 +96,7 @@ function AssignedInquiryCard({ assignment, onPurchase }) {
     : null;
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow p-5 flex flex-col gap-4">
+    <div className="h-full bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow p-5 flex flex-col gap-4">
 
       {/* Top row */}
       <div className="flex items-center justify-between flex-wrap gap-2">
@@ -139,7 +140,7 @@ function AssignedInquiryCard({ assignment, onPurchase }) {
             </div>
           )}
         </div>
-        {!purchased && (
+        {!purchased && !inquiryIsUnavailable && (
           <button
             type="button"
             onClick={() => onPurchase(assignment)}
@@ -237,6 +238,13 @@ function AssignedInquiryCard({ assignment, onPurchase }) {
           </div>
         )}
       </div>
+      {inquiryIsUnavailable && (
+        <div className="mt-auto flex justify-end pt-1">
+          <span className="rounded-full border border-red-200 bg-red-50 px-2.5 py-0.5 text-[11px] font-semibold capitalize text-red-600">
+            {inquiry.status}
+          </span>
+        </div>
+      )}
     </div>
   );
 }

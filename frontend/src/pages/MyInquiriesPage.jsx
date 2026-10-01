@@ -7,13 +7,18 @@ import {
 } from "react-icons/fi";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
-import { fetchMyInquiries } from "../utils/inquiryApi";
+import { fetchMyInquiries, updateMyInquiryStatus } from "../utils/inquiryApi";
 import { fetchActivePurposes, fetchActiveCategories, fetchActivePropertyTypes } from "../utils/myListingsApi";
 
 const LIMIT = 10;
 const EMPTY_FILTERS = { purposeId: "", categoryId: "", typeId: "", status: "", classification: "" };
 
-const STATUS_OPTIONS      = [{ _id: "active", name: "Active" }, { _id: "expired", name: "Expired" }];
+const STATUS_OPTIONS      = [
+  { _id: "active", name: "Active" },
+  { _id: "inactive", name: "Inactive" },
+  { _id: "completed", name: "Completed" },
+  { _id: "expired", name: "Expired" },
+];
 const CLASS_OPTIONS       = [{ _id: "hot", name: "Hot 🔥" }, { _id: "warm", name: "Warm 🌤️" }, { _id: "cold", name: "Cold ❄️" }];
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -71,7 +76,8 @@ function FilterSelect({ label, value, options, onChange, disabled }) {
 
 // ── Inquiry Card ──────────────────────────────────────────────────────────────
 
-function InquiryCard({ inquiry }) {
+function InquiryCard({ inquiry, onRequestStatusUpdate, updating }) {
+  const [statusMenuOpen, setStatusMenuOpen] = useState(false);
   const cls = CLASSIFICATION_STYLES[inquiry.inquiryClassification] ?? CLASSIFICATION_STYLES.cold;
 
   const areaDetail =
@@ -193,6 +199,40 @@ function InquiryCard({ inquiry }) {
           </div>
         )}
       </div>
+
+      {inquiry.status === "active" && (
+        <div className="mt-auto flex justify-end">
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => setStatusMenuOpen((open) => !open)}
+              disabled={Boolean(updating)}
+              className="flex items-center gap-2 rounded-lg bg-[#7B2FFF] px-3.5 py-2 text-xs font-bold text-white transition hover:bg-[#6320d4] disabled:opacity-60"
+            >
+              {updating ? "Updating…" : "Update Status"}
+              <FiChevronDown size={13} />
+            </button>
+            {statusMenuOpen && !updating && (
+              <div className="absolute bottom-full right-0 z-10 mb-2 min-w-40 overflow-hidden rounded-lg border border-gray-200 bg-white py-1 shadow-lg">
+                <button
+                  type="button"
+                  onClick={() => { setStatusMenuOpen(false); onRequestStatusUpdate(inquiry, "inactive"); }}
+                  className="block w-full px-3 py-2 text-left text-xs font-semibold text-gray-700 hover:bg-gray-50"
+                >
+                  Mark Inactive
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setStatusMenuOpen(false); onRequestStatusUpdate(inquiry, "completed"); }}
+                  className="block w-full px-3 py-2 text-left text-xs font-semibold text-gray-700 hover:bg-gray-50"
+                >
+                  Mark Completed
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -231,6 +271,9 @@ export default function MyInquiriesPage() {
   const [initialLoading,setInitialLoading]= useState(true);
   const [error,         setError]         = useState(null);
   const [stats,         setStats]         = useState(null);
+  const [statusUpdating, setStatusUpdating] = useState(null);
+  const [statusError, setStatusError] = useState("");
+  const [statusConfirmation, setStatusConfirmation] = useState(null);
 
   // ── Filter options
   const [purposes,      setPurposes]      = useState([]);
@@ -296,6 +339,23 @@ export default function MyInquiriesPage() {
       setInitialLoading(false);
     }
   }, []);
+
+  const handleStatusUpdate = async (inquiryId, status) => {
+    setStatusUpdating({ inquiryId, status });
+    setStatusError("");
+    try {
+      await updateMyInquiryStatus({ inquiryId, status });
+      setInitialLoading(true);
+      setPage(1);
+      await loadPage(1, appliedFilters, appliedSearch, true);
+      return true;
+    } catch (updateError) {
+      setStatusError(updateError?.response?.data?.message || "Could not update this enquiry. Please try again.");
+      return false;
+    } finally {
+      setStatusUpdating(null);
+    }
+  };
 
   // ── Re-fetch when applied filters or search change
   useEffect(() => {
@@ -370,7 +430,7 @@ export default function MyInquiriesPage() {
 
           {/* Stats cards */}
           {stats && !initialLoading && (
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mb-5">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-3 mb-5">
               <div className="bg-white border border-green-200 rounded-2xl p-3 text-center hover:shadow-md transition">
                 <p className="text-[11px] text-green-600 font-semibold mb-1">Active</p>
                 <p className="text-2xl font-extrabold text-green-600">{stats.active ?? 0}</p>
@@ -378,6 +438,14 @@ export default function MyInquiriesPage() {
               <div className="bg-white border border-gray-200 rounded-2xl p-3 text-center hover:shadow-md transition">
                 <p className="text-[11px] text-gray-500 font-semibold mb-1">Expired</p>
                 <p className="text-2xl font-extrabold text-gray-500">{stats.expired ?? 0}</p>
+              </div>
+              <div className="bg-white border border-amber-200 rounded-2xl p-3 text-center hover:shadow-md transition">
+                <p className="text-[11px] text-amber-600 font-semibold mb-1">Inactive</p>
+                <p className="text-2xl font-extrabold text-amber-600">{stats.inactive ?? 0}</p>
+              </div>
+              <div className="bg-white border border-emerald-200 rounded-2xl p-3 text-center hover:shadow-md transition">
+                <p className="text-[11px] text-emerald-600 font-semibold mb-1">Completed</p>
+                <p className="text-2xl font-extrabold text-emerald-600">{stats.completed ?? 0}</p>
               </div>
               <div className="bg-white border border-red-200 rounded-2xl p-3 text-center hover:shadow-md transition">
                 <p className="text-[11px] text-red-500 font-semibold mb-1">Hot 🔥</p>
@@ -527,11 +595,17 @@ export default function MyInquiriesPage() {
           )}
 
           {/* Cards grid */}
+          {statusError && <p className="mb-3 text-sm font-semibold text-red-600">{statusError}</p>}
           {!initialLoading && !error && inquiries.length > 0 && (
             <>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {inquiries.map((inquiry) => (
-                  <InquiryCard key={inquiry._id} inquiry={inquiry} />
+                  <InquiryCard
+                    key={inquiry._id}
+                    inquiry={inquiry}
+                    onRequestStatusUpdate={(inquiry, status) => { setStatusError(""); setStatusConfirmation({ inquiry, status }); }}
+                    updating={statusUpdating?.inquiryId === inquiry._id ? statusUpdating.status : false}
+                  />
                 ))}
               </div>
 
@@ -552,6 +626,35 @@ export default function MyInquiriesPage() {
         </div>
       </div>
       <Footer />
+
+      {statusConfirmation && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center px-4" role="presentation">
+          <div className="absolute inset-0 bg-black/40" onClick={() => !statusUpdating && setStatusConfirmation(null)} />
+          <div className="relative flex w-full max-w-sm flex-col gap-4 rounded-2xl bg-white p-6 shadow-xl" role="dialog" aria-modal="true" aria-labelledby="inquiry-status-confirm-title">
+            <h3 id="inquiry-status-confirm-title" className="text-base font-extrabold text-[#1a1a2e]">
+              Mark enquiry {statusConfirmation.status}?
+            </h3>
+            <p className="text-sm leading-relaxed text-gray-500">
+              Are you sure you want to mark this enquiry as {statusConfirmation.status}? This status update cannot be undone.
+            </p>
+            {statusError && <p className="text-sm font-semibold text-red-600">{statusError}</p>}
+            <div className="mt-1 flex justify-end gap-2">
+              <button type="button" onClick={() => setStatusConfirmation(null)} disabled={Boolean(statusUpdating)} className="rounded-xl border border-gray-200 px-4 py-2 text-xs font-semibold text-gray-600 hover:bg-gray-50 disabled:opacity-50">Cancel</button>
+              <button
+                type="button"
+                onClick={async () => {
+                  const { inquiry, status } = statusConfirmation;
+                  if (await handleStatusUpdate(inquiry._id, status)) setStatusConfirmation(null);
+                }}
+                disabled={Boolean(statusUpdating)}
+                className="rounded-xl bg-[#7B2FFF] px-4 py-2 text-xs font-bold text-white transition hover:bg-[#6320d4] disabled:opacity-60"
+              >
+                {statusUpdating ? "Updating…" : "Confirm"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }
