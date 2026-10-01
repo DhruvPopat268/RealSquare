@@ -690,7 +690,7 @@ export default function Navbar() {
                         >
                           <FiEdit2 size={14} className="text-[#7B2FFF] flex-shrink-0" />
                           <span className="text-xs font-semibold flex-1 text-left text-[#1a1a2e] group-hover:text-[#7B2FFF]">
-                            My Inquiries
+                            My Enquiries
                           </span>
                           <span className="text-[11px] text-gray-400 group-hover:text-[#7B2FFF]">→</span>
                         </button>
@@ -701,7 +701,7 @@ export default function Navbar() {
                         >
                           <FiEdit2 size={14} className="text-[#7B2FFF] flex-shrink-0" />
                           <span className="text-xs font-semibold flex-1 text-left text-[#1a1a2e] group-hover:text-[#7B2FFF]">
-                            Assigned Inquiries
+                            Assigned Enquiries
                           </span>
                           <span className="text-[11px] text-gray-400 group-hover:text-[#7B2FFF]">→</span>
                         </button>
@@ -961,7 +961,7 @@ export default function Navbar() {
                         >
                           <FiEdit2 size={14} className="text-[#7B2FFF] flex-shrink-0" />
                           <span className="text-xs font-semibold flex-1 text-left text-[#1a1a2e] group-hover:text-[#7B2FFF]">
-                            My Inquiries
+                            My Enquiries
                           </span>
                           <span className="text-[11px] text-gray-400 group-hover:text-[#7B2FFF]">→</span>
                         </button>
@@ -972,7 +972,7 @@ export default function Navbar() {
                         >
                           <FiEdit2 size={14} className="text-[#7B2FFF] flex-shrink-0" />
                           <span className="text-xs font-semibold flex-1 text-left text-[#1a1a2e] group-hover:text-[#7B2FFF]">
-                            Assigned Inquiries
+                            Assigned Enquiries
                           </span>
                           <span className="text-[11px] text-gray-400 group-hover:text-[#7B2FFF]">→</span>
                         </button>

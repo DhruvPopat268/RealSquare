@@ -290,7 +290,7 @@ export default function MyInquiriesPage() {
       setPage(pageNum);
       if (pageNum === 1 && pageStats) setStats(pageStats);
     } catch {
-      setError("Failed to load inquiries. Please try again.");
+      setError("Failed to load enquiries. Please try again.");
     } finally {
       setLoading(false);
       setInitialLoading(false);
@@ -356,7 +356,7 @@ export default function MyInquiriesPage() {
                 <FiClipboard size={18} className="text-white" />
               </div>
               <div>
-                <h1 className="text-xl font-extrabold text-[#1a1a2e] leading-tight">My Inquiries</h1>
+                <h1 className="text-xl font-extrabold text-[#1a1a2e] leading-tight">My Enquiries</h1>
               </div>
             </div>
             <button
@@ -364,7 +364,7 @@ export default function MyInquiriesPage() {
               className="flex items-center gap-2 px-4 py-2.5 bg-[#7B2FFF] hover:bg-[#6320d4] text-white text-sm font-bold rounded-xl border-none cursor-pointer transition-colors shadow-sm"
             >
               <FiPlus size={16} />
-              Create New Inquiry
+              Create New Enquiry
             </button>
           </div>
 
@@ -398,7 +398,7 @@ export default function MyInquiriesPage() {
           <div className="bg-white border border-gray-100 rounded-2xl p-4 mb-5 shadow-sm">
             <div className="flex items-center gap-1.5 mb-3">
               <FiFilter size={13} className="text-[#7B2FFF]" />
-              <span className="text-xs font-bold text-[#1a1a2e]">Filter Inquiries</span>
+              <span className="text-xs font-bold text-[#1a1a2e]">Filter Enquiries</span>
               {hasAppliedFilters && (
                 <span className="ml-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#f3eeff] text-[#7B2FFF]">
                   {appliedLabels.length} filter{appliedLabels.length !== 1 ? "s" : ""} applied
@@ -506,12 +506,12 @@ export default function MyInquiriesPage() {
               </div>
               <div className="text-center">
                 <p className="text-base font-bold text-[#1a1a2e]">
-                  {hasAppliedFilters ? "No inquiries match these filters" : "No inquiries yet"}
+                  {hasAppliedFilters ? "No enquiries match these filters" : "No enquiries yet"}
                 </p>
                 <p className="text-sm text-gray-400 mt-1">
                   {hasAppliedFilters
                     ? "Try adjusting or clearing the filters."
-                    : "Create your first inquiry to get matched with sellers."}
+                    : "Create your first enquiry to get matched with sellers."}
                 </p>
               </div>
               {!hasAppliedFilters && (
@@ -520,7 +520,7 @@ export default function MyInquiriesPage() {
                   className="flex items-center gap-2 px-5 py-2.5 bg-[#7B2FFF] hover:bg-[#6320d4] text-white text-sm font-bold rounded-xl border-none cursor-pointer transition-colors"
                 >
                   <FiPlus size={15} />
-                  Create Inquiry
+                  Create Enquiry
                 </button>
               )}
             </div>
@@ -544,7 +544,7 @@ export default function MyInquiriesPage() {
               )}
 
               {!hasMore && (
-                <p className="text-center text-xs text-gray-400 py-6">No more inquiries</p>
+                <p className="text-center text-xs text-gray-400 py-6">No more enquiries</p>
               )}
             </>
           )}

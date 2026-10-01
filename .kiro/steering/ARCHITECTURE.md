@@ -53,9 +53,9 @@ frontend/src/
 | `MyListingsPage.jsx` | `/my-property-listings` | Paginated list of user's own listings with filters |
 | `PropertyDetail.jsx` | `/property/:id` | Full property detail view |
 | `PropertyListPage.jsx` | `/listings` | Browse all property listings |
-| `CreateInquiryPage.jsx` | `/create-inquiry` | Create a new property inquiry |
-| `MyInquiriesPage.jsx` | `/my-inquiries` | Paginated list of user's own inquiries with filters |
-| `AssignedInquiriesPage.jsx` | `/assigned-inquiries` | Inquiries assigned to the user (owners/brokers/builders only); locked cards show a purchase method dialog using `/me` enquiry plan and coin pricing data, with shared `CoinIcon` branding |
+| `CreateInquiryPage.jsx` | `/create-inquiry` | Create a new property enquiry |
+| `MyInquiriesPage.jsx` | `/my-inquiries` | “My Enquiries” page with a paginated list of the user's own enquiries and filters |
+| `AssignedInquiriesPage.jsx` | `/assigned-inquiries` | “Assigned Enquiries” page for owners/brokers/builders; locked cards show the “Unlock Enquiries” option picker and a second confirmation dialog before an API purchase |
 | `PlansPage.jsx` | `/plans` | Listing plan purchase (free, coins, Razorpay) |
 | `EnquiryPlansPage.jsx` | `/enquiry-plans` | Enquiry plan purchase (free, coins, Razorpay) |
 | `DepositCoinsPage.jsx` | `/deposit-coins` | Purchase coins via Razorpay |
@@ -143,7 +143,7 @@ Conversational UI engine for guided property listing and inquiry creation.
 
 | File | Purpose |
 |---|---|
-| `inquiryApi.js` | `fetchMyInquiries`, `fetchAssignedInquiries` — paginated + filtered inquiry API calls |
+| `inquiryApi.js` | `fetchMyInquiries`, `fetchAssignedInquiries`, `purchaseAssignedInquiry` — inquiry fetch and unlock API calls |
 | `myListingsApi.js` | `fetchMyListings`, `fetchActivePurposes`, `fetchActiveCategories`, `fetchActivePropertyTypes`, status update helpers |
 | `listingStatusOptions.js` | Available status transitions per current listing status |
 
@@ -167,8 +167,8 @@ Conversational UI engine for guided property listing and inquiry creation.
 
 ## Inquiry System
 
-- **My Inquiries** (`/my-inquiries`) — any logged-in user can create and view their own inquiries; supports infinite scroll pagination + filters (status, classification, purpose, category, property type, city/area search)
-- **Assigned Inquiries** (`/assigned-inquiries`) — owners/brokers/builders only; shows inquiries auto-assigned based on their `enquiryCities`; supports same filter set plus assignment status (active/purchased) and search by city, area, name, mobile; contact details masked until purchased
+- **My Enquiries** (`/my-inquiries`) — any logged-in user can create and view their own enquiries; supports infinite scroll pagination + filters (status, classification, purpose, category, property type, city/area search)
+- **Assigned Enquiries** (`/assigned-inquiries`) — owners/brokers/builders only; shows enquiries auto-assigned based on their `enquiryCities`; supports the same filters plus assignment status (active/purchased) and search by city, area, name, mobile; contact details stay masked until purchased. Users choose an available plan credit or coin option, confirm the choice, then confirm again with **Unlock**; only the final action calls `PATCH /api/mixed/inquiries/purchase` with `{ assignmentId, purchasedVia }`. Successful unlock refreshes assignments, balance, plan usage, and contact details.
 
 ---
 

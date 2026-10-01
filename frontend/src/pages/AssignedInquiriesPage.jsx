@@ -4,12 +4,12 @@ import axios from "axios";
 import {
   FiClipboard, FiMapPin, FiCalendar,
   FiMessageSquare, FiHome, FiCheckCircle, FiUser, FiPhone,
-  FiFilter, FiChevronDown, FiX, FiLock,
+  FiFilter, FiChevronDown, FiX, FiLock, FiUnlock,
 } from "react-icons/fi";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import CoinIcon from "../components/CoinIcon";
-import { fetchAssignedInquiries } from "../utils/inquiryApi";
+import { fetchAssignedInquiries, purchaseAssignedInquiry } from "../utils/inquiryApi";
 import { fetchActivePurposes, fetchActiveCategories, fetchActivePropertyTypes } from "../utils/myListingsApi";
 
 const ALLOWED_ROLES = [
@@ -126,9 +126,9 @@ function AssignedInquiryCard({ assignment, onPurchase }) {
           <FiUser size={14} className={purchased ? "text-white" : "text-gray-400"} />
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wide mb-1">Inquiry By</p>
+          <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wide mb-1">Enquiry By</p>
           {isMasked(inquiry.createdBy?.name) ? (
-            <p className="text-xs text-gray-400 italic">Purchase to reveal contact details</p>
+            <p className="text-xs text-gray-400 italic">Unlock to reveal contact details</p>
           ) : (
             <div className="flex flex-col gap-0.5">
               <p className="text-sm font-semibold text-[#1a1a2e]">{inquiry.createdBy?.name}</p>
@@ -145,7 +145,7 @@ function AssignedInquiryCard({ assignment, onPurchase }) {
             onClick={() => onPurchase(assignment)}
             className="flex items-center gap-1 text-[11px] font-bold text-white bg-[#7B2FFF] hover:bg-[#6320d4] px-3 py-1.5 rounded-lg transition flex-shrink-0 border-none cursor-pointer"
           >
-            <FiLock size={11} /> Purchase
+            <FiUnlock size={11} /> Unlock
           </button>
         )}
       </div>
@@ -275,6 +275,9 @@ export default function AssignedInquiriesPage() {
   const [userData,    setUserData]    = useState(null);
   const [purchaseAssignment, setPurchaseAssignment] = useState(null);
   const [purchaseMethod, setPurchaseMethod] = useState("");
+  const [confirmUnlockOpen, setConfirmUnlockOpen] = useState(false);
+  const [purchaseLoading, setPurchaseLoading] = useState(false);
+  const [purchaseError, setPurchaseError] = useState("");
 
   useEffect(() => {
     axios
@@ -318,7 +321,9 @@ export default function AssignedInquiriesPage() {
     || searchInput !== appliedSearch;
   const anyPendingValue   = Object.values(pendingFilters).some(Boolean) || !!searchInput;
   const enquiryPlan = userData?.activeEnquiryPlan;
-  const planEnquiriesRemaining = Math.max(0, (enquiryPlan?.numberOfEnquiriesGiven ?? 0) - (enquiryPlan?.enquiriesUsed ?? 0));
+  const planEnquiriesRemaining = enquiryPlan?.numberOfEnquiriesGiven === -1
+    ? -1
+    : Math.max(0, (enquiryPlan?.numberOfEnquiriesGiven ?? 0) - (enquiryPlan?.enquiriesUsed ?? 0));
   const coinsPerEnquiry = userData?.coinsPerEnquiry ?? 0;
   const coinsBalance = userData?.coinsBalance ?? 0;
 
@@ -361,12 +366,58 @@ export default function AssignedInquiriesPage() {
       setPage(pageNum);
       if (pageNum === 1 && pageStats) setStats(pageStats);
     } catch {
-      setError("Failed to load assigned inquiries. Please try again.");
+      setError("Failed to load assigned enquiries. Please try again.");
     } finally {
       setLoading(false);
       setInitialLoading(false);
     }
   }, []);
+
+  const handleUnlockAssignment = async () => {
+    if (!purchaseAssignment?._id || !purchaseMethod || purchaseLoading) return;
+    setPurchaseLoading(true);
+    setPurchaseError("");
+
+    try {
+      await purchaseAssignedInquiry({
+        assignmentId: purchaseAssignment._id,
+        purchasedVia: purchaseMethod,
+      });
+
+      setConfirmUnlockOpen(false);
+      setPurchaseAssignment(null);
+      setPurchaseMethod("");
+
+      // Reload the pages already shown so contact details, status, and stats update.
+      try {
+        const loadedPages = await Promise.all(
+          Array.from({ length: page }, (_, index) => fetchAssignedInquiries({
+            page: index + 1,
+            limit: LIMIT,
+            status: appliedFilters.status || undefined,
+            classification: appliedFilters.classification || undefined,
+            purposeId: appliedFilters.purposeId || undefined,
+            categoryId: appliedFilters.categoryId || undefined,
+            typeId: appliedFilters.typeId || undefined,
+            search: appliedSearch || undefined,
+          }))
+        );
+        setAssignments(loadedPages.flatMap(({ assignments: items }) => items));
+        if (loadedPages[0]?.stats) setStats(loadedPages[0].stats);
+        const lastPageItems = loadedPages[loadedPages.length - 1]?.assignments ?? [];
+        setHasMore(lastPageItems.length === LIMIT);
+
+        const { data } = await axios.get(`${import.meta.env.VITE_API_URL}/api/system-users/me`, { withCredentials: true });
+        if (data.success) setUserData(data.data);
+      } catch {
+        setError("Enquiry unlocked, but the page could not refresh. Please reload to see the updated details.");
+      }
+    } catch (error) {
+      setPurchaseError(error.response?.data?.message || "Could not unlock this enquiry. Please try again.");
+    } finally {
+      setPurchaseLoading(false);
+    }
+  };
 
   // ── Re-fetch when applied filters or search change
   useEffect(() => {
@@ -393,12 +444,14 @@ export default function AssignedInquiriesPage() {
 
   // ── Filter handlers
   const handleApply = () => {
+    if (purchaseLoading) return;
     if (hasPendingChanges) {
       setAppliedFilters({ ...pendingFilters });
       setAppliedSearch(searchInput);
     }
   };
   const handleClear = () => {
+    if (purchaseLoading) return;
     setPendingFilters(EMPTY_FILTERS);
     setPropertyTypes([]);
     setAppliedFilters(EMPTY_FILTERS);
@@ -440,7 +493,7 @@ export default function AssignedInquiriesPage() {
             </div>
             <h2 className="text-xl font-extrabold text-[#1a1a2e] mb-2">Access Restricted</h2>
             <p className="text-sm text-gray-400 leading-relaxed mb-6">
-              You don't have permission to view assigned inquiries. Only Owners, Brokers, and Builders can access this page.
+              You don't have permission to view assigned enquiries. Only Owners, Brokers, and Builders can access this page.
             </p>
             <button
               onClick={() => navigate("/")}
@@ -468,8 +521,8 @@ export default function AssignedInquiriesPage() {
                 <FiClipboard size={18} className="text-white" />
               </div>
               <div>
-                <h1 className="text-xl font-extrabold text-[#1a1a2e] leading-tight">Assigned Inquiries</h1>
-                <p className="text-xs text-gray-400">Inquiries matched to you based on your cities</p>
+                <h1 className="text-xl font-extrabold text-[#1a1a2e] leading-tight">Assigned Enquiries</h1>
+                <p className="text-xs text-gray-400">Enquiries matched to you based on your cities</p>
               </div>
             </div>
           </div>
@@ -504,7 +557,7 @@ export default function AssignedInquiriesPage() {
           <div className="bg-white border border-gray-100 rounded-2xl p-4 mb-5 shadow-sm">
             <div className="flex items-center gap-1.5 mb-3">
               <FiFilter size={13} className="text-[#7B2FFF]" />
-              <span className="text-xs font-bold text-[#1a1a2e]">Filter Inquiries</span>
+              <span className="text-xs font-bold text-[#1a1a2e]">Filter Enquiries</span>
               {hasAppliedFilters && (
                 <span className="ml-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#f3eeff] text-[#7B2FFF]">
                   {appliedLabels.length} filter{appliedLabels.length !== 1 ? "s" : ""} applied
@@ -520,6 +573,7 @@ export default function AssignedInquiriesPage() {
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleApply()}
+                disabled={purchaseLoading}
                 placeholder="Search by city, area, name or mobile..."
                 className="w-full border border-gray-200 rounded-xl pl-8 pr-3 py-2 text-xs font-semibold outline-none focus:border-[#7B2FFF] focus:ring-1 focus:ring-[#7B2FFF]/20 transition placeholder-gray-400"
               />
@@ -531,35 +585,35 @@ export default function AssignedInquiriesPage() {
                 label="Status"
                 value={pendingFilters.status}
                 options={STATUS_OPTIONS}
-                disabled={false}
+                disabled={purchaseLoading}
                 onChange={(val) => setPendingFilters((prev) => ({ ...prev, status: val }))}
               />
               <FilterSelect
                 label="Classification"
                 value={pendingFilters.classification}
                 options={CLASS_OPTIONS}
-                disabled={false}
+                disabled={purchaseLoading}
                 onChange={(val) => setPendingFilters((prev) => ({ ...prev, classification: val }))}
               />
               <FilterSelect
                 label="Purpose"
                 value={pendingFilters.purposeId}
                 options={purposes}
-                disabled={optionsLoading}
+                disabled={purchaseLoading || optionsLoading}
                 onChange={(val) => setPendingFilters((prev) => ({ ...prev, purposeId: val }))}
               />
               <FilterSelect
                 label="Category"
                 value={pendingFilters.categoryId}
                 options={categories}
-                disabled={optionsLoading}
+                disabled={purchaseLoading || optionsLoading}
                 onChange={(val) => setPendingFilters((prev) => ({ ...prev, categoryId: val, typeId: "" }))}
               />
               <FilterSelect
                 label="Property Type"
                 value={pendingFilters.typeId}
                 options={propertyTypes}
-                disabled={optionsLoading || !pendingFilters.categoryId}
+                disabled={purchaseLoading || optionsLoading || !pendingFilters.categoryId}
                 onChange={(val) => setPendingFilters((prev) => ({ ...prev, typeId: val }))}
               />
             </div>
@@ -568,7 +622,8 @@ export default function AssignedInquiriesPage() {
               {(hasAppliedFilters || anyPendingValue) && (
                 <button
                   onClick={handleClear}
-                  className="flex items-center gap-1.5 px-3 py-1.5 border border-gray-200 rounded-xl text-xs font-semibold text-gray-500 hover:border-red-300 hover:text-red-500 hover:bg-red-50 transition"
+                  disabled={purchaseLoading}
+                  className="flex items-center gap-1.5 px-3 py-1.5 border border-gray-200 rounded-xl text-xs font-semibold text-gray-500 hover:border-red-300 hover:text-red-500 hover:bg-red-50 transition disabled:opacity-40 disabled:cursor-not-allowed"
                 >
                   <FiX size={11} />
                   Clear
@@ -576,7 +631,7 @@ export default function AssignedInquiriesPage() {
               )}
               <button
                 onClick={handleApply}
-                disabled={!hasPendingChanges}
+                disabled={purchaseLoading || !hasPendingChanges}
                 className="flex items-center gap-1.5 px-4 py-1.5 rounded-xl text-xs font-bold transition disabled:opacity-40 disabled:cursor-not-allowed bg-[#7B2FFF] text-white hover:bg-[#6320d4] border-none cursor-pointer"
               >
                 Apply Filters
@@ -612,12 +667,12 @@ export default function AssignedInquiriesPage() {
               </div>
               <div className="text-center">
                 <p className="text-base font-bold text-[#1a1a2e]">
-                  {hasAppliedFilters ? "No inquiries match these filters" : "No assigned inquiries yet"}
+                  {hasAppliedFilters ? "No enquiries match these filters" : "No assigned enquiries yet"}
                 </p>
                 <p className="text-sm text-gray-400 mt-1">
                   {hasAppliedFilters
                     ? "Try adjusting or clearing the filters."
-                    : "Inquiries matching your cities will appear here."}
+                    : "Enquiries matching your cities will appear here."}
                 </p>
               </div>
             </div>
@@ -648,17 +703,22 @@ export default function AssignedInquiriesPage() {
               )}
 
               {!hasMore && (
-                <p className="text-center text-xs text-gray-400 py-6">No more inquiries</p>
+                <p className="text-center text-xs text-gray-400 py-6">No more enquiries</p>
               )}
             </>
           )}
 
         </div>
       </div>
-      {purchaseAssignment && (
+      {purchaseAssignment && !confirmUnlockOpen && (
         <div
           className="fixed inset-0 z-[600] flex items-center justify-center bg-black/40 px-4 py-6"
-          onClick={() => setPurchaseAssignment(null)}
+          onClick={() => {
+            if (purchaseLoading) return;
+            setPurchaseAssignment(null);
+            setPurchaseMethod("");
+            setPurchaseError("");
+          }}
         >
           <div
             role="dialog"
@@ -669,13 +729,17 @@ export default function AssignedInquiriesPage() {
           >
             <div className="mb-5 flex items-start justify-between gap-3">
               <div>
-                <h2 id="purchase-inquiry-title" className="text-lg font-extrabold text-[#1a1a2e]">Purchase inquiry</h2>
+                <h2 id="purchase-inquiry-title" className="text-lg font-extrabold text-[#1a1a2e]">Unlock Enquiries</h2>
                 <p className="mt-1 text-xs text-gray-500">Choose how you want to unlock the contact details.</p>
               </div>
               <button
                 type="button"
                 aria-label="Close purchase options"
-                onClick={() => setPurchaseAssignment(null)}
+                onClick={() => {
+                  setPurchaseAssignment(null);
+                  setPurchaseMethod("");
+                  setPurchaseError("");
+                }}
                 className="rounded-lg border-none bg-gray-100 p-2 text-gray-500 hover:bg-gray-200"
               >
                 <FiX size={16} />
@@ -690,13 +754,13 @@ export default function AssignedInquiriesPage() {
             <div className="flex flex-col gap-3">
               <button
                 type="button"
-                disabled={planEnquiriesRemaining < 1}
-                onClick={() => setPurchaseMethod("plan")}
+                disabled={planEnquiriesRemaining === 0}
+                onClick={() => { setPurchaseMethod("plan"); setPurchaseError(""); }}
                 className={`rounded-xl border p-4 text-left transition disabled:cursor-not-allowed disabled:opacity-50 ${purchaseMethod === "plan" ? "border-[#7B2FFF] bg-[#f7f2ff] ring-2 ring-[#7B2FFF]/15" : "border-gray-200 hover:border-[#7B2FFF]"}`}
               >
                 <span className="flex items-center justify-between gap-2">
                   <span className="text-sm font-bold text-[#1a1a2e]">Use enquiry plan</span>
-                  <span className="text-xs font-bold text-[#7B2FFF]">{planEnquiriesRemaining} remaining</span>
+                  <span className="text-xs font-bold text-[#7B2FFF]">{planEnquiriesRemaining === -1 ? "Unlimited" : `${planEnquiriesRemaining} remaining`}</span>
                 </span>
                 <span className="mt-1 block text-xs text-gray-500">{enquiryPlan?.name ?? "No active enquiry plan"}</span>
               </button>
@@ -704,7 +768,7 @@ export default function AssignedInquiriesPage() {
               <button
                 type="button"
                 disabled={coinsBalance < coinsPerEnquiry || coinsPerEnquiry <= 0}
-                onClick={() => setPurchaseMethod("coins")}
+                onClick={() => { setPurchaseMethod("coins"); setPurchaseError(""); }}
                 className={`rounded-xl border p-4 text-left transition disabled:cursor-not-allowed disabled:opacity-50 ${purchaseMethod === "coins" ? "border-[#7B2FFF] bg-[#f7f2ff] ring-2 ring-[#7B2FFF]/15" : "border-gray-200 hover:border-[#7B2FFF]"}`}
               >
                 <span className="flex items-center justify-between gap-2">
@@ -723,6 +787,66 @@ export default function AssignedInquiriesPage() {
                 {purchaseMethod === "plan" ? "Enquiry plan selected" : "Coins selected"}
               </p>
             )}
+            {purchaseError && <p className="mt-3 text-center text-xs font-semibold text-red-600">{purchaseError}</p>}
+            <button
+              type="button"
+              disabled={!purchaseMethod}
+              onClick={() => { setPurchaseError(""); setConfirmUnlockOpen(true); }}
+              className="mt-5 w-full rounded-xl bg-[#7B2FFF] px-4 py-3 text-sm font-bold text-white transition hover:bg-[#6320d4] disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              Confirm
+            </button>
+          </div>
+        </div>
+      )}
+      {purchaseAssignment && confirmUnlockOpen && (
+        <div className="fixed inset-0 z-[610] flex items-center justify-center px-4 py-6">
+          <button
+            type="button"
+            aria-label="Cancel unlock confirmation"
+            className="absolute inset-0 border-none bg-black/50"
+            disabled={purchaseLoading}
+            onClick={() => setConfirmUnlockOpen(false)}
+          />
+          <div
+            role="alertdialog"
+            aria-modal="true"
+            aria-labelledby="confirm-unlock-title"
+            className="relative w-full max-w-sm rounded-2xl bg-white p-6 shadow-2xl"
+          >
+            <div className="mb-5 flex flex-col items-center text-center">
+              <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-[#f3eeff] text-[#7B2FFF]">
+                <FiUnlock size={22} />
+              </div>
+              <h2 id="confirm-unlock-title" className="mb-1 text-base font-extrabold text-[#1a1a2e]">Confirm unlock</h2>
+              <p className="text-sm text-gray-500">
+                {purchaseMethod === "plan"
+                  ? "One enquiry credit will be used to reveal this contact."
+                  : `${coinsPerEnquiry.toLocaleString("en-IN")} coins will be deducted to reveal this contact.`}
+              </p>
+              {purchaseMethod === "coins" && (
+                <p className="mt-2 text-xs text-gray-400">Balance after unlock: {(coinsBalance - coinsPerEnquiry).toLocaleString("en-IN")} coins</p>
+              )}
+              {purchaseError && <p className="mt-3 text-xs font-semibold text-red-600">{purchaseError}</p>}
+            </div>
+            <div className="flex gap-3">
+              <button
+                type="button"
+                disabled={purchaseLoading}
+                onClick={() => setConfirmUnlockOpen(false)}
+                className="flex-1 rounded-xl border border-gray-200 bg-white py-2.5 text-sm font-semibold text-gray-500 transition hover:bg-gray-50 disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={purchaseLoading}
+                onClick={handleUnlockAssignment}
+                className="flex-1 rounded-xl border-none bg-[#7B2FFF] py-2.5 text-sm font-bold text-white transition hover:bg-[#6320d4] disabled:cursor-wait disabled:opacity-60"
+              >
+                {purchaseLoading ? "Unlocking..." : "Unlock"}
+              </button>
+            </div>
           </div>
         </div>
       )}

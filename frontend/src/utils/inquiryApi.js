@@ -58,3 +58,17 @@ export async function fetchAssignedInquiries({
   );
   return data.data ?? { assignments: [], pagination: null, stats: null };
 }
+
+/**
+ * Unlock an assigned inquiry using one plan credit or coins.
+ * PATCH /api/mixed/inquiries/purchase
+ * @param {{ assignmentId: string, purchasedVia: "plan" | "coins" }} payload
+ */
+export async function purchaseAssignedInquiry({ assignmentId, purchasedVia }) {
+  const { data } = await axios.patch(
+    `${API}/api/mixed/inquiries/purchase`,
+    { assignmentId, purchasedVia },
+    config
+  );
+  return data.data;
+}
