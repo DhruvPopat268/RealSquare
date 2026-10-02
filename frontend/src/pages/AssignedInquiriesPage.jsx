@@ -537,7 +537,11 @@ export default function AssignedInquiriesPage() {
 
           {/* Stats cards */}
           {stats && !initialLoading && (
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mb-5">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mb-5">
+              <div className="bg-white border border-gray-200 rounded-2xl p-3 text-center hover:shadow-md transition">
+                <p className="text-[11px] text-gray-600 font-semibold mb-1">Total</p>
+                <p className="text-2xl font-extrabold text-gray-700">{stats.total ?? 0}</p>
+              </div>
               <div className="bg-white border border-green-200 rounded-2xl p-3 text-center hover:shadow-md transition">
                 <p className="text-[11px] text-green-600 font-semibold mb-1">Active</p>
                 <p className="text-2xl font-extrabold text-green-600">{stats.active ?? 0}</p>

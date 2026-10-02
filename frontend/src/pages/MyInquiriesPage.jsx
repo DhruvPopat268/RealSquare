@@ -430,7 +430,11 @@ export default function MyInquiriesPage() {
 
           {/* Stats cards */}
           {stats && !initialLoading && (
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-3 mb-5">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-8 gap-3 mb-5">
+              <div className="bg-white border border-[#e0d5ff] rounded-2xl p-3 text-center hover:shadow-md transition">
+                <p className="text-[11px] text-[#7B2FFF] font-semibold mb-1">Total</p>
+                <p className="text-2xl font-extrabold text-[#7B2FFF]">{stats.total ?? 0}</p>
+              </div>
               <div className="bg-white border border-green-200 rounded-2xl p-3 text-center hover:shadow-md transition">
                 <p className="text-[11px] text-green-600 font-semibold mb-1">Active</p>
                 <p className="text-2xl font-extrabold text-green-600">{stats.active ?? 0}</p>
