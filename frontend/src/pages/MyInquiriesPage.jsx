@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   FiClipboard, FiMapPin, FiCalendar,
-  FiMessageSquare, FiPlus, FiHome, FiCheckCircle,
+  FiMessageSquare, FiPlus, FiHome,
   FiFilter, FiChevronDown, FiX,
 } from "react-icons/fi";
 import Navbar from "../components/Navbar";
@@ -97,12 +97,6 @@ function InquiryCard({ inquiry, onRequestStatusUpdate, updating }) {
           {inquiry.inquiryClassification.charAt(0).toUpperCase() + inquiry.inquiryClassification.slice(1)} Lead
         </span>
         <div className="flex items-center gap-2">
-          {inquiry.verifiedByUser?.isVerified && (
-            <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-green-50 border border-green-200 text-green-600 text-[10px] font-bold">
-              <FiCheckCircle size={10} />
-              Verified
-            </span>
-          )}
           <span className={`px-2.5 py-0.5 rounded-full text-[11px] font-semibold border ${
             inquiry.status === "active"
               ? "bg-green-50 border-green-200 text-green-600"

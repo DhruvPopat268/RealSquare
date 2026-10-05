@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import {
   FiClipboard, FiMapPin, FiCalendar,
-  FiMessageSquare, FiHome, FiCheckCircle, FiUser, FiPhone,
+  FiMessageSquare, FiHome, FiUser, FiPhone,
   FiFilter, FiChevronDown, FiX, FiLock, FiUnlock,
 } from "react-icons/fi";
 import Navbar from "../components/Navbar";
@@ -106,12 +106,6 @@ function AssignedInquiryCard({ assignment, onPurchase }) {
           {inquiry.inquiryClassification.charAt(0).toUpperCase() + inquiry.inquiryClassification.slice(1)} Lead
         </span>
         <div className="flex items-center gap-2">
-          {inquiry.verifiedByUser?.isVerified && (
-            <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-green-50 border border-green-200 text-green-600 text-[10px] font-bold">
-              <FiCheckCircle size={10} />
-              Verified
-            </span>
-          )}
           <span className={`px-2.5 py-0.5 rounded-full text-[11px] font-semibold border ${
             purchased
               ? "bg-[#f5f0ff] border-[#e0d5ff] text-[#7B2FFF]"
