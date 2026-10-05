@@ -20,6 +20,7 @@ const ALLOWED_ROLES = [
 
 const LIMIT = 10;
 const EMPTY_FILTERS = { status: "", classification: "", purposeId: "", categoryId: "", typeId: "" };
+const UNAVAILABLE_INQUIRY_STATUSES = new Set(["expired", "inactive", "completed", "rejected"]);
 
 const STATUS_OPTIONS = [{ _id: "active", name: "Active" }, { _id: "purchased", name: "Purchased" }];
 const CLASS_OPTIONS  = [{ _id: "hot", name: "Hot 🔥" }, { _id: "warm", name: "Warm 🌤️" }, { _id: "cold", name: "Cold ❄️" }];
@@ -87,7 +88,7 @@ function AssignedInquiryCard({ assignment, onPurchase }) {
 
   const cls = CLASSIFICATION_STYLES[inquiry.inquiryClassification] ?? CLASSIFICATION_STYLES.cold;
   const purchased = assignment.status === "purchased";
-  const inquiryIsUnavailable = inquiry.status !== "active";
+  const inquiryIsUnavailable = UNAVAILABLE_INQUIRY_STATUSES.has(inquiry.status);
 
   const areaDetail =
     inquiry.bhk != null          ? `${inquiry.bhk} BHK`

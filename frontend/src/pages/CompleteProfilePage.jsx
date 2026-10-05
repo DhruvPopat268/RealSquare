@@ -1,9 +1,10 @@
 import { useState, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { FiArrowRight, FiSkipForward, FiCamera, FiImage } from "react-icons/fi";
+import { FiArrowRight, FiSkipForward, FiCamera, FiImage, FiMapPin, FiX } from "react-icons/fi";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import PlacesAutocomplete from "../components/PlacesAutocomplete";
+import CityAutocomplete from "../components/CityAutocomplete";
 
 const BASE_URL = import.meta.env.VITE_API_URL;
 
@@ -45,14 +46,13 @@ async function geocode(name) {
 
 // ── Shared UI ─────────────────────────────────────────────────────────────────
 
-function InputField({ label, required, error, children }) {
+function InputField({ label, required, children }) {
   return (
     <div>
       <label className="text-xs font-semibold text-gray-500 mb-1.5 block uppercase tracking-wide">
         {label} {required && <span className="text-red-400">*</span>}
       </label>
       {children}
-      {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
     </div>
   );
 }
@@ -95,6 +95,43 @@ function TextareaInput({ value, onChange, placeholder, rows = 3 }) {
     <textarea rows={rows} placeholder={placeholder} value={value} onChange={onChange}
       className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#7B2FFF] transition resize-none"
     />
+  );
+}
+
+function EnquiryCitiesField({ cities = [], onChange }) {
+  const [inputValue, setInputValue] = useState("");
+
+  const handleSelect = ({ city }) => {
+    if (!city) return;
+    if (!cities.includes(city)) onChange([...cities, city]);
+    setInputValue("");
+  };
+
+  return (
+    <div className="border-t border-gray-100 pt-4 mt-2">
+      <p className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-1">Cities for Enquiries</p>
+      <p className="text-xs text-gray-400 mb-3">Select the cities where you handle property enquiries.</p>
+      {cities.length > 0 && (
+        <div className="flex flex-wrap gap-2 mb-3">
+          {cities.map((city) => (
+            <span key={city} className="flex items-center gap-1.5 bg-[#f3eeff] text-[#7B2FFF] text-xs font-semibold px-3 py-1.5 rounded-full border border-[#e0d4ff]">
+              <FiMapPin size={11} />
+              {city}
+              <button type="button" onClick={() => onChange(cities.filter((item) => item !== city))}
+                className="ml-0.5 text-[#7B2FFF] hover:text-red-500 bg-transparent border-none cursor-pointer p-0 leading-none transition">
+                <FiX size={12} />
+              </button>
+            </span>
+          ))}
+        </div>
+      )}
+      <CityAutocomplete
+        value={inputValue}
+        onChange={setInputValue}
+        onSelect={handleSelect}
+        placeholder="Search and add a city..."
+      />
+    </div>
   );
 }
 
@@ -204,6 +241,10 @@ function OwnerFields({ form, setForm, errors, mobile }) {
           </InputField>
         </div>
       </div>
+      <EnquiryCitiesField
+        cities={form.enquiryCities ?? []}
+        onChange={(enquiryCities) => setForm((p) => ({ ...p, enquiryCities }))}
+      />
     </>
   );
 }
@@ -234,6 +275,10 @@ function BrokerFields({ form, setForm, errors, mobile }) {
       <InputField label="Bio" error={errors.bio}>
         <TextareaInput value={form.bio} onChange={(e) => setForm((p) => ({ ...p, bio: e.target.value }))} placeholder="Brief professional summary (optional)" />
       </InputField>
+      <EnquiryCitiesField
+        cities={form.enquiryCities ?? []}
+        onChange={(enquiryCities) => setForm((p) => ({ ...p, enquiryCities }))}
+      />
     </>
   );
 }
@@ -276,6 +321,10 @@ function BuilderFields({ form, setForm, errors, mobile }) {
           shape="square" icon={FiImage}
         />
       </div>
+      <EnquiryCitiesField
+        cities={form.enquiryCities ?? []}
+        onChange={(enquiryCities) => setForm((p) => ({ ...p, enquiryCities }))}
+      />
     </>
   );
 }
@@ -285,6 +334,7 @@ function BuilderFields({ form, setForm, errors, mobile }) {
 const INITIAL_FORM = {
   fullName: "", name: "", email: "", bio: "", location: "",
   profilePhotoPreview: "", profilePhotoFile: null,
+  enquiryCities: [],
   agencyName: "", yearsOfExperience: "",
   bizName: "", bizType: "", gstNumber: "", bizEmail: "", bizMobile: "", website: "",
   bizLogoPreview: "", bizLogoFile: null,
@@ -359,6 +409,7 @@ export default function CompleteProfilePage() {
         if (form.bizMobile) fd.append("businessDetails.mobile", form.bizMobile);
         if (form.website) fd.append("businessDetails.website", form.website);
         if (form.bizLogoFile) fd.append("businessLogo", form.bizLogoFile);
+        fd.append("enquiryCities", JSON.stringify(form.enquiryCities ?? []));
       }
 
       if (selectedRole === "broker") {
@@ -367,6 +418,7 @@ export default function CompleteProfilePage() {
         if (form.agencyName) fd.append("agencyName", form.agencyName);
         if (form.yearsOfExperience) fd.append("yearsOfExperience", form.yearsOfExperience);
         if (form.bio) fd.append("bio", form.bio);
+        fd.append("enquiryCities", JSON.stringify(form.enquiryCities ?? []));
       }
 
       if (selectedRole === "builder") {
@@ -384,6 +436,7 @@ export default function CompleteProfilePage() {
             fd.append("location.longitude", coords.longitude);
           }
         }
+        fd.append("enquiryCities", JSON.stringify(form.enquiryCities ?? []));
       }
 
       const res = await fetch(`${BASE_URL}/api/system-users/complete-profile`, {
@@ -450,7 +503,11 @@ export default function CompleteProfilePage() {
               {selectedRole === "broker"   && <BrokerFields   form={form} setForm={setForm} errors={errors} mobile={mobile} />}
               {selectedRole === "builder"  && <BuilderFields  form={form} setForm={setForm} errors={errors} mobile={mobile} />}
 
-              {errors.submit && <p className="text-xs text-red-500">{errors.submit}</p>}
+              {Object.values(errors).filter(Boolean).map((error, index) => (
+                <p key={`${index}-${error}`} role="alert" className="text-xs text-red-500">
+                  {error}
+                </p>
+              ))}
 
               <button onClick={handleSubmit} disabled={loading}
                 className="w-full mt-2 bg-[#7B2FFF] hover:bg-[#6320d4] disabled:opacity-60 text-white py-3 rounded-xl font-semibold text-sm transition flex items-center justify-center gap-2"

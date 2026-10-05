@@ -113,7 +113,7 @@ function TextareaInput({ value, onChange, placeholder, rows = 3 }) {
   );
 }
 
-function PhotoUpload({ label, value, onChange, shape = "circle", icon: Icon = FiCamera }) {
+function PhotoUpload({ label, value, onChange, onRemove, shape = "circle", icon: Icon = FiCamera }) {
   const ref = useRef();
   const isCircle = shape === "circle";
 
@@ -146,6 +146,11 @@ function PhotoUpload({ label, value, onChange, shape = "circle", icon: Icon = Fi
         )}
       </button>
       <span className="text-xs text-gray-400">{label}</span>
+      {value && onRemove && (
+        <button type="button" onClick={onRemove} className="text-xs text-red-500 bg-transparent border-none cursor-pointer hover:underline">
+          Remove
+        </button>
+      )}
     </div>
   );
 }
@@ -210,7 +215,7 @@ function CustomerFields({ form, setForm, errors, mobile, onChangeMobile }) {
   return (
     <>
       <div className="flex justify-center mb-2">
-        <PhotoUpload label="Profile Photo" value={form.profilePhoto} onChange={(url, file) => setForm((p) => ({ ...p, profilePhoto: url, profilePhotoFile: file }))} />
+        <PhotoUpload label="Profile Photo" value={form.profilePhoto} onChange={(url, file) => setForm((p) => ({ ...p, profilePhoto: url, profilePhotoFile: file, profilePhotoRemoved: false }))} onRemove={() => setForm((p) => ({ ...p, profilePhoto: "", profilePhotoFile: null, profilePhotoRemoved: true }))} />
       </div>
       <InputField label="Full Name" required error={errors.fullName}>
         <TextInput value={form.fullName} onChange={(e) => setForm((p) => ({ ...p, fullName: e.target.value }))} placeholder="Your full name" />
@@ -239,7 +244,7 @@ function OwnerFields({ form, setForm, errors, mobile, onChangeMobile }) {
   return (
     <>
       <div className="flex justify-center mb-2">
-        <PhotoUpload label="Profile Photo" value={form.profilePhoto} onChange={(url, file) => setForm((p) => ({ ...p, profilePhoto: url, profilePhotoFile: file }))} />
+        <PhotoUpload label="Profile Photo" value={form.profilePhoto} onChange={(url, file) => setForm((p) => ({ ...p, profilePhoto: url, profilePhotoFile: file, profilePhotoRemoved: false }))} onRemove={() => setForm((p) => ({ ...p, profilePhoto: "", profilePhotoFile: null, profilePhotoRemoved: true }))} />
       </div>
       <InputField label="Full Name" required error={errors.fullName}>
         <TextInput value={form.fullName} onChange={(e) => setForm((p) => ({ ...p, fullName: e.target.value }))} placeholder="Your full name" />
@@ -259,7 +264,7 @@ function OwnerFields({ form, setForm, errors, mobile, onChangeMobile }) {
         <p className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-4">Business Details <span className="normal-case font-normal">(optional)</span></p>
         <div className="flex flex-col gap-4">
           <div className="flex justify-center">
-            <PhotoUpload label="Company Logo" value={form.bizLogo} onChange={(url, file) => setForm((p) => ({ ...p, bizLogo: url, bizLogoFile: file }))} shape="square" icon={FiImage} />
+            <PhotoUpload label="Company Logo" value={form.bizLogo} onChange={(url, file) => setForm((p) => ({ ...p, bizLogo: url, bizLogoFile: file, bizLogoRemoved: false }))} onRemove={() => setForm((p) => ({ ...p, bizLogo: "", bizLogoFile: null, bizLogoRemoved: true }))} shape="square" icon={FiImage} />
           </div>
           <InputField label="Business Name" error={errors.bizName}>
             <TextInput value={form.bizName} onChange={(e) => setForm((p) => ({ ...p, bizName: e.target.value }))} placeholder="Your business / firm name" />
@@ -293,7 +298,7 @@ function BrokerFields({ form, setForm, errors, mobile, onChangeMobile }) {
   return (
     <>
       <div className="flex justify-center mb-2">
-        <PhotoUpload label="Profile Photo" value={form.profilePhoto} onChange={(url, file) => setForm((p) => ({ ...p, profilePhoto: url, profilePhotoFile: file }))} />
+        <PhotoUpload label="Profile Photo" value={form.profilePhoto} onChange={(url, file) => setForm((p) => ({ ...p, profilePhoto: url, profilePhotoFile: file, profilePhotoRemoved: false }))} onRemove={() => setForm((p) => ({ ...p, profilePhoto: "", profilePhotoFile: null, profilePhotoRemoved: true }))} />
       </div>
       <InputField label="Full Name" required error={errors.fullName}>
         <TextInput value={form.fullName} onChange={(e) => setForm((p) => ({ ...p, fullName: e.target.value }))} placeholder="Your full name" />
@@ -329,7 +334,7 @@ function BuilderFields({ form, setForm, errors, mobile, onChangeMobile }) {
   return (
     <>
       <div className="flex justify-center mb-2">
-        <PhotoUpload label="Profile Photo" value={form.profilePhoto} onChange={(url, file) => setForm((p) => ({ ...p, profilePhoto: url, profilePhotoFile: file }))} />
+        <PhotoUpload label="Profile Photo" value={form.profilePhoto} onChange={(url, file) => setForm((p) => ({ ...p, profilePhoto: url, profilePhotoFile: file, profilePhotoRemoved: false }))} onRemove={() => setForm((p) => ({ ...p, profilePhoto: "", profilePhotoFile: null, profilePhotoRemoved: true }))} />
       </div>
       <InputField label="Company / Builder Name" required error={errors.name}>
         <TextInput value={form.name} onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))} placeholder="Your company name" />
@@ -390,7 +395,9 @@ function buildFormFromUser(user, role) {
       fullName: user.name || p.fullName || "",
       email: user.email || p.email || "",
       profilePhoto: user.profilePhoto || p.profilePhoto || "",
+      profilePhotoRemoved: false,
       bizLogo: b.logo || "",
+      bizLogoRemoved: false,
       bizName: b.name || "",
       bizType: b.type || "",
       gstNumber: b.gstNumber || "",
@@ -406,6 +413,7 @@ function buildFormFromUser(user, role) {
       fullName: user.name || p.fullName || "",
       email: user.email || p.email || "",
       profilePhoto: user.profilePhoto || p.profilePhoto || "",
+      profilePhotoRemoved: false,
       agencyName: p.agencyName || "",
       yearsOfExperience: p.yearsOfExperience ?? "",
       bio: p.bio || "",
@@ -418,6 +426,7 @@ function buildFormFromUser(user, role) {
       name: user.name || p.name || "",
       email: user.email || p.email || "",
       profilePhoto: user.profilePhoto || p.profilePhoto || "",
+      profilePhotoRemoved: false,
       gstNumber: p.gstNumber || "",
       cinNumber: p.cinNumber || "",
       foundedYear: p.foundedYear ?? "",
@@ -432,6 +441,7 @@ function buildFormFromUser(user, role) {
     fullName: user.name || p.fullName || "",
     email: user.email || p.email || "",
     profilePhoto: user.profilePhoto || p.profilePhoto || "",
+    profilePhotoRemoved: false,
     location: p.location?.name || "",
     bio: p.bio || "",
   };
@@ -693,6 +703,7 @@ export default function UpdateProfilePage() {
   const [noRole, setNoRole] = useState(false);
   const [mobile, setMobile] = useState("");
   const [form, setForm] = useState({});
+  const initialFormRef = useRef({});
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
@@ -709,7 +720,9 @@ export default function UpdateProfilePage() {
           setNoRole(true);
         } else {
           setRole(detectedRole);
-          setForm(buildFormFromUser(data, detectedRole));
+          const initialForm = buildFormFromUser(data, detectedRole);
+          initialFormRef.current = initialForm;
+          setForm(initialForm);
         }
       })
       .finally(() => setFetching(false));
@@ -731,58 +744,96 @@ export default function UpdateProfilePage() {
     setLoading(true);
     try {
       const fd = new FormData();
+      const appendNullable = (key, value) => {
+        const isEmpty = value === null || value === undefined ||
+          (typeof value === "string" && value.trim() === "");
+        fd.append(key, isEmpty ? "null" : String(value));
+      };
+      const valuesMatch = (left, right) => {
+        if (Array.isArray(left) || Array.isArray(right)) {
+          return JSON.stringify(left ?? []) === JSON.stringify(right ?? []);
+        }
+        const normalize = (value) => value === null || value === undefined || value === ""
+          ? ""
+          : String(value);
+        return normalize(left) === normalize(right);
+      };
+      const appendIfChanged = (key, formKey) => {
+        const value = form[formKey];
+        if (!valuesMatch(value, initialFormRef.current[formKey])) appendNullable(key, value);
+      };
+      const appendEnquiryCities = () => {
+        const cities = form.enquiryCities ?? [];
+        if (!valuesMatch(cities, initialFormRef.current.enquiryCities)) {
+          fd.append("enquiryCities", cities.length ? JSON.stringify(cities) : "null");
+        }
+      };
 
       if (noRole) fd.append("role", ROLE_IDS[role]);
       if (form.profilePhotoFile) fd.append("profilePhoto", form.profilePhotoFile);
+      else if (form.profilePhotoRemoved) appendNullable("profilePhoto", null);
 
       if (role === "customer") {
-        if (form.fullName) fd.append("fullName", form.fullName);
-        if (form.email) fd.append("email", form.email);
-        if (form.bio) fd.append("bio", form.bio);
-        if (form.location) {
-          const coords = await geocode(form.location);
-          fd.append("location.name", form.location);
-          fd.append("location.latitude", coords?.latitude ?? "");
-          fd.append("location.longitude", coords?.longitude ?? "");
+        appendIfChanged("fullName", "fullName");
+        appendIfChanged("email", "email");
+        appendIfChanged("bio", "bio");
+        if (!valuesMatch(form.location, initialFormRef.current.location)) {
+          if (form.location) {
+            const coords = await geocode(form.location);
+            appendNullable("location.name", form.location);
+            appendNullable("location.latitude", coords?.latitude);
+            appendNullable("location.longitude", coords?.longitude);
+          } else {
+            appendNullable("location.name", null);
+            appendNullable("location.latitude", null);
+            appendNullable("location.longitude", null);
+          }
         }
       }
 
       if (role === "owner") {
-        if (form.fullName) fd.append("fullName", form.fullName);
-        if (form.email) fd.append("email", form.email);
-        if (form.bizName) fd.append("businessDetails.name", form.bizName);
-        if (form.bizType) fd.append("businessDetails.type", form.bizType);
-        if (form.gstNumber) fd.append("businessDetails.gstNumber", form.gstNumber);
-        if (form.bizEmail) fd.append("businessDetails.email", form.bizEmail);
-        if (form.bizMobile) fd.append("businessDetails.mobile", form.bizMobile);
-        if (form.website) fd.append("businessDetails.website", form.website);
+        appendIfChanged("fullName", "fullName");
+        appendIfChanged("email", "email");
+        appendIfChanged("businessDetails.name", "bizName");
+        appendIfChanged("businessDetails.type", "bizType");
+        appendIfChanged("businessDetails.gstNumber", "gstNumber");
+        appendIfChanged("businessDetails.email", "bizEmail");
+        appendIfChanged("businessDetails.mobile", "bizMobile");
+        appendIfChanged("businessDetails.website", "website");
         if (form.bizLogoFile) fd.append("businessLogo", form.bizLogoFile);
-        fd.append("enquiryCities", JSON.stringify(form.enquiryCities ?? []));
+        else if (form.bizLogoRemoved) appendNullable("businessDetails.logo", null);
+        appendEnquiryCities();
       }
 
       if (role === "broker") {
-        if (form.fullName) fd.append("fullName", form.fullName);
-        if (form.email) fd.append("email", form.email);
-        if (form.agencyName) fd.append("agencyName", form.agencyName);
-        if (form.yearsOfExperience) fd.append("yearsOfExperience", form.yearsOfExperience);
-        if (form.bio) fd.append("bio", form.bio);
-        fd.append("enquiryCities", JSON.stringify(form.enquiryCities ?? []));
+        appendIfChanged("fullName", "fullName");
+        appendIfChanged("email", "email");
+        appendIfChanged("agencyName", "agencyName");
+        appendIfChanged("yearsOfExperience", "yearsOfExperience");
+        appendIfChanged("bio", "bio");
+        appendEnquiryCities();
       }
 
       if (role === "builder") {
-        if (form.name) fd.append("name", form.name);
-        if (form.email) fd.append("email", form.email);
-        if (form.gstNumber) fd.append("gstNumber", form.gstNumber);
-        if (form.cinNumber) fd.append("cinNumber", form.cinNumber);
-        if (form.foundedYear) fd.append("foundedYear", form.foundedYear);
-        if (form.totalProjectsDelivered) fd.append("totalProjectsDelivered", form.totalProjectsDelivered);
-        if (form.location) {
-          const coords = await geocode(form.location);
-          fd.append("location.name", form.location);
-          fd.append("location.latitude", coords?.latitude ?? "");
-          fd.append("location.longitude", coords?.longitude ?? "");
+        appendIfChanged("name", "name");
+        appendIfChanged("email", "email");
+        appendIfChanged("gstNumber", "gstNumber");
+        appendIfChanged("cinNumber", "cinNumber");
+        appendIfChanged("foundedYear", "foundedYear");
+        appendIfChanged("totalProjectsDelivered", "totalProjectsDelivered");
+        if (!valuesMatch(form.location, initialFormRef.current.location)) {
+          if (form.location) {
+            const coords = await geocode(form.location);
+            appendNullable("location.name", form.location);
+            appendNullable("location.latitude", coords?.latitude);
+            appendNullable("location.longitude", coords?.longitude);
+          } else {
+            appendNullable("location.name", null);
+            appendNullable("location.latitude", null);
+            appendNullable("location.longitude", null);
+          }
         }
-        fd.append("enquiryCities", JSON.stringify(form.enquiryCities ?? []));
+        appendEnquiryCities();
       }
 
       const res = await fetch(`${BASE_URL}/api/system-users/update-profile`, {
@@ -873,7 +924,13 @@ export default function UpdateProfilePage() {
               <div className="grid grid-cols-2 gap-3">
                 {ROLES.map((r) => (
                   <button key={r.key}
-                    onClick={() => { setRole(r.key); setForm(buildFormFromUser({}, r.key)); setErrors({}); }}
+                    onClick={() => {
+                      const initialForm = buildFormFromUser({}, r.key);
+                      initialFormRef.current = initialForm;
+                      setRole(r.key);
+                      setForm(initialForm);
+                      setErrors({});
+                    }}
                     className={`flex flex-col items-start gap-1 p-4 rounded-xl border-2 text-left transition cursor-pointer ${
                       role === r.key ? "border-[#7B2FFF] bg-[#f5f0ff]" : "border-gray-200 bg-white hover:border-[#7B2FFF] hover:bg-[#faf8ff]"
                     }`}

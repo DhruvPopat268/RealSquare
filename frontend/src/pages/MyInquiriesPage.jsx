@@ -18,6 +18,7 @@ const STATUS_OPTIONS      = [
   { _id: "inactive", name: "Inactive" },
   { _id: "completed", name: "Completed" },
   { _id: "expired", name: "Expired" },
+  { _id: "rejected", name: "Rejected" },
 ];
 const CLASS_OPTIONS       = [{ _id: "hot", name: "Hot 🔥" }, { _id: "warm", name: "Warm 🌤️" }, { _id: "cold", name: "Cold ❄️" }];
 
@@ -430,7 +431,7 @@ export default function MyInquiriesPage() {
 
           {/* Stats cards */}
           {stats && !initialLoading && (
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-8 gap-3 mb-5">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-9 gap-3 mb-5">
               <div className="bg-white border border-[#e0d5ff] rounded-2xl p-3 text-center hover:shadow-md transition">
                 <p className="text-[11px] text-[#7B2FFF] font-semibold mb-1">Total</p>
                 <p className="text-2xl font-extrabold text-[#7B2FFF]">{stats.total ?? 0}</p>
@@ -450,6 +451,10 @@ export default function MyInquiriesPage() {
               <div className="bg-white border border-emerald-200 rounded-2xl p-3 text-center hover:shadow-md transition">
                 <p className="text-[11px] text-emerald-600 font-semibold mb-1">Completed</p>
                 <p className="text-2xl font-extrabold text-emerald-600">{stats.completed ?? 0}</p>
+              </div>
+              <div className="bg-white border border-rose-200 rounded-2xl p-3 text-center hover:shadow-md transition">
+                <p className="text-[11px] text-rose-600 font-semibold mb-1">Rejected</p>
+                <p className="text-2xl font-extrabold text-rose-600">{stats.rejected ?? 0}</p>
               </div>
               <div className="bg-white border border-red-200 rounded-2xl p-3 text-center hover:shadow-md transition">
                 <p className="text-[11px] text-red-500 font-semibold mb-1">Hot 🔥</p>
