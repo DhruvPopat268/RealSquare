@@ -621,14 +621,14 @@ const SWITCH_ROLES = [
   { key: "builder",  label: "Builder / Developer", icon: "🏗️", desc: "I develop real estate projects" },
 ];
 
-function SwitchProfileModal({ currentRole, onCancel, onConfirm }) {
+function SwitchProfileModal({ currentRole, activePlan, activeEnquiryPlan, onCancel, onConfirm }) {
   const [selected, setSelected] = useState(null);
 
   return (
     <div className="fixed inset-0 z-[500] flex items-center justify-center px-4" onClick={onCancel}>
       <div className="absolute inset-0 bg-black/50" />
       <div
-        className="relative bg-white rounded-2xl shadow-[0_16px_60px_rgba(0,0,0,0.18)] w-full max-w-[420px] p-6"
+        className="relative bg-white rounded-2xl shadow-[0_16px_60px_rgba(0,0,0,0.18)] w-full max-w-[460px] max-h-[90vh] overflow-y-auto p-6"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Close */}
@@ -642,6 +642,35 @@ function SwitchProfileModal({ currentRole, onCancel, onConfirm }) {
           <p className="text-xs text-red-600 leading-relaxed">
             Switching your profile role will <span className="font-bold">permanently delete</span> your current <span className="font-semibold capitalize">{currentRole}</span> profile data. This action cannot be undone.
           </p>
+        </div>
+
+        <div className="space-y-2 mb-5">
+          <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3">
+            <p className="text-xs font-bold text-red-700">Listing plan</p>
+            {activePlan ? (
+              <>
+                <p className="mt-1 text-sm font-semibold text-red-700">{activePlan.name}</p>
+                <p className="mt-1 text-xs text-red-600">
+                  {activePlan.numberOfPropertiesGiven === -1
+                    ? "This plan will be cancelled and all its benefits will end when you switch roles."
+                    : `${Math.max(0, activePlan.numberOfPropertiesGiven - (activePlan.propertiesUsed || 0))} unused listing credits will be removed; you won't receive this plan's benefits after switching.`}
+                </p>
+              </>
+            ) : <p className="mt-1 text-xs text-red-600">No active listing plan.</p>}
+          </div>
+          <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3">
+            <p className="text-xs font-bold text-red-700">Enquiry plan</p>
+            {activeEnquiryPlan ? (
+              <>
+                <p className="mt-1 text-sm font-semibold text-red-700">{activeEnquiryPlan.name}</p>
+                <p className="mt-1 text-xs text-red-600">
+                  {activeEnquiryPlan.numberOfEnquiriesGiven === -1
+                    ? "This plan will be cancelled and all its benefits will end when you switch roles."
+                    : `${Math.max(0, activeEnquiryPlan.numberOfEnquiriesGiven - (activeEnquiryPlan.enquiriesUsed || 0))} unused enquiries will be removed; you won't receive this plan's benefits after switching.`}
+                </p>
+              </>
+            ) : <p className="mt-1 text-xs text-red-600">No active enquiry plan.</p>}
+          </div>
         </div>
 
         <h3 className="text-base font-extrabold text-[#1a1a2e] mb-1">Switch Profile Role</h3>
@@ -677,8 +706,8 @@ function SwitchProfileModal({ currentRole, onCancel, onConfirm }) {
           <button
             onClick={async () => {
               if (!selected) return;
-              await fetch(`${BASE_URL}/api/system-users/delete-account`, {
-                method: "DELETE",
+              await fetch(`${BASE_URL}/api/system-users/switch-role`, {
+                method: "POST",
                 credentials: "include",
               });
               onConfirm(selected);
@@ -686,7 +715,7 @@ function SwitchProfileModal({ currentRole, onCancel, onConfirm }) {
             disabled={!selected}
             className="flex-1 py-2.5 rounded-xl bg-red-500 hover:bg-red-600 disabled:opacity-40 text-white text-sm font-semibold cursor-pointer transition border-none"
           >
-            Delete & Switch
+            Switch Role
           </button>
         </div>
       </div>
@@ -702,6 +731,8 @@ export default function UpdateProfilePage() {
   const [role, setRole] = useState(null);
   const [noRole, setNoRole] = useState(false);
   const [mobile, setMobile] = useState("");
+  const [activePlan, setActivePlan] = useState(null);
+  const [activeEnquiryPlan, setActiveEnquiryPlan] = useState(null);
   const [form, setForm] = useState({});
   const initialFormRef = useRef({});
   const [errors, setErrors] = useState({});
@@ -714,6 +745,8 @@ export default function UpdateProfilePage() {
     fetch(`${BASE_URL}/api/system-users/me`, { credentials: "include" })
       .then((r) => r.json())
       .then(({ data }) => {
+        setActivePlan(data.activePlan || null);
+        setActiveEnquiryPlan(data.activeEnquiryPlan || null);
         const detectedRole = detectRole(data);
         setMobile(data.mobile || "");
         if (!data.role) {
@@ -882,6 +915,8 @@ export default function UpdateProfilePage() {
           {showSwitchModal && (
             <SwitchProfileModal
               currentRole={role}
+              activePlan={activePlan}
+              activeEnquiryPlan={activeEnquiryPlan}
               onCancel={() => setShowSwitchModal(false)}
               onConfirm={(newRole) => {
                 setShowSwitchModal(false);

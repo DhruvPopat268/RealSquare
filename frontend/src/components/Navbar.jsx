@@ -418,7 +418,7 @@ export default function Navbar() {
           {showSwitchModal && (
             <div className="fixed inset-0 z-[500] flex items-center justify-center px-4" onClick={() => { setShowSwitchModal(false); setSwitchSelected(null); }}>
               <div className="absolute inset-0 bg-black/50" />
-              <div className="relative bg-white rounded-2xl shadow-[0_16px_60px_rgba(0,0,0,0.18)] w-full max-w-[420px] p-6" onClick={(e) => e.stopPropagation()}>
+              <div className="relative bg-white rounded-2xl shadow-[0_16px_60px_rgba(0,0,0,0.18)] w-full max-w-[460px] max-h-[90vh] overflow-y-auto p-6" onClick={(e) => e.stopPropagation()}>
                 <button onClick={() => { setShowSwitchModal(false); setSwitchSelected(null); }} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 bg-transparent border-none cursor-pointer p-0">
                   <FiX size={18} />
                 </button>
@@ -427,6 +427,34 @@ export default function Navbar() {
                   <p className="text-xs text-red-600 leading-relaxed">
                     Switching your profile role will <span className="font-bold">permanently delete</span> your current <span className="font-semibold capitalize">{currentRole}</span> profile data. This action cannot be undone.
                   </p>
+                </div>
+                <div className="space-y-2 mb-5">
+                  <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3">
+                    <p className="text-xs font-bold text-red-700">Listing plan</p>
+                    {user?.activePlan ? (
+                      <>
+                        <p className="mt-1 text-sm font-semibold text-red-700">{user.activePlan.name}</p>
+                        <p className="mt-1 text-xs text-red-600">
+                          {user.activePlan.numberOfPropertiesGiven === -1
+                            ? "This plan will be cancelled and all its benefits will end when you switch roles."
+                            : `${Math.max(0, user.activePlan.numberOfPropertiesGiven - (user.activePlan.propertiesUsed || 0))} unused listing credits will be removed; you won't receive this plan's benefits after switching.`}
+                        </p>
+                      </>
+                    ) : <p className="mt-1 text-xs text-red-600">No active listing plan.</p>}
+                  </div>
+                  <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3">
+                    <p className="text-xs font-bold text-red-700">Enquiry plan</p>
+                    {user?.activeEnquiryPlan ? (
+                      <>
+                        <p className="mt-1 text-sm font-semibold text-red-700">{user.activeEnquiryPlan.name}</p>
+                        <p className="mt-1 text-xs text-red-600">
+                          {user.activeEnquiryPlan.numberOfEnquiriesGiven === -1
+                            ? "This plan will be cancelled and all its benefits will end when you switch roles."
+                            : `${Math.max(0, user.activeEnquiryPlan.numberOfEnquiriesGiven - (user.activeEnquiryPlan.enquiriesUsed || 0))} unused enquiries will be removed; you won't receive this plan's benefits after switching.`}
+                        </p>
+                      </>
+                    ) : <p className="mt-1 text-xs text-red-600">No active enquiry plan.</p>}
+                  </div>
                 </div>
                 <h3 className="text-base font-extrabold text-[#1a1a2e] mb-1">Switch Profile Role</h3>
                 <p className="text-xs text-gray-400 mb-4">Select the role you want to switch to. Your current profile data will be deleted and you'll set up a new profile.</p>
@@ -455,8 +483,8 @@ export default function Navbar() {
                   <button
                     onClick={async () => {
                       if (!switchSelected) return;
-                      await fetch(`${import.meta.env.VITE_API_URL}/api/system-users/delete-account`, {
-                        method: "DELETE",
+                      await fetch(`${import.meta.env.VITE_API_URL}/api/system-users/switch-role`, {
+                        method: "POST",
                         credentials: "include",
                       });
                       setShowSwitchModal(false);
@@ -467,7 +495,7 @@ export default function Navbar() {
                     disabled={!switchSelected}
                     className="flex-1 py-2.5 rounded-xl bg-red-500 hover:bg-red-600 disabled:opacity-40 text-white text-sm font-semibold cursor-pointer transition border-none"
                   >
-                    Delete & Switch
+                    Switch Role
                   </button>
                 </div>
               </div>
