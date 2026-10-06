@@ -316,6 +316,9 @@ function BrokerFields({ form, setForm, errors, mobile, onChangeMobile }) {
       <InputField label="Agency Name" error={errors.agencyName}>
         <TextInput value={form.agencyName} onChange={(e) => setForm((p) => ({ ...p, agencyName: e.target.value }))} placeholder="Your agency or firm name" />
       </InputField>
+      <InputField label="RERA Registration ID" error={errors.reraId}>
+        <TextInput value={form.reraId} onChange={(e) => setForm((p) => ({ ...p, reraId: e.target.value }))} placeholder="Enter your RERA ID (optional)" />
+      </InputField>
       <InputField label="Years of Experience" error={errors.yearsOfExperience}>
         <TextInput type="number" value={form.yearsOfExperience} onChange={(e) => setForm((p) => ({ ...p, yearsOfExperience: e.target.value }))} placeholder="e.g. 5" />
       </InputField>
@@ -415,6 +418,7 @@ function buildFormFromUser(user, role) {
       profilePhoto: user.profilePhoto || p.profilePhoto || "",
       profilePhotoRemoved: false,
       agencyName: p.agencyName || "",
+      reraId: p.reraVerification?.reraId || "",
       yearsOfExperience: p.yearsOfExperience ?? "",
       bio: p.bio || "",
       enquiryCities: user.enquiryCities ?? [],
@@ -842,6 +846,7 @@ export default function UpdateProfilePage() {
         appendIfChanged("fullName", "fullName");
         appendIfChanged("email", "email");
         appendIfChanged("agencyName", "agencyName");
+        appendIfChanged("reraId", "reraId");
         appendIfChanged("yearsOfExperience", "yearsOfExperience");
         appendIfChanged("bio", "bio");
         appendEnquiryCities();

@@ -170,10 +170,13 @@ fullName:            Rajesh Kumar                    (required)
 email:               rajesh@agency.com               (optional)
 profilePhoto:        [file]                           (optional)
 agencyName:          Kumar Realty                    (optional)
+reraId:              GJ/12345/2024                    (optional; verified during profile completion)
 yearsOfExperience:   8                               (optional)
 bio:                 Expert in commercial real estate (optional)
 enquiryCities:       ["Mumbai", "Pune"]               (optional; JSON array string)
 ```
+
+When `reraId` is provided, the backend runs RERA verification and stores the result in `brokerProfile.reraVerification`. It includes `reraId`, `verified`, `reason`, `projectDetails` (project, developer, location, type, completion date, units, status, and confidence), and `sources`. If the verification service cannot complete, the profile is still saved with `verified: false`.
 
 ---
 
@@ -373,7 +376,7 @@ Send only the fields that changed for the user's role.
 
 **Owner:** `fullName`, `businessDetails.name`, `businessDetails.type`, `businessDetails.gstNumber`, `businessDetails.mobile`, `businessDetails.website`, `businessDetails.logo`, `businessLogo` (image file), and `enquiryCities`.
 
-**Broker:** `fullName`, `agencyName`, `yearsOfExperience`, `bio`, and `enquiryCities`.
+**Broker:** `fullName`, `agencyName`, `reraId`, `yearsOfExperience`, `bio`, and `enquiryCities`. Send a changed, non-empty `reraId` to run verification and replace `brokerProfile.reraVerification`; omit it when unchanged. Send the literal `null` to clear the RERA ID and its saved verification result.
 
 **Builder:** `name`, `gstNumber`, `cinNumber`, `foundedYear`, `totalProjectsDelivered`, `location.name`, `location.latitude`, `location.longitude`, and `enquiryCities`.
 

@@ -269,6 +269,9 @@ function BrokerFields({ form, setForm, errors, mobile }) {
       <InputField label="Agency Name" error={errors.agencyName}>
         <TextInput value={form.agencyName} onChange={(e) => setForm((p) => ({ ...p, agencyName: e.target.value }))} placeholder="Your agency or firm name (optional)" />
       </InputField>
+      <InputField label="RERA Registration ID" error={errors.reraId}>
+        <TextInput value={form.reraId} onChange={(e) => setForm((p) => ({ ...p, reraId: e.target.value }))} placeholder="Enter your RERA ID (optional)" />
+      </InputField>
       <InputField label="Years of Experience" error={errors.yearsOfExperience}>
         <TextInput type="number" value={form.yearsOfExperience} onChange={(e) => setForm((p) => ({ ...p, yearsOfExperience: e.target.value }))} placeholder="e.g. 5 (optional)" />
       </InputField>
@@ -335,7 +338,7 @@ const INITIAL_FORM = {
   fullName: "", name: "", email: "", bio: "", location: "",
   profilePhotoPreview: "", profilePhotoFile: null,
   enquiryCities: [],
-  agencyName: "", yearsOfExperience: "",
+  agencyName: "", yearsOfExperience: "", reraId: "",
   bizName: "", bizType: "", gstNumber: "", bizEmail: "", bizMobile: "", website: "",
   bizLogoPreview: "", bizLogoFile: null,
   cinNumber: "", foundedYear: "", totalProjectsDelivered: "",
@@ -417,6 +420,7 @@ export default function CompleteProfilePage() {
         if (form.email) fd.append("email", form.email);
         if (form.agencyName) fd.append("agencyName", form.agencyName);
         if (form.yearsOfExperience) fd.append("yearsOfExperience", form.yearsOfExperience);
+        if (form.reraId?.trim()) fd.append("reraId", form.reraId.trim());
         if (form.bio) fd.append("bio", form.bio);
         fd.append("enquiryCities", JSON.stringify(form.enquiryCities ?? []));
       }
