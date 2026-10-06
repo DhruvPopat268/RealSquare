@@ -341,6 +341,14 @@ For Owner, Broker, and Builder, send `enquiryCities` as a JSON-encoded array str
 { "success": false, "message": "Unauthorized" }                     // 401 (non-system role)
 ```
 
+### Skip profile setup
+
+**POST** `/api/system-users/assign-customer-role`
+
+**Auth required:** Yes (`user_token` cookie or `Authorization: Bearer <token>`)
+
+Send no body. This assigns the Customer role without creating a `customerProfile` or requiring a name. The user can continue using the panel and complete the profile later. The endpoint is idempotent for an account that already has the Customer role; it returns `409` if another role is already assigned.
+
 ---
 
 ## 5. Update Profile

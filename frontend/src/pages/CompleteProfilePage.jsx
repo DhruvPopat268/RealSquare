@@ -353,6 +353,8 @@ export default function CompleteProfilePage() {
   const [form, setForm] = useState(INITIAL_FORM);
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
+  const [skipping, setSkipping] = useState(false);
+  const [skipError, setSkipError] = useState("");
 
   const returnTo = new URLSearchParams(location.search).get("returnTo") || "/";
 
@@ -458,7 +460,23 @@ export default function CompleteProfilePage() {
     }
   };
 
-  const handleSkip = () => navigate(returnTo, { replace: true });
+  const handleSkip = async () => {
+    setSkipError("");
+    setSkipping(true);
+    try {
+      const res = await fetch(`${BASE_URL}/api/system-users/assign-customer-role`, {
+        method: "POST",
+        credentials: "include",
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Could not continue as a customer");
+      navigate(returnTo, { replace: true });
+    } catch (err) {
+      setSkipError(err.message || "Could not continue as a customer");
+    } finally {
+      setSkipping(false);
+    }
+  };
 
   return (
     <>
@@ -471,12 +489,14 @@ export default function CompleteProfilePage() {
               <h2 className="text-xl font-extrabold text-[#1a1a2e]">Complete Your Profile</h2>
               <p className="text-sm text-gray-400 mt-0.5">Help us personalise your experience</p>
             </div>
-            <button onClick={handleSkip}
-              className="flex items-center gap-1.5 text-sm text-[#7B2FFF] bg-transparent border border-[#7B2FFF] rounded-xl px-3 py-1.5 transition cursor-pointer flex-shrink-0 hover:bg-[#f5f0ff]"
+            <button onClick={handleSkip} disabled={skipping || loading}
+              className="flex items-center gap-1.5 text-sm text-[#7B2FFF] bg-transparent border border-[#7B2FFF] rounded-xl px-3 py-1.5 transition cursor-pointer flex-shrink-0 hover:bg-[#f5f0ff] disabled:opacity-60 disabled:cursor-wait"
             >
-              <FiSkipForward size={14} /> Skip
+              <FiSkipForward size={14} /> {skipping ? "Skipping..." : "Skip"}
             </button>
           </div>
+
+          {skipError && <p role="alert" className="mb-4 text-sm text-red-500">{skipError}</p>}
 
           <div className="mb-6">
             <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">I am a *</p>
@@ -513,7 +533,7 @@ export default function CompleteProfilePage() {
                 </p>
               ))}
 
-              <button onClick={handleSubmit} disabled={loading}
+              <button onClick={handleSubmit} disabled={loading || skipping}
                 className="w-full mt-2 bg-[#7B2FFF] hover:bg-[#6320d4] disabled:opacity-60 text-white py-3 rounded-xl font-semibold text-sm transition flex items-center justify-center gap-2"
               >
                 {loading ? "Saving..." : <> Save & Continue <FiArrowRight size={15} /> </>}

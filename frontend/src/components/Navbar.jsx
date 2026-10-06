@@ -671,20 +671,22 @@ export default function Navbar() {
                   )}
                   </div>
                   )}
-                  <div className="flex gap-2 mb-3 pb-3 border-b border-gray-100">
-                    <button
-                      onClick={() => { setProfileOpen(false); navigate("/deposit-coins"); }}
-                      className="flex-1 text-[10px] font-semibold text-gray-700 bg-white border border-gray-900 rounded-lg py-1.5 cursor-pointer hover:bg-gray-50 transition text-center"
-                    >
-                      + Deposit Coins
-                    </button>
-                    <button
-                      onClick={() => { setProfileOpen(false); navigate("/payment-transactions"); }}
-                      className="flex-1 text-[10px] font-semibold text-gray-700 bg-white border border-gray-900 rounded-lg py-1.5 cursor-pointer hover:bg-gray-50 transition text-center"
-                    >
-                      Transactions
-                    </button>
-                  </div>
+                  {(user.showListingPlan || user.showEnquiryPlan) && (
+                    <div className="flex gap-2 mb-3 pb-3 border-b border-gray-100">
+                      <button
+                        onClick={() => { setProfileOpen(false); navigate("/deposit-coins"); }}
+                        className="flex-1 text-[10px] font-semibold text-gray-700 bg-white border border-gray-900 rounded-lg py-1.5 cursor-pointer hover:bg-gray-50 transition text-center"
+                      >
+                        + Deposit Coins
+                      </button>
+                      <button
+                        onClick={() => { setProfileOpen(false); navigate("/payment-transactions"); }}
+                        className="flex-1 text-[10px] font-semibold text-gray-700 bg-white border border-gray-900 rounded-lg py-1.5 cursor-pointer hover:bg-gray-50 transition text-center"
+                      >
+                        Transactions
+                      </button>
+                    </div>
+                  )}
 
                   {/* My Listings button */}
                   {(canViewMyListings || user?.isProfileCompleted) && (
@@ -953,10 +955,12 @@ export default function Navbar() {
                     <button onClick={() => { setMobileOpen(false); navigate("/enquiry-plans"); }} className="text-[11px] font-semibold text-[#7B2FFF] bg-[#f3eeff] border-none rounded-lg px-3 py-2 cursor-pointer w-full text-left mx-2 mb-2">Purchase Enquiry Plan →</button>
                   ))}
                   {/* Quick actions */}
-                  <div className="flex gap-2 mx-2 mb-2">
-                    <button onClick={() => { setMobileOpen(false); navigate("/deposit-coins"); }} className="flex-1 text-[11px] font-semibold text-gray-700 bg-white border border-gray-200 rounded-lg py-1.5 cursor-pointer hover:bg-gray-50 transition">+ Deposit Coins</button>
-                    <button onClick={() => { setMobileOpen(false); navigate("/payment-transactions"); }} className="flex-1 text-[11px] font-semibold text-gray-700 bg-white border border-gray-200 rounded-lg py-1.5 cursor-pointer hover:bg-gray-50 transition">Transactions</button>
-                  </div>
+                  {(user.showListingPlan || user.showEnquiryPlan) && (
+                    <div className="flex gap-2 mx-2 mb-2">
+                      <button onClick={() => { setMobileOpen(false); navigate("/deposit-coins"); }} className="flex-1 text-[11px] font-semibold text-gray-700 bg-white border border-gray-200 rounded-lg py-1.5 cursor-pointer hover:bg-gray-50 transition">+ Deposit Coins</button>
+                      <button onClick={() => { setMobileOpen(false); navigate("/payment-transactions"); }} className="flex-1 text-[11px] font-semibold text-gray-700 bg-white border border-gray-200 rounded-lg py-1.5 cursor-pointer hover:bg-gray-50 transition">Transactions</button>
+                    </div>
+                  )}
                   {/* My Property Listings */}
                   {(canViewMyListings || user?.isProfileCompleted) && (
                     <div className="mx-2 mb-1">
