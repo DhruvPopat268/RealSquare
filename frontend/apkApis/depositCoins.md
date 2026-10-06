@@ -2,11 +2,11 @@
 
 Base URL: `https://api.realsquarevalue.com`
 
-These APIs are used by the Coins Wallet page to load available coin offers, read the signed-in user's wallet and transaction history, and create a Razorpay order for a coin deposit.
+These APIs are used by the Coins Wallet page to load available coin offers, read the signed-in user's wallet and transaction history, create a Razorpay order for a coin deposit, and mark a dismissed payment as failed.
 
 ## Authentication
 
-All three APIs require authentication using the `userProtect` middleware. Send either the `user_token` cookie or a bearer token:
+All four APIs require authentication using the `userProtect` middleware. Send either the `user_token` cookie or a bearer token:
 
 ```http
 Authorization: Bearer <token>
@@ -175,4 +175,43 @@ If both `coinsOfferId` and `coins` are sent, the offer is used.
 { "success": false, "message": "coins is required for direct purchase" } // 400
 { "success": false, "message": "Coins offer not found or inactive" }     // 404
 { "success": false, "message": "..." }                                   // 500; order/payment service error
+```
+
+---
+
+## 4. Mark a Dismissed Coin Purchase as Failed
+
+**PATCH** `/api/mixed/purchase-coins/cancel/:transactionId`
+
+The page calls this when the user dismisses the Razorpay checkout. The transaction ID is the `transactionId` returned by `create-order`.
+
+**Auth required:** Yes (`user_token` cookie or bearer token)
+
+**Payload:** None
+
+The transaction must be a coin-purchase transaction owned by the authenticated user. If it is not already successful, the API sets its status to `Failed` and its `failureReason` to `Cancelled by user`. A successful payment is left unchanged.
+
+### Success Responses `200`
+
+```json
+{
+  "success": true,
+  "message": "Transaction marked as failed"
+}
+```
+
+If payment was already completed:
+
+```json
+{
+  "success": true,
+  "message": "Payment already completed"
+}
+```
+
+### Error Responses
+
+```json
+{ "success": false, "message": "Transaction not found" } // 404; missing, not owned by caller, or not a coin purchase
+{ "success": false, "message": "..." }                   // 500
 ```
