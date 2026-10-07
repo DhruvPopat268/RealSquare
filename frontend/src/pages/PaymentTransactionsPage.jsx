@@ -9,9 +9,17 @@ const BASE_URL = import.meta.env.VITE_API_URL;
 const LIMIT = 10;
 
 const REASON_LABELS = {
-  CoinsPurchase: "Coins Purchase",
-  PropertyUnlock: "Property Unlock",
-  Refund: "Refund",
+  ListingPlanPurchase:     "Listing Plan Purchase",
+  ListingPlanUpgrade:      "Listing Plan Upgrade",
+  RequirementPlanPurchase: "Requirement Plan Purchase",
+  RequirementPlanUpgrade:  "Requirement Plan Upgrade",
+  CoinsPurchase:           "Coins Purchase",
+  RequirementPurchase:     "Requirement Purchase",
+  PropertyUnlock:          "Property Unlock",
+  Refund:                  "Refund",
+  AdminCredit:             "Admin Credit",
+  AdminDebit:              "Admin Debit",
+  Bonus:                   "Bonus",
 };
 
 function formatDate(iso) {

@@ -20,10 +20,17 @@ function loadRazorpay() {
 }
 
 const REASON_LABELS = {
-  CoinsPurchase: "Coins Purchase",
-  PropertyUnlock: "Property Unlock",
-  Refund: "Refund",
-  Bonus: "Bonus",
+  ListingPlanPurchase:     "Listing Plan Purchase",
+  ListingPlanUpgrade:      "Listing Plan Upgrade",
+  RequirementPlanPurchase: "Requirement Plan Purchase",
+  RequirementPlanUpgrade:  "Requirement Plan Upgrade",
+  CoinsPurchase:           "Coins Purchase",
+  RequirementPurchase:     "Requirement Purchase",
+  PropertyUnlock:          "Property Unlock",
+  Refund:                  "Refund",
+  AdminCredit:             "Admin Credit",
+  AdminDebit:              "Admin Debit",
+  Bonus:                   "Bonus",
 };
 
 function formatDate(iso) {
