@@ -211,7 +211,7 @@ function EnquiryCitiesField({ cities, onChange }) {
 
 // ── Role-specific field sets ──────────────────────────────────────────────────
 
-function CustomerFields({ form, setForm, errors, mobile, onChangeMobile, verifiedEmail, onEmailVerified }) {
+function CustomerFields({ form, setForm, errors, mobile, verifiedEmail, onEmailVerified }) {
   return (
     <>
       <div className="flex justify-center mb-2">
@@ -224,7 +224,6 @@ function CustomerFields({ form, setForm, errors, mobile, onChangeMobile, verifie
         <div className="flex items-center border border-gray-200 rounded-xl overflow-hidden">
           <span className="px-3 text-sm text-gray-500 border-r border-gray-200 py-3 bg-gray-50">+91</span>
           <span className="flex-1 px-3 py-3 text-sm text-gray-400">{mobile}</span>
-          <button type="button" onClick={onChangeMobile} className="px-3 text-xs font-semibold text-[#7B2FFF] bg-transparent border-none cursor-pointer hover:underline">Change</button>
         </div>
       </InputField>
       <InputField label="Email">
@@ -240,7 +239,7 @@ function CustomerFields({ form, setForm, errors, mobile, onChangeMobile, verifie
   );
 }
 
-function OwnerFields({ form, setForm, errors, mobile, onChangeMobile, verifiedEmail, onEmailVerified }) {
+function OwnerFields({ form, setForm, errors, mobile, verifiedEmail, onEmailVerified }) {
   return (
     <>
       <div className="flex justify-center mb-2">
@@ -253,7 +252,6 @@ function OwnerFields({ form, setForm, errors, mobile, onChangeMobile, verifiedEm
         <div className="flex items-center border border-gray-200 rounded-xl overflow-hidden">
           <span className="px-3 text-sm text-gray-500 border-r border-gray-200 py-3 bg-gray-50">+91</span>
           <span className="flex-1 px-3 py-3 text-sm text-gray-400">{mobile}</span>
-          <button type="button" onClick={onChangeMobile} className="px-3 text-xs font-semibold text-[#7B2FFF] bg-transparent border-none cursor-pointer hover:underline">Change</button>
         </div>
       </InputField>
       <InputField label="Email">
@@ -294,7 +292,7 @@ function OwnerFields({ form, setForm, errors, mobile, onChangeMobile, verifiedEm
   );
 }
 
-function BrokerFields({ form, setForm, errors, mobile, onChangeMobile, verifiedEmail, onEmailVerified }) {
+function BrokerFields({ form, setForm, errors, mobile, verifiedEmail, onEmailVerified }) {
   return (
     <>
       <div className="flex justify-center mb-2">
@@ -307,7 +305,6 @@ function BrokerFields({ form, setForm, errors, mobile, onChangeMobile, verifiedE
         <div className="flex items-center border border-gray-200 rounded-xl overflow-hidden">
           <span className="px-3 text-sm text-gray-500 border-r border-gray-200 py-3 bg-gray-50">+91</span>
           <span className="flex-1 px-3 py-3 text-sm text-gray-400">{mobile}</span>
-          <button type="button" onClick={onChangeMobile} className="px-3 text-xs font-semibold text-[#7B2FFF] bg-transparent border-none cursor-pointer hover:underline">Change</button>
         </div>
       </InputField>
       <InputField label="Email">
@@ -353,7 +350,7 @@ function BrokerFields({ form, setForm, errors, mobile, onChangeMobile, verifiedE
   );
 }
 
-function BuilderFields({ form, setForm, errors, mobile, onChangeMobile, verifiedEmail, onEmailVerified }) {
+function BuilderFields({ form, setForm, errors, mobile, verifiedEmail, onEmailVerified }) {
   return (
     <>
       <div className="flex justify-center mb-2">
@@ -366,7 +363,6 @@ function BuilderFields({ form, setForm, errors, mobile, onChangeMobile, verified
         <div className="flex items-center border border-gray-200 rounded-xl overflow-hidden">
           <span className="px-3 text-sm text-gray-500 border-r border-gray-200 py-3 bg-gray-50">+91</span>
           <span className="flex-1 px-3 py-3 text-sm text-gray-400">{mobile}</span>
-          <button type="button" onClick={onChangeMobile} className="px-3 text-xs font-semibold text-[#7B2FFF] bg-transparent border-none cursor-pointer hover:underline">Change</button>
         </div>
       </InputField>
       <InputField label="Email">
@@ -470,171 +466,6 @@ function buildFormFromUser(user, role) {
     location: p.location?.name || "",
     bio: p.bio || "",
   };
-}
-
-// ── Change Mobile Modal ──────────────────────────────────────────────────────
-
-const MOBILE_STEPS = { INPUT: "input", OTP: "otp" };
-
-function ChangeMobileModal({ oldMobile, onCancel, onSuccess }) {
-  const [step, setStep] = useState(MOBILE_STEPS.INPUT);
-  const [newMobile, setNewMobile] = useState("");
-  const [oldOtp, setOldOtp] = useState(["", "", "", "", "", ""]);
-  const [newOtp, setNewOtp] = useState(["", "", "", "", "", ""]);
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
-  const firstOldOtpRef = useRef();
-
-  const handleSendOtp = async () => {
-    setError("");
-    if (!/^\d{10}$/.test(newMobile)) { setError("Enter a valid 10-digit number"); return; }
-    if (newMobile === oldMobile) { setError("New number must be different from current"); return; }
-    setLoading(true);
-    try {
-      const res = await fetch(`${BASE_URL}/api/system-users/send-change-mobile-otp`, {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ newMobile }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || "Failed to send OTP");
-      setStep(MOBILE_STEPS.OTP);
-      setTimeout(() => firstOldOtpRef.current?.focus(), 50);
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleOtpChange = (val, idx, setter, prefix) => {
-    if (!/^\d?$/.test(val)) return;
-    setter((prev) => {
-      const next = [...prev];
-      next[idx] = val;
-      return next;
-    });
-    if (val && idx < 5) setTimeout(() => document.getElementById(`${prefix}-otp-${idx + 1}`)?.focus(), 0);
-  };
-
-  const handleOtpKeyDown = (e, idx, setter, prefix) => {
-    if (e.key === "Backspace" && !e.target.value && idx > 0)
-      document.getElementById(`${prefix}-otp-${idx - 1}`)?.focus();
-  };
-
-  const handleOtpPaste = (e, setter, prefix) => {
-    e.preventDefault();
-    const digits = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 6);
-    if (!digits) return;
-    const next = ["", "", "", "", "", ""];
-    digits.split("").forEach((d, i) => { next[i] = d; });
-    setter(next);
-    document.getElementById(`${prefix}-otp-${Math.min(digits.length - 1, 5)}`)?.focus();
-  };
-
-  const handleVerify = async () => {
-    setError("");
-    if (oldOtp.join("").length < 6 || newOtp.join("").length < 6) {
-      setError("Enter both 6-digit OTPs"); return;
-    }
-    setLoading(true);
-    try {
-      const res = await fetch(`${BASE_URL}/api/system-users/verify-change-mobile-otp`, {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ newMobile, oldOtp: oldOtp.join(""), newOtp: newOtp.join("") }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || "Verification failed");
-      onSuccess(newMobile);
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const OtpRow = ({ label, otp, setter, prefix }) => (
-    <div className="mb-4">
-      <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">{label}</p>
-      <div className="flex gap-2 justify-between">
-        {otp.map((val, idx) => (
-          <input
-            key={idx}
-            id={`${prefix}-otp-${idx}`}
-            ref={prefix === "old" && idx === 0 ? firstOldOtpRef : null}
-            type="text"
-            inputMode="numeric"
-            maxLength={1}
-            value={val}
-            onChange={(e) => handleOtpChange(e.target.value, idx, setter, prefix)}
-            onKeyDown={(e) => handleOtpKeyDown(e, idx, setter, prefix)}
-            onPaste={(e) => handleOtpPaste(e, setter, prefix)}
-            className={`w-10 h-11 text-center text-lg font-bold border-2 rounded-xl outline-none transition ${val ? "border-[#7B2FFF]" : "border-gray-300"}`}
-          />
-        ))}
-      </div>
-    </div>
-  );
-
-  return (
-    <div className="fixed inset-0 z-[500] flex items-center justify-center px-4" onClick={onCancel}>
-      <div className="absolute inset-0 bg-black/50" />
-      <div className="relative bg-white rounded-2xl shadow-[0_16px_60px_rgba(0,0,0,0.18)] w-full max-w-[400px] p-6" onClick={(e) => e.stopPropagation()}>
-        <button onClick={onCancel} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 bg-transparent border-none cursor-pointer p-0">
-          <FiX size={18} />
-        </button>
-
-        <h3 className="text-base font-extrabold text-[#1a1a2e] mb-1">Change Mobile Number</h3>
-
-        {step === MOBILE_STEPS.INPUT && (
-          <>
-            <p className="text-xs text-gray-400 mb-4">Enter your new mobile number. OTP will be sent to both old (+91 {oldMobile}) and new number.</p>
-            <div className="flex items-center border border-gray-200 rounded-xl overflow-hidden focus-within:border-[#7B2FFF] transition mb-1">
-              <span className="px-3 text-sm text-gray-500 border-r border-gray-200 py-3 bg-gray-50">+91</span>
-              <input
-                type="tel"
-                maxLength={10}
-                placeholder="New mobile number"
-                value={newMobile}
-                onChange={(e) => setNewMobile(e.target.value.replace(/\D/, ""))}
-                onKeyDown={(e) => e.key === "Enter" && handleSendOtp()}
-                className="flex-1 px-3 py-3 text-sm outline-none"
-              />
-            </div>
-            {error && <p className="text-xs text-red-500 mb-3">{error}</p>}
-            <div className="flex gap-3 mt-4">
-              <button onClick={onCancel} className="flex-1 py-2.5 rounded-xl border border-gray-200 text-sm font-semibold text-gray-500 bg-transparent cursor-pointer transition">
-                Cancel
-              </button>
-              <button onClick={handleSendOtp} disabled={loading} className="flex-1 py-2.5 rounded-xl bg-[#7B2FFF] hover:bg-[#6320d4] disabled:opacity-60 text-white text-sm font-semibold cursor-pointer transition border-none">
-                {loading ? "Sending..." : "Send OTP"}
-              </button>
-            </div>
-          </>
-        )}
-
-        {step === MOBILE_STEPS.OTP && (
-          <>
-            <p className="text-xs text-gray-400 mb-4">Enter the OTPs sent to your old (+91 {oldMobile}) and new (+91 {newMobile}) numbers.</p>
-            <OtpRow label={`OTP sent to old number (+91 ${oldMobile})`} otp={oldOtp} setter={setOldOtp} prefix="old" />
-            <OtpRow label={`OTP sent to new number (+91 ${newMobile})`} otp={newOtp} setter={setNewOtp} prefix="new" />
-            {error && <p className="text-xs text-red-500 mb-3">{error}</p>}
-            <div className="flex gap-3 mt-2">
-              <button onClick={() => { setStep(MOBILE_STEPS.INPUT); setOldOtp(["","","","","",""]); setNewOtp(["","","","","",""]); setError(""); }} className="flex-1 py-2.5 rounded-xl border border-gray-200 text-sm font-semibold text-gray-500 bg-transparent cursor-pointer transition">
-                Back
-              </button>
-              <button onClick={handleVerify} disabled={loading} className="flex-1 py-2.5 rounded-xl bg-[#7B2FFF] hover:bg-[#6320d4] disabled:opacity-60 text-white text-sm font-semibold cursor-pointer transition border-none">
-                {loading ? "Verifying..." : "Verify & Update"}
-              </button>
-            </div>
-          </>
-        )}
-      </div>
-    </div>
-  );
 }
 
 // ── Switch Profile Modal ──────────────────────────────────────────────────────
@@ -765,7 +596,6 @@ export default function UpdateProfilePage() {
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
   const [showSwitchModal, setShowSwitchModal] = useState(false);
-  const [showChangeMobile, setShowChangeMobile] = useState(false);
 
   useEffect(() => {
     fetch(`${BASE_URL}/api/system-users/me`, { credentials: "include" })
@@ -935,15 +765,6 @@ export default function UpdateProfilePage() {
       <div className="min-h-[calc(100vh-62px)] bg-[#f7f8fa] flex items-center justify-center px-4 py-12">
         <div className="bg-white rounded-2xl shadow-[0_8px_40px_rgba(0,0,0,0.10)] w-full max-w-[520px] p-8">
 
-          {/* Change Mobile Modal */}
-          {showChangeMobile && (
-            <ChangeMobileModal
-              oldMobile={mobile}
-              onCancel={() => setShowChangeMobile(false)}
-              onSuccess={(newMobile) => { setMobile(newMobile); setShowChangeMobile(false); }}
-            />
-          )}
-
           {/* Switch Profile Modal */}
           {showSwitchModal && (
             <SwitchProfileModal
@@ -1014,10 +835,10 @@ export default function UpdateProfilePage() {
 
           {/* Fields */}
           <div className="flex flex-col gap-4">
-            {role === "customer" && <CustomerFields form={form} setForm={setForm} errors={errors} mobile={mobile} verifiedEmail={verifiedEmail} onEmailVerified={setVerifiedEmail} onChangeMobile={() => setShowChangeMobile(true)} />}
-            {role === "owner"    && <OwnerFields    form={form} setForm={setForm} errors={errors} mobile={mobile} verifiedEmail={verifiedEmail} onEmailVerified={setVerifiedEmail} onChangeMobile={() => setShowChangeMobile(true)} />}
-            {role === "broker"   && <BrokerFields   form={form} setForm={setForm} errors={errors} mobile={mobile} verifiedEmail={verifiedEmail} onEmailVerified={setVerifiedEmail} onChangeMobile={() => setShowChangeMobile(true)} />}
-            {role === "builder"  && <BuilderFields  form={form} setForm={setForm} errors={errors} mobile={mobile} verifiedEmail={verifiedEmail} onEmailVerified={setVerifiedEmail} onChangeMobile={() => setShowChangeMobile(true)} />}
+            {role === "customer" && <CustomerFields form={form} setForm={setForm} errors={errors} mobile={mobile} verifiedEmail={verifiedEmail} onEmailVerified={setVerifiedEmail} />}
+            {role === "owner"    && <OwnerFields    form={form} setForm={setForm} errors={errors} mobile={mobile} verifiedEmail={verifiedEmail} onEmailVerified={setVerifiedEmail} />}
+            {role === "broker"   && <BrokerFields   form={form} setForm={setForm} errors={errors} mobile={mobile} verifiedEmail={verifiedEmail} onEmailVerified={setVerifiedEmail} />}
+            {role === "builder"  && <BuilderFields  form={form} setForm={setForm} errors={errors} mobile={mobile} verifiedEmail={verifiedEmail} onEmailVerified={setVerifiedEmail} />}
 
             {Object.values(errors).some(Boolean) && (
               <div role="alert" className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
