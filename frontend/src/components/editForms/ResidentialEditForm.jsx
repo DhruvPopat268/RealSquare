@@ -30,6 +30,9 @@ export default function ResidentialEditForm({ listing, form, onChange, furnishin
           <FormField label="Built-up Area">
             <AreaField value={res.builtUpArea?.value ?? ""} unit={res.builtUpArea?.unit ?? "sqft"} onValueChange={(v) => setResArea("builtUpArea", "value", v)} onUnitChange={(u) => setResArea("builtUpArea", "unit", u)} placeholder="Enter area" />
           </FormField>
+          <FormField label="Carpet Area">
+            <AreaField value={res.carpetArea?.value ?? ""} unit={res.carpetArea?.unit ?? "sqft"} onValueChange={(v) => setResArea("carpetArea", "value", v)} onUnitChange={(u) => setResArea("carpetArea", "unit", u)} placeholder="Enter area" />
+          </FormField>
         </Grid>
       </Section>
 
