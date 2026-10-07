@@ -20,8 +20,8 @@ export async function inquiryFlow(step, answer, collectedData, { botSay, setColl
 
   // ── INIT ──────────────────────────────────────────────────────────────────
   if (step === "init") {
-    await botSay("👋 Hi! I'll help you create a new property enquiry.\nLet's capture a few details to get started. 📋");
-    await botSay("Are you creating an enquiry for an Individual Property or a Project Property?", INQUIRY_TYPE_OPTIONS);
+    await botSay("👋 Hi! I'll help you create a new property requirement.\nLet's capture a few details to get started. 📋");
+    await botSay("Are you creating a requirement for an Individual Property or a Project Property?", INQUIRY_TYPE_OPTIONS);
     goTo("inquiry_type", collectedData);
     return;
   }
@@ -30,7 +30,7 @@ export async function inquiryFlow(step, answer, collectedData, { botSay, setColl
   if (step === "inquiry_type") {
     if (!answer) return;
     if (answer === "Project Property") {
-      await botSay("🚧 Project enquiries are coming soon! Currently you can only create Individual Property enquiries.\n\nWould you like to continue with Individual Property?", ["Yes, continue", "No, go back"]);
+      await botSay("🚧 Project requirements are coming soon! Currently you can only create Individual Property requirements.\n\nWould you like to continue with Individual Property?", ["Yes, continue", "No, go back"]);
       goTo("project_fallback", collectedData);
       return;
     }
@@ -66,7 +66,7 @@ export async function inquiryFlow(step, answer, collectedData, { botSay, setColl
       return;
     }
     // If "No, go back"
-    await botSay("Are you creating an enquiry for an Individual Property or a Project Property?", INQUIRY_TYPE_OPTIONS);
+    await botSay("Are you creating a requirement for an Individual Property or a Project Property?", INQUIRY_TYPE_OPTIONS);
     goTo("inquiry_type", collectedData);
     return;
   }
@@ -207,7 +207,7 @@ export async function inquiryFlow(step, answer, collectedData, { botSay, setColl
 
     // PG — no BHK, no area, no furnishing → go straight to lead classification
     if (isPG) {
-      await botSay("How would you classify this enquiry?", INQUIRY_CLASS_OPTIONS);
+      await botSay("How would you classify this requirement?", INQUIRY_CLASS_OPTIONS);
       goTo("lead_classification", updated);
       return;
     }
@@ -290,7 +290,7 @@ export async function inquiryFlow(step, answer, collectedData, { botSay, setColl
     delete updated._areaUnit;
     setCollectedData(() => updated);
     // Plots don't have furnishing — skip directly to lead classification
-      await botSay("How would you classify this enquiry?", INQUIRY_CLASS_OPTIONS);
+      await botSay("How would you classify this requirement?", INQUIRY_CLASS_OPTIONS);
     goTo("lead_classification", updated);
     return;
   }
@@ -300,7 +300,7 @@ export async function inquiryFlow(step, answer, collectedData, { botSay, setColl
     if (!answer) return;
     const updated = { ...collectedData, furnishingPreference: answer };
     setCollectedData(() => updated);
-      await botSay("How would you classify this enquiry?", INQUIRY_CLASS_OPTIONS);
+      await botSay("How would you classify this requirement?", INQUIRY_CLASS_OPTIONS);
     goTo("lead_classification", updated);
     return;
   }
@@ -393,9 +393,9 @@ export async function inquiryFlow(step, answer, collectedData, { botSay, setColl
       : "BHK Requirement";
 
     const msg =
-      `✅ Here's a summary of the enquiry. Please review before submitting.\n\n` +
+      `✅ Here's a summary of the requirement. Please review before submitting.\n\n` +
       `📋 Basic Info:\n` +
-      `  • Enquiry Type    : ${d.inquiryType ?? "—"}\n` +
+      `  • Requirement Type: ${d.inquiryType ?? "—"}\n` +
       `  • Purpose         : ${d.listingTypeName ?? "—"}\n` +
       `  • Category        : ${d.categoryName ?? "—"}\n` +
       `  • Property Type   : ${d.propertyTypeName ?? "—"}\n\n` +
@@ -428,7 +428,7 @@ export async function inquiryFlow(step, answer, collectedData, { botSay, setColl
       return;
     }
 
-    await botSay("⏳ Submitting your enquiry...");
+    await botSay("⏳ Submitting your requirement...");
 
     try {
       const d = collectedData;
@@ -484,8 +484,8 @@ export async function inquiryFlow(step, answer, collectedData, { botSay, setColl
         return;
       }
 
-      await botSay(`✅ Enquiry submitted successfully! 🎉\nYour enquiry has been created and assigned to eligible professionals in ${d.preferredCity}.`);
-      await botSay("Would you like to create another enquiry?", ["Yes, create another", "No, I'm done"]);
+      await botSay(`✅ Requirement submitted successfully! 🎉\nYour requirement has been created and assigned to eligible professionals in ${d.preferredCity}.`);
+      await botSay("Would you like to create another requirement?", ["Yes, create another", "No, I'm done"]);
       goTo("ask_more", collectedData);
 
     } catch (err) {
@@ -508,7 +508,7 @@ export async function inquiryFlow(step, answer, collectedData, { botSay, setColl
   if (step === "ask_more") {
     if (!answer) return;
     if (answer === "Yes, create another") {
-      await botSay("Starting a new enquiry... 🔄");
+      await botSay("Starting a new requirement... 🔄");
       setTimeout(() => window.location.reload(), 800);
     }
     return;

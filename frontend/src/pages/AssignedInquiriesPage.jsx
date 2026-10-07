@@ -122,7 +122,7 @@ function AssignedInquiryCard({ assignment, onPurchase }) {
           <FiUser size={14} className={purchased ? "text-white" : "text-gray-400"} />
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wide mb-1">Enquiry By</p>
+          <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wide mb-1">Requirement By</p>
           {isMasked(inquiry.createdBy?.name) ? (
             <p className="text-xs text-gray-400 italic">Unlock to reveal contact details</p>
           ) : (
@@ -369,7 +369,7 @@ export default function AssignedInquiriesPage() {
       setPage(pageNum);
       if (pageNum === 1 && pageStats) setStats(pageStats);
     } catch {
-      setError("Failed to load assigned enquiries. Please try again.");
+      setError("Failed to load assigned requirements. Please try again.");
     } finally {
       setLoading(false);
       setInitialLoading(false);
@@ -413,10 +413,10 @@ export default function AssignedInquiriesPage() {
         const { data } = await axios.get(`${import.meta.env.VITE_API_URL}/api/system-users/me`, { withCredentials: true });
         if (data.success) setUserData(data.data);
       } catch {
-        setError("Enquiry unlocked, but the page could not refresh. Please reload to see the updated details.");
+        setError("Requirement unlocked, but the page could not refresh. Please reload to see the updated details.");
       }
     } catch (error) {
-      setPurchaseError(error.response?.data?.message || "Could not unlock this enquiry. Please try again.");
+      setPurchaseError(error.response?.data?.message || "Could not unlock this requirement. Please try again.");
     } finally {
       setPurchaseLoading(false);
     }
@@ -496,7 +496,7 @@ export default function AssignedInquiriesPage() {
             </div>
             <h2 className="text-xl font-extrabold text-[#1a1a2e] mb-2">Access Restricted</h2>
             <p className="text-sm text-gray-400 leading-relaxed mb-6">
-              You don't have permission to view assigned enquiries. Only Owners, Brokers, and Builders can access this page.
+              You don't have permission to view assigned requirements. Only Owners, Brokers, and Builders can access this page.
             </p>
             <button
               onClick={() => navigate("/")}
@@ -524,8 +524,8 @@ export default function AssignedInquiriesPage() {
                 <FiClipboard size={18} className="text-white" />
               </div>
               <div>
-                <h1 className="text-xl font-extrabold text-[#1a1a2e] leading-tight">Assigned Enquiries</h1>
-                <p className="text-xs text-gray-400">Enquiries matched to you based on your cities</p>
+                <h1 className="text-xl font-extrabold text-[#1a1a2e] leading-tight">Assigned Requirements</h1>
+                <p className="text-xs text-gray-400">Requirements matched to you based on your cities</p>
               </div>
             </div>
           </div>
@@ -564,7 +564,7 @@ export default function AssignedInquiriesPage() {
           <div className="bg-white border border-gray-100 rounded-2xl p-4 mb-5 shadow-sm">
             <div className="flex items-center gap-1.5 mb-3">
               <FiFilter size={13} className="text-[#7B2FFF]" />
-              <span className="text-xs font-bold text-[#1a1a2e]">Filter Enquiries</span>
+              <span className="text-xs font-bold text-[#1a1a2e]">Filter Requirements</span>
               {hasAppliedFilters && (
                 <span className="ml-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#f3eeff] text-[#7B2FFF]">
                   {appliedLabels.length} filter{appliedLabels.length !== 1 ? "s" : ""} applied
@@ -674,12 +674,12 @@ export default function AssignedInquiriesPage() {
               </div>
               <div className="text-center">
                 <p className="text-base font-bold text-[#1a1a2e]">
-                  {hasAppliedFilters ? "No enquiries match these filters" : "No assigned enquiries yet"}
+                  {hasAppliedFilters ? "No requirements match these filters" : "No assigned requirements yet"}
                 </p>
                 <p className="text-sm text-gray-400 mt-1">
                   {hasAppliedFilters
                     ? "Try adjusting or clearing the filters."
-                    : "Enquiries matching your cities will appear here."}
+                    : "Requirements matching your cities will appear here."}
                 </p>
               </div>
             </div>
@@ -710,7 +710,7 @@ export default function AssignedInquiriesPage() {
               )}
 
               {!hasMore && (
-                <p className="text-center text-xs text-gray-400 py-6">No more enquiries</p>
+                <p className="text-center text-xs text-gray-400 py-6">No more requirements</p>
               )}
             </>
           )}
@@ -736,7 +736,7 @@ export default function AssignedInquiriesPage() {
           >
             <div className="mb-5 flex items-start justify-between gap-3">
               <div>
-                <h2 id="purchase-inquiry-title" className="text-lg font-extrabold text-[#1a1a2e]">Unlock Enquiries</h2>
+                <h2 id="purchase-inquiry-title" className="text-lg font-extrabold text-[#1a1a2e]">Unlock Requirements</h2>
                 <p className="mt-1 text-xs text-gray-500">Choose how you want to unlock the contact details.</p>
               </div>
               <button
@@ -766,10 +766,10 @@ export default function AssignedInquiriesPage() {
                 className={`rounded-xl border p-4 text-left transition disabled:cursor-not-allowed disabled:opacity-50 ${purchaseMethod === "plan" ? "border-[#7B2FFF] bg-[#f7f2ff] ring-2 ring-[#7B2FFF]/15" : "border-gray-200 hover:border-[#7B2FFF]"}`}
               >
                 <span className="flex items-center justify-between gap-2">
-                  <span className="text-sm font-bold text-[#1a1a2e]">Use enquiry plan</span>
+                  <span className="text-sm font-bold text-[#1a1a2e]">Use requirement plan</span>
                   <span className="text-xs font-bold text-[#7B2FFF]">{planEnquiriesRemaining === -1 ? "Unlimited" : `${planEnquiriesRemaining} remaining`}</span>
                 </span>
-                <span className="mt-1 block text-xs text-gray-500">{enquiryPlan?.name ?? "No active enquiry plan"}</span>
+                <span className="mt-1 block text-xs text-gray-500">{enquiryPlan?.name ?? "No active requirement plan"}</span>
               </button>
 
               <button
@@ -791,7 +791,7 @@ export default function AssignedInquiriesPage() {
 
             {purchaseMethod && (
               <p className="mt-4 text-center text-xs font-semibold text-[#7B2FFF]">
-                {purchaseMethod === "plan" ? "Enquiry plan selected" : "Coins selected"}
+                {purchaseMethod === "plan" ? "Requirement plan selected" : "Coins selected"}
               </p>
             )}
             {purchaseError && <p className="mt-3 text-center text-xs font-semibold text-red-600">{purchaseError}</p>}
@@ -828,7 +828,7 @@ export default function AssignedInquiriesPage() {
               <h2 id="confirm-unlock-title" className="mb-1 text-base font-extrabold text-[#1a1a2e]">Confirm unlock</h2>
               <p className="text-sm text-gray-500">
                 {purchaseMethod === "plan"
-                  ? "One enquiry credit will be used to reveal this contact."
+                  ? "One requirement credit will be used to reveal this contact."
                   : `${coinsPerEnquiry.toLocaleString("en-IN")} coins will be deducted to reveal this contact.`}
               </p>
               {purchaseMethod === "coins" && (

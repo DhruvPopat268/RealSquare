@@ -128,7 +128,7 @@ const VIDEO_PRODUCTS = [
       "Cinematic walkthrough of sample flat and amenities",
       "Professionally scripted and narrated",
       "Distributed across listings and social media",
-      "Converts fence-sitters into serious enquiries",
+      "Converts fence-sitters into serious requirements",
     ],
   },
   {
@@ -156,7 +156,7 @@ const VIDEO_PRODUCTS = [
 const STATS = [
   { value: "500+", label: "Developer Partners" },
   { value: "12K+", label: "Projects Listed" },
-  { value: "3.2L+", label: "Buyer Enquiries/Month" },
+  { value: "3.2L+", label: "Buyer Requirements/Month" },
   { value: "4.8★", label: "Developer Satisfaction" },
 ];
 
@@ -414,7 +414,7 @@ export default function DeveloperPage() {
       <div className="bg-gradient-to-r from-[#7B2FFF] to-[#4f46e5] py-14 px-6">
         <div className="max-w-[700px] mx-auto text-center">
           <h2 className="text-3xl font-extrabold text-white mb-3">Ready to launch your project?</h2>
-          <p className="text-purple-200 mb-8">500+ developers trust RealSquare to drive quality buyer enquiries. Let's get your project in front of the right audience.</p>
+          <p className="text-purple-200 mb-8">500+ developers trust RealSquare to drive quality buyer requirements. Let's get your project in front of the right audience.</p>
           <div className="flex gap-3 justify-center flex-wrap">
             <button
               onClick={() => setShowCallModal(true)}

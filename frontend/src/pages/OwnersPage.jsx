@@ -391,13 +391,13 @@ const STEPS = [
   },
   {
     num: "3",
-    title: "Property gets promoted to get unlimited enquiries",
-    desc: "RealSquare makes it easy to reach the right tenants and buyers, finding you the perfect match through targeted promotion and qualified enquiries.",
+    title: "Property gets promoted to get unlimited requirements",
+    desc: "RealSquare makes it easy to reach the right tenants and buyers, finding you the perfect match through targeted promotion and qualified requirements.",
     icon: "🔔",
   },
   {
     num: "4",
-    title: "Dedicated RM filters out only the best suited enquiries for you",
+    title: "Dedicated RM filters out only the best suited requirements for you",
     desc: "Our Relationship Manager personally contacts potential tenants or buyers on your behalf. Sit back, relax, and trust them to handle everything smoothly.",
     icon: "👔",
     badge: "For Assisted Packages Only",
@@ -428,7 +428,7 @@ const TESTIMONIALS = [
     city: "From Mumbai",
     date: "January 8, 2024",
     stars: 5,
-    text: "Got genuine buyer enquiries within 3 days of posting. The premium plan was totally worth it. Sold my flat in under 2 weeks!",
+    text: "Got genuine buyer requirements within 3 days of posting. The premium plan was totally worth it. Sold my flat in under 2 weeks!",
     plan: "Premium +",
     rm: "Vikram Nair",
   },
@@ -436,10 +436,10 @@ const TESTIMONIALS = [
 
 const BENEFITS = [
   { icon: "📊", text: "Get the top slot on property listings to stand out from the rest" },
-  { icon: "🏷️", text: "Get special property tags to attract more enquiries" },
+  { icon: "🏷️", text: "Get special property tags to attract more requirements" },
   { icon: "🥽", text: "Get 360 property visual experience with our patented Digitour" },
   { icon: "🎧", text: "Dedicated Relationship Manager" },
-  { icon: "✅", text: "Verified & filtered enquiries with Tenant Profiles" },
+  { icon: "✅", text: "Verified & filtered requirements with Tenant Profiles" },
 ];
 
 // ── Upgrade Modal ─────────────────────────────────────────────────────────
@@ -735,7 +735,7 @@ export default function OwnersPage() {
       <div className="bg-gradient-to-r from-[#7B2FFF] to-[#4f46e5] py-14 px-6">
         <div className="max-w-[700px] mx-auto text-center">
           <h2 className="text-3xl font-extrabold text-white mb-3">Ready to sell or rent your property?</h2>
-          <p className="text-purple-200 mb-8">Join 2Mn+ owners already growing with RealSquare. Post your property and get genuine enquiries.</p>
+          <p className="text-purple-200 mb-8">Join 2Mn+ owners already growing with RealSquare. Post your property and get genuine requirements.</p>
           <div className="flex gap-3 justify-center flex-wrap">
             <button
               onClick={() => setShowCallback(true)}

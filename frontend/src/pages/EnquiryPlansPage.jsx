@@ -135,7 +135,7 @@ export default function EnquiryPlansPage() {
       const rzp = new window.Razorpay({
         key: import.meta.env.VITE_RAZORPAY_KEY_ID,
         amount, currency: currency || "INR", order_id: orderId,
-        name: "RealSquare", description: `${plan.name} Enquiry Plan`,
+        name: "RealSquare", description: `${plan.name} Requirement Plan`,
         theme: { color: "#7B2FFF" },
         handler: () => {
           setPurchasing(null);
@@ -175,10 +175,10 @@ export default function EnquiryPlansPage() {
             </button>
             <div>
               <h2 className="text-xl font-extrabold text-[#1a1a2e]">
-                {activeEnquiryPlan !== null ? "Change Enquiry Plan" : "Choose an Enquiry Plan"}
+                {activeEnquiryPlan !== null ? "Change Requirement Plan" : "Choose a Requirement Plan"}
               </h2>
               <p className="text-sm text-gray-400 mt-0.5">
-                {activeEnquiryPlan !== null ? "Switch to a different enquiry plan" : "Select the plan that fits your needs"}
+                {activeEnquiryPlan !== null ? "Switch to a different requirement plan" : "Select the plan that fits your needs"}
               </p>
             </div>
           </div>
@@ -192,7 +192,7 @@ export default function EnquiryPlansPage() {
               <ul className="flex flex-col gap-1.5 list-none p-0 m-0">
                 <li className="flex items-start gap-2 text-xs text-red-600">
                   <span className="mt-0.5 flex-shrink-0">1.</span>
-                  If you change your plan, your current active enquiry plan will be completely removed — no unused enquiries will be carried forward.
+                  If you change your plan, your current active requirement plan will be completely removed — no unused requirements will be carried forward.
                 </li>
                 <li className="flex items-start gap-2 text-xs text-red-600">
                   <span className="mt-0.5 flex-shrink-0">2.</span>
@@ -231,7 +231,7 @@ export default function EnquiryPlansPage() {
           ) : filtered.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-20 text-gray-300">
               <FiMessageSquare size={40} />
-              <p className="text-sm mt-3 text-gray-400">No enquiry plans available</p>
+              <p className="text-sm mt-3 text-gray-400">No requirement plans available</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
@@ -289,8 +289,8 @@ export default function EnquiryPlansPage() {
                         <li className="flex items-center gap-2 text-xs text-gray-600">
                           <FiCheck size={13} className="text-[#7B2FFF] flex-shrink-0" />
                           {plan.numberOfEnquiriesGiven === -1
-                            ? "Unlimited enquiries"
-                            : `${plan.numberOfEnquiriesGiven} enquir${plan.numberOfEnquiriesGiven === 1 ? "y" : "ies"}`}
+                            ? "Unlimited requirements"
+                            : `${plan.numberOfEnquiriesGiven} requirement${plan.numberOfEnquiriesGiven === 1 ? "" : "s"}`}
                         </li>
                         <li className="flex items-center gap-2 text-xs text-gray-600">
                           <FiCheck size={13} className="text-[#7B2FFF] flex-shrink-0" />
@@ -359,7 +359,7 @@ export default function EnquiryPlansPage() {
               </div>
               <h3 className="text-base font-extrabold text-[#1a1a2e] mb-1">Confirm Purchase</h3>
               <p className="text-sm text-gray-400">
-                You are about to purchase the <span className="font-bold text-[#1a1a2e]">{confirmPlan.name}</span> enquiry plan using
+                You are about to purchase the <span className="font-bold text-[#1a1a2e]">{confirmPlan.name}</span> requirement plan using
               </p>
               <p className="text-2xl font-extrabold text-[#7B2FFF] mt-2">
                 {(confirmPlan.coins ?? 0).toLocaleString("en-IN")} coins

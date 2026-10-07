@@ -138,7 +138,7 @@ export default function CreateInquiryPage() {
               <FiClipboard size={18} className="text-white" />
             </div>
             <div>
-              <p className="text-sm font-extrabold text-[#1a1a2e]">RealSquare Enquiry Assistant</p>
+              <p className="text-sm font-extrabold text-[#1a1a2e]">RealSquare Requirement Assistant</p>
               <p className="text-xs text-green-500 font-medium flex items-center gap-1">
                 <span className="w-1.5 h-1.5 rounded-full bg-green-500 inline-block" />
                 Online · Typically replies instantly

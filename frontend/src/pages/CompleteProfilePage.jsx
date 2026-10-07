@@ -110,8 +110,8 @@ function EnquiryCitiesField({ cities = [], onChange }) {
 
   return (
     <div className="border-t border-gray-100 pt-4 mt-2">
-      <p className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-1">Cities for Enquiries</p>
-      <p className="text-xs text-gray-400 mb-3">Select the cities where you handle property enquiries.</p>
+      <p className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-1">Cities for Requirements</p>
+      <p className="text-xs text-gray-400 mb-3">Select the cities where you handle property requirements.</p>
       {cities.length > 0 && (
         <div className="flex flex-wrap gap-2 mb-3">
           {cities.map((city) => (

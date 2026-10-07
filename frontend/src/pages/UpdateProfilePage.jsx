@@ -155,7 +155,7 @@ function PhotoUpload({ label, value, onChange, onRemove, shape = "circle", icon:
   );
 }
 
-// ── Cities for Enquiries field (shared across Owner / Broker / Builder) ───────
+// ── Cities for Requirements field (shared across Owner / Broker / Builder) ───────
 
 function EnquiryCitiesField({ cities, onChange }) {
   const [inputValue, setInputValue] = useState("");
@@ -173,8 +173,8 @@ function EnquiryCitiesField({ cities, onChange }) {
 
   return (
     <div className="border-t border-gray-100 pt-4 mt-2">
-      <p className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-1">Cities for Enquiries</p>
-      <p className="text-xs text-gray-400 mb-3">Select the cities where you handle property enquiries. Customers in these cities will be able to reach you.</p>
+      <p className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-1">Cities for Requirements</p>
+      <p className="text-xs text-gray-400 mb-3">Select the cities where you handle property requirements. Customers in these cities will be able to reach you.</p>
 
       {/* Selected city pills */}
       {cities.length > 0 && (
@@ -515,17 +515,17 @@ function SwitchProfileModal({ currentRole, activePlan, activeEnquiryPlan, onCanc
             ) : <p className="mt-1 text-xs text-red-600">No active listing plan.</p>}
           </div>
           <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3">
-            <p className="text-xs font-bold text-red-700">Enquiry plan</p>
+            <p className="text-xs font-bold text-red-700">Requirement plan</p>
             {activeEnquiryPlan ? (
               <>
                 <p className="mt-1 text-sm font-semibold text-red-700">{activeEnquiryPlan.name}</p>
                 <p className="mt-1 text-xs text-red-600">
                   {activeEnquiryPlan.numberOfEnquiriesGiven === -1
                     ? "This plan will be cancelled and all its benefits will end when you switch roles."
-                    : `${Math.max(0, activeEnquiryPlan.numberOfEnquiriesGiven - (activeEnquiryPlan.enquiriesUsed || 0))} unused enquiries will be removed; you won't receive this plan's benefits after switching.`}
+                    : `${Math.max(0, activeEnquiryPlan.numberOfEnquiriesGiven - (activeEnquiryPlan.enquiriesUsed || 0))} unused requirements will be removed; you won't receive this plan's benefits after switching.`}
                 </p>
               </>
-            ) : <p className="mt-1 text-xs text-red-600">No active enquiry plan.</p>}
+            ) : <p className="mt-1 text-xs text-red-600">No active requirement plan.</p>}
           </div>
         </div>
 

@@ -328,7 +328,7 @@ export default function MyInquiriesPage() {
       setPage(pageNum);
       if (pageNum === 1 && pageStats) setStats(pageStats);
     } catch {
-      setError("Failed to load enquiries. Please try again.");
+      setError("Failed to load requirements. Please try again.");
     } finally {
       setLoading(false);
       setInitialLoading(false);
@@ -345,7 +345,7 @@ export default function MyInquiriesPage() {
       await loadPage(1, appliedFilters, appliedSearch, true);
       return true;
     } catch (updateError) {
-      setStatusError(updateError?.response?.data?.message || "Could not update this enquiry. Please try again.");
+      setStatusError(updateError?.response?.data?.message || "Could not update this requirement. Please try again.");
       return false;
     } finally {
       setStatusUpdating(null);
@@ -411,7 +411,7 @@ export default function MyInquiriesPage() {
                 <FiClipboard size={18} className="text-white" />
               </div>
               <div>
-                <h1 className="text-xl font-extrabold text-[#1a1a2e] leading-tight">My Enquiries</h1>
+                <h1 className="text-xl font-extrabold text-[#1a1a2e] leading-tight">My Requirements</h1>
               </div>
             </div>
             <button
@@ -419,7 +419,7 @@ export default function MyInquiriesPage() {
               className="flex items-center gap-2 px-4 py-2.5 bg-[#7B2FFF] hover:bg-[#6320d4] text-white text-sm font-bold rounded-xl border-none cursor-pointer transition-colors shadow-sm"
             >
               <FiPlus size={16} />
-              Create New Enquiry
+              Create New Requirement
             </button>
           </div>
 
@@ -469,7 +469,7 @@ export default function MyInquiriesPage() {
           <div className="bg-white border border-gray-100 rounded-2xl p-4 mb-5 shadow-sm">
             <div className="flex items-center gap-1.5 mb-3">
               <FiFilter size={13} className="text-[#7B2FFF]" />
-              <span className="text-xs font-bold text-[#1a1a2e]">Filter Enquiries</span>
+              <span className="text-xs font-bold text-[#1a1a2e]">Filter Requirements</span>
               {hasAppliedFilters && (
                 <span className="ml-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#f3eeff] text-[#7B2FFF]">
                   {appliedLabels.length} filter{appliedLabels.length !== 1 ? "s" : ""} applied
@@ -577,12 +577,12 @@ export default function MyInquiriesPage() {
               </div>
               <div className="text-center">
                 <p className="text-base font-bold text-[#1a1a2e]">
-                  {hasAppliedFilters ? "No enquiries match these filters" : "No enquiries yet"}
+                  {hasAppliedFilters ? "No requirements match these filters" : "No requirements yet"}
                 </p>
                 <p className="text-sm text-gray-400 mt-1">
                   {hasAppliedFilters
                     ? "Try adjusting or clearing the filters."
-                    : "Create your first enquiry to get matched with sellers."}
+                    : "Create your first requirement to get matched with sellers."}
                 </p>
               </div>
               {!hasAppliedFilters && (
@@ -591,7 +591,7 @@ export default function MyInquiriesPage() {
                   className="flex items-center gap-2 px-5 py-2.5 bg-[#7B2FFF] hover:bg-[#6320d4] text-white text-sm font-bold rounded-xl border-none cursor-pointer transition-colors"
                 >
                   <FiPlus size={15} />
-                  Create Enquiry
+                  Create Requirement
                 </button>
               )}
             </div>
@@ -621,7 +621,7 @@ export default function MyInquiriesPage() {
               )}
 
               {!hasMore && (
-                <p className="text-center text-xs text-gray-400 py-6">No more enquiries</p>
+                <p className="text-center text-xs text-gray-400 py-6">No more requirements</p>
               )}
             </>
           )}
@@ -635,10 +635,10 @@ export default function MyInquiriesPage() {
           <div className="absolute inset-0 bg-black/40" onClick={() => !statusUpdating && setStatusConfirmation(null)} />
           <div className="relative flex w-full max-w-sm flex-col gap-4 rounded-2xl bg-white p-6 shadow-xl" role="dialog" aria-modal="true" aria-labelledby="inquiry-status-confirm-title">
             <h3 id="inquiry-status-confirm-title" className="text-base font-extrabold text-[#1a1a2e]">
-              Mark enquiry {statusConfirmation.status}?
+              Mark requirement {statusConfirmation.status}?
             </h3>
             <p className="text-sm leading-relaxed text-gray-500">
-              Are you sure you want to mark this enquiry as {statusConfirmation.status}? This status update cannot be undone.
+              Are you sure you want to mark this requirement as {statusConfirmation.status}? This status update cannot be undone.
             </p>
             {statusError && <p className="text-sm font-semibold text-red-600">{statusError}</p>}
             <div className="mt-1 flex justify-end gap-2">
