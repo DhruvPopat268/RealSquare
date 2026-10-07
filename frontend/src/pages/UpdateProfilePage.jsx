@@ -5,6 +5,7 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import PlacesAutocomplete from "../components/PlacesAutocomplete";
 import CityAutocomplete from "../components/CityAutocomplete";
+import EmailVerificationField from "../components/EmailVerificationField";
 
 async function geocode(name) {
   const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
@@ -44,14 +45,13 @@ const OWNER_BUSINESS_TYPES = [
 
 // ── Shared UI components ──────────────────────────────────────────────────────
 
-function InputField({ label, required, error, children }) {
+function InputField({ label, required, children }) {
   return (
     <div>
       <label className="text-xs font-semibold text-gray-500 mb-1.5 block uppercase tracking-wide">
         {label} {required && <span className="text-red-400">*</span>}
       </label>
       {children}
-      {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
     </div>
   );
 }
@@ -211,7 +211,7 @@ function EnquiryCitiesField({ cities, onChange }) {
 
 // ── Role-specific field sets ──────────────────────────────────────────────────
 
-function CustomerFields({ form, setForm, errors, mobile, onChangeMobile }) {
+function CustomerFields({ form, setForm, errors, mobile, onChangeMobile, verifiedEmail, onEmailVerified }) {
   return (
     <>
       <div className="flex justify-center mb-2">
@@ -227,8 +227,8 @@ function CustomerFields({ form, setForm, errors, mobile, onChangeMobile }) {
           <button type="button" onClick={onChangeMobile} className="px-3 text-xs font-semibold text-[#7B2FFF] bg-transparent border-none cursor-pointer hover:underline">Change</button>
         </div>
       </InputField>
-      <InputField label="Email" error={errors.email}>
-        <TextInput type="email" value={form.email} onChange={(e) => setForm((p) => ({ ...p, email: e.target.value }))} placeholder="your@email.com" />
+      <InputField label="Email">
+        <EmailVerificationField value={form.email} onChange={(e) => setForm((p) => ({ ...p, email: e.target.value }))} verifiedEmail={verifiedEmail} onVerified={onEmailVerified} />
       </InputField>
       <InputField label="Location" error={errors.location}>
         <PlacesAutocomplete value={form.location || ""} onChange={(val) => setForm((p) => ({ ...p, location: val }))} placeholder="City or area you're looking in" />
@@ -240,7 +240,7 @@ function CustomerFields({ form, setForm, errors, mobile, onChangeMobile }) {
   );
 }
 
-function OwnerFields({ form, setForm, errors, mobile, onChangeMobile }) {
+function OwnerFields({ form, setForm, errors, mobile, onChangeMobile, verifiedEmail, onEmailVerified }) {
   return (
     <>
       <div className="flex justify-center mb-2">
@@ -256,8 +256,8 @@ function OwnerFields({ form, setForm, errors, mobile, onChangeMobile }) {
           <button type="button" onClick={onChangeMobile} className="px-3 text-xs font-semibold text-[#7B2FFF] bg-transparent border-none cursor-pointer hover:underline">Change</button>
         </div>
       </InputField>
-      <InputField label="Email" error={errors.email}>
-        <TextInput type="email" value={form.email} onChange={(e) => setForm((p) => ({ ...p, email: e.target.value }))} placeholder="your@email.com" />
+      <InputField label="Email">
+        <EmailVerificationField value={form.email} onChange={(e) => setForm((p) => ({ ...p, email: e.target.value }))} verifiedEmail={verifiedEmail} onVerified={onEmailVerified} />
       </InputField>
 
       <div className="border-t border-gray-100 pt-4 mt-2">
@@ -294,7 +294,7 @@ function OwnerFields({ form, setForm, errors, mobile, onChangeMobile }) {
   );
 }
 
-function BrokerFields({ form, setForm, errors, mobile, onChangeMobile }) {
+function BrokerFields({ form, setForm, errors, mobile, onChangeMobile, verifiedEmail, onEmailVerified }) {
   return (
     <>
       <div className="flex justify-center mb-2">
@@ -310,8 +310,8 @@ function BrokerFields({ form, setForm, errors, mobile, onChangeMobile }) {
           <button type="button" onClick={onChangeMobile} className="px-3 text-xs font-semibold text-[#7B2FFF] bg-transparent border-none cursor-pointer hover:underline">Change</button>
         </div>
       </InputField>
-      <InputField label="Email" error={errors.email}>
-        <TextInput type="email" value={form.email} onChange={(e) => setForm((p) => ({ ...p, email: e.target.value }))} placeholder="your@email.com" />
+      <InputField label="Email">
+        <EmailVerificationField value={form.email} onChange={(e) => setForm((p) => ({ ...p, email: e.target.value }))} verifiedEmail={verifiedEmail} onVerified={onEmailVerified} />
       </InputField>
       <InputField label="Agency Name" error={errors.agencyName}>
         <TextInput value={form.agencyName} onChange={(e) => setForm((p) => ({ ...p, agencyName: e.target.value }))} placeholder="Your agency or firm name" />
@@ -333,7 +333,7 @@ function BrokerFields({ form, setForm, errors, mobile, onChangeMobile }) {
   );
 }
 
-function BuilderFields({ form, setForm, errors, mobile, onChangeMobile }) {
+function BuilderFields({ form, setForm, errors, mobile, onChangeMobile, verifiedEmail, onEmailVerified }) {
   return (
     <>
       <div className="flex justify-center mb-2">
@@ -349,8 +349,8 @@ function BuilderFields({ form, setForm, errors, mobile, onChangeMobile }) {
           <button type="button" onClick={onChangeMobile} className="px-3 text-xs font-semibold text-[#7B2FFF] bg-transparent border-none cursor-pointer hover:underline">Change</button>
         </div>
       </InputField>
-      <InputField label="Email" error={errors.email}>
-        <TextInput type="email" value={form.email} onChange={(e) => setForm((p) => ({ ...p, email: e.target.value }))} placeholder="your@email.com" />
+      <InputField label="Email">
+        <EmailVerificationField value={form.email} onChange={(e) => setForm((p) => ({ ...p, email: e.target.value }))} verifiedEmail={verifiedEmail} onVerified={onEmailVerified} />
       </InputField>
       <InputField label="GST Number" error={errors.gstNumber}>
         <TextInput value={form.gstNumber} onChange={(e) => setForm((p) => ({ ...p, gstNumber: e.target.value }))} placeholder="GST number" />
@@ -738,6 +738,7 @@ export default function UpdateProfilePage() {
   const [activePlan, setActivePlan] = useState(null);
   const [activeEnquiryPlan, setActiveEnquiryPlan] = useState(null);
   const [form, setForm] = useState({});
+  const [verifiedEmail, setVerifiedEmail] = useState("");
   const initialFormRef = useRef({});
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
@@ -751,6 +752,7 @@ export default function UpdateProfilePage() {
       .then(({ data }) => {
         setActivePlan(data.activePlan || null);
         setActiveEnquiryPlan(data.activeEnquiryPlan || null);
+        if (data.emailVerified && data.email) setVerifiedEmail(data.email.trim().toLowerCase());
         const detectedRole = detectRole(data);
         setMobile(data.mobile || "");
         if (!data.role) {
@@ -770,6 +772,11 @@ export default function UpdateProfilePage() {
     if (role !== "builder" && !form.fullName?.trim()) e.fullName = "Full name is required";
     if (role === "builder" && !form.name?.trim()) e.name = "Company name is required";
     if (form.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) e.email = "Enter a valid email";
+    const initialEmail = String(initialFormRef.current.email || "").trim().toLowerCase();
+    const submittedEmail = String(form.email || "").trim().toLowerCase();
+    if (submittedEmail && submittedEmail !== initialEmail && submittedEmail !== verifiedEmail && !e.email) {
+      e.email = "Verify your email before saving your profile";
+    }
     return e;
   };
 
@@ -986,12 +993,18 @@ export default function UpdateProfilePage() {
 
           {/* Fields */}
           <div className="flex flex-col gap-4">
-            {role === "customer" && <CustomerFields form={form} setForm={setForm} errors={errors} mobile={mobile} onChangeMobile={() => setShowChangeMobile(true)} />}
-            {role === "owner"    && <OwnerFields    form={form} setForm={setForm} errors={errors} mobile={mobile} onChangeMobile={() => setShowChangeMobile(true)} />}
-            {role === "broker"   && <BrokerFields   form={form} setForm={setForm} errors={errors} mobile={mobile} onChangeMobile={() => setShowChangeMobile(true)} />}
-            {role === "builder"  && <BuilderFields  form={form} setForm={setForm} errors={errors} mobile={mobile} onChangeMobile={() => setShowChangeMobile(true)} />}
+            {role === "customer" && <CustomerFields form={form} setForm={setForm} errors={errors} mobile={mobile} verifiedEmail={verifiedEmail} onEmailVerified={setVerifiedEmail} onChangeMobile={() => setShowChangeMobile(true)} />}
+            {role === "owner"    && <OwnerFields    form={form} setForm={setForm} errors={errors} mobile={mobile} verifiedEmail={verifiedEmail} onEmailVerified={setVerifiedEmail} onChangeMobile={() => setShowChangeMobile(true)} />}
+            {role === "broker"   && <BrokerFields   form={form} setForm={setForm} errors={errors} mobile={mobile} verifiedEmail={verifiedEmail} onEmailVerified={setVerifiedEmail} onChangeMobile={() => setShowChangeMobile(true)} />}
+            {role === "builder"  && <BuilderFields  form={form} setForm={setForm} errors={errors} mobile={mobile} verifiedEmail={verifiedEmail} onEmailVerified={setVerifiedEmail} onChangeMobile={() => setShowChangeMobile(true)} />}
 
-            {errors.submit && <p className="text-xs text-red-500">{errors.submit}</p>}
+            {Object.values(errors).some(Boolean) && (
+              <div role="alert" className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+                {Object.entries(errors).filter(([, message]) => Boolean(message)).map(([key, message]) => (
+                  <p key={key}>{message}</p>
+                ))}
+              </div>
+            )}
 
             <button
               onClick={handleSubmit}

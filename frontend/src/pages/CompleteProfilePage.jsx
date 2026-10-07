@@ -5,6 +5,7 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import PlacesAutocomplete from "../components/PlacesAutocomplete";
 import CityAutocomplete from "../components/CityAutocomplete";
+import EmailVerificationField from "../components/EmailVerificationField";
 
 const BASE_URL = import.meta.env.VITE_API_URL;
 
@@ -167,7 +168,7 @@ function PhotoUpload({ label, value, onChange, shape = "circle", icon: Icon = Fi
 
 // ── Role-specific field sets ──────────────────────────────────────────────────
 
-function CustomerFields({ form, setForm, errors, mobile }) {
+function CustomerFields({ form, setForm, errors, mobile, verifiedEmail, onEmailVerified }) {
   return (
     <>
       <div className="flex justify-center mb-2">
@@ -181,8 +182,8 @@ function CustomerFields({ form, setForm, errors, mobile }) {
       <InputField label="Mobile Number" required>
         <TextInput value={mobile} readOnly prefix="+91" />
       </InputField>
-      <InputField label="Email" error={errors.email}>
-        <TextInput type="email" value={form.email} onChange={(e) => setForm((p) => ({ ...p, email: e.target.value }))} placeholder="your@email.com (optional)" />
+      <InputField label="Email">
+        <EmailVerificationField value={form.email} onChange={(e) => setForm((p) => ({ ...p, email: e.target.value }))} verifiedEmail={verifiedEmail} onVerified={onEmailVerified} placeholder="your@email.com (optional)" />
       </InputField>
       <InputField label="Location" error={errors.location}>
         <PlacesAutocomplete value={form.location} onChange={(val) => setForm((p) => ({ ...p, location: val }))} placeholder="City or area you're looking in (optional)" />
@@ -194,7 +195,7 @@ function CustomerFields({ form, setForm, errors, mobile }) {
   );
 }
 
-function OwnerFields({ form, setForm, errors, mobile }) {
+function OwnerFields({ form, setForm, errors, mobile, verifiedEmail, onEmailVerified }) {
   return (
     <>
       <div className="flex justify-center mb-2">
@@ -208,8 +209,8 @@ function OwnerFields({ form, setForm, errors, mobile }) {
       <InputField label="Mobile Number" required>
         <TextInput value={mobile} readOnly prefix="+91" />
       </InputField>
-      <InputField label="Email" error={errors.email}>
-        <TextInput type="email" value={form.email} onChange={(e) => setForm((p) => ({ ...p, email: e.target.value }))} placeholder="your@email.com (optional)" />
+      <InputField label="Email">
+        <EmailVerificationField value={form.email} onChange={(e) => setForm((p) => ({ ...p, email: e.target.value }))} verifiedEmail={verifiedEmail} onVerified={onEmailVerified} placeholder="your@email.com (optional)" />
       </InputField>
 
       <div className="border-t border-gray-100 pt-4 mt-2">
@@ -249,7 +250,7 @@ function OwnerFields({ form, setForm, errors, mobile }) {
   );
 }
 
-function BrokerFields({ form, setForm, errors, mobile }) {
+function BrokerFields({ form, setForm, errors, mobile, verifiedEmail, onEmailVerified }) {
   return (
     <>
       <div className="flex justify-center mb-2">
@@ -263,8 +264,8 @@ function BrokerFields({ form, setForm, errors, mobile }) {
       <InputField label="Mobile Number" required>
         <TextInput value={mobile} readOnly prefix="+91" />
       </InputField>
-      <InputField label="Email" error={errors.email}>
-        <TextInput type="email" value={form.email} onChange={(e) => setForm((p) => ({ ...p, email: e.target.value }))} placeholder="your@email.com (optional)" />
+      <InputField label="Email">
+        <EmailVerificationField value={form.email} onChange={(e) => setForm((p) => ({ ...p, email: e.target.value }))} verifiedEmail={verifiedEmail} onVerified={onEmailVerified} placeholder="your@email.com (optional)" />
       </InputField>
       <InputField label="Agency Name" error={errors.agencyName}>
         <TextInput value={form.agencyName} onChange={(e) => setForm((p) => ({ ...p, agencyName: e.target.value }))} placeholder="Your agency or firm name (optional)" />
@@ -286,7 +287,7 @@ function BrokerFields({ form, setForm, errors, mobile }) {
   );
 }
 
-function BuilderFields({ form, setForm, errors, mobile }) {
+function BuilderFields({ form, setForm, errors, mobile, verifiedEmail, onEmailVerified }) {
   return (
     <>
       <div className="flex justify-center mb-2">
@@ -300,8 +301,8 @@ function BuilderFields({ form, setForm, errors, mobile }) {
       <InputField label="Mobile Number" required>
         <TextInput value={mobile} readOnly prefix="+91" />
       </InputField>
-      <InputField label="Email" error={errors.email}>
-        <TextInput type="email" value={form.email} onChange={(e) => setForm((p) => ({ ...p, email: e.target.value }))} placeholder="your@email.com (optional)" />
+      <InputField label="Email">
+        <EmailVerificationField value={form.email} onChange={(e) => setForm((p) => ({ ...p, email: e.target.value }))} verifiedEmail={verifiedEmail} onVerified={onEmailVerified} placeholder="your@email.com (optional)" />
       </InputField>
       <InputField label="GST Number" error={errors.gstNumber}>
         <TextInput value={form.gstNumber} onChange={(e) => setForm((p) => ({ ...p, gstNumber: e.target.value }))} placeholder="GST number (optional)" />
@@ -353,6 +354,7 @@ export default function CompleteProfilePage() {
   const [form, setForm] = useState(INITIAL_FORM);
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
+  const [verifiedEmail, setVerifiedEmail] = useState("");
   const [skipping, setSkipping] = useState(false);
   const [skipError, setSkipError] = useState("");
 
@@ -368,8 +370,10 @@ export default function CompleteProfilePage() {
     }
     
     // Validate email format if provided (optional)
-    if (form.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
+    if (form.email?.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
       e.email = "Enter a valid email";
+    } else if (form.email?.trim() && form.email.trim().toLowerCase() !== verifiedEmail) {
+      e.email = "Verify your email before saving your profile";
     }
     
     return e;
@@ -522,16 +526,18 @@ export default function CompleteProfilePage() {
 
           {selectedRole && (
             <div className="flex flex-col gap-4 border-t border-gray-100 pt-6">
-              {selectedRole === "customer" && <CustomerFields form={form} setForm={setForm} errors={errors} mobile={mobile} />}
-              {selectedRole === "owner"    && <OwnerFields    form={form} setForm={setForm} errors={errors} mobile={mobile} />}
-              {selectedRole === "broker"   && <BrokerFields   form={form} setForm={setForm} errors={errors} mobile={mobile} />}
-              {selectedRole === "builder"  && <BuilderFields  form={form} setForm={setForm} errors={errors} mobile={mobile} />}
+              {selectedRole === "customer" && <CustomerFields form={form} setForm={setForm} errors={errors} mobile={mobile} verifiedEmail={verifiedEmail} onEmailVerified={setVerifiedEmail} />}
+              {selectedRole === "owner"    && <OwnerFields    form={form} setForm={setForm} errors={errors} mobile={mobile} verifiedEmail={verifiedEmail} onEmailVerified={setVerifiedEmail} />}
+              {selectedRole === "broker"   && <BrokerFields   form={form} setForm={setForm} errors={errors} mobile={mobile} verifiedEmail={verifiedEmail} onEmailVerified={setVerifiedEmail} />}
+              {selectedRole === "builder"  && <BuilderFields  form={form} setForm={setForm} errors={errors} mobile={mobile} verifiedEmail={verifiedEmail} onEmailVerified={setVerifiedEmail} />}
 
-              {Object.values(errors).filter(Boolean).map((error, index) => (
-                <p key={`${index}-${error}`} role="alert" className="text-xs text-red-500">
-                  {error}
-                </p>
-              ))}
+              {Object.values(errors).some(Boolean) && (
+                <div role="alert" className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+                  {Object.entries(errors).filter(([, message]) => Boolean(message)).map(([key, message]) => (
+                    <p key={key}>{message}</p>
+                  ))}
+                </div>
+              )}
 
               <button onClick={handleSubmit} disabled={loading || skipping}
                 className="w-full mt-2 bg-[#7B2FFF] hover:bg-[#6320d4] disabled:opacity-60 text-white py-3 rounded-xl font-semibold text-sm transition flex items-center justify-center gap-2"

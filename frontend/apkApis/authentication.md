@@ -223,6 +223,18 @@ For Owner, Broker, and Builder, send `enquiryCities` as a JSON-encoded array str
 { "success": false, "message": "GST number already registered" }               // 409
 ```
 
+### Verify profile email
+
+Email is optional. If provided during profile completion or changed during profile update, it must be verified first.
+
+**POST** `/api/system-users/send-email-otp`
+
+Auth required. JSON body: `{ "email": "john@example.com" }`. Sends a six-digit code that expires in 10 minutes. If that email is already verified for the current user, the response returns `verified: true` without sending a new code. An email used by another account returns `409`.
+
+**POST** `/api/system-users/verify-email-otp`
+
+Auth required. JSON body: `{ "email": "john@example.com", "otp": "123456" }`. On successful verification, returns `{ "success": true, "verified": true, "email": "john@example.com" }`, saves the email as verified, and removes the OTP fields. Profile endpoints reject a provided unverified email.
+
 ---
 
 ## 4. Get Current User (Me)
@@ -241,6 +253,7 @@ For Owner, Broker, and Builder, send `enquiryCities` as a JSON-encoded array str
     "_id": "64abc...",
     "name": "John Doe",
     "email": "john@example.com",
+    "emailVerified": true,
     "mobile": "9876543210",
     "profilePhoto": "https://...",
     "role": {
