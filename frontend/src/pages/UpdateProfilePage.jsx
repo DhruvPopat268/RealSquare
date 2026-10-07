@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { FiArrowLeft, FiArrowRight, FiCamera, FiImage, FiRefreshCw, FiAlertTriangle, FiX, FiMapPin } from "react-icons/fi";
+import { FiArrowLeft, FiArrowRight, FiCamera, FiImage, FiRefreshCw, FiAlertTriangle, FiX, FiMapPin, FiCheckCircle, FiXCircle } from "react-icons/fi";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import PlacesAutocomplete from "../components/PlacesAutocomplete";
@@ -317,7 +317,27 @@ function BrokerFields({ form, setForm, errors, mobile, onChangeMobile, verifiedE
         <TextInput value={form.agencyName} onChange={(e) => setForm((p) => ({ ...p, agencyName: e.target.value }))} placeholder="Your agency or firm name" />
       </InputField>
       <InputField label="RERA Registration ID" error={errors.reraId}>
-        <TextInput value={form.reraId} onChange={(e) => setForm((p) => ({ ...p, reraId: e.target.value }))} placeholder="Enter your RERA ID (optional)" />
+        <div className="flex items-center gap-2">
+          <div className="min-w-0 flex-1">
+            <TextInput
+              value={form.reraId}
+              onChange={(e) => {
+                const reraId = e.target.value;
+                const originalReraId = String(initialFormRef.current.reraId || "").trim();
+                setForm((p) => ({
+                  ...p,
+                  reraId,
+                  reraVerified: Boolean(initialFormRef.current.reraVerified && reraId.trim() === originalReraId),
+                }));
+              }}
+              placeholder="Enter your RERA ID (optional)"
+            />
+          </div>
+          <span className={`inline-flex shrink-0 items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium ${form.reraVerified ? "bg-green-50 text-green-700" : "border border-red-200 bg-red-50 text-red-700"}`}>
+            {form.reraVerified ? <FiCheckCircle size={14} /> : <FiXCircle size={14} />}
+            {form.reraVerified ? "Verified" : "Not verified"}
+          </span>
+        </div>
       </InputField>
       <InputField label="Years of Experience" error={errors.yearsOfExperience}>
         <TextInput type="number" value={form.yearsOfExperience} onChange={(e) => setForm((p) => ({ ...p, yearsOfExperience: e.target.value }))} placeholder="e.g. 5" />
@@ -419,6 +439,7 @@ function buildFormFromUser(user, role) {
       profilePhotoRemoved: false,
       agencyName: p.agencyName || "",
       reraId: p.reraVerification?.reraId || "",
+      reraVerified: p.reraVerification?.verified === true,
       yearsOfExperience: p.yearsOfExperience ?? "",
       bio: p.bio || "",
       enquiryCities: user.enquiryCities ?? [],
