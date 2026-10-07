@@ -223,21 +223,92 @@ For Owner, Broker, and Builder, send `enquiryCities` as a JSON-encoded array str
 { "success": false, "message": "GST number already registered" }               // 409
 ```
 
-### Verify profile email
+## 4. Verify Profile Email
 
-Email is optional. If provided during profile completion or changed during profile update, it must be verified first.
+The profile email is optional. Before including a new email in Complete Profile or changing an email in Update Profile, verify it with these APIs. Both endpoints require authentication.
 
 **POST** `/api/system-users/send-email-otp`
 
-Auth required. JSON body: `{ "email": "john@example.com" }`. Sends a six-digit code that expires in 10 minutes. If that email is already verified for the current user, the response returns `verified: true` without sending a new code. An email used by another account returns `409`.
+**Headers:** `Content-Type: application/json`
+
+**Payload:**
+
+```json
+{
+  "email": "john@example.com"
+}
+```
+
+The API sends a six-digit code to the email. The code expires after 10 minutes. If this email is already verified on the current account, no new code is sent and the response returns `verified: true`.
+
+**Success Response `200` — code sent:**
+
+```json
+{
+  "success": true,
+  "verified": false,
+  "email": "john@example.com",
+  "message": "Verification code sent to your email"
+}
+```
+
+**Success Response `200` — already verified for this account:**
+
+```json
+{
+  "success": true,
+  "verified": true,
+  "email": "john@example.com",
+  "message": "Email is already verified"
+}
+```
+
+**Error Responses:**
+
+```json
+{ "success": false, "message": "A valid email is required" }       // 400
+{ "success": false, "message": "Email is already registered" }   // 409
+{ "success": false, "message": "Failed to send email verification code" } // 500
+```
 
 **POST** `/api/system-users/verify-email-otp`
 
-Auth required. JSON body: `{ "email": "john@example.com", "otp": "123456" }`. On successful verification, returns `{ "success": true, "verified": true, "email": "john@example.com" }`, saves the email as verified, and removes the OTP fields. Profile endpoints reject a provided unverified email.
+**Headers:** `Content-Type: application/json`
+
+**Payload:**
+
+```json
+{
+  "email": "john@example.com",
+  "otp": "123456"
+}
+```
+
+**Success Response `200`:**
+
+```json
+{
+  "success": true,
+  "verified": true,
+  "email": "john@example.com",
+  "message": "Email verified successfully"
+}
+```
+
+On success, the backend saves the email as verified and removes the temporary OTP data. The frontend should treat verification as complete only when both `success` and `verified` are `true`. Profile endpoints reject a changed or newly provided email unless it has been verified.
+
+**Error Responses:**
+
+```json
+{ "success": false, "verified": false, "message": "A valid email and OTP are required" } // 400
+{ "success": false, "verified": false, "message": "OTP must be exactly 6 digits" } // 400
+{ "success": false, "verified": false, "message": "Invalid or expired verification code" } // 400
+{ "success": false, "verified": false, "message": "Email is already registered" } // 409
+```
 
 ---
 
-## 4. Get Current User (Me)
+## 5. Get Current User (Me)
 
 **GET** `/api/system-users/me`
 
@@ -364,7 +435,7 @@ Send no body. This assigns the Customer role without creating a `customerProfile
 
 ---
 
-## 5. Update Profile
+## 6. Update Profile
 
 **PUT** `/api/system-users/update-profile`
 
