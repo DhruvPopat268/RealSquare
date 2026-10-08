@@ -46,7 +46,7 @@ frontend/src/
 |---|---|---|
 | `LoginPage.jsx` | `/login` | OTP-based user login |
 | `CompleteProfilePage.jsx` | `/complete-profile` | First-time profile setup after login |
-| `UpdateProfilePage.jsx` | `/profile` | Edit existing profile |
+| `UpdateProfilePage.jsx` | `/profile` | Edit existing profile with email verification before saving changed email addresses |
 | `ChatbotPage.jsx` | `/chatbot` | Conversational property listing flow |
 | `ListPropertyPage.jsx` | `/list-property` | Manual property listing form |
 | `EditPropertyPage.jsx` | `/edit-property/:id` | Edit an existing property listing; Rent Details order fields as Monthly Rent, Security Deposit, then Available From, broker listings show a Zero Brokerage toggle above Photos, construction status accompanies an Available From date change in partial updates, and RERA project details remain hidden |
@@ -78,6 +78,7 @@ frontend/src/
 | File | Purpose |
 |---|---|
 | `Navbar.jsx` | Main navigation — profile dropdown, mobile menu, role-based menu items |
+| `EmailVerificationField.jsx` | Email input and OTP verification dialog, with Change and Close controls |
 | `Footer.jsx` | Site footer |
 | `PageSpinner.jsx` | Full-page loading spinner |
 | `Hero.jsx` | Homepage hero section with search |

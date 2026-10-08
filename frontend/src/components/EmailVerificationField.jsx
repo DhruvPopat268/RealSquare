@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 const BASE_URL = import.meta.env.VITE_API_URL;
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -17,6 +17,7 @@ export default function EmailVerificationField({
   const [sending, setSending] = useState(false);
   const [verifying, setVerifying] = useState(false);
   const [actionError, setActionError] = useState("");
+  const emailInputRef = useRef(null);
   const normalizedEmail = (value || "").trim().toLowerCase();
   const isVerified = Boolean(normalizedEmail && normalizedEmail === verifiedEmail);
 
@@ -83,10 +84,22 @@ export default function EmailVerificationField({
     }
   };
 
+  const closeOtpModal = () => {
+    setShowOtpModal(false);
+    setOtp("");
+    setActionError("");
+  };
+
+  const changeEmail = () => {
+    closeOtpModal();
+    requestAnimationFrame(() => emailInputRef.current?.focus());
+  };
+
   return (
     <>
       <div className="flex gap-2">
         <input
+          ref={emailInputRef}
           type="email"
           value={value || ""}
           onChange={onChange}
@@ -112,8 +125,24 @@ export default function EmailVerificationField({
       {showOtpModal && (
         <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/50 px-4">
           <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl">
-            <h3 className="text-lg font-bold text-[#1a1a2e]">Verify your email</h3>
-            <p className="mt-2 text-sm text-gray-500">Enter the 6-digit code sent to <span className="font-semibold text-gray-700">{otpEmail}</span>.</p>
+            <div className="flex items-center justify-between gap-3">
+              <h3 className="text-lg font-bold text-[#1a1a2e]">Verify your email</h3>
+              <button
+                type="button"
+                onClick={closeOtpModal}
+                aria-label="Close email verification"
+                className="flex h-8 w-8 items-center justify-center rounded-full text-xl text-gray-500 hover:bg-gray-100 hover:text-gray-800"
+              >
+                ×
+              </button>
+            </div>
+            <p className="mt-2 text-sm text-gray-500">
+              Enter the 6-digit code sent to <span className="font-semibold text-gray-700">{otpEmail}</span>{" "}
+              <button type="button" onClick={changeEmail} disabled={sending || verifying} className="font-semibold text-[#7B2FFF] hover:underline disabled:opacity-50">
+                Change
+              </button>
+              .
+            </p>
             <input
               autoFocus
               type="text"
