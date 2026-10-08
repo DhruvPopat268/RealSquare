@@ -61,7 +61,7 @@ export default function PlacesAutocomplete({ value, onChange, placeholder, cityB
         }
       }
     );
-  }, [types, cityBias]);
+  }, [cityBias]);
 
   const handleChange = (e) => {
     const val = e.target.value;
