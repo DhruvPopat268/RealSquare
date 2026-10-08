@@ -337,6 +337,7 @@ On success, the backend saves the email as verified and removes the temporary OT
     "coinsBalance": 100,
     "coinsPerEnquiry": 5,
     "isProfileCompleted": true,
+    "profileCompletionPercentage": 100,
     "myPropertyListingAllowed": true,
     "canListProperty": {
       "canList": true,
@@ -412,6 +413,7 @@ On success, the backend saves the email as verified and removes the temporary OT
 - `name`, `email`, `profilePhoto` are stored at root level (not inside the sub-profile).
 - `coinsBalance` comes from the user's coins wallet.
 - `isProfileCompleted` is `true` only if `mobile` + `name` + `role` are all present.
+- `profileCompletionPercentage` is an integer from `0` to `100`. It gives equal weight to the root `name`, `mobile`, `email`, and `role` fields and the configured fields for the user's active role profile. System-managed verification flags are excluded.
 - `showListingPlan` / `showEnquiryPlan` — `true` for Owner, Broker, Builder only.
 - `haveAssignedInquiries` — `true` for Owner, Broker, Builder only.
 - `canListProperty.source` can be `"plan"`, `"free"`, or `null`.

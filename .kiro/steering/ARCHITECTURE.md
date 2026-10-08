@@ -155,8 +155,10 @@ Purpose labels are shared through `chatbotApi.js`: the property listing flow kee
 
 - Login is OTP-based via mobile number — handled in `LoginPage.jsx`
 - Auth state is held in Navbar via a `/api/system-users/me` call on mount
+- `frontend/apkApis/authentication.md` documents the `/me` response, including the role-based `profileCompletionPercentage` value.
 - The `/me` response includes:
   - `isProfileCompleted` — gates profile-dependent UI
+  - `profileCompletionPercentage` — shown below the user's name in the Navbar and represented by an avatar progress ring: red at 0–40%, yellow at 41–99%, green at 100%
   - `canListProperty` — controls listing eligibility (role + credits check)
   - `haveAssignedInquiries` — `true` only for Owner/Broker/Builder roles; controls visibility of Assigned Inquiries menu item
   - `enquiryCities` — cities the user receives inquiry assignments for

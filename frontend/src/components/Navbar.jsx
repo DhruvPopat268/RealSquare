@@ -32,6 +32,25 @@ const DEVELOPER_ID_MAP = {
   "Godrej Properties": null,
 };
 
+function ProfileCompletionAvatar({ photo, label, sizeClass, iconSize, percentage, color }) {
+  const progressDegrees = percentage * 3.6;
+
+  return (
+    <div
+      className={`${sizeClass} flex-shrink-0 rounded-full p-[2px]`}
+      style={{ background: `conic-gradient(${color} 0deg ${progressDegrees}deg, #e5e7eb ${progressDegrees}deg 360deg)` }}
+    >
+      <div className="flex h-full w-full items-center justify-center overflow-hidden rounded-full bg-[#f3eeff]">
+        {photo ? (
+          <img src={photo} alt={label} className="h-full w-full rounded-full object-cover" />
+        ) : (
+          <FiUser size={iconSize} className="text-[#7B2FFF]" />
+        )}
+      </div>
+    </div>
+  );
+}
+
 const menus = {
   "For Buyers": {
     sections: [
@@ -315,9 +334,16 @@ export default function Navbar() {
   // For others: it's in profile.fullName or profile.name
   const displayName = user?.name || profile?.fullName || profile?.name || "";
   
-  // Use backend's isProfileCompleted field (checks mobile, name, and role)
-  const isIncomplete = !user?.isProfileCompleted;
   const navLabel = displayName || user?.mobile || "";
+  const profileCompletionPercentage = Math.max(
+    0,
+    Math.min(100, Number(user?.profileCompletionPercentage) || 0)
+  );
+  const profileCompletionColor = profileCompletionPercentage <= 40
+    ? "#EF4444"
+    : profileCompletionPercentage < 100
+      ? "#EAB308"
+      : "#22C55E";
 
 
 
@@ -508,23 +534,10 @@ export default function Navbar() {
                 onClick={() => setProfileOpen((p) => !p)}
                 className="flex items-center gap-2 border-none bg-transparent cursor-pointer"
               >
-                <div className="relative flex-shrink-0">
-                  {user?.profilePhoto ? (
-                    <img src={user.profilePhoto} alt={navLabel} className="w-8 h-8 rounded-full object-cover border-2 border-[#7B2FFF]" />
-                  ) : (
-                    <div className="w-8 h-8 rounded-full bg-[#f3eeff] border-2 border-[#7B2FFF] flex items-center justify-center">
-                      <FiUser size={15} className="text-[#7B2FFF]" />
-                    </div>
-                  )}
-                  {isIncomplete && (
-                    <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-orange-400 border-2 border-white" />
-                  )}
-                </div>
+                <ProfileCompletionAvatar photo={user.profilePhoto} label={navLabel} sizeClass="w-8 h-8" iconSize={15} percentage={profileCompletionPercentage} color={profileCompletionColor} />
                 <div className="flex flex-col items-start">
                   <span className="text-sm font-semibold text-[#1a1a2e] max-w-[100px] truncate leading-tight">{navLabel}</span>
-                  {isIncomplete && (
-                    <span className="text-[10px] font-semibold text-orange-400 leading-tight">Incomplete</span>
-                  )}
+                  <span className="text-[10px] font-semibold leading-tight" style={{ color: profileCompletionColor }}>{profileCompletionPercentage}% complete</span>
                 </div>
                 <FiChevronDown size={13} className={`opacity-60 transition-transform duration-200 ${profileOpen ? "rotate-180" : ""}`} />
               </button>
@@ -532,25 +545,10 @@ export default function Navbar() {
               {profileOpen && (
                 <div className="absolute top-full right-[-24px] mt-2 w-[340px] max-h-[calc(100vh-100px)] overflow-y-auto bg-white rounded-xl shadow-[0_12px_48px_rgba(0,0,0,0.14)] z-[300] p-4">
                   <div className="flex items-center gap-3 mb-3 pb-3 border-b border-gray-100">
-                    <div className="relative flex-shrink-0">
-                      {user?.profilePhoto ? (
-                        <img src={user.profilePhoto} alt={navLabel} className="w-10 h-10 rounded-full object-cover" />
-                      ) : (
-                        <div className="w-10 h-10 rounded-full bg-[#f3eeff] border-2 border-[#7B2FFF] flex items-center justify-center">
-                          <FiUser size={18} className="text-[#7B2FFF]" />
-                        </div>
-                      )}
-                      {isIncomplete && (
-                        <span className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-orange-400 border-2 border-white" />
-                      )}
-                    </div>
+                    <ProfileCompletionAvatar photo={user.profilePhoto} label={navLabel} sizeClass="w-10 h-10" iconSize={18} percentage={profileCompletionPercentage} color={profileCompletionColor} />
                     <div className="overflow-hidden flex-1">
-                      <div className="flex items-center gap-2">
-                        <p className="text-sm font-bold text-[#1a1a2e] truncate">{navLabel}</p>
-                        {isIncomplete && (
-                          <span className="text-[10px] font-semibold text-white bg-orange-400 px-1.5 py-0.5 rounded-full flex-shrink-0">Incomplete</span>
-                        )}
-                      </div>
+                      <p className="text-sm font-bold text-[#1a1a2e] truncate">{navLabel}</p>
+                      <p className="text-[10px] font-semibold" style={{ color: profileCompletionColor }}>{profileCompletionPercentage}% complete</p>
                       <p className="text-xs text-gray-400 truncate">+91 {user.mobile}</p>
                       {user.role && <p className="text-[11px] text-[#7B2FFF] font-semibold mt-0.5">{user.role.name}</p>}
                       <div className="flex items-center gap-1.5 mt-1">
@@ -836,18 +834,7 @@ export default function Navbar() {
               onClick={() => setMobileOpen((prev) => !prev)}
               className="flex items-center gap-1 border-none bg-transparent cursor-pointer"
             >
-              <div className="relative flex-shrink-0">
-                {user?.profilePhoto ? (
-                  <img src={user.profilePhoto} alt={navLabel} className="w-8 h-8 rounded-full object-cover border-2 border-[#7B2FFF]" />
-                ) : (
-                  <div className="w-8 h-8 rounded-full bg-[#f3eeff] border-2 border-[#7B2FFF] flex items-center justify-center">
-                    <FiUser size={15} className="text-[#7B2FFF]" />
-                  </div>
-                )}
-                {isIncomplete && (
-                  <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-orange-400 border-2 border-white" />
-                )}
-              </div>
+              <ProfileCompletionAvatar photo={user.profilePhoto} label={navLabel} sizeClass="w-8 h-8" iconSize={15} percentage={profileCompletionPercentage} color={profileCompletionColor} />
               <FiChevronDown size={13} className={`opacity-60 transition-transform duration-200 ${mobileOpen ? "rotate-180" : ""}`} />
             </button>
           ) : (
@@ -893,20 +880,10 @@ export default function Navbar() {
                 <div className="mb-3 pb-3 border-b border-gray-100">
                   {/* Header */}
                   <div className="flex items-center gap-3 py-2 px-2">
-                    <div className="relative flex-shrink-0">
-                      {profile?.profilePhoto ? (
-                        <img src={profile.profilePhoto} alt={navLabel} className="w-10 h-10 rounded-full object-cover border-2 border-[#7B2FFF]" />
-                      ) : (
-                        <div className="w-10 h-10 rounded-full bg-[#f3eeff] border-2 border-[#7B2FFF] flex items-center justify-center">
-                          <FiUser size={18} className="text-[#7B2FFF]" />
-                        </div>
-                      )}
-                      {isIncomplete && (
-                        <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-orange-400 border-2 border-white" />
-                      )}
-                    </div>
+                    <ProfileCompletionAvatar photo={user.profilePhoto} label={navLabel} sizeClass="w-10 h-10" iconSize={18} percentage={profileCompletionPercentage} color={profileCompletionColor} />
                     <div className="flex flex-col items-start flex-1 overflow-hidden">
                       <span className="text-sm font-bold text-[#1a1a2e] truncate">{navLabel}</span>
+                      <span className="text-[10px] font-semibold" style={{ color: profileCompletionColor }}>{profileCompletionPercentage}% complete</span>
                       <span className="text-xs text-gray-400">+91 {user.mobile}</span>
                       {user.role && <span className="text-[11px] text-[#7B2FFF] font-semibold">{user.role.name}</span>}
                     </div>
