@@ -47,6 +47,20 @@ export default function PGDetails({ data, listing }) {
             </div>
           )}
 
+          {data.constructionStatus && (
+            <div>
+              <p className="text-gray-500 text-sm mb-1">Construction Status</p>
+              <p className="font-semibold text-lg">{data.constructionStatus === "ReadyToMove" ? "Ready to Move" : "Under Construction"}</p>
+            </div>
+          )}
+
+          {data.ageOfProperty != null && (
+            <div>
+              <p className="text-gray-500 text-sm mb-1">Age of Property</p>
+              <p className="font-semibold text-lg">{data.ageOfProperty} year{data.ageOfProperty !== 1 ? "s" : ""}</p>
+            </div>
+          )}
+
           {data.bestSuitedFor?.length > 0 && (
             <div>
               <p className="text-gray-500 text-sm mb-1">Best Suited For</p>
@@ -68,10 +82,10 @@ export default function PGDetails({ data, listing }) {
             </div>
           )}
 
-          {rentInfo?.availableFrom && (
+          {(data.constructionStatus === "UnderConstruction" && data.availableFrom || rentInfo?.availableFrom) && (
             <div>
               <p className="text-gray-500 text-sm mb-1">Available From</p>
-              <p className="font-semibold text-lg">{formatDate(rentInfo.availableFrom)}</p>
+              <p className="font-semibold text-lg">{formatDate(data.constructionStatus === "UnderConstruction" ? data.availableFrom : rentInfo?.availableFrom)}</p>
             </div>
           )}
 

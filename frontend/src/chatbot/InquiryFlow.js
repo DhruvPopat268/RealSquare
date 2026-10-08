@@ -38,7 +38,7 @@ export async function inquiryFlow(step, answer, collectedData, { botSay, setColl
     setCollectedData(() => updated);
     try {
       await botSay("Got it! What is the property purpose you're interested in?");
-      const purposes = await fetchActivePurposes();
+      const purposes = await fetchActivePurposes({ showBuyLabel: true });
       await botSay("Select the purpose:", purposes.map((p) => p.label));
       setCollectedData(() => ({ ...updated, _purposes: purposes }));
       goTo("purpose", { ...updated, _purposes: purposes });
@@ -56,7 +56,7 @@ export async function inquiryFlow(step, answer, collectedData, { botSay, setColl
       setCollectedData(() => updated);
       try {
         await botSay("Got it! What is the property purpose you're interested in?");
-        const purposes = await fetchActivePurposes();
+        const purposes = await fetchActivePurposes({ showBuyLabel: true });
         await botSay("Select the purpose:", purposes.map((p) => p.label));
         setCollectedData(() => ({ ...updated, _purposes: purposes }));
         goTo("purpose", { ...updated, _purposes: purposes });

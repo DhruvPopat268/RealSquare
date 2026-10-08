@@ -8,6 +8,7 @@ const SUITED_FOR_OPTIONS = ["Students", "Professionals"];
 const MEALS_OPTIONS = ["Breakfast", "Lunch", "Dinner"];
 const COMMON_AREAS_OPTIONS = ["Living Room", "Kitchen", "Dining Area", "Bathroom", "Balcony", "Terrace", "Laundry Room", "Study Room", "Gym", "Parking"];
 const ROOM_TYPE_OPTIONS = ["1 Sharing", "2 Sharing", "3 Sharing", "4 Sharing", "5 Sharing", "6 Sharing", "7 Sharing"];
+const STATUS_OPTIONS = [{ value: "ReadyToMove", label: "Ready to Move" }, { value: "UnderConstruction", label: "Under Construction" }];
 
 export default function PGEditForm({ listing, form, onChange, furnishingsAmenities }) {
   const pg   = form.pgDetails ?? {};
@@ -85,6 +86,22 @@ export default function PGEditForm({ listing, form, onChange, furnishingsAmeniti
           <FormField label="Lock-in Period (days)">
             <NumberInput value={pg.lockInPeriod ?? ""} onChange={(v) => setPg("lockInPeriod", v)} placeholder="e.g. 180" min={0} />
           </FormField>
+        </Grid>
+      </Section>
+
+      <Section title="Property Status">
+        <Grid>
+          <FormField label="Age of Property (years)">
+            <NumberInput value={pg.ageOfProperty ?? ""} onChange={(v) => setPg("ageOfProperty", v)} placeholder="e.g. 3" min={0} />
+          </FormField>
+          <FormField label="Construction Status">
+            <SelectField value={pg.constructionStatus ?? ""} onChange={(v) => setPg("constructionStatus", v)} options={STATUS_OPTIONS} placeholder="Select status" />
+          </FormField>
+          {pg.constructionStatus === "UnderConstruction" && (
+            <FormField label="Available From">
+              <DateField value={pg.availableFrom ?? ""} onChange={(v) => setPg("availableFrom", v)} />
+            </FormField>
+          )}
         </Grid>
       </Section>
 

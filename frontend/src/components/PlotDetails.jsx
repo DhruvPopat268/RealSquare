@@ -1,24 +1,13 @@
-import { FiCheck, FiMaximize2, FiMap, FiCalendar } from "react-icons/fi";
+import { FiCheck, FiMaximize2, FiMap } from "react-icons/fi";
 
 function formatArea(area) {
   if (!area?.value) return null;
   return `${area.value} ${area.unit || 'sqft'}`;
 }
 
-function formatDate(dateStr) {
-  if (!dateStr) return null;
-  const date = new Date(dateStr);
-  return date.toLocaleDateString("en-IN", { 
-    day: "2-digit", 
-    month: "short", 
-    year: "numeric" 
-  });
-}
-
 export default function PlotDetails({ data, listing }) {
   if (!data) return null;
 
-  const sellInfo = listing.sellInfo;
   const commercialDetails = listing.commercialDetails; // For commercial plots
   
   return (
@@ -68,22 +57,6 @@ export default function PlotDetails({ data, listing }) {
             <div>
               <p className="text-gray-500 text-sm mb-1">Zone Type</p>
               <p className="font-semibold text-lg">{commercialDetails.zoneType}</p>
-            </div>
-          )}
-          
-          {sellInfo?.constructionStatus && (
-            <div>
-              <p className="text-gray-500 text-sm mb-1">Status</p>
-              <p className="font-semibold text-lg">
-                {sellInfo.constructionStatus === "ReadyToMove" ? "Ready for Construction" : "Approved for Development"}
-              </p>
-            </div>
-          )}
-          
-          {sellInfo?.availableFrom && (
-            <div>
-              <p className="text-gray-500 text-sm mb-1">Available From</p>
-              <p className="font-semibold text-lg">{formatDate(sellInfo.availableFrom)}</p>
             </div>
           )}
           

@@ -3,7 +3,7 @@ import FurnishingsAmenitiesSection from "./FurnishingsAmenitiesSection";
 
 const BHK_OPTIONS = ["1 RK","1","2","3","4","5","6","7","8","9","10","11","12"].map((v) => ({ value: v === "1 RK" ? "1 RK" : Number(v), label: v === "1 RK" ? "1 RK" : `${v} BHK` }));
 const STATUS_OPTIONS = [{ value: "ReadyToMove", label: "Ready to Move" }, { value: "UnderConstruction", label: "Under Construction" }];
-const DEPOSIT_OPTIONS = [{ value: "None", label: "None" }, { value: "1Month", label: "1 Month" }, { value: "2Month", label: "2 Months" }, { value: "Custom", label: "Custom Amount" }];
+const PROPERTY_STATUS_OPTIONS = [{ value: "NewlyAdded", label: "Newly Added" }, { value: "Relaunch", label: "Re-release" }];
 
 export default function ResidentialEditForm({ listing, form, onChange, furnishingsAmenities, showFurnishings }) {
   const res  = form.residentialDetails ?? {};
@@ -36,6 +36,25 @@ export default function ResidentialEditForm({ listing, form, onChange, furnishin
         </Grid>
       </Section>
 
+      <Section title="Property Status">
+        <Grid>
+          <FormField label="Property Status">
+            <SelectField value={res.propertyStatus ?? ""} onChange={(v) => setRes("propertyStatus", v)} options={PROPERTY_STATUS_OPTIONS} placeholder="Select property status" />
+          </FormField>
+          <FormField label="Age of Property (years)">
+            <NumberInput value={res.ageOfProperty ?? ""} onChange={(v) => setRes("ageOfProperty", v)} placeholder="e.g. 3" min={0} />
+          </FormField>
+          <FormField label="Construction Status">
+            <SelectField value={res.constructionStatus ?? ""} onChange={(v) => setRes("constructionStatus", v)} options={STATUS_OPTIONS} placeholder="Select status" />
+          </FormField>
+          {res.constructionStatus === "UnderConstruction" && (
+            <FormField label="Available From">
+              <DateField value={res.availableFrom ?? ""} onChange={(v) => setRes("availableFrom", v)} />
+            </FormField>
+          )}
+        </Grid>
+      </Section>
+
       {/* Furnishings & Amenities — only for non-plot residential */}
       {showFurnishings && (
         <FurnishingsAmenitiesSection
@@ -56,19 +75,6 @@ export default function ResidentialEditForm({ listing, form, onChange, furnishin
             <FormField label="Sale Price (₹)" required>
               <NumberInput value={sell.price ?? ""} onChange={(v) => setSell("price", v)} placeholder="e.g. 5000000" />
             </FormField>
-            <FormField label="Construction Status">
-              <SelectField value={sell.constructionStatus ?? ""} onChange={(v) => setSell("constructionStatus", v)} options={STATUS_OPTIONS} placeholder="Select status" />
-            </FormField>
-            {sell.constructionStatus === "ReadyToMove" && (
-              <FormField label="Age of Property (years)">
-                <NumberInput value={sell.ageOfProperty ?? ""} onChange={(v) => setSell("ageOfProperty", v)} placeholder="e.g. 3" min={0} />
-              </FormField>
-            )}
-            {sell.constructionStatus === "UnderConstruction" && (
-              <FormField label="Available From">
-                <DateField value={sell.availableFrom ?? ""} onChange={(v) => setSell("availableFrom", v)} />
-              </FormField>
-            )}
           </Grid>
         </Section>
       )}
@@ -79,17 +85,12 @@ export default function ResidentialEditForm({ listing, form, onChange, furnishin
             <FormField label="Monthly Rent (₹)" required>
               <NumberInput value={rent.monthlyRent ?? ""} onChange={(v) => setRent("monthlyRent", v)} placeholder="e.g. 20000" />
             </FormField>
+            <FormField label="Security Deposit (₹)">
+              <NumberInput value={rent.securityDeposit ?? ""} onChange={(v) => setRent("securityDeposit", v)} placeholder="e.g. 50000" min={0} />
+            </FormField>
             <FormField label="Available From">
               <DateField value={rent.availableFrom ?? ""} onChange={(v) => setRent("availableFrom", v)} />
             </FormField>
-            <FormField label="Security Deposit">
-              <SelectField value={rent.securityDeposit?.type ?? ""} onChange={(v) => setRent("securityDeposit", { ...rent.securityDeposit, type: v, amount: v !== "Custom" ? undefined : rent.securityDeposit?.amount })} options={DEPOSIT_OPTIONS} placeholder="Select deposit type" />
-            </FormField>
-            {rent.securityDeposit?.type === "Custom" && (
-              <FormField label="Deposit Amount (₹)">
-                <NumberInput value={rent.securityDeposit?.amount ?? ""} onChange={(v) => setRent("securityDeposit", { ...rent.securityDeposit, amount: v })} placeholder="e.g. 50000" />
-              </FormField>
-            )}
           </Grid>
         </Section>
       )}

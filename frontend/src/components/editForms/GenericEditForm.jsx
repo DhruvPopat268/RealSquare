@@ -1,5 +1,8 @@
-import { Section, Grid, FormField, TextInput, NumberInput } from "./EditFormShared";
+import { Section, Grid, FormField, TextInput, NumberInput, SelectField, DateField } from "./EditFormShared";
 import { FiInfo } from "react-icons/fi";
+
+const STATUS_OPTIONS = [{ value: "ReadyToMove", label: "Ready to Move" }, { value: "UnderConstruction", label: "Under Construction" }];
+const PROPERTY_STATUS_OPTIONS = [{ value: "NewlyAdded", label: "Newly Added" }, { value: "Relaunch", label: "Re-release" }];
 
 export default function GenericEditForm({ listing, form, onChange }) {
   const res = form.residentialDetails ?? {};
@@ -8,6 +11,8 @@ export default function GenericEditForm({ listing, form, onChange }) {
   const com = form.commercialDetails ?? {};
   const sell = form.sellInfo ?? {};
   const rent = form.rentInfo ?? {};
+  const statusSection = listing.residentialDetails ? "residentialDetails" : listing.commercialDetails ? "commercialDetails" : listing.pgDetails ? "pgDetails" : null;
+  const propertyStatus = statusSection ? form[statusSection] ?? {} : {};
 
   const setField = (path, val) => {
     const parts = path.split(".");
@@ -46,8 +51,17 @@ export default function GenericEditForm({ listing, form, onChange }) {
   // Sell/Rent
   if (sell.price) fields.push({ label: "Sale Price (₹)", path: "sellInfo.price", type: "number", value: sell.price });
   if (rent.monthlyRent) fields.push({ label: "Monthly Rent (₹)", path: "rentInfo.monthlyRent", type: "number", value: rent.monthlyRent });
-  if (sell.constructionStatus) fields.push({ label: "Status", path: "sellInfo.constructionStatus", type: "text", value: sell.constructionStatus === "ReadyToMove" ? "Ready to Move" : "Under Construction", readonly: true });
-  if (sell.ageOfProperty) fields.push({ label: "Age (years)", path: "sellInfo.ageOfProperty", type: "number", value: sell.ageOfProperty });
+  if (listing.rentInfo) fields.push({ label: "Security Deposit (₹)", path: "rentInfo.securityDeposit", type: "number", value: rent.securityDeposit });
+  if (statusSection) {
+    if (statusSection !== "pgDetails") {
+      fields.push({ label: "Property Status", path: `${statusSection}.propertyStatus`, type: "property-select", value: propertyStatus.propertyStatus });
+    }
+    fields.push({ label: "Construction Status", path: `${statusSection}.constructionStatus`, type: "select", value: propertyStatus.constructionStatus });
+    fields.push({ label: "Age of Property (years)", path: `${statusSection}.ageOfProperty`, type: "number", value: propertyStatus.ageOfProperty });
+    if (propertyStatus.constructionStatus === "UnderConstruction") {
+      fields.push({ label: "Available From", path: `${statusSection}.availableFrom`, type: "date", value: propertyStatus.availableFrom });
+    }
+  }
 
   return (
     <div className="flex flex-col gap-5">
@@ -63,6 +77,12 @@ export default function GenericEditForm({ listing, form, onChange }) {
               <FormField key={i} label={f.label} hint={f.hint}>
                 {f.readonly ? (
                   <div className="px-3 py-2.5 text-sm text-gray-600 bg-gray-50 rounded-xl border border-gray-200">{f.value}</div>
+                ) : f.type === "select" ? (
+                  <SelectField value={f.value ?? ""} onChange={(v) => setField(f.path, v)} options={STATUS_OPTIONS} placeholder="Select status" />
+                ) : f.type === "property-select" ? (
+                  <SelectField value={f.value ?? ""} onChange={(v) => setField(f.path, v)} options={PROPERTY_STATUS_OPTIONS} placeholder="Select property status" />
+                ) : f.type === "date" ? (
+                  <DateField value={f.value ?? ""} onChange={(v) => setField(f.path, v)} />
                 ) : f.type === "number" ? (
                   <NumberInput value={f.value ?? ""} onChange={(v) => setField(f.path, v)} />
                 ) : (

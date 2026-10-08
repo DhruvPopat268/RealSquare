@@ -5,6 +5,7 @@ const OWNERSHIP_OPTIONS = [{ value: "Freehold", label: "Freehold" }, { value: "L
 const ZONE_OPTIONS = ["Industrial", "Commercial", "Residential", "SEZ", "OpenSpaces", "Agricultural", "Others"];
 const LOCATION_HUB_OPTIONS = ["IT Park", "Business Park", "Mall", "Commercial Project", "Residential Project", "Retail Complex/Building", "Market/High Street", "Others"];
 const STATUS_OPTIONS = [{ value: "ReadyToMove", label: "Ready to Move" }, { value: "UnderConstruction", label: "Under Construction" }];
+const PROPERTY_STATUS_OPTIONS = [{ value: "NewlyAdded", label: "Newly Added" }, { value: "Relaunch", label: "Re-release" }];
 
 export default function CommercialEditForm({ listing, form, onChange, furnishingsAmenities, showFurnishings }) {
   const com  = form.commercialDetails ?? {};
@@ -37,6 +38,25 @@ export default function CommercialEditForm({ listing, form, onChange, furnishing
           <FormField label="Location Hub">
             <SelectField value={com.locationHub ?? ""} onChange={(v) => setCom("locationHub", v)} options={LOCATION_HUB_OPTIONS} placeholder="Select hub" />
           </FormField>
+        </Grid>
+      </Section>
+
+      <Section title="Property Status">
+        <Grid>
+          <FormField label="Property Status">
+            <SelectField value={com.propertyStatus ?? ""} onChange={(v) => setCom("propertyStatus", v)} options={PROPERTY_STATUS_OPTIONS} placeholder="Select property status" />
+          </FormField>
+          <FormField label="Age of Property (years)">
+            <NumberInput value={com.ageOfProperty ?? ""} onChange={(v) => setCom("ageOfProperty", v)} placeholder="e.g. 3" min={0} />
+          </FormField>
+          <FormField label="Construction Status">
+            <SelectField value={com.constructionStatus ?? ""} onChange={(v) => setCom("constructionStatus", v)} options={STATUS_OPTIONS} placeholder="Select status" />
+          </FormField>
+          {com.constructionStatus === "UnderConstruction" && (
+            <FormField label="Available From">
+              <DateField value={com.availableFrom ?? ""} onChange={(v) => setCom("availableFrom", v)} />
+            </FormField>
+          )}
         </Grid>
       </Section>
 
@@ -121,19 +141,6 @@ export default function CommercialEditForm({ listing, form, onChange, furnishing
             <FormField label="Sale Price (₹)" required>
               <NumberInput value={sell.price ?? ""} onChange={(v) => setSell("price", v)} placeholder="e.g. 5000000" />
             </FormField>
-            <FormField label="Status">
-              <SelectField value={sell.constructionStatus ?? ""} onChange={(v) => setSell("constructionStatus", v)} options={STATUS_OPTIONS} placeholder="Select status" />
-            </FormField>
-            {sell.constructionStatus === "ReadyToMove" && (
-              <FormField label="Age (years)">
-                <NumberInput value={sell.ageOfProperty ?? ""} onChange={(v) => setSell("ageOfProperty", v)} placeholder="e.g. 3" min={0} />
-              </FormField>
-            )}
-            {sell.constructionStatus === "UnderConstruction" && (
-              <FormField label="Available From">
-                <DateField value={sell.availableFrom ?? ""} onChange={(v) => setSell("availableFrom", v)} />
-              </FormField>
-            )}
           </Grid>
         </Section>
       )}
@@ -143,6 +150,9 @@ export default function CommercialEditForm({ listing, form, onChange, furnishing
           <Grid>
             <FormField label="Monthly Rent (₹)" required>
               <NumberInput value={rent.monthlyRent ?? ""} onChange={(v) => setRent("monthlyRent", v)} placeholder="e.g. 50000" />
+            </FormField>
+            <FormField label="Security Deposit (₹)">
+              <NumberInput value={rent.securityDeposit ?? ""} onChange={(v) => setRent("securityDeposit", v)} placeholder="e.g. 50000" min={0} />
             </FormField>
             <FormField label="Available From">
               <DateField value={rent.availableFrom ?? ""} onChange={(v) => setRent("availableFrom", v)} />

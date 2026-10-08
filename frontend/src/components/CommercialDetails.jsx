@@ -42,7 +42,6 @@ function formatZone(val) {
 export default function CommercialDetails({ data, listing }) {
   if (!data) return null;
 
-  const sellInfo = listing.sellInfo;
   const rentInfo = listing.rentInfo;
   const propTypeName = listing.propertyType?.name ?? "";
 
@@ -112,29 +111,45 @@ export default function CommercialDetails({ data, listing }) {
             </div>
           )}
 
-          {sellInfo?.constructionStatus && (
+          {data.constructionStatus && (
             <div>
               <p className="text-gray-500 text-sm mb-1">Status</p>
               <p className="font-semibold text-lg">
-                {sellInfo.constructionStatus === "ReadyToMove" ? "Ready to Move" : "Under Construction"}
+                {data.constructionStatus === "ReadyToMove" ? "Ready to Move" : "Under Construction"}
               </p>
             </div>
           )}
 
-          {sellInfo?.ageOfProperty && (
+          {data.propertyStatus && (
+            <div>
+              <p className="text-gray-500 text-sm mb-1">Property Status</p>
+              <p className="font-semibold text-lg">{data.propertyStatus === "NewlyAdded" ? "Newly Added" : "Re-release"}</p>
+            </div>
+          )}
+
+          {data.ageOfProperty != null && (
             <div>
               <p className="text-gray-500 text-sm mb-1">Age of Property</p>
               <p className="font-semibold text-lg">
-                {sellInfo.ageOfProperty} year{sellInfo.ageOfProperty > 1 ? "s" : ""}
+                {data.ageOfProperty} year{data.ageOfProperty !== 1 ? "s" : ""}
               </p>
             </div>
           )}
 
-          {(sellInfo?.availableFrom || rentInfo?.availableFrom) && (
+          {(data.constructionStatus === "UnderConstruction" && data.availableFrom || rentInfo?.availableFrom) && (
             <div>
               <p className="text-gray-500 text-sm mb-1">Available From</p>
               <p className="font-semibold text-lg">
-                {formatDate(sellInfo?.availableFrom ?? rentInfo?.availableFrom)}
+                {formatDate(data.constructionStatus === "UnderConstruction" ? data.availableFrom : rentInfo?.availableFrom)}
+              </p>
+            </div>
+          )}
+
+          {rentInfo?.securityDeposit != null && (
+            <div>
+              <p className="text-gray-500 text-sm mb-1">Security Deposit</p>
+              <p className="font-semibold text-lg">
+                {rentInfo.securityDeposit === 0 ? "None" : `₹${rentInfo.securityDeposit.toLocaleString("en-IN")}`}
               </p>
             </div>
           )}

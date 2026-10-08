@@ -19,6 +19,7 @@ const COMMERCIAL_PLOT_IDS  = (import.meta.env.VITE_COMMERCIAL_PROPERTY_TYPE_PLOT
 const LISTING_TYPE_PG_ID   = import.meta.env.VITE_LISTING_TYPE_PG_ID;
 const CATEGORY_RESIDENTIAL_ID = import.meta.env.VITE_CATEGORY_RESIDENTIAL_ID;
 const CATEGORY_COMMERCIAL_ID  = import.meta.env.VITE_CATEGORY_COMMERCIAL_ID;
+const BROKER_ROLE_ID = import.meta.env.VITE_BROKER_ROLE_ID;
 
 /** Returns true when the listing type/category/propertyType should show furnishings */
 function computeShowFurnishings(listing) {
@@ -99,6 +100,7 @@ export default function EditPropertyPage() {
             sellInfo: data.sellInfo ?? {},
             rentInfo: data.rentInfo ?? {},
             reraId: data.rera?.reraId ?? "",
+            zeroBrokerage: Boolean(data.zeroBrokerage),
           };
           setForm(initialForm);
           setOriginalForm(JSON.parse(JSON.stringify(initialForm))); // Deep copy
@@ -247,6 +249,10 @@ export default function EditPropertyPage() {
     // RERA ID — send if changed (empty string = clear RERA)
     if (hasChanged(form.reraId, originalForm.reraId)) {
       payload.reraId = form.reraId === "" ? null : form.reraId.trim();
+    }
+
+    if (hasChanged(form.zeroBrokerage, originalForm.zeroBrokerage)) {
+      payload.zeroBrokerage = form.zeroBrokerage;
     }
 
     console.log("Final PATCH payload (only changed fields):", payload);
@@ -459,6 +465,28 @@ export default function EditPropertyPage() {
               </div>
             )}
           </div>
+        )}
+
+        {listing.listedBy?.role?.id?.toString() === BROKER_ROLE_ID && (
+          <Section title="Brokerage">
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <p className="text-sm font-semibold text-gray-800">Zero Brokerage</p>
+                <p className="text-xs text-gray-500 mt-1">Mark this property as offered with zero brokerage.</p>
+              </div>
+              <button
+                type="button"
+                role="switch"
+                aria-checked={Boolean(form.zeroBrokerage)}
+                aria-label="Zero Brokerage"
+                disabled={saving}
+                onClick={() => handleFormChange("zeroBrokerage", !form.zeroBrokerage)}
+                className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors disabled:opacity-50 ${form.zeroBrokerage ? "bg-[#7B2FFF]" : "bg-gray-300"}`}
+              >
+                <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${form.zeroBrokerage ? "translate-x-6" : "translate-x-1"}`} />
+              </button>
+            </div>
+          </Section>
         )}
 
         {/* Images Section */}

@@ -1,9 +1,8 @@
-import { Section, Grid, FormField, TextInput, NumberInput, SelectField, AreaField, DateField } from "./EditFormShared";
+import { Section, Grid, FormField, TextInput, NumberInput, SelectField, AreaField } from "./EditFormShared";
 
 const OWNERSHIP_OPTIONS = [{ value: "Freehold", label: "Freehold" }, { value: "Leasehold", label: "Leasehold" }, { value: "CooperativeSociety", label: "Cooperative Society" }, { value: "PowerOfAttorney", label: "Power of Attorney" }];
 const ZONE_OPTIONS = ["Industrial", "Commercial", "Residential", "SEZ", "OpenSpaces", "Agricultural", "Others"];
 const LOCATION_HUB_OPTIONS = ["IT Park", "Business Park", "Mall", "Commercial Project", "Residential Project", "Retail Complex/Building", "Market/High Street", "Others"];
-const STATUS_OPTIONS = [{ value: "ReadyToMove", label: "Ready for Construction" }, { value: "UnderConstruction", label: "Approved for Development" }];
 
 export default function PlotEditForm({ listing, form, onChange }) {
   const plot = form.plotDetails ?? {};
@@ -66,14 +65,6 @@ export default function PlotEditForm({ listing, form, onChange }) {
             <FormField label="Sale Price (₹)" required>
               <NumberInput value={sell.price ?? ""} onChange={(v) => setSell("price", v)} placeholder="e.g. 5000000" />
             </FormField>
-            <FormField label="Status">
-              <SelectField value={sell.constructionStatus ?? ""} onChange={(v) => setSell("constructionStatus", v)} options={STATUS_OPTIONS} placeholder="Select status" />
-            </FormField>
-            {sell.constructionStatus === "UnderConstruction" && (
-              <FormField label="Available From">
-                <DateField value={sell.availableFrom ?? ""} onChange={(v) => setSell("availableFrom", v)} />
-              </FormField>
-            )}
           </Grid>
         </Section>
       )}

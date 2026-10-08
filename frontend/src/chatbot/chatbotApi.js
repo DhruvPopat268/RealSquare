@@ -3,14 +3,14 @@ import axios from "axios";
 const API = import.meta.env.VITE_API_URL;
 const config = { withCredentials: true };
 
-// ── Q2: active purposes (Buy / Rent / PG) ───────────────────────────────────
-export async function fetchActivePurposes() {
+// ── Q2: active purposes ─────────────────────────────────────────────────────
+export async function fetchActivePurposes({ showBuyLabel = false } = {}) {
   const { data } = await axios.get(`${API}/api/mixed/property-listings/active-purposes`, config);
   const SELL_ID = import.meta.env.VITE_LISTING_TYPE_SELL_ID;
   return data.data
     .sort((a, b) => a.order - b.order)
     .map((p) => ({
-      label: p._id === SELL_ID ? "Buy" : p.name, // Show "Buy" instead of "Sell"
+      label: showBuyLabel && p._id === SELL_ID ? "Buy" : p.name,
       value: p._id
     }));
 }

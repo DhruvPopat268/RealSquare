@@ -27,8 +27,8 @@ export default function GenericDetails({ listing }) {
   const plot = listing.plotDetails         ?? {};
   const pg   = listing.pgDetails           ?? {};
   const com  = listing.commercialDetails   ?? {};
-  const sell = listing.sellInfo            ?? {};
   const rent = listing.rentInfo            ?? {};
+  const propertyStatus = listing.residentialDetails ?? listing.commercialDetails ?? listing.pgDetails ?? {};
 
   // Build a flat key→value list from whatever fields exist
   const rows = [];
@@ -61,10 +61,11 @@ export default function GenericDetails({ listing }) {
   if (pg.pgFor)                push("PG For",            pg.pgFor);
   if (pg.totalBedsAvailable)   push("Total Beds",        pg.totalBedsAvailable);
 
-  // Sell / Rent info
-  if (sell.constructionStatus) push("Status", sell.constructionStatus === "ReadyToMove" ? "Ready to Move" : "Under Construction");
-  if (sell.ageOfProperty)      push("Age",               `${sell.ageOfProperty} year${sell.ageOfProperty > 1 ? "s" : ""}`);
-  if (sell.availableFrom)      push("Available From",    formatDate(sell.availableFrom));
+  // Property status / Rent info
+  if (propertyStatus.constructionStatus) push("Status", propertyStatus.constructionStatus === "ReadyToMove" ? "Ready to Move" : "Under Construction");
+  if (propertyStatus.propertyStatus) push("Property Status", propertyStatus.propertyStatus === "NewlyAdded" ? "Newly Added" : "Re-release");
+  if (propertyStatus.ageOfProperty != null) push("Age", `${propertyStatus.ageOfProperty} year${propertyStatus.ageOfProperty !== 1 ? "s" : ""}`);
+  if (propertyStatus.constructionStatus === "UnderConstruction" && propertyStatus.availableFrom) push("Available From", formatDate(propertyStatus.availableFrom));
   if (rent.availableFrom)      push("Available From",    formatDate(rent.availableFrom));
 
   // Deduplicate (keep first occurrence per label)

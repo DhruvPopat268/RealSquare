@@ -49,7 +49,7 @@ frontend/src/
 | `UpdateProfilePage.jsx` | `/profile` | Edit existing profile |
 | `ChatbotPage.jsx` | `/chatbot` | Conversational property listing flow |
 | `ListPropertyPage.jsx` | `/list-property` | Manual property listing form |
-| `EditPropertyPage.jsx` | `/edit-property/:id` | Edit an existing property listing |
+| `EditPropertyPage.jsx` | `/edit-property/:id` | Edit an existing property listing; Rent Details order fields as Monthly Rent, Security Deposit, then Available From, and broker listings show a Zero Brokerage toggle above Photos |
 | `MyListingsPage.jsx` | `/my-property-listings` | Paginated list of user's own listings with filters |
 | `PropertyDetail.jsx` | `/property/:id` | Full property detail view |
 | `PropertyListPage.jsx` | `/listings` | Browse all property listings |
@@ -137,6 +137,8 @@ Conversational UI engine for guided property listing and inquiry creation.
 | `ChatbotNumberInput.jsx` | Numeric input widget |
 | `ChatbotDateInput.jsx` | Date picker widget |
 
+Purpose labels are shared through `chatbotApi.js`: the property listing flow keeps the backend label (`Sell`), while the inquiry flow requests the `Buy` display label for the Sell purpose ID. Both flows submit the same purpose ID.
+
 ---
 
 ## Utils (`src/utils/`)
@@ -214,6 +216,10 @@ Both pages follow the same UX pattern:
 - Base URL: `VITE_API_URL` env variable (e.g. `http://192.168.0.184:5000`)
 - All requests use `{ withCredentials: true }` to send the JWT cookie
 - Backend routes consumed: `/api/system-users/*`, `/api/mixed/*`, `/api/admin/*` (read-only for dropdowns)
+- The Edit Property page reads `zeroBrokerage` from the property detail response and sends it in the listing PATCH only when its toggle changes. The backend accepts this boolean for broker-owned listings.
+- Rent listing edits send `rentInfo.securityDeposit` as a numeric rupee amount; the backend validates it and merges it into existing `rentInfo` data.
+- Residential, commercial, and PG edit forms store `constructionStatus` and `ageOfProperty` in their respective detail sections; `availableFrom` is shown and sent there only for `UnderConstruction`. Rental availability remains in `rentInfo.availableFrom`. The detail API maps legacy construction values from `sellInfo` into the matching detail section for backward compatibility.
+- Residential and commercial edit forms include a `propertyStatus` dropdown (`NewlyAdded` or `Relaunch`); it is not available for PG or plot listings.
 
 ---
 
