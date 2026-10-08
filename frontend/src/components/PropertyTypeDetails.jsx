@@ -30,6 +30,10 @@ export function getPropertyStructure(listing) {
   const categoryId = listing.category?.id?.toString();
   const listingTypeId = listing.listingType?.id?.toString();
   const propertyTypeId = listing.propertyType?.id?.toString();
+  const plotIds = [
+    import.meta.env.VITE_COMMERCIAL_PROPERTY_TYPE_PLOT_IDS,
+    import.meta.env.VITE_RESIDENTIAL_PROPERTY_TYPE_PLOT_IDS
+  ].join(',').split(',').filter(Boolean);
   
   // Priority: Listing Type (PG) > Category > Property Type
   if (listingTypeId === import.meta.env.VITE_LISTING_TYPE_PG_ID) {
@@ -38,6 +42,15 @@ export function getPropertyStructure(listing) {
       data: listing.pgDetails, 
       component: 'PGDetails',
       title: 'PG Details'
+    };
+  }
+
+  if (plotIds.includes(propertyTypeId)) {
+    return {
+      type: 'PLOT',
+      data: listing.plotDetails ?? listing.commercialDetails,
+      component: 'PlotDetails',
+      title: 'Plot Details'
     };
   }
   
@@ -51,21 +64,6 @@ export function getPropertyStructure(listing) {
   }
   
   if (categoryId === import.meta.env.VITE_CATEGORY_COMMERCIAL_ID) {
-    // Check if it's a plot
-    const plotIds = [
-      import.meta.env.VITE_COMMERCIAL_PROPERTY_TYPE_PLOT_IDS,
-      import.meta.env.VITE_RESIDENTIAL_PROPERTY_TYPE_PLOT_IDS
-    ].join(',').split(',').filter(Boolean);
-    
-    if (plotIds.includes(propertyTypeId)) {
-      return { 
-        type: 'PLOT', 
-        data: listing.plotDetails, 
-        component: 'PlotDetails',
-        title: 'Plot Details'
-      };
-    }
-    
     return { 
       type: 'COMMERCIAL', 
       data: listing.commercialDetails, 

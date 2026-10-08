@@ -114,6 +114,25 @@ function formatDate(iso) {
   return d.toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
 }
 
+function CompletionPercentageRing({ percentage }) {
+  const value = Math.max(0, Math.min(100, Number(percentage) || 0));
+  const color = value <= 40 ? "#EF4444" : value < 100 ? "#EAB308" : "#22C55E";
+  const degrees = value * 3.6;
+
+  return (
+    <div
+      className="h-10 w-10 flex-shrink-0 rounded-full p-[2px]"
+      style={{ background: `conic-gradient(${color} 0deg ${degrees}deg, #e5e7eb ${degrees}deg 360deg)` }}
+      title={`Listing completion: ${value}%`}
+      aria-label={`Listing completion: ${value}%`}
+    >
+      <div className="flex h-full w-full items-center justify-center rounded-full bg-white text-[9px] font-bold" style={{ color }}>
+        {value}%
+      </div>
+    </div>
+  );
+}
+
 // ── Skeleton card (list) ──────────────────────────────────────────────────────
 function SkeletonCard() {
   return (
@@ -206,10 +225,15 @@ function GridCard({ listing, onStatusUpdate }) {
 
       {/* Details */}
       <div className="p-3 flex flex-col flex-1">
-        <h3 className="text-sm font-bold text-[#1a1a2e] truncate leading-snug mb-0.5">{listing.title}</h3>
-        {listing.category && (
-          <span className="text-[11px] text-gray-400 mb-1.5">{listing.category}</span>
-        )}
+        <div className="mb-1.5 flex items-start justify-between gap-2">
+          <div className="min-w-0">
+            <h3 className="text-sm font-bold text-[#1a1a2e] truncate leading-snug mb-0.5">{listing.title}</h3>
+            {listing.category && (
+              <span className="text-[11px] text-gray-400">{listing.category}</span>
+            )}
+          </div>
+          <CompletionPercentageRing percentage={listing.propertyCompletionPercentage} />
+        </div>
 
         {/* Badges */}
         <div className="flex flex-wrap gap-1 mb-2">
@@ -383,11 +407,14 @@ function ListingCard({ listing, onStatusUpdate }) {
       {/* Details */}
       <div className="flex flex-col flex-1 p-4 min-w-0">
         <div className="flex items-start justify-between gap-3 mb-1.5">
-          <div className="overflow-hidden">
-            <h3 className="text-sm font-bold text-[#1a1a2e] leading-snug truncate">{listing.title}</h3>
-            {listing.category && (
-              <span className="text-[11px] text-gray-400">{listing.category}</span>
-            )}
+          <div className="flex min-w-0 flex-1 items-start justify-between gap-2">
+            <div className="min-w-0 overflow-hidden">
+              <h3 className="text-sm font-bold text-[#1a1a2e] leading-snug truncate">{listing.title}</h3>
+              {listing.category && (
+                <span className="text-[11px] text-gray-400">{listing.category}</span>
+              )}
+            </div>
+            <CompletionPercentageRing percentage={listing.propertyCompletionPercentage} />
           </div>
           <div className="flex items-center gap-1.5 flex-shrink-0" onClick={(e) => e.stopPropagation()}>
             <span className={`flex items-center gap-1 text-[10px] font-bold px-2 py-1 rounded-full ${status.bg} ${status.text}`}>
@@ -449,7 +476,7 @@ function ListingCard({ listing, onStatusUpdate }) {
           </div>
         )}
 
-        <div className="mt-auto pt-3 border-t border-gray-100 flex justify-end">
+        <div className="mt-auto pt-3 border-t border-gray-100 flex items-center justify-between">
           {listing.createdAt && (
             <div className="flex items-center gap-1 text-[11px] text-gray-400">
               <FiCalendar size={10} />

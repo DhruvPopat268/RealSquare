@@ -46,6 +46,13 @@ export default function ResidentialDetails({ data, listing }) {
             </div>
           )}
 
+          {data.carpetArea && (
+            <div>
+              <p className="text-gray-500 text-sm mb-1">Carpet Area</p>
+              <p className="font-semibold text-lg">{formatArea(data.carpetArea)}</p>
+            </div>
+          )}
+
           {data.societyName && (
             <div>
               <p className="text-gray-500 text-sm mb-1">Society / Building</p>
@@ -78,14 +85,14 @@ export default function ResidentialDetails({ data, listing }) {
             </div>
           )}
 
-          {(data.constructionStatus === "UnderConstruction" && data.availableFrom || rentInfo?.availableFrom) && (
+          {(data.constructionStatus === "UnderConstruction" && data.availableFrom) || rentInfo?.availableFrom ? (
             <div>
               <p className="text-gray-500 text-sm mb-1">Available From</p>
               <p className="font-semibold text-lg">
-                {formatDate(data.constructionStatus === "UnderConstruction" ? data.availableFrom : rentInfo?.availableFrom)}
+                {formatDate(data.constructionStatus === "UnderConstruction" && data.availableFrom ? data.availableFrom : rentInfo?.availableFrom)}
               </p>
             </div>
-          )}
+          ) : null}
 
           {rentInfo?.securityDeposit != null && (
             <div>

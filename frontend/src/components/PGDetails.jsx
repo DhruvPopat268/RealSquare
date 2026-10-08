@@ -33,7 +33,7 @@ export default function PGDetails({ data, listing }) {
             </div>
           )}
 
-          {data.totalBedsAvailable && (
+          {data.totalBedsAvailable != null && (
             <div>
               <p className="text-gray-500 text-sm mb-1">Total Beds</p>
               <p className="font-semibold text-lg">{data.totalBedsAvailable} beds</p>
@@ -68,31 +68,38 @@ export default function PGDetails({ data, listing }) {
             </div>
           )}
 
-          {data.noticePeriod && (
+          {data.noticePeriod != null && (
             <div>
               <p className="text-gray-500 text-sm mb-1">Notice Period</p>
               <p className="font-semibold text-lg">{data.noticePeriod} days</p>
             </div>
           )}
 
-          {data.lockInPeriod && (
+          {data.lockInPeriod != null && (
             <div>
               <p className="text-gray-500 text-sm mb-1">Lock-in Period</p>
               <p className="font-semibold text-lg">{data.lockInPeriod} days</p>
             </div>
           )}
 
-          {(data.constructionStatus === "UnderConstruction" && data.availableFrom || rentInfo?.availableFrom) && (
+          {(data.constructionStatus === "UnderConstruction" && data.availableFrom) || rentInfo?.availableFrom ? (
             <div>
               <p className="text-gray-500 text-sm mb-1">Available From</p>
-              <p className="font-semibold text-lg">{formatDate(data.constructionStatus === "UnderConstruction" ? data.availableFrom : rentInfo?.availableFrom)}</p>
+              <p className="font-semibold text-lg">{formatDate(data.constructionStatus === "UnderConstruction" && data.availableFrom ? data.availableFrom : rentInfo?.availableFrom)}</p>
+            </div>
+          ) : null}
+
+          {rentInfo?.securityDeposit != null && (
+            <div>
+              <p className="text-gray-500 text-sm mb-1">Security Deposit</p>
+              <p className="font-semibold text-lg">{rentInfo.securityDeposit === 0 ? "None" : `₹${rentInfo.securityDeposit.toLocaleString("en-IN")}`}</p>
             </div>
           )}
 
-          {data.mealsAvailable && data.meals?.length > 0 && (
+          {data.mealsAvailable != null && (
             <div>
               <p className="text-gray-500 text-sm mb-1">Meals Included</p>
-              <p className="font-semibold text-lg">{data.meals.join(", ")}</p>
+              <p className="font-semibold text-lg">{data.mealsAvailable ? data.meals?.length ? data.meals.join(", ") : "Available" : "Not Available"}</p>
             </div>
           )}
         </div>
@@ -116,14 +123,14 @@ export default function PGDetails({ data, listing }) {
                     </p>
                   </div>
                   <div className="text-right">
-                    {room.rent && (
+                    {room.rent != null && (
                       <p className="text-xl font-bold text-[#5E23DC]">
                         ₹{room.rent.toLocaleString("en-IN")}/month
                       </p>
                     )}
-                    {room.securityDeposit > 0 && (
+                    {room.securityDeposit != null && (
                       <p className="text-sm text-gray-500">
-                        Security: ₹{room.securityDeposit.toLocaleString("en-IN")}
+                        Security: {room.securityDeposit === 0 ? "None" : `₹${room.securityDeposit.toLocaleString("en-IN")}`}
                       </p>
                     )}
                   </div>

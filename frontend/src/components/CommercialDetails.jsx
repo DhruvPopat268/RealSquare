@@ -69,6 +69,13 @@ export default function CommercialDetails({ data, listing }) {
             </div>
           )}
 
+          {data.propertyType && (
+            <div>
+              <p className="text-gray-500 text-sm mb-1">Other Property Type</p>
+              <p className="font-semibold text-lg">{data.propertyType}</p>
+            </div>
+          )}
+
           {data.builtUpArea && (
             <div>
               <p className="text-gray-500 text-sm mb-1">Built-up Area</p>
@@ -87,6 +94,13 @@ export default function CommercialDetails({ data, listing }) {
             <div>
               <p className="text-gray-500 text-sm mb-1">Plot Area</p>
               <p className="font-semibold text-lg">{formatArea(data.plotArea)}</p>
+            </div>
+          )}
+
+          {data.length != null && data.width != null && (
+            <div>
+              <p className="text-gray-500 text-sm mb-1">Dimensions</p>
+              <p className="font-semibold text-lg">{data.length} × {data.width} ft</p>
             </div>
           )}
 
@@ -136,14 +150,14 @@ export default function CommercialDetails({ data, listing }) {
             </div>
           )}
 
-          {(data.constructionStatus === "UnderConstruction" && data.availableFrom || rentInfo?.availableFrom) && (
+          {(data.constructionStatus === "UnderConstruction" && data.availableFrom) || rentInfo?.availableFrom ? (
             <div>
               <p className="text-gray-500 text-sm mb-1">Available From</p>
               <p className="font-semibold text-lg">
-                {formatDate(data.constructionStatus === "UnderConstruction" ? data.availableFrom : rentInfo?.availableFrom)}
+                {formatDate(data.constructionStatus === "UnderConstruction" && data.availableFrom ? data.availableFrom : rentInfo?.availableFrom)}
               </p>
             </div>
-          )}
+          ) : null}
 
           {rentInfo?.securityDeposit != null && (
             <div>

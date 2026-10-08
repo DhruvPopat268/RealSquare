@@ -189,6 +189,20 @@ export default function EditPropertyPage() {
       return hasAnyChange ? changed : undefined;
     };
 
+    // The API validates availableFrom against constructionStatus on each partial update.
+    // Include the selected status whenever the date changes, even if the status itself did not.
+    const getChangedDetails = (section) => {
+      const changed = getChangedFields(form[section], originalForm[section]);
+      if (
+        changed &&
+        Object.prototype.hasOwnProperty.call(changed, "availableFrom") &&
+        !Object.prototype.hasOwnProperty.call(changed, "constructionStatus")
+      ) {
+        changed.constructionStatus = form[section]?.constructionStatus;
+      }
+      return changed;
+    };
+
     // Check each field for changes
     if (hasChanged(form.cityName, originalForm.cityName)) {
       payload.cityName = form.cityName === "" ? undefined : form.cityName;
@@ -203,28 +217,28 @@ export default function EditPropertyPage() {
 
     // Only send detail objects if they have changed fields
     if (hasChanged(form.residentialDetails, originalForm.residentialDetails)) {
-      const changed = getChangedFields(form.residentialDetails, originalForm.residentialDetails);
+      const changed = getChangedDetails("residentialDetails");
       if (changed && Object.keys(changed).length > 0) {
         payload.residentialDetails = changed;
       }
     }
 
     if (hasChanged(form.plotDetails, originalForm.plotDetails)) {
-      const changed = getChangedFields(form.plotDetails, originalForm.plotDetails);
+      const changed = getChangedDetails("plotDetails");
       if (changed && Object.keys(changed).length > 0) {
         payload.plotDetails = changed;
       }
     }
 
     if (hasChanged(form.commercialDetails, originalForm.commercialDetails)) {
-      const changed = getChangedFields(form.commercialDetails, originalForm.commercialDetails);
+      const changed = getChangedDetails("commercialDetails");
       if (changed && Object.keys(changed).length > 0) {
         payload.commercialDetails = changed;
       }
     }
 
     if (hasChanged(form.pgDetails, originalForm.pgDetails)) {
-      const changed = getChangedFields(form.pgDetails, originalForm.pgDetails);
+      const changed = getChangedDetails("pgDetails");
       if (changed && Object.keys(changed).length > 0) {
         payload.pgDetails = changed;
       }
@@ -605,28 +619,6 @@ export default function EditPropertyPage() {
                 disabled={saving}
               />
             </FormField>
-
-            {/* Project details (read-only) — shown when verified */}
-            {listing.rera?.reraStatus === "verified" && listing.rera?.projectDetails && (
-              <div className="bg-green-50 border border-green-100 rounded-2xl p-4 grid grid-cols-2 gap-x-6 gap-y-3">
-                <p className="col-span-2 text-xs font-bold text-green-700 mb-1">Verified Project Details</p>
-                {[
-                  ["Project Name",    listing.rera.projectDetails.projectName],
-                  ["Developer",       listing.rera.projectDetails.developerName],
-                  ["Location",        listing.rera.projectDetails.localityOrCity],
-                  ["State",           listing.rera.projectDetails.state],
-                  ["Project Type",    listing.rera.projectDetails.projectType],
-                  ["Status",          listing.rera.projectDetails.status],
-                  ["Completion Date", listing.rera.projectDetails.completionDate],
-                  ["Total Units",     listing.rera.projectDetails.totalUnits],
-                ].filter(([, v]) => v).map(([label, value]) => (
-                  <div key={label} className="flex flex-col gap-0.5">
-                    <span className="text-[10px] font-semibold text-green-600 uppercase tracking-wide">{label}</span>
-                    <span className="text-xs text-gray-700">{value}</span>
-                  </div>
-                ))}
-              </div>
-            )}
 
             {/* Note for unverified */}
             {listing.rera?.reraStatus === "unverified" && listing.rera?.reraId && (

@@ -9,6 +9,10 @@ export default function PlotDetails({ data, listing }) {
   if (!data) return null;
 
   const commercialDetails = listing.commercialDetails; // For commercial plots
+  const plotArea = data.plotArea ?? commercialDetails?.plotArea;
+  const length = data.length ?? commercialDetails?.length;
+  const width = data.width ?? commercialDetails?.width;
+  const societyName = data.societyName ?? commercialDetails?.societyName;
   
   return (
     <div className="flex flex-col gap-6">
@@ -21,24 +25,24 @@ export default function PlotDetails({ data, listing }) {
         </h2>
         
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-          {data.plotArea && (
+          {plotArea && (
             <div>
               <p className="text-gray-500 text-sm mb-1">Plot Area</p>
-              <p className="font-semibold text-lg">{formatArea(data.plotArea)}</p>
+              <p className="font-semibold text-lg">{formatArea(plotArea)}</p>
             </div>
           )}
           
-          {(data.length && data.width) && (
+          {length != null && width != null && (
             <div>
               <p className="text-gray-500 text-sm mb-1">Dimensions</p>
-              <p className="font-semibold text-lg">{data.length} × {data.width} ft</p>
+              <p className="font-semibold text-lg">{length} × {width} ft</p>
             </div>
           )}
           
-          {data.societyName && (
+          {societyName && (
             <div>
               <p className="text-gray-500 text-sm mb-1">Society/Layout</p>
-              <p className="font-semibold text-lg">{data.societyName}</p>
+              <p className="font-semibold text-lg">{societyName}</p>
             </div>
           )}
           
@@ -77,19 +81,19 @@ export default function PlotDetails({ data, listing }) {
         </h2>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {data.plotArea && (
+          {plotArea && (
             <div className="p-4 bg-green-50 rounded-xl">
               <h3 className="font-semibold text-green-800 mb-2">Total Area</h3>
-              <p className="text-2xl font-bold text-green-600">{formatArea(data.plotArea)}</p>
+              <p className="text-2xl font-bold text-green-600">{formatArea(plotArea)}</p>
             </div>
           )}
           
-          {(data.length && data.width) && (
+          {length != null && width != null && (
             <div className="p-4 bg-blue-50 rounded-xl">
               <h3 className="font-semibold text-blue-800 mb-2">Plot Dimensions</h3>
-              <p className="text-xl font-bold text-blue-600">{data.length} ft × {data.width} ft</p>
+              <p className="text-xl font-bold text-blue-600">{length} ft × {width} ft</p>
               <p className="text-sm text-blue-500 mt-1">
-                Perimeter: {2 * (data.length + data.width)} ft
+                Perimeter: {2 * (length + width)} ft
               </p>
             </div>
           )}

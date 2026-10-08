@@ -465,7 +465,7 @@ export default function PropertyDetail() {
         {/* QUICK INFO */}
         {property._isApiListing ? (
           // ── API listing: purpose / category / type ────────────────────────
-          <div className="bg-white rounded-2xl grid grid-cols-3 overflow-hidden shadow-sm mb-8">
+          <div className={`bg-white rounded-2xl grid grid-cols-2 ${property.zeroBrokerage != null ? "md:grid-cols-4" : "md:grid-cols-3"} overflow-hidden shadow-sm mb-8`}>
             <div className="p-6 border-r">
               <p className="text-gray-500 text-sm mb-1">Purpose</p>
               <h3 className="font-semibold text-lg">{property.listingType?.name ?? "—"}</h3>
@@ -478,6 +478,12 @@ export default function PropertyDetail() {
               <p className="text-gray-500 text-sm mb-1">Property Type</p>
               <h3 className="font-semibold text-lg">{property.propertyType?.name ?? "—"}</h3>
             </div>
+            {property.zeroBrokerage != null && (
+              <div className="p-6">
+                <p className="text-gray-500 text-sm mb-1">Zero Brokerage</p>
+                <h3 className="font-semibold text-lg">{property.zeroBrokerage ? "Yes" : "No"}</h3>
+              </div>
+            )}
           </div>
         ) : (
           // ── Static listing: original quick-info grid ──────────────────────
@@ -563,6 +569,42 @@ export default function PropertyDetail() {
                         </span>
                       )}
                     </div>
+                  </div>
+                )}
+
+                {property.rera?.projectDetails && (
+                  <div className="bg-white rounded-2xl p-5">
+                    <h2 className="font-bold text-gray-900 mb-4">RERA Project Details</h2>
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                      {[
+                        ["Project Name", property.rera.projectDetails.projectName],
+                        ["Developer", property.rera.projectDetails.developerName],
+                        ["Location", property.rera.projectDetails.localityOrCity],
+                        ["State", property.rera.projectDetails.state],
+                        ["Project Type", property.rera.projectDetails.projectType],
+                        ["Project Status", property.rera.projectDetails.status],
+                        ["Completion Date", property.rera.projectDetails.completionDate],
+                        ["Total Units", property.rera.projectDetails.totalUnits],
+                        ["Confidence", property.rera.projectDetails.confidence],
+                      ].filter(([, value]) => value != null && value !== "").map(([label, value]) => (
+                        <div key={label}>
+                          <p className="text-gray-500 text-xs mb-1">{label}</p>
+                          <p className="font-semibold text-gray-900 text-sm">{value}</p>
+                        </div>
+                      ))}
+                    </div>
+                    {property.rera.sources?.length > 0 && (
+                      <div className="mt-4 pt-3 border-t">
+                        <p className="text-gray-500 text-xs mb-2">Sources</p>
+                        <div className="flex flex-col gap-1">
+                          {property.rera.sources.map((source, index) => (
+                            <a key={index} href={source} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 hover:underline break-all">
+                              {source}
+                            </a>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
 
