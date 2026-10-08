@@ -287,6 +287,12 @@ export default function PlansPage() {
                         <FiCheck size={13} className="text-[#7B2FFF] flex-shrink-0" />
                         {plan.expiryInDays === -1 ? "Never expires" : `Valid for ${plan.expiryInDays} day${plan.expiryInDays === 1 ? "" : "s"}`}
                       </li>
+                      {(Array.isArray(plan.benefits) ? plan.benefits : []).map((benefit, index) => (
+                        <li key={`${plan._id}-benefit-${index}`} className="flex items-start gap-2 text-xs text-gray-600">
+                          <FiCheck size={13} className="mt-0.5 text-[#7B2FFF] flex-shrink-0" />
+                          <span>{benefit}</span>
+                        </li>
+                      ))}
                     </ul>
 
                     {isFree ? (
