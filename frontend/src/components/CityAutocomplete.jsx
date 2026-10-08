@@ -92,8 +92,6 @@ export default function CityAutocomplete({
     serviceRef.current.getPlacePredictions(
       {
         input: query,
-        types: ["(cities)"],
-        componentRestrictions: { country: "in" }, // India only
       },
       (results, status) => {
         setLoading(false);

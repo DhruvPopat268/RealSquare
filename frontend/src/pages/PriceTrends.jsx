@@ -57,7 +57,7 @@ function CityPickerModal({ selectedCity, onSelect, onClose }) {
     debounceRef.current = setTimeout(() => {
       if (!autocompleteService) { setCitySearching(false); return; }
       autocompleteService.getPlacePredictions(
-        { input: v, componentRestrictions: { country: "in" }, types: ["(cities)"] },
+        { input: v },
         (results, status) => {
           setCitySearching(false);
           setCitySuggestions(status === "OK" && results ? results.slice(0, 6) : []);

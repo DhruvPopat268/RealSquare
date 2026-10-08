@@ -170,7 +170,7 @@ export default function ListingHeader() {
   const fetchSuggestions = useCallback((value, setter, loadingSetter) => {
     if (!value.trim() || !autocompleteService) { setter([]); loadingSetter(false); return; }
     autocompleteService.getPlacePredictions(
-      { input: value, componentRestrictions: { country: "in" }, types: ["geocode"] },
+      { input: value },
       (results, status) => {
         loadingSetter(false);
         if (status === "OK" && results) {
@@ -212,7 +212,7 @@ export default function ListingHeader() {
     cityDebounceRef.current = setTimeout(() => {
       if (!autocompleteService) { setCitySearching(false); return; }
       autocompleteService.getPlacePredictions(
-        { input: v, componentRestrictions: { country: "in" }, types: ["(cities)"] },
+        { input: v },
         (results, status) => {
           setCitySearching(false);
           setCitySuggestions(status === "OK" && results ? results.slice(0, 6) : []);

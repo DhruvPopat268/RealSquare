@@ -169,7 +169,6 @@ export default function PropertyValueCalculator() {
                   value={form.area}
                   onChange={set("area")}
                   placeholder="Search locality e.g. Bandra West"
-                  types={["geocode"]}
                   cityBias={form.city}
                 />
               </FIELD>

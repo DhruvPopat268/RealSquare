@@ -102,8 +102,6 @@ export default function LocationAutocomplete({
 
     const request = {
       input: searchQuery,
-      types: ["geocode", "establishment"],
-      componentRestrictions: { country: "in" }, // Restrict to India
     };
 
     serviceRef.current.getPlacePredictions(request, (results, status) => {

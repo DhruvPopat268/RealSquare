@@ -72,7 +72,7 @@ export default function Hero({ activeTab, setActiveTab, searchQuery, setSearchQu
     if (!value.trim()) { setSuggestions([]); setSearching(false); return; }
     if (!autocompleteService) { setSearching(false); return; }
     autocompleteService.getPlacePredictions(
-      { input: value, componentRestrictions: { country: "in" }, types: ["geocode", "establishment"] },
+      { input: value },
       (results, status) => {
         setSearching(false);
         if (status === "OK" && results) {

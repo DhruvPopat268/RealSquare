@@ -24,7 +24,7 @@ function loadGoogleMapsScript() {
   });
 }
 
-export default function PlacesAutocomplete({ value, onChange, placeholder, types = ["geocode"], cityBias = "" }) {
+export default function PlacesAutocomplete({ value, onChange, placeholder, cityBias = "" }) {
   const [suggestions, setSuggestions] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
   const [searching, setSearching] = useState(false);
@@ -49,7 +49,7 @@ export default function PlacesAutocomplete({ value, onChange, placeholder, types
     if (!val.trim() || !autocompleteService) { setSuggestions([]); setSearching(false); return; }
     const query = cityBias ? `${val}, ${cityBias}` : val;
     autocompleteService.getPlacePredictions(
-      { input: query, componentRestrictions: { country: "in" }, types },
+      { input: query },
       (results, status) => {
         setSearching(false);
         if (status === "OK" && results) {
