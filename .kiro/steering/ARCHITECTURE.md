@@ -49,7 +49,7 @@ frontend/src/
 | `UpdateProfilePage.jsx` | `/profile` | Edit existing profile with email verification before saving changed email addresses |
 | `ChatbotPage.jsx` | `/chatbot` | Conversational property listing flow |
 | `ListPropertyPage.jsx` | `/list-property` | Manual property listing form |
-| `EditPropertyPage.jsx` | `/edit-property/:id` | Edit an existing property listing; Rent Details order fields as Monthly Rent, Security Deposit, then Available From, broker listings show a Zero Brokerage toggle above Photos, construction status accompanies an Available From date change in partial updates, and RERA project details remain hidden |
+| `EditPropertyPage.jsx` | `/edit-property/:id` | Edit an existing property listing; Rent Details order fields as Monthly Rent, Security Deposit, then Available From, broker listings show a Zero Brokerage toggle above Photos, construction status accompanies an Available From date change in partial updates, RERA IDs can be edited and saved, and RERA project details remain hidden |
 | `MyListingsPage.jsx` | `/my-property-listings` | Paginated list of user's own listings with filters; list and grid cards show a color-coded completion ring at the upper-right of the details area below the image |
 | `PropertyDetail.jsx` | `/property/:id` | Full property detail view for API listings, with category-specific residential, plot, PG, and commercial details, RERA project data, and zero-brokerage status |
 | `PropertyListPage.jsx` | `/listings` | Browse all property listings |

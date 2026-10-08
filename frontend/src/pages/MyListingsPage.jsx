@@ -261,6 +261,14 @@ function GridCard({ listing, onStatusUpdate }) {
           {listing.price ?? <span className="text-sm font-semibold text-gray-400">Price on request</span>}
         </p>
 
+        {(listing.perSqFtPrice != null || listing.perSqYdPrice != null || listing.perSqMtPrice != null) && (
+          <p className="text-[11px] text-gray-500 mb-1">
+            {listing.perSqFtPrice != null && `₹${listing.perSqFtPrice.toLocaleString("en-IN")}/sqft`}
+            {listing.perSqYdPrice != null && `₹${listing.perSqYdPrice.toLocaleString("en-IN")}/sqyd`}
+            {listing.perSqMtPrice != null && `₹${listing.perSqMtPrice.toLocaleString("en-IN")}/sqmt`}
+          </p>
+        )}
+
         {(listing.address || listing.cityName) && (
           <div className="flex items-center gap-1 text-[11px] text-gray-500">
             <FiMapPin size={10} className="flex-shrink-0" />
@@ -466,6 +474,14 @@ function ListingCard({ listing, onStatusUpdate }) {
         <p className="text-base font-extrabold text-[#7B2FFF] mb-1.5">
           {listing.price ?? <span className="text-sm font-semibold text-gray-400">Price on request</span>}
         </p>
+
+        {(listing.perSqFtPrice != null || listing.perSqYdPrice != null || listing.perSqMtPrice != null) && (
+          <p className="text-[11px] text-gray-500 mb-1.5">
+            {listing.perSqFtPrice != null && `₹${listing.perSqFtPrice.toLocaleString("en-IN")}/sqft`}
+            {listing.perSqYdPrice != null && `₹${listing.perSqYdPrice.toLocaleString("en-IN")}/sqyd`}
+            {listing.perSqMtPrice != null && `₹${listing.perSqMtPrice.toLocaleString("en-IN")}/sqmt`}
+          </p>
+        )}
 
         {(listing.address || listing.cityName) && (
           <div className="flex items-center gap-1 text-[11px] text-gray-500 mb-2">

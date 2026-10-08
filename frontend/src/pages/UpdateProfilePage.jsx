@@ -173,7 +173,7 @@ function EnquiryCitiesField({ cities, onChange }) {
 
   return (
     <div className="border-t border-gray-100 pt-4 mt-2">
-      <p className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-1">Cities for Requirements</p>
+      <p className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-1">Multiple Cities for Requirement</p>
       <p className="text-xs text-gray-400 mb-3">Select the cities where you handle property requirements. Customers in these cities will be able to reach you.</p>
 
       {/* Selected city pills */}
@@ -292,7 +292,7 @@ function OwnerFields({ form, setForm, errors, mobile, verifiedEmail, onEmailVeri
   );
 }
 
-function BrokerFields({ form, setForm, errors, mobile, verifiedEmail, onEmailVerified }) {
+function BrokerFields({ form, setForm, errors, mobile, verifiedEmail, onEmailVerified, initialFormRef }) {
   return (
     <>
       <div className="flex justify-center mb-2">
@@ -837,7 +837,7 @@ export default function UpdateProfilePage() {
           <div className="flex flex-col gap-4">
             {role === "customer" && <CustomerFields form={form} setForm={setForm} errors={errors} mobile={mobile} verifiedEmail={verifiedEmail} onEmailVerified={setVerifiedEmail} />}
             {role === "owner"    && <OwnerFields    form={form} setForm={setForm} errors={errors} mobile={mobile} verifiedEmail={verifiedEmail} onEmailVerified={setVerifiedEmail} />}
-            {role === "broker"   && <BrokerFields   form={form} setForm={setForm} errors={errors} mobile={mobile} verifiedEmail={verifiedEmail} onEmailVerified={setVerifiedEmail} />}
+            {role === "broker"   && <BrokerFields   form={form} setForm={setForm} errors={errors} mobile={mobile} verifiedEmail={verifiedEmail} onEmailVerified={setVerifiedEmail} initialFormRef={initialFormRef} />}
             {role === "builder"  && <BuilderFields  form={form} setForm={setForm} errors={errors} mobile={mobile} verifiedEmail={verifiedEmail} onEmailVerified={setVerifiedEmail} />}
 
             {Object.values(errors).some(Boolean) && (

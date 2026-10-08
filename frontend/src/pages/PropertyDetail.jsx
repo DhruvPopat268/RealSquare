@@ -465,7 +465,17 @@ export default function PropertyDetail() {
         {/* QUICK INFO */}
         {property._isApiListing ? (
           // ── API listing: purpose / category / type ────────────────────────
-          <div className={`bg-white rounded-2xl grid grid-cols-2 ${property.zeroBrokerage != null ? "md:grid-cols-4" : "md:grid-cols-3"} overflow-hidden shadow-sm mb-8`}>
+          <div className={`bg-white rounded-2xl grid grid-cols-2 ${
+            [property.zeroBrokerage != null,
+             property.perSqFtPrice != null || property.perSqYdPrice != null || property.perSqMtPrice != null
+            ].filter(Boolean).length === 2
+              ? "md:grid-cols-5"
+              : [property.zeroBrokerage != null,
+                 property.perSqFtPrice != null || property.perSqYdPrice != null || property.perSqMtPrice != null
+                ].some(Boolean)
+                ? "md:grid-cols-4"
+                : "md:grid-cols-3"
+          } overflow-hidden shadow-sm mb-8`}>
             <div className="p-6 border-r">
               <p className="text-gray-500 text-sm mb-1">Purpose</p>
               <h3 className="font-semibold text-lg">{property.listingType?.name ?? "—"}</h3>
@@ -474,10 +484,20 @@ export default function PropertyDetail() {
               <p className="text-gray-500 text-sm mb-1">Category</p>
               <h3 className="font-semibold text-lg">{property.category?.name ?? "—"}</h3>
             </div>
-            <div className="p-6">
+            <div className={`p-6 ${property.zeroBrokerage != null || (property.perSqFtPrice != null || property.perSqYdPrice != null || property.perSqMtPrice != null) ? "border-r" : ""}`}>
               <p className="text-gray-500 text-sm mb-1">Property Type</p>
               <h3 className="font-semibold text-lg">{property.propertyType?.name ?? "—"}</h3>
             </div>
+            {(property.perSqFtPrice != null || property.perSqYdPrice != null || property.perSqMtPrice != null) && (
+              <div className={`p-6 ${property.zeroBrokerage != null ? "border-r" : ""}`}>
+                <p className="text-gray-500 text-sm mb-1">Price per Area</p>
+                <h3 className="font-semibold text-lg">
+                  {property.perSqFtPrice != null && `₹${property.perSqFtPrice.toLocaleString("en-IN")}/sqft`}
+                  {property.perSqYdPrice != null && `₹${property.perSqYdPrice.toLocaleString("en-IN")}/sqyd`}
+                  {property.perSqMtPrice != null && `₹${property.perSqMtPrice.toLocaleString("en-IN")}/sqmt`}
+                </h3>
+              </div>
+            )}
             {property.zeroBrokerage != null && (
               <div className="p-6">
                 <p className="text-gray-500 text-sm mb-1">Zero Brokerage</p>

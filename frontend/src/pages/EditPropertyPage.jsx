@@ -408,7 +408,6 @@ export default function EditPropertyPage() {
 
   return (
     <div className="bg-[#f9f9fb] min-h-screen flex flex-col">
-      <PageSpinner />
       <Navbar />
 
       <div className="flex-1 mx-auto px-4 py-8 max-w-4xl w-full">
@@ -614,9 +613,8 @@ export default function EditPropertyPage() {
             >
               <TextInput
                 value={form.reraId ?? ""}
-                onChange={(v) => handleFormChange("reraId", v)}
+                onChange={(value) => handleFormChange("reraId", value)}
                 placeholder="e.g. PR/GJ/VADODARA/VADODARA CITY/CAA01234"
-                disabled={saving}
               />
             </FormField>
 
