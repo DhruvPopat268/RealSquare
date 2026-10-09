@@ -20,6 +20,7 @@ const STATUS_OPTIONS      = [
   { _id: "expired", name: "Expired" },
   { _id: "rejected", name: "Rejected" },
 ];
+const STATUS_FILTER_OPTIONS = STATUS_OPTIONS.filter(({ _id }) => _id !== "rejected");
 const CLASS_OPTIONS       = [{ _id: "hot", name: "Hot 🔥" }, { _id: "warm", name: "Warm 🌤️" }, { _id: "cold", name: "Cold ❄️" }];
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -495,7 +496,7 @@ export default function MyInquiriesPage() {
               <FilterSelect
                 label="Status"
                 value={pendingFilters.status}
-                options={STATUS_OPTIONS}
+                options={STATUS_FILTER_OPTIONS}
                 disabled={false}
                 onChange={(val) => setPendingFilters((prev) => ({ ...prev, status: val }))}
               />

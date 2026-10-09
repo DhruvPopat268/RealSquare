@@ -54,7 +54,7 @@ frontend/src/
 | `PropertyDetail.jsx` | `/property/:id` | Full property detail view for API listings, with category-specific residential, plot, PG, and commercial details, RERA project data, zero-brokerage status, uploaded video players, and privacy-enhanced YouTube video/reel embeds |
 | `PropertyListPage.jsx` | `/listings` | Browse all property listings |
 | `CreateInquiryPage.jsx` | `/create-inquiry` | Create a new property enquiry |
-| `MyInquiriesPage.jsx` | `/my-inquiries` | “My Enquiries” page with a paginated, filterable list of the user's own enquiries and a Total stat for records matching current filters; creators can mark active enquiries Inactive or Completed and can see WhatsApp-rejected enquiries |
+| `MyInquiriesPage.jsx` | `/my-inquiries` | “My Enquiries” page with a paginated, filterable list of the user's own enquiries and a Total stat for records matching current filters; the status filter omits Rejected while rejected records remain visible; creators can mark active enquiries Inactive or Completed and can see WhatsApp-rejected enquiries |
 | `AssignedInquiriesPage.jsx` | `/assigned-inquiries` | “Assigned Enquiries” page for owners/brokers/builders; shows Total, Active, Purchased, Hot, Warm, and Cold stats; cards pin non-active inquiry status, including Rejected, to the bottom-right and prevent new unlocks; already purchased assignments retain access; other locked cards show the “Unlock Enquiries” option picker and a second confirmation dialog before an API purchase |
 | `PlansPage.jsx` | `/plans` | Listing plan purchase (free, coins, Razorpay) |
 | `EnquiryPlansPage.jsx` | `/enquiry-plans` | Enquiry plan purchase (free, coins, Razorpay) |
