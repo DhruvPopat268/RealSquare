@@ -49,9 +49,9 @@ frontend/src/
 | `UpdateProfilePage.jsx` | `/profile` | Edit existing profile with email verification before saving changed email addresses |
 | `ChatbotPage.jsx` | `/chatbot` | Conversational property listing flow |
 | `ListPropertyPage.jsx` | `/list-property` | Manual property listing form |
-| `EditPropertyPage.jsx` | `/edit-property/:id` | Edit an existing property listing; Rent Details order fields as Monthly Rent, Security Deposit, then Available From, broker listings show a Zero Brokerage toggle above Photos, construction status accompanies an Available From date change in partial updates, RERA IDs can be edited and saved, and RERA project details remain hidden |
+| `EditPropertyPage.jsx` | `/edit-property/:id` | Edit an existing property listing; includes Photos, Videos, and Reels media controls with direct uploads and YouTube URLs, submitted together through one media update request; Rent Details order fields as Monthly Rent, Security Deposit, then Available From, broker listings show a Zero Brokerage toggle above Photos, construction status accompanies an Available From date change in partial updates, RERA IDs can be edited and saved, and RERA project details remain hidden |
 | `MyListingsPage.jsx` | `/my-property-listings` | Paginated list of user's own listings with filters; list and grid cards show a color-coded completion ring at the upper-right of the details area below the image |
-| `PropertyDetail.jsx` | `/property/:id` | Full property detail view for API listings, with category-specific residential, plot, PG, and commercial details, RERA project data, and zero-brokerage status |
+| `PropertyDetail.jsx` | `/property/:id` | Full property detail view for API listings, with category-specific residential, plot, PG, and commercial details, RERA project data, zero-brokerage status, uploaded video players, and privacy-enhanced YouTube video/reel embeds |
 | `PropertyListPage.jsx` | `/listings` | Browse all property listings |
 | `CreateInquiryPage.jsx` | `/create-inquiry` | Create a new property enquiry |
 | `MyInquiriesPage.jsx` | `/my-inquiries` | “My Enquiries” page with a paginated, filterable list of the user's own enquiries and a Total stat for records matching current filters; creators can mark active enquiries Inactive or Completed and can see WhatsApp-rejected enquiries |
@@ -220,6 +220,8 @@ Both pages follow the same UX pattern:
 - All requests use `{ withCredentials: true }` to send the JWT cookie
 - Backend routes consumed: `/api/system-users/*`, `/api/mixed/*`, `/api/admin/*` (read-only for dropdowns)
 - The Edit Property page reads `zeroBrokerage` from the property detail response and sends it in the listing PATCH only when its toggle changes. The backend accepts this boolean for broker-owned listings.
+- Property details display uploaded video and reel URLs with native video controls and embed YouTube URLs using privacy-enhanced iframes. The YouTube embed URL is constructed from validated YouTube video IDs rather than assigning the submitted watch URL directly to the iframe.
+- Property media edits send changed photos, uploaded videos/reels, and YouTube URLs together as multipart form data to `PATCH /api/mixed/property-listings/media`.
 - Rent listing edits send `rentInfo.securityDeposit` as a numeric rupee amount; the backend validates it and merges it into existing `rentInfo` data.
 - Residential, commercial, and PG edit forms store `constructionStatus` and `ageOfProperty` in their respective detail sections; `availableFrom` is shown and sent there only for `UnderConstruction`. Rental availability remains in `rentInfo.availableFrom`. The detail API maps legacy construction values from `sellInfo` into the matching detail section for backward compatibility.
 - Residential and commercial edit forms include a `propertyStatus` dropdown (`NewlyAdded` or `Relaunch`); it is not available for PG or plot listings.

@@ -10,7 +10,7 @@ import {
 import { fetchActivePurposes, fetchActiveCategories, fetchPropertyTypes } from "./chatbotApi";
 
 // ── Inquiry-specific constants ────────────────────────────────────────────────
-const INQUIRY_TYPE_OPTIONS     = ["Individual Property", "Project Property"];
+const INQUIRY_TYPE_OPTIONS     = ["Ready To Move Property", "Under Construction Property"];
 const INQUIRY_CLASS_OPTIONS    = ["Hot 🔥 (High Priority)", "Warm 🌤️ (Medium Priority)", "Cold ❄️ (Low Priority)"];
 const INQUIRY_CLASS_MAP        = { "Hot 🔥 (High Priority)": "hot", "Warm 🌤️ (Medium Priority)": "warm", "Cold ❄️ (Low Priority)": "cold" };
 const COMM_PREF_OPTIONS        = ["Call", "WhatsApp", "Email", "SMS"];

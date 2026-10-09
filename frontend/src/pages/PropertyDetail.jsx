@@ -67,6 +67,62 @@ function adaptApiListing(listing) {
   return { ...listing, title, price, gallery, location, _isApiListing: true };
 }
 
+function getYouTubeEmbedUrl(value) {
+  if (!value) return null;
+
+  try {
+    const url = new URL(value);
+    const host = url.hostname.toLowerCase();
+    if (host !== "youtu.be" && host !== "youtube.com" && !host.endsWith(".youtube.com")) return null;
+
+    const pathParts = url.pathname.split("/").filter(Boolean);
+    const videoId = host === "youtu.be"
+      ? pathParts[0]
+      : url.searchParams.get("v") ?? (pathParts[0] === "watch" ? null : pathParts[1]);
+
+    if (!videoId || !/^[a-zA-Z0-9_-]{6,20}$/.test(videoId)) return null;
+    return `https://www.youtube-nocookie.com/embed/${videoId}?rel=0`;
+  } catch {
+    return null;
+  }
+}
+
+function ListingVideo({ title, fileUrl, youtubeUrl }) {
+  const youtubeEmbedUrl = getYouTubeEmbedUrl(youtubeUrl);
+  if (!fileUrl && !youtubeEmbedUrl) return null;
+
+  return (
+    <section className="mb-8">
+      <h2 className="text-xl font-bold text-gray-900 mb-4">{title}</h2>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        {fileUrl && (
+          <video
+            controls
+            playsInline
+            preload="metadata"
+            className="w-full aspect-video rounded-2xl bg-black object-contain"
+            aria-label={title}
+          >
+            <source src={fileUrl} />
+            Your browser does not support video playback.
+          </video>
+        )}
+        {youtubeEmbedUrl && (
+          <iframe
+            src={youtubeEmbedUrl}
+            title={`${title} on YouTube`}
+            className="w-full aspect-video rounded-2xl bg-black"
+            loading="lazy"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            referrerPolicy="strict-origin-when-cross-origin"
+            allowFullScreen
+          />
+        )}
+      </div>
+    </section>
+  );
+}
+
 export default function PropertyDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -400,6 +456,21 @@ export default function PropertyDetail() {
               })}
             </div>
           </div>
+        )}
+
+        {property._isApiListing && (
+          <>
+            <ListingVideo
+              title="Property Videos"
+              fileUrl={property.media?.videos?.videoUrl}
+              youtubeUrl={property.media?.videos?.ytVideoUrl}
+            />
+            <ListingVideo
+              title="Property Reels"
+              fileUrl={property.media?.reelVideo?.reelUrl}
+              youtubeUrl={property.media?.reelVideo?.ytReelUrl}
+            />
+          </>
         )}
 
         {/* LIGHTBOX */}

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { FiArrowLeft, FiCheck, FiAlertCircle, FiShield } from "react-icons/fi";
+import { FiArrowLeft, FiCheck, FiAlertCircle, FiShield, FiUpload, FiX } from "react-icons/fi";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import PageSpinner from "../components/PageSpinner";
@@ -44,6 +44,78 @@ function computeShowFurnishings(listing) {
   return false;
 }
 
+function VideoMediaField({ title, file, currentUrl, youtubeUrl, onFileChange, onYoutubeChange, onRemoveUpload, clearUpload, disabled }) {
+  return (
+    <div className="rounded-xl border border-gray-100 p-4 flex flex-col gap-4">
+      <div className="flex items-center justify-between gap-3">
+        <h4 className="text-sm font-bold text-gray-800">{title}</h4>
+        <label className={`flex shrink-0 cursor-pointer items-center gap-2 rounded-xl border border-dashed border-[#7B2FFF] px-3 py-2 text-xs font-semibold text-[#7B2FFF] hover:bg-[#f5f0ff] ${disabled ? "pointer-events-none opacity-50" : ""}`}>
+          <FiUpload size={14} />
+          {currentUrl && !clearUpload ? "Replace video" : "Choose video file"}
+          <input
+            type="file"
+            accept="video/mp4,video/webm,video/quicktime,video/x-m4v,video/x-matroska"
+            className="hidden"
+            disabled={disabled}
+            onChange={(event) => {
+              onFileChange(event.target.files?.[0] ?? null);
+              event.target.value = "";
+            }}
+          />
+        </label>
+      </div>
+
+      <div className="flex flex-col gap-2">
+        {currentUrl && !clearUpload && (
+          <div className="flex items-center justify-between gap-3 rounded-lg bg-gray-50 px-3 py-2">
+            <a href={currentUrl} target="_blank" rel="noreferrer" className="text-xs text-[#7B2FFF] underline truncate">
+              Current uploaded video
+            </a>
+            <button type="button" disabled={disabled} onClick={onRemoveUpload} className="text-xs text-red-600 disabled:opacity-50">
+              Remove
+            </button>
+          </div>
+        )}
+        {clearUpload && (
+          <p className="text-xs text-amber-700">The current uploaded video will be removed when you save.</p>
+        )}
+        {file && (
+          <div className="flex items-center justify-between gap-3 rounded-lg bg-violet-50 px-3 py-2">
+            <span className="text-xs text-violet-700 truncate">Selected: {file.name}</span>
+            <button type="button" disabled={disabled} onClick={() => onFileChange(null)} aria-label="Remove selected video" className="text-violet-700 disabled:opacity-50">
+              <FiX size={14} />
+            </button>
+          </div>
+        )}
+        {clearUpload && (
+          <button type="button" disabled={disabled} onClick={onRemoveUpload} className="self-start text-xs text-[#7B2FFF] disabled:opacity-50">
+            Undo remove
+          </button>
+        )}
+        <p className="text-[11px] text-gray-400">MP4, WebM, MOV, M4V, or MKV</p>
+      </div>
+
+      <div className="flex items-center gap-3 text-[11px] font-semibold uppercase tracking-wide text-gray-400">
+        <span className="h-px flex-1 bg-gray-100" />
+        or add a YouTube link
+        <span className="h-px flex-1 bg-gray-100" />
+      </div>
+
+      <div className="flex flex-col gap-1.5">
+        <label className="text-xs font-bold text-gray-600 uppercase tracking-wide">YouTube URL</label>
+        <input
+          type="url"
+          value={youtubeUrl}
+          onChange={(event) => onYoutubeChange(event.target.value)}
+          placeholder="https://www.youtube.com/watch?v=..."
+          disabled={disabled}
+          className="w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:border-[#7B2FFF] focus:outline-none focus:ring-1 focus:ring-[#7B2FFF]/20 disabled:bg-gray-50 disabled:text-gray-400"
+        />
+      </div>
+    </div>
+  );
+}
+
 export default function EditPropertyPage() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -56,6 +128,10 @@ export default function EditPropertyPage() {
   const [originalForm, setOriginalForm] = useState({}); // Track original for diff
   const [images, setImages] = useState([]);
   const [newFiles, setNewFiles] = useState([]);
+  const [videoLinks, setVideoLinks] = useState({ videoUrl: "", ytVideoUrl: "", reelUrl: "", ytReelUrl: "" });
+  const [originalVideoLinks, setOriginalVideoLinks] = useState({ videoUrl: "", ytVideoUrl: "", reelUrl: "", ytReelUrl: "" });
+  const [videoFiles, setVideoFiles] = useState({ video: null, reelVideo: null });
+  const [removedUploads, setRemovedUploads] = useState({ video: false, reelVideo: false });
   const [saving, setSaving] = useState(false);
   const [toast, setToast] = useState(null);
 
@@ -86,6 +162,14 @@ export default function EditPropertyPage() {
           const data = res.data.data;
           setListing(data);
           setImages(data.media?.images ?? []);
+          const initialVideoLinks = {
+            videoUrl: data.media?.videos?.videoUrl ?? "",
+            ytVideoUrl: data.media?.videos?.ytVideoUrl ?? "",
+            reelUrl: data.media?.reelVideo?.reelUrl ?? "",
+            ytReelUrl: data.media?.reelVideo?.ytReelUrl ?? "",
+          };
+          setVideoLinks(initialVideoLinks);
+          setOriginalVideoLinks({ ...initialVideoLinks });
           // Initialize form with existing data
           const initialForm = {
             listingTypeId: data.listingType?.id ?? "",
@@ -329,25 +413,41 @@ export default function EditPropertyPage() {
       if (!patchRes.data.success) {
         throw new Error(patchRes.data.message ?? "Update failed");
       }
-      // 2. Only call media API if images actually changed:
-      //    - new files were added, OR
-      //    - existing images were reordered or deleted
+      // 2. Send all changed media together through the single media endpoint.
       const originalImages = listing.media?.images ?? [];
       const imagesChanged =
         newFiles.length > 0 ||
         images.length !== originalImages.length ||
         images.some((url, i) => url !== originalImages[i]);
 
+      const videosChanged =
+        Boolean(videoFiles.video || videoFiles.reelVideo) ||
+        removedUploads.video || removedUploads.reelVideo ||
+        videoLinks.ytVideoUrl !== originalVideoLinks.ytVideoUrl ||
+        videoLinks.ytReelUrl !== originalVideoLinks.ytReelUrl;
+      const mediaChanged = imagesChanged || videosChanged;
+
       let finalMessage = patchRes.data.message ?? "Property updated successfully!";
 
-      if (imagesChanged) {
+      if (mediaChanged) {
         const formData = new FormData();
         formData.append("propertyListingId", id);
-        formData.append("existingImages", JSON.stringify(images));
 
-        if (newFiles.length > 0) {
-          formData.append("isPrimary", JSON.stringify(newFiles.map((_, idx) => idx === 0)));
-          newFiles.forEach((file) => formData.append("images", file));
+        if (imagesChanged) {
+          formData.append("existingImages", JSON.stringify(images));
+          if (newFiles.length > 0) {
+            formData.append("isPrimary", JSON.stringify(newFiles.map((_, idx) => idx === 0)));
+            newFiles.forEach((file) => formData.append("images", file));
+          }
+        }
+
+        if (videosChanged) {
+          formData.append("ytVideoUrl", videoLinks.ytVideoUrl);
+          formData.append("ytReelUrl", videoLinks.ytReelUrl);
+          formData.append("clearVideo", String(removedUploads.video));
+          formData.append("clearReelVideo", String(removedUploads.reelVideo));
+          if (videoFiles.video) formData.append("video", videoFiles.video);
+          if (videoFiles.reelVideo) formData.append("reelVideo", videoFiles.reelVideo);
         }
 
         const mediaRes = await axios.patch(
@@ -356,9 +456,8 @@ export default function EditPropertyPage() {
           { withCredentials: true, headers: { "Content-Type": "multipart/form-data" } }
         );
         if (!mediaRes.data.success) {
-          throw new Error(mediaRes.data.message ?? "Image update failed");
+          throw new Error(mediaRes.data.message ?? "Media update failed");
         }
-        // Prefer the media API message if images changed (it mentions review status)
         finalMessage = mediaRes.data.message ?? finalMessage;
       }
 
@@ -511,6 +610,40 @@ export default function EditPropertyPage() {
             onNewFiles={handleNewFiles}
             onRemoveNew={handleRemoveNewFile}
             onNewFilesReorder={handleNewFilesReorder}
+            disabled={saving}
+          />
+        </Section>
+
+        <Section title="Videos">
+          <VideoMediaField
+            title="Property video"
+            file={videoFiles.video}
+            currentUrl={videoLinks.videoUrl}
+            youtubeUrl={videoLinks.ytVideoUrl}
+            onFileChange={(file) => {
+              setVideoFiles((prev) => ({ ...prev, video: file }));
+              if (file) setRemovedUploads((prev) => ({ ...prev, video: false }));
+            }}
+            onYoutubeChange={(value) => setVideoLinks((prev) => ({ ...prev, ytVideoUrl: value }))}
+            onRemoveUpload={() => setRemovedUploads((prev) => ({ ...prev, video: !prev.video }))}
+            clearUpload={removedUploads.video}
+            disabled={saving}
+          />
+        </Section>
+
+        <Section title="Reels">
+          <VideoMediaField
+            title="Property reel"
+            file={videoFiles.reelVideo}
+            currentUrl={videoLinks.reelUrl}
+            youtubeUrl={videoLinks.ytReelUrl}
+            onFileChange={(file) => {
+              setVideoFiles((prev) => ({ ...prev, reelVideo: file }));
+              if (file) setRemovedUploads((prev) => ({ ...prev, reelVideo: false }));
+            }}
+            onYoutubeChange={(value) => setVideoLinks((prev) => ({ ...prev, ytReelUrl: value }))}
+            onRemoveUpload={() => setRemovedUploads((prev) => ({ ...prev, reelVideo: !prev.reelVideo }))}
+            clearUpload={removedUploads.reelVideo}
             disabled={saving}
           />
         </Section>
