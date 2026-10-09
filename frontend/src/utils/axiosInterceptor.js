@@ -3,6 +3,10 @@ import axios from "axios";
 axios.interceptors.response.use(
   (response) => response,
   (error) => {
+    if (typeof error.response?.data?.message === "string") {
+      error.message = error.response.data.message;
+    }
+
     const requestUrl = error.config?.url ?? "";
     const isLoginRequest = /\/api\/system-users\/(send-otp|verify-otp)\/?(?:\?|$)/.test(requestUrl);
     const isCurrentUserRequest = /\/api\/system-users\/me\/?(?:\?|$)/.test(requestUrl);

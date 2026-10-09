@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { FiChevronDown, FiMenu, FiX, FiUser, FiEye, FiHeart, FiPhone, FiEdit2, FiRefreshCw, FiAlertTriangle, FiList } from "react-icons/fi";
-import axios from "axios";
+import api from "../utils/axiosInterceptor";
 import { properties } from "../data/properties";
 import CoinIcon from "./CoinIcon";
 
@@ -301,9 +301,9 @@ export default function Navbar() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    axios
-      .get(`${import.meta.env.VITE_API_URL}/api/system-users/me`, { withCredentials: true })
-      .then(({ data }) => {
+    fetch(`${import.meta.env.VITE_API_URL}/api/system-users/me`, { credentials: "include" })
+      .then((response) => response.json())
+      .then((data) => {
         if (data.success) {
           setUser(data.data);
           localStorage.setItem("isAuthenticated", "true");
@@ -509,10 +509,7 @@ export default function Navbar() {
                   <button
                     onClick={async () => {
                       if (!switchSelected) return;
-                      await fetch(`${import.meta.env.VITE_API_URL}/api/system-users/switch-role`, {
-                        method: "POST",
-                        credentials: "include",
-                      });
+                      await api.post(`${import.meta.env.VITE_API_URL}/api/system-users/switch-role`, undefined, { withCredentials: true });
                       setShowSwitchModal(false);
                       setProfileOpen(false);
                       setSwitchSelected(null);

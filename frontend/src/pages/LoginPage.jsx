@@ -27,14 +27,9 @@ export default function LoginPage() {
     }
     setLoading(true);
     try {
-      const res = await fetch(`${BASE_URL}/api/system-users/send-otp`, {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ mobile }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || "Failed to send OTP");
+      const response = await fetch(`${BASE_URL}/api/system-users/send-otp`, { method: "POST", credentials: "include", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ mobile }) });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || "Failed to send OTP");
       setStep(STEPS.OTP);
       setTimeout(() => firstOtpRef.current?.focus(), 50);
     } catch (err) {
@@ -78,14 +73,9 @@ export default function LoginPage() {
     }
     setLoading(true);
     try {
-      const res = await fetch(`${BASE_URL}/api/system-users/verify-otp`, {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ mobile, otp: otpValue }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || "Invalid OTP");
+      const response = await fetch(`${BASE_URL}/api/system-users/verify-otp`, { method: "POST", credentials: "include", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ mobile, otp: otpValue }) });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || "Invalid OTP");
       await fetch(`${BASE_URL}/api/system-users/me`, { credentials: "include" });
       if (data.data.isNew) {
         const params = new URLSearchParams(location.search);

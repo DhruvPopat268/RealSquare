@@ -10,6 +10,7 @@ import {
   PG_ROOM_TYPE_OPTIONS,
 } from "./chatbotConstants";
 import { fetchActivePurposes, fetchActiveCategories, fetchPropertyTypes } from "./chatbotApi";
+import api from "../utils/axiosInterceptor";
 
 export async function propertyListingFlow(step, answer, collectedData, { botSay, setCollectedData, goTo, setCustomInput }) {
 
@@ -704,14 +705,7 @@ export async function propertyListingFlow(step, answer, collectedData, { botSay,
     let propertyId;
     try {
       await botSay("⏳ Submitting your property listing...");
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/mixed/property-listings`, {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(listingPayload),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || "Failed to list property");
+      const { data } = await api.post(`${import.meta.env.VITE_API_URL}/api/mixed/property-listings`, listingPayload, { withCredentials: true });
       propertyId = data.data?._id;
     } catch (err) {
       await botSay(`⚠️ Failed to list property: ${err.message}\n\nPlease try again after some time.`, ["Retry"]);
@@ -726,13 +720,7 @@ export async function propertyListingFlow(step, answer, collectedData, { botSay,
       formData.append("propertyId", propertyId);
       images.forEach((file) => formData.append("images", file));
 
-      const mediaRes = await fetch(`${import.meta.env.VITE_API_URL}/api/mixed/property-listings/media`, {
-        method: "POST",
-        credentials: "include",
-        body: formData,
-      });
-      const mediaData = await mediaRes.json();
-      if (!mediaRes.ok) throw new Error(mediaData.message || "Image upload failed");
+      const { data: mediaData } = await api.post(`${import.meta.env.VITE_API_URL}/api/mixed/property-listings/media`, formData, { withCredentials: true });
       const isProject = d.listingMode === "Project Listing";
       const editPath  = isProject
         ? "Profile → My Project Listings → Edit Project"

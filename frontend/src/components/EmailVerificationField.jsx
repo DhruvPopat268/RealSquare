@@ -1,4 +1,5 @@
 import { useRef, useState } from "react";
+import api from "../utils/axiosInterceptor";
 
 const BASE_URL = import.meta.env.VITE_API_URL;
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -30,14 +31,8 @@ export default function EmailVerificationField({
 
     setSending(true);
     try {
-      const response = await fetch(`${BASE_URL}/api/system-users/send-email-otp`, {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: targetEmail }),
-      });
-      const result = await response.json();
-      if (!response.ok || result.success !== true) {
+      const { data: result } = await api.post(`${BASE_URL}/api/system-users/send-email-otp`, { email: targetEmail }, { withCredentials: true });
+      if (result.success !== true) {
         throw new Error(result.message || "Could not send verification code");
       }
       if (result.verified === true) {
@@ -64,14 +59,8 @@ export default function EmailVerificationField({
 
     setVerifying(true);
     try {
-      const response = await fetch(`${BASE_URL}/api/system-users/verify-email-otp`, {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: otpEmail, otp }),
-      });
-      const result = await response.json();
-      if (!response.ok || result.success !== true || result.verified !== true) {
+      const { data: result } = await api.post(`${BASE_URL}/api/system-users/verify-email-otp`, { email: otpEmail, otp }, { withCredentials: true });
+      if (result.success !== true || result.verified !== true) {
         throw new Error(result.message || "Email verification failed");
       }
       onVerified((result.email || otpEmail).trim().toLowerCase());

@@ -1,13 +1,16 @@
 import { useState, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { FiArrowRight, FiSkipForward, FiCamera, FiImage, FiMapPin, FiX } from "react-icons/fi";
+import axios from "axios";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import PlacesAutocomplete from "../components/PlacesAutocomplete";
 import CityAutocomplete from "../components/CityAutocomplete";
 import EmailVerificationField from "../components/EmailVerificationField";
+import api from "../utils/axiosInterceptor";
 
 const BASE_URL = import.meta.env.VITE_API_URL;
+const geocodingApi = axios.create();
 
 const ROLE_IDS = {
   customer: import.meta.env.VITE_CUSTOMER_ROLE_ID,
@@ -34,10 +37,9 @@ const OWNER_BUSINESS_TYPES = [
 
 async function geocode(name) {
   const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
-  const res = await fetch(
-    `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(name)}&key=${apiKey}`
-  );
-  const data = await res.json();
+  const { data } = await geocodingApi.get("https://maps.googleapis.com/maps/api/geocode/json", {
+    params: { address: name, key: apiKey },
+  });
   if (data.status === "OK" && data.results[0]) {
     const { lat, lng } = data.results[0].geometry.location;
     return { latitude: lat, longitude: lng };
@@ -449,13 +451,7 @@ export default function CompleteProfilePage() {
         fd.append("enquiryCities", JSON.stringify(form.enquiryCities ?? []));
       }
 
-      const res = await fetch(`${BASE_URL}/api/system-users/complete-profile`, {
-        method: "POST",
-        credentials: "include",
-        body: fd,
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || "Failed to save profile");
+      await api.post(`${BASE_URL}/api/system-users/complete-profile`, fd, { withCredentials: true });
       navigate(returnTo, { replace: true });
     } catch (err) {
       setErrors({ submit: err.message });
@@ -468,12 +464,7 @@ export default function CompleteProfilePage() {
     setSkipError("");
     setSkipping(true);
     try {
-      const res = await fetch(`${BASE_URL}/api/system-users/assign-customer-role`, {
-        method: "POST",
-        credentials: "include",
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || "Could not continue as a customer");
+      await api.post(`${BASE_URL}/api/system-users/assign-customer-role`, undefined, { withCredentials: true });
       navigate(returnTo, { replace: true });
     } catch (err) {
       setSkipError(err.message || "Could not continue as a customer");

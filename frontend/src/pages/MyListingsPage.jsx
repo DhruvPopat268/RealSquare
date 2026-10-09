@@ -566,9 +566,9 @@ export default function MyListingsPage() {
   const [rejectedCount, setRejectedCount] = useState(0);
 
   useEffect(() => {
-    axios
-      .get(`${import.meta.env.VITE_API_URL}/api/system-users/me`, { withCredentials: true })
-      .then(({ data }) => {
+    fetch(`${import.meta.env.VITE_API_URL}/api/system-users/me`, { credentials: "include" })
+      .then((response) => response.json())
+      .then((data) => {
         if (data.success) {
           setAllowed(ALLOWED_ROLES.includes(data.data?.role?._id));
           setRejectedCount(data.data?.rejectedPropertiesCount ?? 0);

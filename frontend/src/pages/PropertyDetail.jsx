@@ -1,5 +1,6 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
+import api from "../utils/axiosInterceptor";
 import {
   FiMapPin,
   FiHeart,
@@ -198,8 +199,8 @@ export default function PropertyDetail() {
   useEffect(() => {
     if (!isMongoId(id)) return;
     setApiLoading(true);
-    fetch(`${API}/api/mixed/property-listings/${id}`, { credentials: "include" })
-      .then((r) => r.json())
+    api.get(`${API}/api/mixed/property-listings/${id}`, { withCredentials: true })
+      .then(({ data }) => data)
       .then((data) => {
         if (data.success) setApiListing(adaptApiListing(data.data));
         else setApiError(data.message ?? "Property not found");

@@ -8,6 +8,7 @@ import {
   CATEGORY_COMMERCIAL_ID,
 } from "./chatbotConstants";
 import { fetchActivePurposes, fetchActiveCategories, fetchPropertyTypes } from "./chatbotApi";
+import api from "../utils/axiosInterceptor";
 
 // ── Inquiry-specific constants ────────────────────────────────────────────────
 const INQUIRY_TYPE_OPTIONS     = ["Ready To Move Property", "Under Construction Property"];
@@ -469,20 +470,7 @@ export async function inquiryFlow(step, answer, collectedData, { botSay, setColl
         }
       }
 
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/mixed/inquiries/create`, {
-        method:      "POST",
-        credentials: "include",
-        headers:     { "Content-Type": "application/json" },
-        body:        JSON.stringify(payload),
-      });
-
-      const json = await res.json();
-
-      if (!res.ok) {
-        await botSay(`❌ Failed to submit: ${json.message ?? "Unknown error"}. Please try again.`, ["Start Over"]);
-        goTo("submit_error", collectedData);
-        return;
-      }
+      await api.post(`${import.meta.env.VITE_API_URL}/api/mixed/inquiries/create`, payload, { withCredentials: true });
 
       await botSay(`✅ Requirement submitted successfully! 🎉\nYour requirement has been created and assigned to eligible professionals in ${d.preferredCity}.`);
       await botSay("Would you like to create another requirement?", ["Yes, create another", "No, I'm done"]);

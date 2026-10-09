@@ -4,6 +4,7 @@ import { FiArrowLeft, FiCheckCircle, FiClock, FiXCircle } from "react-icons/fi";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import PageSpinner from "../components/PageSpinner";
+import api from "../utils/axiosInterceptor";
 
 const BASE_URL = import.meta.env.VITE_API_URL;
 const LIMIT = 10;
@@ -47,11 +48,9 @@ export default function PaymentTransactionsPage() {
   const fetchTransactions = useCallback(async (pageNum) => {
     setLoading(true);
     try {
-      const res = await fetch(
-        `${BASE_URL}/api/mixed/transactions?page=${pageNum}&limit=${LIMIT}`,
-        { credentials: "include" }
-      );
-      const data = await res.json();
+      const { data } = await api.get(`${BASE_URL}/api/mixed/transactions`, {
+        params: { page: pageNum, limit: LIMIT }, withCredentials: true,
+      });
       if (!data.success) return;
       if (pageNum === 1) {
         setStats(data.data.stats);

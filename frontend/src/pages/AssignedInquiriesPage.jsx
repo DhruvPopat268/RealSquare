@@ -283,9 +283,9 @@ export default function AssignedInquiriesPage() {
   const [purchaseError, setPurchaseError] = useState("");
 
   useEffect(() => {
-    axios
-      .get(`${import.meta.env.VITE_API_URL}/api/system-users/me`, { withCredentials: true })
-      .then(({ data }) => {
+    fetch(`${import.meta.env.VITE_API_URL}/api/system-users/me`, { credentials: "include" })
+      .then((response) => response.json())
+      .then((data) => {
         if (data.success) {
           setUserData(data.data);
           setAllowed(ALLOWED_ROLES.includes(data.data?.role?._id));
@@ -410,7 +410,8 @@ export default function AssignedInquiriesPage() {
         const lastPageItems = loadedPages[loadedPages.length - 1]?.assignments ?? [];
         setHasMore(lastPageItems.length === LIMIT);
 
-        const { data } = await axios.get(`${import.meta.env.VITE_API_URL}/api/system-users/me`, { withCredentials: true });
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/system-users/me`, { credentials: "include" });
+        const { data } = await response.json();
         if (data.success) setUserData(data.data);
       } catch {
         setError("Requirement unlocked, but the page could not refresh. Please reload to see the updated details.");

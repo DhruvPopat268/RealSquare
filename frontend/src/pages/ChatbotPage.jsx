@@ -91,9 +91,9 @@ export default function ChatbotPage() {
   const chatContainerRef = useRef(null);
 
   useEffect(() => {
-    axios
-      .get(`${import.meta.env.VITE_API_URL}/api/system-users/me`, { withCredentials: true })
-      .then(({ data }) => {
+    fetch(`${import.meta.env.VITE_API_URL}/api/system-users/me`, { credentials: "include" })
+      .then((response) => response.json())
+      .then((data) => {
         if (data.success) {
           const userData = data.data;
           

@@ -5,6 +5,7 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import CoinIcon from "../components/CoinIcon";
 import PageSpinner from "../components/PageSpinner";
+import api from "../utils/axiosInterceptor";
 
 const BASE_URL = import.meta.env.VITE_API_URL;
 
@@ -57,8 +58,7 @@ export default function DepositCoinsPage() {
   const fetchWalletData = useCallback(async (pageNum) => {
     setTxLoading(true);
     try {
-      const res = await fetch(`${BASE_URL}/api/mixed/coins-transactions?page=${pageNum}&limit=10`, { credentials: "include" });
-      const d = await res.json();
+      const { data: d } = await api.get(`${BASE_URL}/api/mixed/coins-transactions`, { params: { page: pageNum, limit: 10 }, withCredentials: true });
       if (d.success) {
         setWallet(d.data.wallet);
         setTransactions((prev) => pageNum === 1 ? d.data.transactions : [...prev, ...d.data.transactions]);
@@ -71,8 +71,8 @@ export default function DepositCoinsPage() {
   }, []);
 
   useEffect(() => {
-    fetch(`${BASE_URL}/api/mixed/purchase-coins/offers`, { credentials: "include" })
-      .then((r) => r.json())
+    api.get(`${BASE_URL}/api/mixed/purchase-coins/offers`, { withCredentials: true })
+      .then(({ data }) => data)
       .then((d) => { if (d.success) setOffers(d.data); })
       .catch(() => {});
     fetchWalletData(1);
@@ -108,13 +108,7 @@ export default function DepositCoinsPage() {
       if (!loaded) throw new Error("Failed to load payment gateway");
 
       const body = selectedOffer ? { coinsOfferId: selectedOffer._id } : { coins: amount };
-      const res = await fetch(`${BASE_URL}/api/mixed/purchase-coins/create-order`, {
-        method: "POST", credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || "Failed to create order");
+      const { data } = await api.post(`${BASE_URL}/api/mixed/purchase-coins/create-order`, body, { withCredentials: true });
 
       const { orderId, amount: orderAmount, currency, transactionId } = data.data;
       const rzp = new window.Razorpay({
@@ -125,9 +119,7 @@ export default function DepositCoinsPage() {
         handler: () => { setLoading(false); setTxPage(1); setTransactions([]); fetchWalletData(1); setCoins(""); setSelectedOffer(null); },
         modal: {
           ondismiss: async () => {
-            await fetch(`${BASE_URL}/api/mixed/purchase-coins/cancel/${transactionId}`, {
-              method: "PATCH", credentials: "include",
-            });
+            await api.patch(`${BASE_URL}/api/mixed/purchase-coins/cancel/${transactionId}`, undefined, { withCredentials: true });
             setLoading(false);
           },
         },

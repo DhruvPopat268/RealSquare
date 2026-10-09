@@ -1,18 +1,19 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { FiArrowLeft, FiArrowRight, FiCamera, FiImage, FiRefreshCw, FiAlertTriangle, FiX, FiMapPin, FiCheckCircle, FiXCircle } from "react-icons/fi";
+import axios from "axios";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import PlacesAutocomplete from "../components/PlacesAutocomplete";
 import CityAutocomplete from "../components/CityAutocomplete";
 import EmailVerificationField from "../components/EmailVerificationField";
+import api from "../utils/axiosInterceptor";
 
 async function geocode(name) {
   const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
-  const res = await fetch(
-    `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(name)}&key=${apiKey}`
-  );
-  const data = await res.json();
+  const { data } = await geocodingApi.get("https://maps.googleapis.com/maps/api/geocode/json", {
+    params: { address: name, key: apiKey },
+  });
   if (data.status === "OK" && data.results[0]) {
     const { lat, lng } = data.results[0].geometry.location;
     return { latitude: lat, longitude: lng };
@@ -21,6 +22,7 @@ async function geocode(name) {
 }
 
 const BASE_URL = import.meta.env.VITE_API_URL;
+const geocodingApi = axios.create();
 
 const ROLE_IDS = {
   customer: import.meta.env.VITE_CUSTOMER_ROLE_ID,
@@ -562,10 +564,7 @@ function SwitchProfileModal({ currentRole, activePlan, activeEnquiryPlan, onCanc
           <button
             onClick={async () => {
               if (!selected) return;
-              await fetch(`${BASE_URL}/api/system-users/switch-role`, {
-                method: "POST",
-                credentials: "include",
-              });
+              await api.post(`${BASE_URL}/api/system-users/switch-role`, undefined, { withCredentials: true });
               onConfirm(selected);
             }}
             disabled={!selected}
@@ -732,13 +731,7 @@ export default function UpdateProfilePage() {
         appendEnquiryCities();
       }
 
-      const res = await fetch(`${BASE_URL}/api/system-users/update-profile`, {
-        method: "PUT",
-        credentials: "include",
-        body: fd,
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || "Failed to update profile");
+      await api.put(`${BASE_URL}/api/system-users/update-profile`, fd, { withCredentials: true });
       navigate(-1);
     } catch (err) {
       setErrors({ submit: err.message });

@@ -5,6 +5,7 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import CoinIcon from "../components/CoinIcon";
 import PageSpinner from "../components/PageSpinner";
+import api from "../utils/axiosInterceptor";
 
 const BASE_URL = import.meta.env.VITE_API_URL;
 
@@ -32,17 +33,16 @@ export default function PlansPage() {
 
   useEffect(() => {
     fetch(`${BASE_URL}/api/system-users/me`, { credentials: "include" })
-      .then((r) => r.json())
+      .then((response) => response.json())
       .then((d) => {
         const ap = d.success ? (d.data.activePlan ?? null) : null;
         setActivePlan(ap);
         const url = ap !== null
           ? `${BASE_URL}/api/mixed/purchased-plans/active-plans?userWantToUpgrade=true`
           : `${BASE_URL}/api/mixed/purchased-plans/active-plans`;
-        return fetch(url, { credentials: "include" });
+        return api.get(url, { withCredentials: true });
       })
-      .then((r) => r.json())
-      .then((d) => {
+      .then(({ data: d }) => {
         if (d.success) {
           setPlans(d.data);
           setExpiryTabs(d.expiryTabs ?? []);
@@ -67,13 +67,8 @@ export default function PlansPage() {
       const endpoint = activePlan !== null
         ? `${BASE_URL}/api/mixed/purchased-plans/change-plan`
         : `${BASE_URL}/api/mixed/purchased-plans/purchase`;
-      const res = await fetch(endpoint, {
-        method: "POST", credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ planId: plan._id }),
-      });
-      const data = await res.json();
-      if (res.status === 201) {
+      const { status } = await api.post(endpoint, { planId: plan._id }, { withCredentials: true });
+      if (status === 201) {
         sessionStorage.setItem("openProfile", "1");
         navigate("/");
         return;
@@ -93,13 +88,8 @@ export default function PlansPage() {
       const endpoint = activePlan !== null
         ? `${BASE_URL}/api/mixed/purchased-plans/change-plan`
         : `${BASE_URL}/api/mixed/purchased-plans/purchase`;
-      const res = await fetch(endpoint, {
-        method: "POST", credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ planId: plan._id }),
-      });
-      const data = await res.json();
-      if (res.status === 201) {
+      const { status } = await api.post(endpoint, { planId: plan._id }, { withCredentials: true });
+      if (status === 201) {
         sessionStorage.setItem("openProfile", "1");
         setConfirmPlan(null);
         navigate("/");
@@ -123,13 +113,7 @@ export default function PlansPage() {
       const orderEndpoint = activePlan !== null
         ? `${BASE_URL}/api/mixed/purchased-plans/change-plan-order`
         : `${BASE_URL}/api/mixed/purchased-plans/create-order`;
-      const res = await fetch(orderEndpoint, {
-        method: "POST", credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ planId: plan._id }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || "Failed to create order");
+      const { data } = await api.post(orderEndpoint, { planId: plan._id }, { withCredentials: true });
 
       const { orderId, amount, currency, transactionId } = data.data;
       const rzp = new window.Razorpay({
@@ -144,9 +128,7 @@ export default function PlansPage() {
         },
         modal: {
           ondismiss: async () => {
-            await fetch(`${BASE_URL}/api/mixed/purchased-plans/cancel/${transactionId}`, {
-              method: "PATCH", credentials: "include",
-            });
+            await api.patch(`${BASE_URL}/api/mixed/purchased-plans/cancel/${transactionId}`, undefined, { withCredentials: true });
             setPurchasing(null);
           },
         },
