@@ -782,7 +782,7 @@ export default function Navbar() {
                   <div className="border-t border-gray-100 pt-3">
                     <button
                       onClick={() => {
-                        axios.post(`${import.meta.env.VITE_API_URL}/api/system-users/logout`, {}, { withCredentials: true })
+                        api.post(`${import.meta.env.VITE_API_URL}/api/system-users/logout`, {}, { withCredentials: true })
                           .finally(() => {
                             setProfileOpen(false);
                             localStorage.removeItem("isAuthenticated");
@@ -1043,7 +1043,7 @@ export default function Navbar() {
             <div className="px-5 py-5 border-t border-gray-100">
               <button
                 onClick={() => {
-                  axios.post(`${import.meta.env.VITE_API_URL}/api/system-users/logout`, {}, { withCredentials: true })
+                  api.post(`${import.meta.env.VITE_API_URL}/api/system-users/logout`, {}, { withCredentials: true })
                     .finally(() => {
                       setMobileOpen(false);
                       localStorage.removeItem("isAuthenticated");
