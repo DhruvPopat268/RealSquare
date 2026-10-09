@@ -442,8 +442,8 @@ export default function EditPropertyPage() {
         }
 
         if (videosChanged) {
-          formData.append("ytVideoUrl", videoLinks.ytVideoUrl);
-          formData.append("ytReelUrl", videoLinks.ytReelUrl);
+          formData.append("ytVideoUrl", videoLinks.ytVideoUrl.trim() || "null");
+          formData.append("ytReelUrl", videoLinks.ytReelUrl.trim() || "null");
           formData.append("clearVideo", String(removedUploads.video));
           formData.append("clearReelVideo", String(removedUploads.reelVideo));
           if (videoFiles.video) formData.append("video", videoFiles.video);
