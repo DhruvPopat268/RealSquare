@@ -2,6 +2,7 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter, useLocation } from 'react-router-dom'
 import { useEffect } from 'react'
+import './utils/axiosInterceptor'
 import './index.css'
 import App from './App.jsx'
 

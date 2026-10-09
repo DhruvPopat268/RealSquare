@@ -218,6 +218,7 @@ Both pages follow the same UX pattern:
 
 - Base URL: `VITE_API_URL` env variable (e.g. `http://192.168.0.184:5000`)
 - All requests use `{ withCredentials: true }` to send the JWT cookie
+- `src/utils/axiosInterceptor.js` installs a response interceptor on the shared Axios client at startup; Axios API responses with HTTP 401 redirect to `/login`, except OTP login requests and requests already on the login page.
 - Backend routes consumed: `/api/system-users/*`, `/api/mixed/*`, `/api/admin/*` (read-only for dropdowns)
 - The Edit Property page reads `zeroBrokerage` from the property detail response and sends it in the listing PATCH only when its toggle changes. The backend accepts this boolean for broker-owned listings.
 - Property details display uploaded video and reel URLs with native video controls and embed YouTube URLs using privacy-enhanced iframes. The YouTube embed URL is constructed from validated YouTube video IDs rather than assigning the submitted watch URL directly to the iframe.
