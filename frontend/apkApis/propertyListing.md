@@ -168,7 +168,19 @@ Send the applicable case fields below. Do not send the placeholder keys literall
 }
 ```
 
-For a residential rental listing, use `rentInfo` instead of `sellInfo`, for example `{ "monthlyRent": 25000 }`.
+**Residential non-plot, rent:**
+
+```json
+{
+  "categoryId": "<residentialCategoryId>",
+  "listingTypeId": "<rentListingTypeId>",
+  "propertyTypeId": "<propertyTypeId>",
+  "cityName": "Pune",
+  "locality": { "address": "Baner, Pune", "latitude": 18.559, "longitude": 73.786 },
+  "residentialDetails": { "bhk": 3 },
+  "rentInfo": { "monthlyRent": 25000 }
+}
+```
 
 **Residential plot, sale:**
 
@@ -188,7 +200,25 @@ For a residential rental listing, use `rentInfo` instead of `sellInfo`, for exam
 }
 ```
 
-**Commercial non-plot:**
+**Residential plot, rent:**
+
+```json
+{
+  "categoryId": "<residentialCategoryId>",
+  "listingTypeId": "<rentListingTypeId>",
+  "propertyTypeId": "<plotPropertyTypeId>",
+  "cityName": "Pune",
+  "locality": { "address": "Baner, Pune", "latitude": 18.559, "longitude": 73.786 },
+  "plotDetails": {
+    "plotArea": { "value": 1500, "unit": "sqyd" },
+    "length": 60,
+    "width": 45
+  },
+  "rentInfo": { "monthlyRent": 15000 }
+}
+```
+
+**Commercial non-plot, sale:**
 
 ```json
 {
@@ -198,7 +228,6 @@ For a residential rental listing, use `rentInfo` instead of `sellInfo`, for exam
   "cityName": "Pune",
   "locality": { "address": "Koregaon Park, Pune", "latitude": 18.536, "longitude": 73.893 },
   "commercialDetails": {
-    "propertyType": "Office",
     "builtUpArea": { "value": 1800, "unit": "sqft" },
     "carpetArea": { "value": 1400, "unit": "sqft" }
   },
@@ -206,28 +235,145 @@ For a residential rental listing, use `rentInfo` instead of `sellInfo`, for exam
 }
 ```
 
-For commercial plots, the chatbot sends `plotArea`, `length`, and `width` inside `commercialDetails` instead of `plotDetails`.
+**Commercial non-plot, rent:**
 
-**PG / co-living:**
+```json
+{
+  "categoryId": "<commercialCategoryId>",
+  "listingTypeId": "<rentListingTypeId>",
+  "propertyTypeId": "<officePropertyTypeId>",
+  "cityName": "Mumbai",
+  "locality": { "address": "BKC, Mumbai", "latitude": 19.065, "longitude": 72.869 },
+  "commercialDetails": {
+    "builtUpArea": { "value": 2500, "unit": "sqft" },
+    "carpetArea": { "value": 2000, "unit": "sqft" }
+  },
+  "rentInfo": { "monthlyRent": 125000 }
+}
+```
+
+**Commercial plot, sale:**
+
+```json
+{
+  "categoryId": "<commercialCategoryId>",
+  "listingTypeId": "<sellListingTypeId>",
+  "propertyTypeId": "<commercialPlotPropertyTypeId>",
+  "cityName": "Chennai",
+  "locality": { "address": "OMR, Chennai", "latitude": 12.847, "longitude": 80.224 },
+  "commercialDetails": {
+    "plotArea": { "value": 5000, "unit": "sqft" },
+    "length": 100,
+    "width": 50
+  },
+  "sellInfo": { "price": 25000000 }
+}
+```
+
+**Commercial plot, rent:**
+
+```json
+{
+  "categoryId": "<commercialCategoryId>",
+  "listingTypeId": "<rentListingTypeId>",
+  "propertyTypeId": "<commercialPlotPropertyTypeId>",
+  "cityName": "Hyderabad",
+  "locality": { "address": "HITEC City, Hyderabad", "latitude": 17.448, "longitude": 78.381 },
+  "commercialDetails": {
+    "plotArea": { "value": 3000, "unit": "sqmt" },
+    "length": 80,
+    "width": 60
+  },
+  "rentInfo": { "monthlyRent": 75000 }
+}
+```
+
+**Commercial "Others" property type, sale:**
+
+```json
+{
+  "categoryId": "<commercialCategoryId>",
+  "listingTypeId": "<sellListingTypeId>",
+  "propertyTypeId": "<othersCommercialPropertyTypeId>",
+  "cityName": "Delhi",
+  "locality": { "address": "Connaught Place, Delhi", "latitude": 28.631, "longitude": 77.219 },
+  "commercialDetails": {
+    "propertyType": "Co-working Space",
+    "builtUpArea": { "value": 3000, "unit": "sqft" },
+    "carpetArea": { "value": 2700, "unit": "sqft" }
+  },
+  "sellInfo": { "price": 18000000 }
+}
+```
+
+**Commercial "Others" property type, rent:**
+
+```json
+{
+  "categoryId": "<commercialCategoryId>",
+  "listingTypeId": "<rentListingTypeId>",
+  "propertyTypeId": "<othersCommercialPropertyTypeId>",
+  "cityName": "Bangalore",
+  "locality": { "address": "Whitefield, Bangalore", "latitude": 12.970, "longitude": 77.750 },
+  "commercialDetails": {
+    "propertyType": "Event Hall",
+    "builtUpArea": { "value": 4000, "unit": "sqft" },
+    "carpetArea": { "value": 3500, "unit": "sqft" }
+  },
+  "rentInfo": { "monthlyRent": 200000 }
+}
+```
+
+**PG / co-living (single room type):**
 
 ```json
 {
   "categoryId": "<residentialCategoryId>",
   "listingTypeId": "<pgListingTypeId>",
-  "propertyTypeId": "<propertyTypeId>",
   "cityName": "Pune",
   "locality": { "address": "Viman Nagar, Pune", "latitude": 18.567, "longitude": 73.914 },
   "pgDetails": {
     "pgName": "Green View PG",
-    "totalBedsAvailable": 20,
+    "totalBedsAvailable": 12,
     "rooms": [
-      { "roomType": "Shared", "bedsAvailable": 12, "rent": 9000, "securityDeposit": 9000 }
+      { "roomType": "2 Sharing", "bedsAvailable": 12, "rent": 9000, "securityDeposit": 9000 }
     ]
   }
 }
 ```
 
-The chatbot uses `sellInfo: { "price": <number> }` for sale listings and `rentInfo: { "monthlyRent": <number> }` for rental listings. PG details are submitted under `pgDetails`.
+**PG / co-living (multiple room types):**
+
+```json
+{
+  "categoryId": "<residentialCategoryId>",
+  "listingTypeId": "<pgListingTypeId>",
+  "cityName": "Mumbai",
+  "locality": { "address": "Andheri West, Mumbai", "latitude": 19.135, "longitude": 72.826 },
+  "pgDetails": {
+    "pgName": "Student Paradise PG",
+    "totalBedsAvailable": 18,
+    "rooms": [
+      { "roomType": "1 Sharing", "bedsAvailable": 2, "rent": 15000, "securityDeposit": 15000 },
+      { "roomType": "2 Sharing", "bedsAvailable": 8, "rent": 12000, "securityDeposit": 12000 },
+      { "roomType": "3 Sharing", "bedsAvailable": 8, "rent": 10000, "securityDeposit": 10000 }
+    ]
+  }
+}
+```
+
+**Important Notes for Chatbot Payloads:**
+
+- **PG listings do not include `propertyTypeId`** - The chatbot skips property type selection for PG/Co-living
+- **Commercial "Others" types include custom `propertyType`** - When propertyTypeId is for "Others", the chatbot collects a custom property type string
+- **Plot area validation** - The chatbot validates that `length × width = plotArea.value` (with unit conversion)
+- **Carpet area validation** - The chatbot ensures `carpetArea.value ≤ builtUpArea.value`
+- **PG room sharing** - For "1 Sharing" rooms, `bedsAvailable` is automatically set and not sent in payload
+- **Area units supported** - "sqft", "sqyd", "sqmt" 
+- **BHK mapping** - "1 RK" maps to `bhk: 0`, "X BHK" maps to `bhk: X`
+- **Required fields only** - Chatbot sends only the minimal required fields; optional fields like `societyName`, `furnishings`, `amenities`, etc. are added later via Edit Property
+
+The chatbot uses `sellInfo: { "price": <number> }` for sale listings and `rentInfo: { "monthlyRent": <number> }` for rental listings. PG details are submitted under `pgDetails` and do not include sell/rent info.
 
 The response's `data._id` is used as the `propertyId` for the following media upload.
 
@@ -252,9 +398,43 @@ Used by Edit Property to save changed property fields. This is a partial update:
 
 ### Detail diff cases
 
-These examples show the partial body sent when only the listed detail fields change. Include only sections with changes.
+These examples show the body sent when detail fields change. Include only sections with changes.
 
-**Residential details:**
+**Residential non-plot details (field enums):**
+- `builtUpArea.unit`, `carpetArea.unit`: `["sqft", "sqyd", "sqmt"]`
+- `constructionStatus`: `["UnderConstruction", "ReadyToMove"]`
+- `propertyStatus`: `["NewlyAdded", "Relaunch"]`
+- `furnishType`: `["Unfurnished", "Semi-Furnished", "Fully-Furnished"]`
+
+**Residential non-plot details (complete payload reference):**
+*Send only the fields that actually changed - this shows all possible residential non-plot fields*
+
+```json
+{
+  "propertyListingId": "<propertyListingId>",
+  "residentialDetails": {
+    "societyName": "Sunrise Apartments",
+    "bhk": 3,
+    "builtUpArea": { "value": 1600, "unit": "sqft" },
+    "carpetArea": { "value": 1200, "unit": "sqft" },
+    "constructionStatus": "ReadyToMove",
+    "propertyStatus": "NewlyAdded", 
+    "ageOfProperty": 5,
+    "availableFrom": "2027-06-15",
+    "furnishType": "Semi-Furnished",
+    "furnishings": [
+      { "id": "<furnishingId1>", "name": "Bed", "count": 2 },
+      { "id": "<furnishingId2>", "name": "Wardrobe", "count": 1 }
+    ],
+    "amenities": [
+      { "id": "<amenityId1>", "name": "WiFi" },
+      { "id": "<amenityId2>", "name": "Parking" }
+    ]
+  }
+}
+```
+
+**Residential non-plot details (partial update example):**
 
 ```json
 {
@@ -266,41 +446,220 @@ These examples show the partial body sent when only the listed detail fields cha
 }
 ```
 
-Other editable residential keys include `societyName`, `carpetArea`, `propertyStatus`, `ageOfProperty`, `constructionStatus`, `availableFrom`, `furnishType`, `furnishings`, and `amenities`.
-
-**Plot details:**
+**Residential plot details (field enums):**
+*Send only the fields that actually changed - this shows all possible residential plot fields*
 
 ```json
 {
   "propertyListingId": "<propertyListingId>",
   "plotDetails": {
+    "societyName": "Green Valley Layout",
     "plotArea": { "value": 2400, "unit": "sqft" },
     "length": 60,
-    "width": 40,
-    "societyName": "Green Valley Layout"
+    "width": 40
   }
 }
 ```
 
-For a commercial plot, the corresponding changed plot keys are sent inside `commercialDetails`; changed commercial fields such as `ownership`, `zoneType`, or `locationHub` are also sent in that section.
+**Residential plot details (partial update example):**
 
-**Commercial non-plot details:**
+```json
+{
+  "propertyListingId": "<propertyListingId>",
+  "plotDetails": {
+    "plotArea": { "value": 2400, "unit": "sqft" }
+  }
+}
+```
+
+**Residential plot field enums:**
+- `plotArea.unit`: `["sqft", "sqyd", "sqmt"]`
+
+**Commercial non-plot details excluding office (complete payload reference):**
+*Send only the fields that actually changed - for Shop, Showroom, Warehouse, Others types*
+
+```json
+{
+  "propertyListingId": "<propertyListingId>",
+  "commercialDetails": {
+    "societyName": "Tech Tower",
+    "propertyType": "Co-working Space",
+    "zoneType": "Commercial",
+    "locationHub": "IT Park", 
+    "builtUpArea": { "value": 2000, "unit": "sqft" },
+    "carpetArea": { "value": 1500, "unit": "sqft" },
+    "constructionStatus": "UnderConstruction",
+    "propertyStatus": "Relaunch",
+    "ageOfProperty": 3,
+    "availableFrom": "2027-04-01",
+    "ownership": "Freehold",
+    "totalFloors": 15,
+    "yourFloor": "8th Floor",
+    "furnishType": "Fully-Furnished",
+    "furnishings": [
+      { "id": "<deskFurnishingId>", "name": "Desk", "count": 25 },
+      { "id": "<chairFurnishingId>", "name": "Chair", "count": 30 }
+    ],
+    "amenities": [
+      { "id": "<wifiAmenityId>", "name": "WiFi" },
+      { "id": "<parkingAmenityId>", "name": "Parking" }
+    ]
+  }
+}
+```
+
+**Commercial non-plot details excluding office (partial update example):**
 
 ```json
 {
   "propertyListingId": "<propertyListingId>",
   "commercialDetails": {
     "builtUpArea": { "value": 2000, "unit": "sqft" },
-    "carpetArea": { "value": 1500, "unit": "sqft" },
-    "constructionStatus": "UnderConstruction",
-    "availableFrom": "2027-04-01"
+    "carpetArea": { "value": 1500, "unit": "sqft" }
   }
 }
 ```
 
-Other editable commercial keys include `propertyType`, `ownership`, `zoneType`, `locationHub`, `furnishType`, `furnishings`, and `amenities`.
+**Commercial non-plot field enums:**
+- `builtUpArea.unit`, `carpetArea.unit`, `plotArea.unit`: `["sqft", "sqyd", "sqmt"]`
+- `zoneType`: `["Industrial", "Commercial", "Residential", "SEZ", "OpenSpaces", "Agricultural", "Others"]`
+- `locationHub`: `["IT Park", "Business Park", "Mall", "Commercial Project", "Residential Project", "Retail Complex/Building", "Market/High Street", "Others"]`
+- `constructionStatus`: `["UnderConstruction", "ReadyToMove"]`
+- `propertyStatus`: `["NewlyAdded", "Relaunch"]`
+- `ownership`: `["Freehold", "Leasehold", "CooperativeSociety", "PowerOfAttorney"]`
+- `furnishType`: `["Unfurnished", "Semi-Furnished", "Fully-Furnished"]`
 
-**PG details:**
+**Commercial non-plot details including office (complete payload reference):**
+*Send only the fields that actually changed - for Office type with additional office specifications*
+
+```json
+{
+  "propertyListingId": "<propertyListingId>",
+  "commercialDetails": {
+    "societyName": "Corporate Hub",
+    "zoneType": "Commercial",
+    "locationHub": "Business Park", 
+    "builtUpArea": { "value": 3000, "unit": "sqft" },
+    "carpetArea": { "value": 2500, "unit": "sqft" },
+    "constructionStatus": "ReadyToMove",
+    "propertyStatus": "NewlyAdded",
+    "ageOfProperty": 2,
+    "ownership": "Freehold",
+    "totalFloors": 20,
+    "yourFloor": "12th Floor",
+    "minSeats": 50,
+    "minCabins": 8,
+    "minMeetingRooms": 4,
+    "furnishType": "Fully-Furnished",
+    "furnishings": [
+      { "id": "<deskFurnishingId>", "name": "Office Desk", "count": 50 },
+      { "id": "<chairFurnishingId>", "name": "Office Chair", "count": 60 }
+    ],
+    "amenities": [
+      { "id": "<wifiAmenityId>", "name": "High-Speed WiFi" },
+      { "id": "<parkingAmenityId>", "name": "Reserved Parking" },
+      { "id": "<securityAmenityId>", "name": "24/7 Security" }
+    ]
+  }
+}
+```
+
+**Commercial non-plot details including office (partial update example):**
+
+```json
+{
+  "propertyListingId": "<propertyListingId>",
+  "commercialDetails": {
+    "minSeats": 50,
+    "minCabins": 8,
+    "minMeetingRooms": 4
+  }
+}
+```
+
+**Commercial office field enums:**
+*Same as commercial non-plot above, plus office-specific numeric fields:*
+- `minSeats`: Number (office workstations)
+- `minCabins`: Number (private cabins)
+- `minMeetingRooms`: Number (meeting rooms)
+
+**Commercial plot details (complete payload reference):**
+*Send only the fields that actually changed - this shows all possible commercial plot fields*
+
+```json
+{
+  "propertyListingId": "<propertyListingId>",
+  "commercialDetails": {
+    "societyName": "Industrial Park",
+    "plotArea": { "value": 5000, "unit": "sqft" },
+    "length": 100,
+    "width": 50,
+    "zoneType": "Industrial",
+    "locationHub": "Industrial Park",
+    "ownership": "Freehold"
+  }
+}
+```
+
+**Commercial plot details (partial update example):**
+
+```json
+{
+  "propertyListingId": "<propertyListingId>",
+  "commercialDetails": {
+    "plotArea": { "value": 5000, "unit": "sqft" },
+    "length": 100,
+    "width": 50
+  }
+}
+```
+
+**Commercial plot field enums:**
+- `plotArea.unit`: `["sqft", "sqyd", "sqmt"]`
+- `zoneType`: `["Industrial", "Commercial", "Residential", "SEZ", "OpenSpaces", "Agricultural", "Others"]`
+- `locationHub`: `["IT Park", "Business Park", "Mall", "Commercial Project", "Residential Project", "Retail Complex/Building", "Market/High Street", "Others"]`
+- `ownership`: `["Freehold", "Leasehold", "CooperativeSociety", "PowerOfAttorney"]`
+
+**PG details (complete payload reference):**
+*Send only the fields that actually changed - this shows all possible PG fields*
+
+```json
+{
+  "propertyListingId": "<propertyListingId>",
+  "pgDetails": {
+    "pgName": "Student Paradise PG",
+    "totalBedsAvailable": 24,
+    "pgFor": "Both",
+    "bestSuitedFor": ["Students", "Professionals"],
+    "mealsAvailable": true,
+    "meals": ["Breakfast", "Lunch", "Dinner"],
+    "noticePeriod": 30,
+    "lockInPeriod": 90,
+    "commonAreas": ["Living Room", "Kitchen", "Study Room", "Gym"],
+    "constructionStatus": "ReadyToMove",
+    "ageOfProperty": 2,
+    "availableFrom": "2027-03-01",
+    "furnishType": "Fully-Furnished",
+    "furnishings": [
+      { "id": "<bedFurnishingId>", "name": "Bed", "count": 24 },
+      { "id": "<wardrobeFurnishingId>", "name": "Wardrobe", "count": 24 },
+      { "id": "<studyTableFurnishingId>", "name": "Study Table", "count": 24 }
+    ],
+    "amenities": [
+      { "id": "<wifiAmenityId>", "name": "WiFi" },
+      { "id": "<laundryAmenityId>", "name": "Laundry Service" },
+      { "id": "<foodAmenityId>", "name": "Mess Facility" }
+    ],
+    "rooms": [
+      { "roomType": "1 Sharing", "bedsAvailable": 2, "rent": 15000, "securityDeposit": 15000 },
+      { "roomType": "2 Sharing", "bedsAvailable": 6, "rent": 12000, "securityDeposit": 12000 },
+      { "roomType": "3 Sharing", "bedsAvailable": 9, "rent": 10000, "securityDeposit": 10000 }
+    ]
+  }
+}
+```
+
+**PG details (partial update example):**
 
 ```json
 {
@@ -308,14 +667,47 @@ Other editable commercial keys include `propertyType`, `ownership`, `zoneType`, 
   "pgDetails": {
     "pgName": "Green View PG",
     "totalBedsAvailable": 24,
-    "constructionStatus": "ReadyToMove"
+    "pgFor": "Both"
   }
 }
 ```
 
-Other editable PG keys include `pgFor`, `rooms`, `availableFrom`, `furnishType`, `furnishings`, and `amenities`.
+**PG field enums:**
+- `pgFor`: `["Girls", "Boys", "Both"]`
+- `bestSuitedFor`: `["Students", "Professionals"]` (array)
+- `meals`: `["Breakfast", "Lunch", "Dinner"]` (array)
+- `commonAreas`: `["Living Room", "Kitchen", "Dining Area", "Bathroom", "Balcony", "Terrace", "Laundry Room", "Study Room", "Gym", "Parking"]` (array)
+- `constructionStatus`: `["UnderConstruction", "ReadyToMove"]`
+- `furnishType`: `["Unfurnished", "Semi-Furnished", "Fully-Furnished"]`
+- `rooms[].roomType`: `["1 Sharing", "2 Sharing", "3 Sharing", "4 Sharing", "5 Sharing", "6 Sharing", "7 Sharing"]`
 
-**Purpose details:**
+**Sell info (complete payload reference):**
+*Send only the fields that actually changed - this shows all possible sell info fields*
+
+```json
+{
+  "propertyListingId": "<propertyListingId>",
+  "sellInfo": {
+    "price": 8000000
+  }
+}
+```
+
+**Rent info (complete payload reference):**
+*Send only the fields that actually changed - this shows all possible rent info fields*
+
+```json
+{
+  "propertyListingId": "<propertyListingId>",
+  "rentInfo": {
+    "monthlyRent": 25000,
+    "securityDeposit": 75000,
+    "availableFrom": "2026-12-01"
+  }
+}
+```
+
+**Purpose details (partial update examples):**
 
 ```json
 {
@@ -324,7 +716,43 @@ Other editable PG keys include `pgFor`, `rooms`, `availableFrom`, `furnishType`,
 }
 ```
 
-For a rental listing, changed values are sent under `rentInfo`, such as `{ "monthlyRent": 30000, "securityDeposit": 60000, "availableFrom": "2026-11-01" }`.
+```json
+{
+  "propertyListingId": "<propertyListingId>",
+  "rentInfo": { "monthlyRent": 30000, "securityDeposit": 60000 }
+}
+```
+
+**Other top-level fields (complete payload reference):**
+*Send only the fields that actually changed - these can be mixed with detail sections*
+
+```json
+{
+  "propertyListingId": "<propertyListingId>",
+  "cityName": "Mumbai",
+  "locality": {
+    "address": "Andheri West, Mumbai", 
+    "latitude": 19.135,
+    "longitude": 72.826
+  },
+  "reraId": "PR/MH/MUMBAI/MUMBAI CITY/REALTORSHUB001234",
+  "zeroBrokerage": true
+}
+```
+
+**Field validation notes:**
+- To clear RERA ID, send `"reraId": null`
+- `zeroBrokerage` field is only applicable for broker listings
+- `carpetArea.value` must be ≤ `builtUpArea.value` when both are provided
+- `availableFrom` is only allowed when `constructionStatus` is "UnderConstruction"
+- When changing `availableFrom`, include `constructionStatus` in the same payload section
+- For commercial "Others" types, `propertyType` field is required
+- For furnishings, `count` field is required; for amenities, `count` is optional
+
+**Other field enums:**
+- `rera.reraStatus`: `["unverified", "verified"]`
+- `rera.projectDetails.confidence`: `["high", "low", "unknown"]`
+- Property listing `status`: `["Active", "Inactive", "Sold", "Rented", "UnderReview", "Rejected"]` (read-only via PATCH)
 
 Other top-level fields that may be included when changed are `cityName`, `locality`, `reraId` (send `null` to clear it), and `zeroBrokerage`.
 
