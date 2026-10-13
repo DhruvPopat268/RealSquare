@@ -47,13 +47,14 @@ const OWNER_BUSINESS_TYPES = [
 
 // ── Shared UI components ──────────────────────────────────────────────────────
 
-function InputField({ label, required, children }) {
+function InputField({ label, required, error, children }) {
   return (
     <div>
       <label className="text-xs font-semibold text-gray-500 mb-1.5 block uppercase tracking-wide">
         {label} {required && <span className="text-red-400">*</span>}
       </label>
       {children}
+      {error && <p className="mt-1 text-xs text-red-500">{error}</p>}
     </div>
   );
 }
@@ -259,6 +260,9 @@ function OwnerFields({ form, setForm, errors, mobile, verifiedEmail, onEmailVeri
       <InputField label="Email">
         <EmailVerificationField value={form.email} onChange={(e) => setForm((p) => ({ ...p, email: e.target.value }))} verifiedEmail={verifiedEmail} onVerified={onEmailVerified} />
       </InputField>
+      <InputField label="Location" error={errors.location}>
+        <PlacesAutocomplete value={form.location || ""} onChange={(val) => setForm((p) => ({ ...p, location: val }))} placeholder="City or area where you are based" />
+      </InputField>
 
       <div className="border-t border-gray-100 pt-4 mt-2">
         <p className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-4">Business Details <span className="normal-case font-normal">(optional)</span></p>
@@ -311,6 +315,9 @@ function BrokerFields({ form, setForm, errors, mobile, verifiedEmail, onEmailVer
       </InputField>
       <InputField label="Email">
         <EmailVerificationField value={form.email} onChange={(e) => setForm((p) => ({ ...p, email: e.target.value }))} verifiedEmail={verifiedEmail} onVerified={onEmailVerified} />
+      </InputField>
+      <InputField label="Location" error={errors.location}>
+        <PlacesAutocomplete value={form.location || ""} onChange={(val) => setForm((p) => ({ ...p, location: val }))} placeholder="City or area where your agency is based" />
       </InputField>
       <InputField label="Agency Name" error={errors.agencyName}>
         <TextInput value={form.agencyName} onChange={(e) => setForm((p) => ({ ...p, agencyName: e.target.value }))} placeholder="Your agency or firm name" />
@@ -425,6 +432,7 @@ function buildFormFromUser(user, role) {
       bizEmail: b.email || "",
       bizMobile: b.mobile || "",
       website: b.website || "",
+      location: p.location?.name || "",
       enquiryCities: user.enquiryCities ?? [],
     };
   }
@@ -440,6 +448,7 @@ function buildFormFromUser(user, role) {
       reraVerified: p.reraVerification?.verified === true,
       yearsOfExperience: p.yearsOfExperience ?? "",
       bio: p.bio || "",
+      location: p.location?.name || "",
       enquiryCities: user.enquiryCities ?? [],
     };
   }
@@ -621,6 +630,10 @@ export default function UpdateProfilePage() {
     const e = {};
     if (role !== "builder" && !form.fullName?.trim()) e.fullName = "Full name is required";
     if (role === "builder" && !form.name?.trim()) e.name = "Company name is required";
+    if (["owner", "broker", "builder"].includes(role)) {
+      const locationChanged = String(form.location || "").trim() !== String(initialFormRef.current.location || "").trim();
+      if ((noRole || locationChanged) && !form.location?.trim()) e.location = "Location is required";
+    }
     if (form.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) e.email = "Enter a valid email";
     const initialEmail = String(initialFormRef.current.email || "").trim().toLowerCase();
     const submittedEmail = String(form.email || "").trim().toLowerCase();
@@ -662,6 +675,16 @@ export default function UpdateProfilePage() {
           fd.append("enquiryCities", cities.length ? JSON.stringify(cities) : "null");
         }
       };
+      const appendChangedRoleLocation = async () => {
+        if (valuesMatch(form.location, initialFormRef.current.location)) return;
+        const locationName = form.location?.trim();
+        if (!locationName) throw new Error("Location cannot be cleared. Please provide a valid location.");
+        const coords = await geocode(locationName);
+        if (!coords) throw new Error("Could not verify this location. Please choose a more specific location.");
+        appendNullable("location.name", locationName);
+        appendNullable("location.latitude", coords.latitude);
+        appendNullable("location.longitude", coords.longitude);
+      };
 
       if (noRole) fd.append("role", ROLE_IDS[role]);
       if (form.profilePhotoFile) fd.append("profilePhoto", form.profilePhotoFile);
@@ -694,6 +717,7 @@ export default function UpdateProfilePage() {
         appendIfChanged("businessDetails.email", "bizEmail");
         appendIfChanged("businessDetails.mobile", "bizMobile");
         appendIfChanged("businessDetails.website", "website");
+        await appendChangedRoleLocation();
         if (form.bizLogoFile) fd.append("businessLogo", form.bizLogoFile);
         else if (form.bizLogoRemoved) appendNullable("businessDetails.logo", null);
         appendEnquiryCities();
@@ -706,6 +730,7 @@ export default function UpdateProfilePage() {
         appendIfChanged("reraId", "reraId");
         appendIfChanged("yearsOfExperience", "yearsOfExperience");
         appendIfChanged("bio", "bio");
+        await appendChangedRoleLocation();
         appendEnquiryCities();
       }
 
@@ -716,18 +741,7 @@ export default function UpdateProfilePage() {
         appendIfChanged("cinNumber", "cinNumber");
         appendIfChanged("foundedYear", "foundedYear");
         appendIfChanged("totalProjectsDelivered", "totalProjectsDelivered");
-        if (!valuesMatch(form.location, initialFormRef.current.location)) {
-          if (form.location) {
-            const coords = await geocode(form.location);
-            appendNullable("location.name", form.location);
-            appendNullable("location.latitude", coords?.latitude);
-            appendNullable("location.longitude", coords?.longitude);
-          } else {
-            appendNullable("location.name", null);
-            appendNullable("location.latitude", null);
-            appendNullable("location.longitude", null);
-          }
-        }
+        await appendChangedRoleLocation();
         appendEnquiryCities();
       }
 

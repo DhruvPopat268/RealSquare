@@ -49,13 +49,14 @@ async function geocode(name) {
 
 // ── Shared UI ─────────────────────────────────────────────────────────────────
 
-function InputField({ label, required, children }) {
+function InputField({ label, required, error, children }) {
   return (
     <div>
       <label className="text-xs font-semibold text-gray-500 mb-1.5 block uppercase tracking-wide">
         {label} {required && <span className="text-red-400">*</span>}
       </label>
       {children}
+      {error && <p className="mt-1 text-xs text-red-500">{error}</p>}
     </div>
   );
 }
@@ -215,6 +216,10 @@ function OwnerFields({ form, setForm, errors, mobile, verifiedEmail, onEmailVeri
         <EmailVerificationField value={form.email} onChange={(e) => setForm((p) => ({ ...p, email: e.target.value }))} verifiedEmail={verifiedEmail} onVerified={onEmailVerified} placeholder="your@email.com (optional)" />
       </InputField>
 
+      <InputField label="Location" required error={errors.location}>
+        <PlacesAutocomplete value={form.location} onChange={(val) => setForm((p) => ({ ...p, location: val }))} placeholder="City or area where you are based" />
+      </InputField>
+
       <div className="border-t border-gray-100 pt-4 mt-2">
         <p className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-4">Business Details <span className="normal-case font-normal">(optional)</span></p>
         <div className="flex flex-col gap-4">
@@ -268,6 +273,9 @@ function BrokerFields({ form, setForm, errors, mobile, verifiedEmail, onEmailVer
       </InputField>
       <InputField label="Email">
         <EmailVerificationField value={form.email} onChange={(e) => setForm((p) => ({ ...p, email: e.target.value }))} verifiedEmail={verifiedEmail} onVerified={onEmailVerified} placeholder="your@email.com (optional)" />
+      </InputField>
+      <InputField label="Location" required error={errors.location}>
+        <PlacesAutocomplete value={form.location} onChange={(val) => setForm((p) => ({ ...p, location: val }))} placeholder="City or area where your agency is based" />
       </InputField>
       <InputField label="Agency Name" error={errors.agencyName}>
         <TextInput value={form.agencyName} onChange={(e) => setForm((p) => ({ ...p, agencyName: e.target.value }))} placeholder="Your agency or firm name (optional)" />
@@ -370,6 +378,9 @@ export default function CompleteProfilePage() {
     } else {
       if (!form.name?.trim()) e.name = "Company name is required";
     }
+    if (["owner", "broker", "builder"].includes(selectedRole) && !form.location?.trim()) {
+      e.location = "Location is required";
+    }
     
     // Validate email format if provided (optional)
     if (form.email?.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
@@ -390,6 +401,15 @@ export default function CompleteProfilePage() {
     try {
       const fd = new FormData();
       fd.append("role", ROLE_IDS[selectedRole]);
+      const appendRoleLocation = async () => {
+        const locationName = form.location?.trim();
+        if (!locationName) throw new Error("Location is required");
+        const coords = await geocode(locationName);
+        if (!coords) throw new Error("Could not verify this location. Please choose a more specific location.");
+        fd.append("location.name", locationName);
+        fd.append("location.latitude", coords.latitude);
+        fd.append("location.longitude", coords.longitude);
+      };
       
       // Only append profilePhoto if provided
       if (form.profilePhotoFile) {
@@ -413,6 +433,7 @@ export default function CompleteProfilePage() {
       if (selectedRole === "owner") {
         fd.append("fullName", form.fullName);
         if (form.email) fd.append("email", form.email);
+        await appendRoleLocation();
         if (form.bizName) fd.append("businessDetails.name", form.bizName);
         if (form.bizType) fd.append("businessDetails.type", form.bizType);
         if (form.gstNumber) fd.append("businessDetails.gstNumber", form.gstNumber);
@@ -426,6 +447,7 @@ export default function CompleteProfilePage() {
       if (selectedRole === "broker") {
         fd.append("fullName", form.fullName);
         if (form.email) fd.append("email", form.email);
+        await appendRoleLocation();
         if (form.agencyName) fd.append("agencyName", form.agencyName);
         if (form.yearsOfExperience) fd.append("yearsOfExperience", form.yearsOfExperience);
         if (form.reraId?.trim()) fd.append("reraId", form.reraId.trim());
@@ -440,14 +462,7 @@ export default function CompleteProfilePage() {
         if (form.cinNumber) fd.append("cinNumber", form.cinNumber);
         if (form.foundedYear) fd.append("foundedYear", form.foundedYear);
         if (form.totalProjectsDelivered) fd.append("totalProjectsDelivered", form.totalProjectsDelivered);
-        if (form.location) {
-          const coords = await geocode(form.location);
-          fd.append("location.name", form.location);
-          if (coords) {
-            fd.append("location.latitude", coords.latitude);
-            fd.append("location.longitude", coords.longitude);
-          }
-        }
+        await appendRoleLocation();
         fd.append("enquiryCities", JSON.stringify(form.enquiryCities ?? []));
       }
 
