@@ -22,7 +22,8 @@ function ItemIcon({ icon, label }) {
       />
     );
   }
-  const abbr = label
+  const safeLabel = typeof label === "string" && label.trim() ? label.trim() : "Item";
+  const abbr = safeLabel
     .split(/\s+/)
     .map((w) => w[0]?.toUpperCase() ?? "")
     .slice(0, 2)
@@ -39,12 +40,13 @@ function ItemIcon({ icon, label }) {
 
 // ── Single card ───────────────────────────────────────────────────────────────
 function ItemCard({ name, icon, count }) {
+  const itemName = typeof name === "string" && name.trim() ? name.trim() : "Item";
   return (
     <div className="flex flex-col items-center justify-center gap-2 rounded-xl border
       border-[#7B2FFF] bg-[#f5f0ff] text-[#7B2FFF] p-3 select-none">
-      <ItemIcon icon={icon} label={name} />
+      <ItemIcon icon={icon} label={itemName} />
       <span className="text-[11px] font-semibold text-center leading-tight line-clamp-2">
-        {name}
+        {itemName}
       </span>
       {count > 1 && (
         <span className="text-xs font-bold bg-[#7B2FFF] text-white px-2 py-0.5 rounded-full">
