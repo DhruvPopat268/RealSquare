@@ -38,13 +38,13 @@ These endpoints return their options in `data` as an array. For more detail, see
 
 **POST** `/api/mixed/inquiries/create`
 
-Used by the create-requirement chatbot after the user confirms the summary. Only individual-property requirements are currently supported. The chatbot sends JSON and includes the applicable property requirement field for the selected case.
+Used by the create-requirement chatbot after the user confirms the summary. The chatbot currently offers Ready To Move and Under Construction property requirements. It maps Ready To Move to `isProperty: true` and Under Construction to `isProperty: false`. The backend accepts either boolean value. Its assignment logic currently treats `false` as a project inquiry and excludes Owners from assignment, so Under Construction requirements sent with `false` will follow that same assignment rule. The chatbot sends JSON and includes the applicable property requirement field for the selected case.
 
 ### Common required fields
 
 | Field | Type | Notes |
 |---|---|---|
-| `isProperty` | boolean | Must be `true` for an individual-property requirement. |
+| `isProperty` | boolean | The chatbot sends `true` for Ready To Move and `false` for Under Construction. The backend accepts either value; `false` excludes Owners from assignment under the current assignment logic. |
 | `listingType` | ID | Active property purpose ID. |
 | `preferredCity` | string | City being searched. |
 | `budget.min` | number | Must be less than `budget.max`. |

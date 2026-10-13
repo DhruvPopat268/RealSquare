@@ -22,7 +22,7 @@ export async function inquiryFlow(step, answer, collectedData, { botSay, setColl
   // ── INIT ──────────────────────────────────────────────────────────────────
   if (step === "init") {
     await botSay("👋 Hi! I'll help you create a new property requirement.\nLet's capture a few details to get started. 📋");
-    await botSay("Are you creating a requirement for an Individual Property or a Project Property?", INQUIRY_TYPE_OPTIONS);
+    await botSay("Are you creating a requirement for an Ready To Move Property or an Under Construction Property?", INQUIRY_TYPE_OPTIONS);
     goTo("inquiry_type", collectedData);
     return;
   }
@@ -67,7 +67,7 @@ export async function inquiryFlow(step, answer, collectedData, { botSay, setColl
       return;
     }
     // If "No, go back"
-    await botSay("Are you creating a requirement for an Individual Property or a Project Property?", INQUIRY_TYPE_OPTIONS);
+    await botSay("Are you creating a requirement for an Ready To Move Property or an Under Construction Property?", INQUIRY_TYPE_OPTIONS);
     goTo("inquiry_type", collectedData);
     return;
   }
@@ -435,14 +435,13 @@ export async function inquiryFlow(step, answer, collectedData, { botSay, setColl
       const d = collectedData;
 
       // ── Build payload ──────────────────────────────────────────────────
-      const isProperty = d.inquiryType === "Individual Property";
-
       // Map comm preferences to lowercase API values
       const commMap = { "Call": "call", "WhatsApp": "whatsapp", "Email": "email", "SMS": "sms" };
       const preferredCommunication = (d.communicationPreferences ?? []).map((c) => commMap[c] ?? c.toLowerCase());
 
       const payload = {
-        isProperty,
+        // Keep the selected requirement condition in the API's boolean flag.
+        isProperty: d.inquiryType === "Ready To Move Property",
         listingType:             d.listingTypeId,
         preferredCity:           d.preferredCity,
         budget:                  { min: d.budgetMin, max: d.budgetMax },

@@ -164,6 +164,10 @@ function AssignedInquiryCard({ assignment, onPurchase }) {
         </p>
       </div>
 
+      <p className="text-xs font-semibold text-gray-500">
+        {inquiry.isProperty ? "Ready To Move Property" : "Under Construction Property"}
+      </p>
+
       {/* Row 1 — Purpose / Category / Type */}
       <div className="flex flex-wrap gap-2">
         {inquiry.listingType?.name && (
