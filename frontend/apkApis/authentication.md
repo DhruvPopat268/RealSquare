@@ -158,7 +158,12 @@ businessDetails.mobile:      9876543210                  (optional)
 businessDetails.website:     https://smithprops.com      (optional)
 businessLogo:                [file]                       (optional)
 enquiryCities:               ["Mumbai", "Pune"]          (optional; JSON array string)
+location.name:               Mumbai, Maharashtra          (required)
+location.latitude:           19.0760                      (required)
+location.longitude:          72.8777                      (required)
 ```
+
+The backend validates the location and derives `state` from its Google Maps geocoding result. Do not send `state` yourself.
 
 ---
 
@@ -174,7 +179,12 @@ reraId:              GJ/12345/2024                    (optional; verified during
 yearsOfExperience:   8                               (optional)
 bio:                 Expert in commercial real estate (optional)
 enquiryCities:       ["Mumbai", "Pune"]               (optional; JSON array string)
+location.name:       Ahmedabad, Gujarat                (required)
+location.latitude:   23.0225                           (required)
+location.longitude:  72.5714                           (required)
 ```
+
+The backend validates the location and derives `state` from its Google Maps geocoding result. Do not send `state` yourself.
 
 When `reraId` is provided, the backend runs RERA verification and stores the result in `brokerProfile.reraVerification`. It includes `reraId`, `verified`, `reason`, `projectDetails` (project, developer, location, type, completion date, units, status, and confidence), and `sources`. If the verification service cannot complete, the profile is still saved with `verified: false`.
 
@@ -193,13 +203,15 @@ gstNumber:                27AAAA0000A1Z5              (optional)
 cinNumber:                U45200MH2005PTC150673       (optional)
 foundedYear:              2005                        (optional)
 totalProjectsDelivered:   24                          (optional)
-location.name:            Mumbai                      (optional)
-location.latitude:        19.0760                     (optional)
-location.longitude:       72.8777                     (optional)
+location.name:            Mumbai, Maharashtra         (required)
+location.latitude:        19.0760                     (required)
+location.longitude:       72.8777                     (required)
 enquiryCities:            ["Mumbai", "Pune"]          (optional; JSON array string)
 ```
 
 For Owner, Broker, and Builder, send `enquiryCities` as a JSON-encoded array string in multipart form data, for example `JSON.stringify(["Mumbai", "Pune"])`. If no cities are selected, send `JSON.stringify([])`.
+
+For Owner, Broker, and Builder, location is required. Send all three location fields. The backend uses the coordinates to resolve a Google Maps result with at least three address components, then stores the state found in that result. Do not submit a separate `state` field. Customer location remains optional.
 
 ---
 
@@ -374,6 +386,12 @@ On success, the backend saves the email as verified and removes the temporary OT
 
     "ownerProfile": {
       "mobile": "9876543210",
+      "location": {
+        "name": "Mumbai, Maharashtra",
+        "latitude": 19.0760,
+        "longitude": 72.8777
+      },
+      "state": "Maharashtra",
       "businessDetails": {
         "name": "Smith Properties",
         "type": "private_owner",
@@ -387,6 +405,12 @@ On success, the backend saves the email as verified and removes the temporary OT
 
     "brokerProfile": {
       "mobile": "9876543210",
+      "location": {
+        "name": "Ahmedabad, Gujarat",
+        "latitude": 23.0225,
+        "longitude": 72.5714
+      },
+      "state": "Gujarat",
       "agencyName": "Kumar Realty",
       "yearsOfExperience": 8,
       "bio": "Expert in commercial real estate"
@@ -398,6 +422,7 @@ On success, the backend saves the email as verified and removes the temporary OT
       "cinNumber": "U45200MH2005PTC150673",
       "foundedYear": 2005,
       "totalProjectsDelivered": 24,
+      "state": "Maharashtra",
       "location": {
         "name": "Mumbai",
         "latitude": 19.0760,
@@ -418,6 +443,7 @@ On success, the backend saves the email as verified and removes the temporary OT
 - `haveAssignedInquiries` — `true` for Owner, Broker, Builder only.
 - `canListProperty.source` can be `"plan"`, `"free"`, or `null`.
 - `activePlan` / `activeEnquiryPlan` are `null` if no active plan exists.
+- Owner, Broker, and Builder profiles include `location` and a backend-derived `state`; Customer location is optional and does not have a role-level state field.
 
 **Error Responses:**
 ```json
@@ -445,12 +471,13 @@ Send no body. This assigns the Customer role without creating a `customerProfile
 
 **Content-Type:** `multipart/form-data`
 
-Send only fields the user changed. The API uses partial updates:
+Send only fields the user changed. The API uses partial updates, with a location requirement for Owner, Broker, and Builder profiles:
 
 - Omit unchanged fields; their stored values remain unchanged.
 - Send a changed field with its new value to replace the stored value.
 - To clear a changed optional field, send the literal string `null`. The backend removes that field from the database. For example, append `fd.append("bio", "null")` in JavaScript; `FormData` converts JavaScript `null` to the string `"null"` too.
 - Required name fields cannot be cleared from the profile page because the frontend validates them before submitting.
+- For Owner, Broker, and Builder, a valid location and derived state must already be saved. If the profile has no valid saved location/state, include all three location fields when updating. If a valid location/state is already saved, location can be omitted when updating other fields. Sending a location revalidates it and refreshes the stored state.
 
 For nested fields, use dot notation. For example, `location.name` or `businessDetails.name`.
 
@@ -468,11 +495,13 @@ Send only the fields that changed for the user's role.
 
 **Customer:** `fullName`, `bio`, `location.name`, `location.latitude`, `location.longitude`.
 
-**Owner:** `fullName`, `businessDetails.name`, `businessDetails.type`, `businessDetails.gstNumber`, `businessDetails.mobile`, `businessDetails.website`, `businessDetails.logo`, `businessLogo` (image file), and `enquiryCities`.
+**Owner:** `fullName`, `location.name`, `location.latitude`, `location.longitude` (required if no valid saved location/state), `businessDetails.name`, `businessDetails.type`, `businessDetails.gstNumber`, `businessDetails.mobile`, `businessDetails.website`, `businessDetails.logo`, `businessLogo` (image file), and `enquiryCities`.
 
-**Broker:** `fullName`, `agencyName`, `reraId`, `yearsOfExperience`, `bio`, and `enquiryCities`. Send a changed, non-empty `reraId` to run verification and replace `brokerProfile.reraVerification`; omit it when unchanged. Send the literal `null` to clear the RERA ID and its saved verification result.
+**Broker:** `fullName`, `location.name`, `location.latitude`, `location.longitude` (required if no valid saved location/state), `agencyName`, `reraId`, `yearsOfExperience`, `bio`, and `enquiryCities`. Send a changed, non-empty `reraId` to run verification and replace `brokerProfile.reraVerification`; omit it when unchanged. Send the literal `null` to clear the RERA ID and its saved verification result.
 
-**Builder:** `name`, `gstNumber`, `cinNumber`, `foundedYear`, `totalProjectsDelivered`, `location.name`, `location.latitude`, `location.longitude`, and `enquiryCities`.
+**Builder:** `name`, `gstNumber`, `cinNumber`, `foundedYear`, `totalProjectsDelivered`, `location.name`, `location.latitude`, `location.longitude` (required if no valid saved location/state), and `enquiryCities`.
+
+The server derives `state` from Google Maps using the submitted coordinates. Do not send `state` directly. A submitted location must be complete and resolve to a state; otherwise the API returns a location validation error.
 
 For image replacement, upload `profilePhoto` or `businessLogo` as a file. To clear an existing image, send the corresponding field path (`profilePhoto` or `businessDetails.logo`) with the literal value `null`.
 
