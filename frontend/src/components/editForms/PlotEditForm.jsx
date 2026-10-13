@@ -37,12 +37,6 @@ export default function PlotEditForm({ listing, form, onChange }) {
           </FormField>
         </Grid>
 
-        {plot.length && plot.width && (
-          <div className="p-3 bg-blue-50 rounded-xl border border-blue-200">
-            <p className="text-xs text-blue-600 font-semibold mb-1">Calculated Perimeter</p>
-            <p className="text-lg font-bold text-blue-700">{2 * (Number(plot.length) + Number(plot.width))} ft</p>
-          </div>
-        )}
       </Section>
 
       <Section title="Legal & Location">

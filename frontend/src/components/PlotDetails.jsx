@@ -92,9 +92,6 @@ export default function PlotDetails({ data, listing }) {
             <div className="p-4 bg-blue-50 rounded-xl">
               <h3 className="font-semibold text-blue-800 mb-2">Plot Dimensions</h3>
               <p className="text-xl font-bold text-blue-600">{length} ft × {width} ft</p>
-              <p className="text-sm text-blue-500 mt-1">
-                Perimeter: {2 * (length + width)} ft
-              </p>
             </div>
           )}
         </div>
