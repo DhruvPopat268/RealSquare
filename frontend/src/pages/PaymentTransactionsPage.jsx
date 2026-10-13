@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { FiArrowLeft, FiCheckCircle, FiClock, FiXCircle } from "react-icons/fi";
+import { FiArrowLeft, FiCheckCircle, FiClock, FiXCircle, FiFileText, FiExternalLink } from "react-icons/fi";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import PageSpinner from "../components/PageSpinner";
@@ -44,6 +44,8 @@ export default function PaymentTransactionsPage() {
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
+  const [generatingInvoiceId, setGeneratingInvoiceId] = useState(null);
+  const [invoiceError, setInvoiceError] = useState({ transactionId: null, message: "" });
 
   const fetchTransactions = useCallback(async (pageNum) => {
     setLoading(true);
@@ -64,6 +66,37 @@ export default function PaymentTransactionsPage() {
       setInitialLoading(false);
     }
   }, []);
+
+  const handleGenerateInvoice = async (transactionId) => {
+    const invoiceTab = window.open("about:blank", "_blank");
+    if (invoiceTab) invoiceTab.opener = null;
+    setGeneratingInvoiceId(transactionId);
+    setInvoiceError({ transactionId: null, message: "" });
+    try {
+      const { data } = await api.post(
+        `${BASE_URL}/api/mixed/transactions/generate-invoice`,
+        { transactionId },
+        { withCredentials: true },
+      );
+      const generatedInvoice = data.data;
+      setTransactions((prev) => prev.map((tx) => tx._id === transactionId
+        ? { ...tx, invoiceUrl: generatedInvoice.invoiceUrl, invoiceNumber: generatedInvoice.invoiceNumber }
+        : tx));
+      if (invoiceTab) {
+        invoiceTab.location.href = generatedInvoice.invoiceUrl;
+      } else {
+        window.location.assign(generatedInvoice.invoiceUrl);
+      }
+    } catch (err) {
+      invoiceTab?.close();
+      setInvoiceError({
+        transactionId,
+        message: err?.response?.data?.errors?.[0]?.msg || err?.response?.data?.message || "Could not generate invoice. Please try again.",
+      });
+    } finally {
+      setGeneratingInvoiceId(null);
+    }
+  };
 
   useEffect(() => { fetchTransactions(1); }, [fetchTransactions]);
 
@@ -167,6 +200,29 @@ export default function PaymentTransactionsPage() {
                       <div className="text-right flex-shrink-0">
                         <p className="text-sm font-extrabold text-[#1a1a2e]">₹{tx.amount.toLocaleString("en-IN")}</p>
                         <span className={`text-[11px] font-semibold ${cfg.color}`}>{tx.status}</span>
+                        {tx.invoiceUrl ? (
+                          <a
+                            href={tx.invoiceUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="mt-1 flex items-center justify-end gap-1 text-xs font-semibold text-[#7B2FFF] hover:underline"
+                          >
+                            <FiExternalLink size={12} /> View invoice
+                          </a>
+                        ) : tx.status === "Success" ? (
+                          <button
+                            type="button"
+                            onClick={() => handleGenerateInvoice(tx._id)}
+                            disabled={generatingInvoiceId !== null}
+                            className="mt-1 flex items-center justify-end gap-1 ml-auto border-0 bg-transparent p-0 text-xs font-semibold text-[#7B2FFF] hover:underline disabled:cursor-wait disabled:opacity-60"
+                          >
+                            <FiFileText size={13} />
+                            {generatingInvoiceId === tx._id ? "Generating…" : "Generate invoice"}
+                          </button>
+                        ) : null}
+                        {invoiceError.transactionId === tx._id && (
+                          <p className="mt-1 max-w-48 text-left text-[11px] text-red-500">{invoiceError.message}</p>
+                        )}
                       </div>
                     </div>
                   );
