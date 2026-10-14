@@ -3,35 +3,41 @@ import { useNavigate } from "react-router-dom";
 import { properties, rentProperties, commercialProperties, pgProperties, plotProperties } from "../data/properties";
 import PropertyCardGrid from "./PropertyCardGrid";
 
-const INTENT_MAP = {
-  BUY: properties,
-  RENT: rentProperties,
-  COMMERCIAL: commercialProperties,
-  "PG/CO-LIVING": pgProperties,
-  PLOTS: plotProperties,
-};
+// Match dynamic label → static mock data bucket
+function resolveSource(label) {
+  const u = (label ?? "").toUpperCase();
+  if (u === "BUY")              return properties;
+  if (u.startsWith("RENT"))     return rentProperties;
+  if (u.includes("PG"))         return pgProperties;
+  if (u.includes("COMMERCIAL")) return commercialProperties;
+  if (u.includes("PLOT"))       return plotProperties;
+  return properties;
+}
 
-const TAB_FILTERS = {
-  BUY: ["All", "Apartment", "Villa", "House", "Studio"],
-  RENT: ["All", "Apartment", "Villa", "House", "Studio"],
-  "PG/CO-LIVING": ["All", "Apartment", "Studio"],
-  COMMERCIAL: ["All", "Commercial"],
-  PLOTS: ["All", "Plot"],
-};
+function resolveFilters(label) {
+  const u = (label ?? "").toUpperCase();
+  if (u === "BUY" || u.startsWith("RENT")) return ["All", "Apartment", "Villa", "House", "Studio"];
+  if (u.includes("PG"))                    return ["All", "Apartment", "Studio"];
+  if (u.includes("COMMERCIAL"))            return ["All", "Commercial"];
+  if (u.includes("PLOT"))                  return ["All", "Plot"];
+  return ["All"];
+}
 
-const TAB_HEADING = {
-  BUY: "Properties for Sale",
-  RENT: "Properties for Rent",
-  "PG/CO-LIVING": "PG / Co-Living Rooms",
-  COMMERCIAL: "Commercial Spaces",
-  PLOTS: "Plots & Land",
-};
+function resolveHeading(label) {
+  const u = (label ?? "").toUpperCase();
+  if (u === "BUY")              return "Properties for Sale";
+  if (u.startsWith("RENT"))     return "Properties for Rent";
+  if (u.includes("PG"))         return "PG / Co-Living Rooms";
+  if (u.includes("COMMERCIAL")) return "Commercial Spaces";
+  if (u.includes("PLOT"))       return "Plots & Land";
+  return "Featured Properties";
+}
 
 export default function PropertyListings({ activeTab, searchQuery, listingsRef }) {
   const [active, setActive] = useState("All");
   const navigate = useNavigate();
 
-  const tabFilters = TAB_FILTERS[activeTab] ?? ["All"];
+  const tabFilters = resolveFilters(activeTab);
 
   const prevTab = useRef(activeTab);
   if (prevTab.current !== activeTab) {
@@ -39,7 +45,7 @@ export default function PropertyListings({ activeTab, searchQuery, listingsRef }
     setActive("All");
   }
 
-  const source = INTENT_MAP[activeTab] ?? properties;
+  const source = resolveSource(activeTab);
 
   const byType = active === "All" ? source : source.filter((p) => p.type === active);
 
@@ -52,7 +58,10 @@ export default function PropertyListings({ activeTab, searchQuery, listingsRef }
       })
     : byType;
 
-  const heading = TAB_HEADING[activeTab] ?? "Featured Properties";
+  const heading = resolveHeading(activeTab);
+
+  // derive listingType param for navigation — use the raw activeTab label
+  const listingTypeParam = activeTab ?? "BUY";
 
   return (
     <section className="bg-[#f7f8fa] py-14 px-5" ref={listingsRef}>
@@ -67,7 +76,7 @@ export default function PropertyListings({ activeTab, searchQuery, listingsRef }
           <button
             onClick={() => {
               const params = new URLSearchParams();
-              params.set("listingType", activeTab);
+              params.set("listingType", listingTypeParam);
               if (searchQuery) params.set("city", searchQuery.split(",")[0].trim());
               navigate(`/listings?${params.toString()}`);
             }}

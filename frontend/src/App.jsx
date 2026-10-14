@@ -1,5 +1,6 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Routes, Route } from "react-router-dom";
+import axios from "axios";
 import Navbar from "./components/Navbar";
 import Hero from "./components/Hero";
 import StatsBar from "./components/StatsBar";
@@ -41,12 +42,35 @@ import AssignedInquiriesPage from "./pages/AssignedInquiriesPage";
 import PageSpinner from "./components/PageSpinner";
 import "./App.css";
 
-function HomePage({ activeTab, setActiveTab, searchQuery, setSearchQuery, handleSearch, listingsRef }) {
+const SELL_ID = import.meta.env.VITE_LISTING_TYPE_SELL_ID;
+
+async function loadPurposeTabs() {
+  const { data } = await axios.get(
+    `${import.meta.env.VITE_API_URL}/api/mixed/property-listings/active-purposes`,
+    { withCredentials: true }
+  );
+  return data.data
+    .sort((a, b) => a.order - b.order)
+    .map((p) => ({
+      id:    p._id,
+      label: p._id === SELL_ID ? "BUY" : p.name,
+    }));
+}
+
+function HomePage({ activeTab, setActiveTab, searchQuery, setSearchQuery, handleSearch, listingsRef, tabs, tabsLoading }) {
   return (
     <>
       <PageSpinner />
       <Navbar />
-      <Hero activeTab={activeTab} setActiveTab={setActiveTab} searchQuery={searchQuery} setSearchQuery={setSearchQuery} onSearch={handleSearch} />
+      <Hero
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        onSearch={handleSearch}
+        tabs={tabs}
+        tabsLoading={tabsLoading}
+      />
       <StatsBar />
       <TopPicks searchQuery={searchQuery} />
       <HighDemandProjects searchQuery={searchQuery} />
@@ -63,9 +87,30 @@ function HomePage({ activeTab, setActiveTab, searchQuery, setSearchQuery, handle
 }
 
 function App() {
-  const [activeTab, setActiveTab] = useState("BUY");
+  const [tabs, setTabs]             = useState([]);
+  const [tabsLoading, setTabsLoading] = useState(true);
+  const [activeTab, setActiveTab]   = useState(null); // set after fetch
   const [searchQuery, setSearchQuery] = useState("");
   const listingsRef = useRef(null);
+
+  useEffect(() => {
+    loadPurposeTabs()
+      .then((loaded) => {
+        setTabs(loaded);
+        setActiveTab(loaded[0]?.label ?? "BUY");
+      })
+      .catch(() => {
+        // fallback to hardcoded if API fails
+        const fallback = [
+          { id: import.meta.env.VITE_LISTING_TYPE_SELL_ID, label: "BUY"         },
+          { id: import.meta.env.VITE_LISTING_TYPE_RENT_ID, label: "Rent"        },
+          { id: import.meta.env.VITE_LISTING_TYPE_PG_ID,   label: "PG/Co-Living" },
+        ];
+        setTabs(fallback);
+        setActiveTab("BUY");
+      })
+      .finally(() => setTabsLoading(false));
+  }, []);
 
   const handleSearch = () => {
     setTimeout(() => {
@@ -83,6 +128,8 @@ function App() {
           setSearchQuery={setSearchQuery}
           handleSearch={handleSearch}
           listingsRef={listingsRef}
+          tabs={tabs}
+          tabsLoading={tabsLoading}
         />
       } />
       <Route path="/property/:id" element={<PropertyDetail />} />

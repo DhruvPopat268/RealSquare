@@ -5,21 +5,16 @@ import { newlyAddedProperties, rentProperties, commercialProperties, pgPropertie
 import ContactFlow from "./ContactFlow";
 import ImageSlider from "./ImageSlider";
 
-const INTENT_MAP = {
-  BUY: newlyAddedProperties,
-  RENT: rentProperties,
-  COMMERCIAL: commercialProperties,
-  "PG/CO-LIVING": pgProperties,
-  PLOTS: plotProperties,
-};
-
-const INTENT_LABEL = {
-  BUY: "BUY",
-  RENT: "RENT",
-  COMMERCIAL: "COMMERCIAL",
-  "PG/CO-LIVING": "PG/CO-LIVING",
-  PLOTS: "PLOTS",
-};
+// Match dynamic label → static mock data bucket
+function resolveSource(label) {
+  const u = (label ?? "").toUpperCase();
+  if (u === "BUY")              return newlyAddedProperties;
+  if (u.startsWith("RENT"))     return rentProperties;
+  if (u.includes("PG"))         return pgProperties;
+  if (u.includes("COMMERCIAL")) return commercialProperties;
+  if (u.includes("PLOT"))       return plotProperties;
+  return newlyAddedProperties;
+}
 
 function timeAgo(ts) {
   if (!ts) return null;
@@ -36,7 +31,7 @@ export default function NewlyAdded({ searchQuery, activeTab }) {
   const [showContact, setShowContact] = useState(false);
   const navigate = useNavigate();
 
-  const source = INTENT_MAP[activeTab] ?? newlyAddedProperties;
+  const source = resolveSource(activeTab);
 
   const normalised = source.map((p) => ({
     ...p,
@@ -55,7 +50,7 @@ export default function NewlyAdded({ searchQuery, activeTab }) {
 
   const handleSeeAll = () => {
     const params = new URLSearchParams();
-    params.set("listingType", INTENT_LABEL[activeTab] || "BUY");
+    params.set("listingType", activeTab ?? "BUY");
     params.set("source", "newly-added");
     if (searchQuery) params.set("city", searchQuery.split(",")[0].trim());
     navigate(`/listings?${params.toString()}`);
