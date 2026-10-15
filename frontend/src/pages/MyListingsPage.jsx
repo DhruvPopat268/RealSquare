@@ -335,7 +335,7 @@ function FilterSelect({ label, value, options, onChange, disabled }) {
       />
     </div>
   );
-}
+};
 
 // ── Main listing card ─────────────────────────────────────────────────────────
 function ListingCard({ listing, onStatusUpdate }) {
@@ -615,10 +615,13 @@ export default function MyListingsPage() {
   );
   const anyPendingValue    = Object.values(pendingFilters).some(Boolean);
 
-  // ── Sentinel + fetch guard ────────────────────────────────────────────────
-  const sentinelRef = useRef(null);
-  const observerRef = useRef(null);
-  const fetchingRef = useRef(false);
+  // Keep the sentinel node in state so the observer attaches when it mounts.
+  const [sentinelNode, setSentinelNode] = useState(null);
+  const pageRef = useRef(page);
+  const hasMoreRef = useRef(hasMore);
+  const loadingMoreRef = useRef(loadingMore);
+  pageRef.current = page;
+  hasMoreRef.current = hasMore;
 
   // ── Fetch filter options on mount ─────────────────────────────────────────
   useEffect(() => {
@@ -641,9 +644,11 @@ export default function MyListingsPage() {
   }, [pendingFilters.categoryId]);
 
   // ── Core fetch ────────────────────────────────────────────────────────────
-  const loadPage = useCallback(async (pageNum, filters, replace = false) => {
-    if (fetchingRef.current) return;
-    fetchingRef.current = true;
+  const loadPage = useCallback(async (pageNum, filters) => {
+    if (pageNum > 1) {
+      loadingMoreRef.current = true;
+      setLoadingMore(true);
+    }
     try {
       const result = await fetchMyListings({
         page:       pageNum,
@@ -653,47 +658,56 @@ export default function MyListingsPage() {
         categoryId: filters.categoryId || undefined,
         typeId:     filters.typeId     || undefined,
       });
-
       const { listings: newListings, pagination, stats: pageStats } = result;
-      setListings((prev) => replace ? newListings : [...prev, ...newListings]);
+      if (pageNum === 1) {
+        setListings(newListings);
+      } else {
+        setListings((prev) => [...prev, ...newListings]);
+      }
+      pageRef.current = pageNum;
+      hasMoreRef.current = pagination.hasMore;
       setHasMore(pagination.hasMore);
       setTotalCount(pagination.totalCount);
-      setPage(pageNum);
       if (pageStats) setStats(pageStats);
     } catch (err) {
       setError(err?.response?.data?.message ?? "Failed to load listings");
     } finally {
-      fetchingRef.current = false;
       setLoading(false);
+      loadingMoreRef.current = false;
       setLoadingMore(false);
     }
   }, []);
 
-  // ── Re-fetch when applied filters change ──────────────────────────────────
+  // ── Re-fetch from page 1 when applied filters change ─────────────────────
   useEffect(() => {
+    pageRef.current = 1;
+    hasMoreRef.current = true;
     setLoading(true);
     setError(null);
     setListings([]);
     setPage(1);
     setHasMore(true);
-    loadPage(1, appliedFilters, true);
+    loadPage(1, appliedFilters);
   }, [appliedFilters, loadPage]);
 
-  // ── IntersectionObserver ──────────────────────────────────────────────────
+  // ── IntersectionObserver ─────────────────────────────────────────────────
   useEffect(() => {
-    if (observerRef.current) observerRef.current.disconnect();
-    observerRef.current = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && hasMore && !loadingMore && !loading) {
-          setLoadingMore(true);
-          loadPage(page + 1, appliedFilters, false);
-        }
+    if (!sentinelNode || !hasMore || loading || loadingMore) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting || loadingMoreRef.current || !hasMoreRef.current) return;
+        const nextPage = pageRef.current + 1;
+        pageRef.current = nextPage;
+        setPage(nextPage);
+        loadPage(nextPage, appliedFilters);
       },
-      { rootMargin: "200px" }
+      { rootMargin: "400px 0px", threshold: 0 }
     );
-    if (sentinelRef.current) observerRef.current.observe(sentinelRef.current);
-    return () => observerRef.current?.disconnect();
-  }, [hasMore, loadingMore, loading, page, appliedFilters, loadPage]);
+    observer.observe(sentinelNode);
+    return () => {
+      observer.disconnect();
+    };
+  }, [sentinelNode, hasMore, loading, loadingMore, appliedFilters, loadPage]);
 
   // ── Filter handlers ───────────────────────────────────────────────────────
   const handleApply = () => {
@@ -712,8 +726,10 @@ export default function MyListingsPage() {
     setLoading(true);
     setListings([]);
     setPage(1);
+    pageRef.current = 1;
     setHasMore(true);
-    loadPage(1, appliedFilters, true);
+    hasMoreRef.current = true;
+    loadPage(1, appliedFilters);
   };
 
   // ── Status update handlers ────────────────────────────────────────────────
@@ -1051,18 +1067,26 @@ export default function MyListingsPage() {
               {view === "grid" ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   {listings.map((listing) => (
-                    <GridCard key={listing._id} listing={listing} onStatusUpdate={handleOpenStatusModal} />
+                    <GridCard
+                      key={listing._id}
+                      listing={listing}
+                      onStatusUpdate={handleOpenStatusModal}
+                    />
                   ))}
                 </div>
               ) : (
                 <div className="flex flex-col gap-4">
                   {listings.map((listing) => (
-                    <ListingCard key={listing._id} listing={listing} onStatusUpdate={handleOpenStatusModal} />
+                    <ListingCard
+                      key={listing._id}
+                      listing={listing}
+                      onStatusUpdate={handleOpenStatusModal}
+                    />
                   ))}
                 </div>
               )}
 
-              <div ref={sentinelRef} className="h-1" />
+              <div ref={setSentinelNode} className="h-4" />
               {loadingMore && <LoadingMore />}
               {!hasMore && !loadingMore && <EndOfList total={totalCount} />}
             </>
