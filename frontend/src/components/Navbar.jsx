@@ -4,6 +4,9 @@ import { FiChevronDown, FiMenu, FiX, FiUser, FiEye, FiHeart, FiPhone, FiEdit2, F
 import api from "../utils/axiosInterceptor";
 import { properties } from "../data/properties";
 import CoinIcon from "./CoinIcon";
+import { primaryColor } from "../utils/theme";
+
+const primaryLight = "#f3eeff"; // light tint bg
 
 const PROJECT_ID_MAP = {
   "Anuar Towers": 1,
@@ -40,11 +43,11 @@ function ProfileCompletionAvatar({ photo, label, sizeClass, iconSize, percentage
       className={`${sizeClass} flex-shrink-0 rounded-full p-[2px]`}
       style={{ background: `conic-gradient(${color} 0deg ${progressDegrees}deg, #e5e7eb ${progressDegrees}deg 360deg)` }}
     >
-      <div className="flex h-full w-full items-center justify-center overflow-hidden rounded-full bg-[#f3eeff]">
+      <div className="flex h-full w-full items-center justify-center overflow-hidden rounded-full" style={{ backgroundColor: primaryLight }}>
         {photo ? (
           <img src={photo} alt={label} className="h-full w-full rounded-full object-cover" />
         ) : (
-          <FiUser size={iconSize} className="text-[#7B2FFF]" />
+          <FiUser size={iconSize} style={{ color: primaryColor }} />
         )}
       </div>
     </div>
@@ -187,7 +190,9 @@ function DropdownContent({ menuKey, sections, onItemClick }) {
                 {section.items.map((item) => (
                   <li key={item}>
                     <button
-                      className="text-[14px] text-[#333] bg-transparent border-none cursor-pointer p-0 text-left hover:text-[#7B2FFF] transition-colors"
+                      className="text-[14px] text-[#333] bg-transparent border-none cursor-pointer p-0 text-left transition-colors"
+                      onMouseEnter={e => e.currentTarget.style.color = primaryColor}
+                      onMouseLeave={e => e.currentTarget.style.color = "#333"}
                       onClick={() => onItemClick(menuKey, item)}
                     >
                       {item}
@@ -204,7 +209,11 @@ function DropdownContent({ menuKey, sections, onItemClick }) {
                       className="flex flex-col gap-0.5 bg-transparent border-none cursor-pointer p-0 text-left group"
                       onClick={() => onItemClick(menuKey, item.title)}
                     >
-                      <span className="text-[14px] font-semibold text-[#222] group-hover:text-[#7B2FFF] transition-colors">
+                      <span
+                        className="text-[14px] font-semibold text-[#222] transition-colors"
+                        onMouseEnter={e => e.currentTarget.style.color = primaryColor}
+                        onMouseLeave={e => e.currentTarget.style.color = "#222"}
+                      >
                         {item.title}
                       </span>
                       <span className="text-xs text-gray-400">{item.sub}</span>
@@ -240,7 +249,9 @@ function NavItem({ label, menuData, onItemClick, onNavigate }) {
   if (!hasDropdown) {
     return (
       <button
-        className="flex items-center gap-1 px-2 py-2 rounded-md border-none text-sm font-medium cursor-pointer whitespace-nowrap bg-transparent text-[#333] hover:bg-[#f3eeff] hover:text-[#7B2FFF] transition-colors duration-150"
+        className="flex items-center gap-1 px-2 py-2 rounded-md border-none text-sm font-medium cursor-pointer whitespace-nowrap bg-transparent text-[#333] transition-colors duration-150"
+        onMouseEnter={e => { e.currentTarget.style.backgroundColor = primaryLight; e.currentTarget.style.color = primaryColor; }}
+        onMouseLeave={e => { e.currentTarget.style.backgroundColor = "transparent"; e.currentTarget.style.color = "#333"; }}
         onClick={() => onNavigate("/news")}
       >
         {label}
@@ -256,9 +267,11 @@ function NavItem({ label, menuData, onItemClick, onNavigate }) {
       onMouseLeave={() => setOpen(false)}
     >
       <button
-        className={`flex items-center gap-1 px-2 py-2 rounded-md border-none text-sm font-medium cursor-pointer whitespace-nowrap transition-colors duration-150 ${
-          open ? "bg-[#f3eeff] text-[#7B2FFF]" : "bg-transparent text-[#333] hover:bg-[#f3eeff] hover:text-[#7B2FFF]"
-        }`}
+        className="flex items-center gap-1 px-2 py-2 rounded-md border-none text-sm font-medium cursor-pointer whitespace-nowrap transition-colors duration-150"
+        style={{
+          backgroundColor: open ? primaryLight : "transparent",
+          color: open ? primaryColor : "#333",
+        }}
         onClick={() => setOpen((prev) => !prev)}
       >
         {label}
@@ -345,8 +358,6 @@ export default function Navbar() {
       ? "#EAB308"
       : "#22C55E";
 
-
-
   const currentRole = user?.role?.name?.toLowerCase()?.includes("owner") ? "owner"
     : user?.role?.name?.toLowerCase()?.includes("broker") || user?.role?.name?.toLowerCase()?.includes("agent") ? "broker"
     : user?.role?.name?.toLowerCase()?.includes("builder") || user?.role?.name?.toLowerCase()?.includes("developer") ? "builder"
@@ -413,9 +424,11 @@ export default function Navbar() {
           className="flex items-center gap-1.5 cursor-pointer z-10 flex-shrink-0"
           onClick={() => navigate("/")}
         >
-          <span className="text-base 2xl:text-xl font-extrabold text-[#1a1a2e] tracking-tight">
-            Real<span className="text-[#7B2FFF]">Square</span>
-          </span>
+          <img
+            src={import.meta.env.VITE_LOGO_URL}
+            alt="RealSquare"
+            className="h-8 w-auto object-contain"
+          />
         </div>
 
         {/* Desktop nav */}
@@ -434,11 +447,14 @@ export default function Navbar() {
         {/* Desktop right actions */}
         <div className="hidden md:flex items-center justify-end gap-4 z-10 flex-shrink-0 ml-auto">
           <button
-              onClick={() => navigate("/chatbot")}
-              className="flex items-center gap-1.5 border-none bg-[#7B2FFF] text-sm font-bold text-white cursor-pointer whitespace-nowrap hover:bg-[#6320d4] transition-colors px-4 py-2 rounded-xl"
-            >
-              List Property
-            </button>
+            onClick={() => navigate("/chatbot")}
+            className="flex items-center gap-1.5 border-none text-sm font-bold text-white cursor-pointer whitespace-nowrap transition-colors px-4 py-2 rounded-xl"
+            style={{ backgroundColor: primaryColor }}
+            onMouseEnter={e => e.currentTarget.style.filter = "brightness(0.85)"}
+            onMouseLeave={e => e.currentTarget.style.filter = "brightness(1)"}
+          >
+            List Property
+          </button>
 
           {/* Switch Role Modal */}
           {showSwitchModal && (
@@ -489,12 +505,16 @@ export default function Navbar() {
                     <button
                       key={r.key}
                       onClick={() => setSwitchSelected(r.key)}
-                      className={`flex flex-col items-start gap-1 p-3 rounded-xl border-2 text-left transition cursor-pointer ${
-                        switchSelected === r.key ? "border-[#7B2FFF] bg-[#f5f0ff]" : "border-gray-200 hover:border-[#7B2FFF] hover:bg-[#faf8ff]"
-                      }`}
+                      className="flex flex-col items-start gap-1 p-3 rounded-xl border-2 text-left transition cursor-pointer"
+                      style={{
+                        borderColor: switchSelected === r.key ? primaryColor : "#e5e7eb",
+                        backgroundColor: switchSelected === r.key ? "#f5f0ff" : "transparent",
+                      }}
+                      onMouseEnter={e => { if (switchSelected !== r.key) { e.currentTarget.style.borderColor = primaryColor; e.currentTarget.style.backgroundColor = "#faf8ff"; }}}
+                      onMouseLeave={e => { if (switchSelected !== r.key) { e.currentTarget.style.borderColor = "#e5e7eb"; e.currentTarget.style.backgroundColor = "transparent"; }}}
                     >
                       <span className="text-xl">{r.icon}</span>
-                      <span className={`text-xs font-bold ${switchSelected === r.key ? "text-[#7B2FFF]" : "text-[#1a1a2e]"}`}>{r.label}</span>
+                      <span className="text-xs font-bold" style={{ color: switchSelected === r.key ? primaryColor : "#1a1a2e" }}>{r.label}</span>
                       <span className="text-[11px] text-gray-400 leading-snug">{r.desc}</span>
                     </button>
                   ))}
@@ -547,7 +567,7 @@ export default function Navbar() {
                       <p className="text-sm font-bold text-[#1a1a2e] truncate">{navLabel}</p>
                       <p className="text-[10px] font-semibold" style={{ color: profileCompletionColor }}>{profileCompletionPercentage}% complete</p>
                       <p className="text-xs text-gray-400 truncate">+91 {user.mobile}</p>
-                      {user.role && <p className="text-[11px] text-[#7B2FFF] font-semibold mt-0.5">{user.role.name}</p>}
+                      {user.role && <p className="text-[11px] font-semibold mt-0.5" style={{ color: primaryColor }}>{user.role.name}</p>}
                       <div className="flex items-center gap-1.5 mt-1">
                         <CoinIcon size={16} />
                         <span className="text-xs font-bold text-amber-500">{(user.coinsBalance ?? 0).toLocaleString()} coins</span>
@@ -577,7 +597,7 @@ export default function Navbar() {
                         <span className="text-[11px] font-bold text-gray-500 uppercase tracking-wide">Active Listing Plan </span>
                       </div>
                       <div className="flex items-center justify-between mb-1.5">
-                        <span className="text-[11px] font-bold text-[#7B2FFF] bg-[#f3eeff] px-2 py-0.5 rounded-full">{user.activePlan.name}</span>
+                        <span className="text-[11px] font-bold px-2 py-0.5 rounded-full" style={{ color: primaryColor, backgroundColor: primaryLight }}>{user.activePlan.name}</span>
                         <button
                           onClick={() => { setProfileOpen(false); navigate("/plans"); }}
                           className="text-[10px] font-bold text-white bg-amber-400 border-none rounded-lg px-2 py-1 cursor-pointer hover:bg-amber-500 transition"
@@ -594,8 +614,8 @@ export default function Navbar() {
                       {user.activePlan.numberOfPropertiesGiven !== -1 && (
                         <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden mb-1.5">
                           <div
-                            className="h-full bg-[#7B2FFF] rounded-full transition-all"
-                            style={{ width: `${Math.min((user.activePlan.propertiesUsed / user.activePlan.numberOfPropertiesGiven) * 100, 100)}%` }}
+                            className="h-full rounded-full transition-all"
+                            style={{ width: `${Math.min((user.activePlan.propertiesUsed / user.activePlan.numberOfPropertiesGiven) * 100, 100)}%`, backgroundColor: primaryColor }}
                           />
                         </div>
                       )}
@@ -608,7 +628,10 @@ export default function Navbar() {
                         <p className="text-[11px] text-gray-400 text-center">No active plan found. Click below to purchase a plan.</p>
                         <button
                           onClick={() => { setProfileOpen(false); navigate("/plans"); }}
-                          className="text-[11px] font-semibold text-[#7B2FFF] bg-[#f3eeff] border-none rounded-lg px-3 py-1 cursor-pointer hover:bg-[#ebe4ff] transition"
+                          className="text-[11px] font-semibold border-none rounded-lg px-3 py-1 cursor-pointer transition"
+                          style={{ color: primaryColor, backgroundColor: primaryLight }}
+                          onMouseEnter={e => e.currentTarget.style.backgroundColor = "#ebe4ff"}
+                          onMouseLeave={e => e.currentTarget.style.backgroundColor = primaryLight}
                         >
                           Purchase Plan →
                         </button>
@@ -626,7 +649,7 @@ export default function Navbar() {
                         <span className="text-[11px] font-bold text-gray-500 uppercase tracking-wide">Active Requirement Plan</span>
                       </div>
                       <div className="flex items-center justify-between mb-1.5">
-                        <span className="text-[11px] font-bold text-[#7B2FFF] bg-[#f3eeff] px-2 py-0.5 rounded-full">{user.activeEnquiryPlan.name}</span>
+                        <span className="text-[11px] font-bold px-2 py-0.5 rounded-full" style={{ color: primaryColor, backgroundColor: primaryLight }}>{user.activeEnquiryPlan.name}</span>
                         <button
                           onClick={() => { setProfileOpen(false); navigate("/enquiry-plans"); }}
                           className="text-[10px] font-bold text-white bg-amber-400 border-none rounded-lg px-2 py-1 cursor-pointer hover:bg-amber-500 transition"
@@ -643,8 +666,8 @@ export default function Navbar() {
                       {user.activeEnquiryPlan.numberOfEnquiriesGiven !== -1 && (
                         <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden mb-1.5">
                           <div
-                            className="h-full bg-[#7B2FFF] rounded-full transition-all"
-                            style={{ width: `${Math.min((user.activeEnquiryPlan.enquiriesUsed / user.activeEnquiryPlan.numberOfEnquiriesGiven) * 100, 100)}%` }}
+                            className="h-full rounded-full transition-all"
+                            style={{ width: `${Math.min((user.activeEnquiryPlan.enquiriesUsed / user.activeEnquiryPlan.numberOfEnquiriesGiven) * 100, 100)}%`, backgroundColor: primaryColor }}
                           />
                         </div>
                       )}
@@ -657,7 +680,10 @@ export default function Navbar() {
                         <p className="text-[11px] text-gray-400 text-center">No active plan found. Click below to purchase a plan.</p>
                         <button
                           onClick={() => { setProfileOpen(false); navigate("/enquiry-plans"); }}
-                          className="text-[11px] font-semibold text-[#7B2FFF] bg-[#f3eeff] border-none rounded-lg px-3 py-1 cursor-pointer hover:bg-[#ebe4ff] transition"
+                          className="text-[11px] font-semibold border-none rounded-lg px-3 py-1 cursor-pointer transition"
+                          style={{ color: primaryColor, backgroundColor: primaryLight }}
+                          onMouseEnter={e => e.currentTarget.style.backgroundColor = "#ebe4ff"}
+                          onMouseLeave={e => e.currentTarget.style.backgroundColor = primaryLight}
                         >
                           Purchase Plan →
                         </button>
@@ -689,14 +715,13 @@ export default function Navbar() {
                       {canViewMyListings && (
                         <button
                           onClick={() => { setProfileOpen(false); navigate("/my-property-listings"); }}
-                          className={`w-full flex items-center gap-2 px-3 py-2.5 rounded-xl border transition group ${
-                            user?.rejectedPropertiesCount > 0
-                              ? "border-red-300 bg-red-50 hover:border-red-400 hover:bg-red-100"
-                              : "border-gray-200 hover:border-[#7B2FFF] hover:bg-[#f5f0ff]"
-                          }`}
+                          className="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl border transition group"
+                          style={user?.rejectedPropertiesCount > 0 ? {} : { borderColor: "#e5e7eb" }}
+                          onMouseEnter={e => { if (!(user?.rejectedPropertiesCount > 0)) { e.currentTarget.style.borderColor = primaryColor; e.currentTarget.style.backgroundColor = "#f5f0ff"; }}}
+                          onMouseLeave={e => { if (!(user?.rejectedPropertiesCount > 0)) { e.currentTarget.style.borderColor = "#e5e7eb"; e.currentTarget.style.backgroundColor = "transparent"; }}}
                         >
-                          <FiList size={14} className={user?.rejectedPropertiesCount > 0 ? "text-red-500 flex-shrink-0" : "text-[#7B2FFF] flex-shrink-0"} />
-                          <span className={`text-xs font-semibold flex-1 text-left ${user?.rejectedPropertiesCount > 0 ? "text-red-600" : "text-[#1a1a2e] group-hover:text-[#7B2FFF]"}`}>
+                          <FiList size={14} className={user?.rejectedPropertiesCount > 0 ? "text-red-500 flex-shrink-0" : "flex-shrink-0"} style={user?.rejectedPropertiesCount > 0 ? {} : { color: primaryColor }} />
+                          <span className={`text-xs font-semibold flex-1 text-left ${user?.rejectedPropertiesCount > 0 ? "text-red-600" : "text-[#1a1a2e]"}`}>
                             My Property Listings
                           </span>
                           {user?.rejectedPropertiesCount > 0 ? (
@@ -705,36 +730,38 @@ export default function Navbar() {
                               {user.rejectedPropertiesCount} Action Required
                             </span>
                           ) : (
-                            <span className="text-[11px] text-gray-400 group-hover:text-[#7B2FFF]">→</span>
+                            <span className="text-[11px] text-gray-400">→</span>
                           )}
                         </button>
                       )}
                       <button
-                          onClick={() => { setProfileOpen(false); navigate("/my-inquiries"); }}
-                          className={`w-full flex items-center gap-2 px-3 py-2.5 rounded-xl border border-gray-200 hover:border-[#7B2FFF] hover:bg-[#f5f0ff] transition group ${canViewMyListings ? "mt-2" : ""}`}
-                        >
-                          <FiEdit2 size={14} className="text-[#7B2FFF] flex-shrink-0" />
-                          <span className="text-xs font-semibold flex-1 text-left text-[#1a1a2e] group-hover:text-[#7B2FFF]">
-                            My Requirements
-                          </span>
-                          <span className="text-[11px] text-gray-400 group-hover:text-[#7B2FFF]">→</span>
-                        </button>
+                        onClick={() => { setProfileOpen(false); navigate("/my-inquiries"); }}
+                        className={`w-full flex items-center gap-2 px-3 py-2.5 rounded-xl border border-gray-200 transition group ${canViewMyListings ? "mt-2" : ""}`}
+                        onMouseEnter={e => { e.currentTarget.style.borderColor = primaryColor; e.currentTarget.style.backgroundColor = "#f5f0ff"; }}
+                        onMouseLeave={e => { e.currentTarget.style.borderColor = "#e5e7eb"; e.currentTarget.style.backgroundColor = "transparent"; }}
+                      >
+                        <FiEdit2 size={14} className="flex-shrink-0" style={{ color: primaryColor }} />
+                        <span className="text-xs font-semibold flex-1 text-left text-[#1a1a2e]">
+                          My Requirements
+                        </span>
+                        <span className="text-[11px] text-gray-400">→</span>
+                      </button>
                       {user?.haveAssignedInquiries && (
                         <button
                           onClick={() => { setProfileOpen(false); navigate("/assigned-inquiries"); }}
-                          className="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl border border-gray-200 hover:border-[#7B2FFF] hover:bg-[#f5f0ff] transition group mt-2"
+                          className="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl border border-gray-200 transition group mt-2"
+                          onMouseEnter={e => { e.currentTarget.style.borderColor = primaryColor; e.currentTarget.style.backgroundColor = "#f5f0ff"; }}
+                          onMouseLeave={e => { e.currentTarget.style.borderColor = "#e5e7eb"; e.currentTarget.style.backgroundColor = "transparent"; }}
                         >
-                          <FiEdit2 size={14} className="text-[#7B2FFF] flex-shrink-0" />
-                          <span className="text-xs font-semibold flex-1 text-left text-[#1a1a2e] group-hover:text-[#7B2FFF]">
+                          <FiEdit2 size={14} className="flex-shrink-0" style={{ color: primaryColor }} />
+                          <span className="text-xs font-semibold flex-1 text-left text-[#1a1a2e]">
                             Assigned Requirements
                           </span>
-                          <span className="text-[11px] text-gray-400 group-hover:text-[#7B2FFF]">→</span>
+                          <span className="text-[11px] text-gray-400">→</span>
                         </button>
                       )}
                     </div>
                   )}
-
-                  {/* Activity tabs */}
 
                   {/* Activity tabs */}
                   <div className="flex gap-2 mb-3">
@@ -746,15 +773,17 @@ export default function Navbar() {
                       <button
                         key={key}
                         onClick={() => setActiveTab(key)}
-                        className={`flex-1 flex flex-col items-center gap-0.5 py-2 rounded-xl border text-xs font-semibold transition ${
-                          activeTab === key
-                            ? "bg-[#7B2FFF] border-[#7B2FFF] text-white"
-                            : "border-gray-200 text-gray-500 hover:border-[#7B2FFF] hover:text-[#7B2FFF]"
-                        }`}
+                        className="flex-1 flex flex-col items-center gap-0.5 py-2 rounded-xl border text-xs font-semibold transition"
+                        style={activeTab === key
+                          ? { backgroundColor: primaryColor, borderColor: primaryColor, color: "white" }
+                          : { borderColor: "#e5e7eb", color: "#6b7280" }
+                        }
+                        onMouseEnter={e => { if (activeTab !== key) { e.currentTarget.style.borderColor = primaryColor; e.currentTarget.style.color = primaryColor; }}}
+                        onMouseLeave={e => { if (activeTab !== key) { e.currentTarget.style.borderColor = "#e5e7eb"; e.currentTarget.style.color = "#6b7280"; }}}
                       >
                         {icon}
                         <span>{label}</span>
-                        <span className={`text-[11px] font-bold ${activeTab === key ? "text-white" : "text-[#7B2FFF]"}`}>
+                        <span className="text-[11px] font-bold" style={{ color: activeTab === key ? "white" : primaryColor }}>
                           {DUMMY_ACTIVITY[key].length}
                         </span>
                       </button>
@@ -767,13 +796,15 @@ export default function Navbar() {
                       <div
                         key={p.id}
                         onClick={() => { setProfileOpen(false); navigate(`/property/${p.id}`); }}
-                        className="flex gap-2.5 items-center p-2 rounded-xl border border-gray-100 hover:border-[#7B2FFF] hover:bg-[#f5f0ff] cursor-pointer transition"
+                        className="flex gap-2.5 items-center p-2 rounded-xl border border-gray-100 cursor-pointer transition"
+                        onMouseEnter={e => { e.currentTarget.style.borderColor = primaryColor; e.currentTarget.style.backgroundColor = "#f5f0ff"; }}
+                        onMouseLeave={e => { e.currentTarget.style.borderColor = "#f3f4f6"; e.currentTarget.style.backgroundColor = "transparent"; }}
                       >
                         <img src={p.image} alt={p.title} className="w-14 h-12 rounded-lg object-cover flex-shrink-0" />
                         <div className="overflow-hidden">
                           <p className="text-xs font-semibold text-[#1a1a2e] truncate">{p.title}</p>
                           <p className="text-[11px] text-gray-400 truncate">{p.location}</p>
-                          <p className="text-[11px] font-bold text-[#7B2FFF]">{p.price}</p>
+                          <p className="text-[11px] font-bold truncate" style={{ color: primaryColor }}>{p.price}</p>
                         </div>
                       </div>
                     ))}
@@ -801,7 +832,10 @@ export default function Navbar() {
           ) : (
             <button
               onClick={() => navigate("/login")}
-              className="flex items-center gap-1.5 bg-[#7B2FFF] border-none rounded-full px-4 py-1.5 cursor-pointer text-white text-sm font-semibold hover:bg-[#6320d4] transition"
+              className="flex items-center gap-1.5 border-none rounded-full px-4 py-1.5 cursor-pointer text-white text-sm font-semibold transition"
+              style={{ backgroundColor: primaryColor }}
+              onMouseEnter={e => e.currentTarget.style.filter = "brightness(0.85)"}
+              onMouseLeave={e => e.currentTarget.style.filter = "brightness(1)"}
             >
               <FiUser size={15} />
               Login
@@ -814,18 +848,24 @@ export default function Navbar() {
           {!user && (
             <button
               onClick={() => navigate("/login")}
-              className="flex items-center gap-1.5 bg-[#7B2FFF] border-none rounded-full px-4 py-1.5 cursor-pointer text-white text-sm font-semibold hover:bg-[#6320d4] transition"
+              className="flex items-center gap-1.5 border-none rounded-full px-4 py-1.5 cursor-pointer text-white text-sm font-semibold transition"
+              style={{ backgroundColor: primaryColor }}
+              onMouseEnter={e => e.currentTarget.style.filter = "brightness(0.85)"}
+              onMouseLeave={e => e.currentTarget.style.filter = "brightness(1)"}
             >
               <FiUser size={15} />
               Login
             </button>
           )}
           <button
-              onClick={() => navigate("/chatbot")}
-              className="flex items-center gap-1.5 bg-[#7B2FFF] border-none rounded-full px-4 py-1.5 cursor-pointer text-white text-sm font-semibold hover:bg-[#6320d4] transition"
-            >
-              List Property
-            </button>
+            onClick={() => navigate("/chatbot")}
+            className="flex items-center gap-1.5 border-none rounded-full px-4 py-1.5 cursor-pointer text-white text-sm font-semibold transition"
+            style={{ backgroundColor: primaryColor }}
+            onMouseEnter={e => e.currentTarget.style.filter = "brightness(0.85)"}
+            onMouseLeave={e => e.currentTarget.style.filter = "brightness(1)"}
+          >
+            List Property
+          </button>
           {user ? (
             <button
               onClick={() => setMobileOpen((prev) => !prev)}
@@ -858,9 +898,11 @@ export default function Navbar() {
           >
             {/* Drawer header */}
             <div className="flex items-center justify-between px-5 h-[62px] border-b border-gray-100">
-              <span className="text-lg font-extrabold text-[#1a1a2e]">
-                Real<span className="text-[#7B2FFF]">Square</span>
-              </span>
+              <img
+                src={import.meta.env.VITE_LOGO_URL}
+                alt="RealSquare"
+                className="h-7 w-auto object-contain"
+              />
               <button
                 className="bg-transparent border-none cursor-pointer text-[#333] p-1"
                 onClick={() => setMobileOpen(false)}
@@ -882,7 +924,7 @@ export default function Navbar() {
                       <span className="text-sm font-bold text-[#1a1a2e] truncate">{navLabel}</span>
                       <span className="text-[10px] font-semibold" style={{ color: profileCompletionColor }}>{profileCompletionPercentage}% complete</span>
                       <span className="text-xs text-gray-400">+91 {user.mobile}</span>
-                      {user.role && <span className="text-[11px] text-[#7B2FFF] font-semibold">{user.role.name}</span>}
+                      {user.role && <span className="text-[11px] font-semibold" style={{ color: primaryColor }}>{user.role.name}</span>}
                     </div>
                   </div>
                   {/* Coins + Edit + Switch */}
@@ -899,16 +941,16 @@ export default function Navbar() {
                         <span className="text-[11px] font-bold text-gray-500 uppercase tracking-wide">Active Listing Plan </span>
                       </div>
                       <div className="flex items-center justify-between mb-1">
-                        <span className="text-[11px] font-bold text-[#7B2FFF]">{user.activePlan.name}</span>
+                        <span className="text-[11px] font-bold" style={{ color: primaryColor }}>{user.activePlan.name}</span>
                         <button onClick={() => { setMobileOpen(false); navigate("/plans"); }} className="text-[10px] font-bold text-white bg-amber-400 border-none rounded-lg px-2 py-0.5 cursor-pointer">Change Listing Plan</button>
                       </div>
                       <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                        <div className="h-full bg-[#7B2FFF] rounded-full" style={{ width: `${user.activePlan.numberOfPropertiesGiven > 0 ? Math.min((user.activePlan.propertiesUsed / user.activePlan.numberOfPropertiesGiven) * 100, 100) : 0}%` }} />
+                        <div className="h-full rounded-full" style={{ width: `${user.activePlan.numberOfPropertiesGiven > 0 ? Math.min((user.activePlan.propertiesUsed / user.activePlan.numberOfPropertiesGiven) * 100, 100) : 0}%`, backgroundColor: primaryColor }} />
                       </div>
                       <p className="text-[10px] text-gray-400 mt-1">Expires: {user.activePlan.expiryDate ? user.activePlan.expiryDate.replace(/\b(am|pm)\b/i, (m) => m.toUpperCase()) : "Never"}</p>
                     </div>
                   ) : (
-                    <button onClick={() => { setMobileOpen(false); navigate("/plans"); }} className="text-[11px] font-semibold text-[#7B2FFF] bg-[#f3eeff] border-none rounded-lg px-3 py-2 cursor-pointer w-full text-left mx-2 mb-2">Purchase Plan →</button>
+                    <button onClick={() => { setMobileOpen(false); navigate("/plans"); }} className="text-[11px] font-semibold border-none rounded-lg px-3 py-2 cursor-pointer w-full text-left mx-2 mb-2" style={{ color: primaryColor, backgroundColor: primaryLight }}>Purchase Plan →</button>
                   ))}
                   {/* Requirement Plan */}
                   {user.showEnquiryPlan && (user.activeEnquiryPlan ? (
@@ -917,16 +959,16 @@ export default function Navbar() {
                         <span className="text-[11px] font-bold text-gray-500 uppercase tracking-wide">Active Requirement Plan</span>
                       </div>
                       <div className="flex items-center justify-between mb-1">
-                        <span className="text-[11px] font-bold text-[#7B2FFF]">{user.activeEnquiryPlan.name}</span>
+                        <span className="text-[11px] font-bold" style={{ color: primaryColor }}>{user.activeEnquiryPlan.name}</span>
                         <button onClick={() => { setMobileOpen(false); navigate("/enquiry-plans"); }} className="text-[10px] font-bold text-white bg-amber-400 border-none rounded-lg px-2 py-0.5 cursor-pointer">Change Requirement Plan</button>
                       </div>
                       <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                        <div className="h-full bg-[#7B2FFF] rounded-full" style={{ width: `${user.activeEnquiryPlan.numberOfEnquiriesGiven > 0 ? Math.min((user.activeEnquiryPlan.enquiriesUsed / user.activeEnquiryPlan.numberOfEnquiriesGiven) * 100, 100) : 0}%` }} />
+                        <div className="h-full rounded-full" style={{ width: `${user.activeEnquiryPlan.numberOfEnquiriesGiven > 0 ? Math.min((user.activeEnquiryPlan.enquiriesUsed / user.activeEnquiryPlan.numberOfEnquiriesGiven) * 100, 100) : 0}%`, backgroundColor: primaryColor }} />
                       </div>
                       <p className="text-[10px] text-gray-400 mt-1">Expires: {user.activeEnquiryPlan.expiryDate ? user.activeEnquiryPlan.expiryDate.replace(/\b(am|pm)\b/i, (m) => m.toUpperCase()) : "Never"}</p>
                     </div>
                   ) : (
-                    <button onClick={() => { setMobileOpen(false); navigate("/enquiry-plans"); }} className="text-[11px] font-semibold text-[#7B2FFF] bg-[#f3eeff] border-none rounded-lg px-3 py-2 cursor-pointer w-full text-left mx-2 mb-2">Purchase Requirement Plan →</button>
+                    <button onClick={() => { setMobileOpen(false); navigate("/enquiry-plans"); }} className="text-[11px] font-semibold border-none rounded-lg px-3 py-2 cursor-pointer w-full text-left mx-2 mb-2" style={{ color: primaryColor, backgroundColor: primaryLight }}>Purchase Requirement Plan →</button>
                   ))}
                   {/* Quick actions */}
                   {(user.showListingPlan || user.showEnquiryPlan) && (
@@ -941,14 +983,13 @@ export default function Navbar() {
                       {canViewMyListings && (
                         <button
                           onClick={() => { setMobileOpen(false); navigate("/my-property-listings"); }}
-                          className={`w-full flex items-center gap-2 px-3 py-2.5 rounded-xl border transition group cursor-pointer ${
-                            user?.rejectedPropertiesCount > 0
-                              ? "border-red-300 bg-red-50 hover:border-red-400 hover:bg-red-100"
-                              : "border-gray-200 hover:border-[#7B2FFF] hover:bg-[#f5f0ff] bg-white"
-                          }`}
+                          className="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl border transition cursor-pointer"
+                          style={user?.rejectedPropertiesCount > 0 ? { borderColor: "#fca5a5", backgroundColor: "#fef2f2" } : { borderColor: "#e5e7eb", backgroundColor: "white" }}
+                          onMouseEnter={e => { if (!(user?.rejectedPropertiesCount > 0)) { e.currentTarget.style.borderColor = primaryColor; e.currentTarget.style.backgroundColor = "#f5f0ff"; }}}
+                          onMouseLeave={e => { if (!(user?.rejectedPropertiesCount > 0)) { e.currentTarget.style.borderColor = "#e5e7eb"; e.currentTarget.style.backgroundColor = "white"; }}}
                         >
-                          <FiList size={14} className={user?.rejectedPropertiesCount > 0 ? "text-red-500 flex-shrink-0" : "text-[#7B2FFF] flex-shrink-0"} />
-                          <span className={`text-xs font-semibold flex-1 text-left ${user?.rejectedPropertiesCount > 0 ? "text-red-600" : "text-[#1a1a2e] group-hover:text-[#7B2FFF]"}`}>
+                          <FiList size={14} className={user?.rejectedPropertiesCount > 0 ? "text-red-500 flex-shrink-0" : "flex-shrink-0"} style={user?.rejectedPropertiesCount > 0 ? {} : { color: primaryColor }} />
+                          <span className={`text-xs font-semibold flex-1 text-left ${user?.rejectedPropertiesCount > 0 ? "text-red-600" : "text-[#1a1a2e]"}`}>
                             My Property Listings
                           </span>
                           {user?.rejectedPropertiesCount > 0 ? (
@@ -957,30 +998,34 @@ export default function Navbar() {
                               {user.rejectedPropertiesCount} Action Required
                             </span>
                           ) : (
-                            <span className="text-[11px] text-gray-400 group-hover:text-[#7B2FFF]">→</span>
+                            <span className="text-[11px] text-gray-400">→</span>
                           )}
                         </button>
                       )}
                       <button
-                          onClick={() => { setMobileOpen(false); navigate("/my-inquiries"); }}
-                          className={`w-full flex items-center gap-2 px-3 py-2.5 rounded-xl border border-gray-200 hover:border-[#7B2FFF] hover:bg-[#f5f0ff] bg-white transition group cursor-pointer ${canViewMyListings ? "mt-2" : ""}`}
-                        >
-                          <FiEdit2 size={14} className="text-[#7B2FFF] flex-shrink-0" />
-                          <span className="text-xs font-semibold flex-1 text-left text-[#1a1a2e] group-hover:text-[#7B2FFF]">
-                            My Requirements
-                          </span>
-                          <span className="text-[11px] text-gray-400 group-hover:text-[#7B2FFF]">→</span>
-                        </button>
+                        onClick={() => { setMobileOpen(false); navigate("/my-inquiries"); }}
+                        className={`w-full flex items-center gap-2 px-3 py-2.5 rounded-xl border border-gray-200 bg-white transition cursor-pointer ${canViewMyListings ? "mt-2" : ""}`}
+                        onMouseEnter={e => { e.currentTarget.style.borderColor = primaryColor; e.currentTarget.style.backgroundColor = "#f5f0ff"; }}
+                        onMouseLeave={e => { e.currentTarget.style.borderColor = "#e5e7eb"; e.currentTarget.style.backgroundColor = "white"; }}
+                      >
+                        <FiEdit2 size={14} className="flex-shrink-0" style={{ color: primaryColor }} />
+                        <span className="text-xs font-semibold flex-1 text-left text-[#1a1a2e]">
+                          My Requirements
+                        </span>
+                        <span className="text-[11px] text-gray-400">→</span>
+                      </button>
                       {user?.haveAssignedInquiries && (
                         <button
                           onClick={() => { setMobileOpen(false); navigate("/assigned-inquiries"); }}
-                          className="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl border border-gray-200 hover:border-[#7B2FFF] hover:bg-[#f5f0ff] bg-white transition group cursor-pointer mt-2"
+                          className="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl border border-gray-200 bg-white transition cursor-pointer mt-2"
+                          onMouseEnter={e => { e.currentTarget.style.borderColor = primaryColor; e.currentTarget.style.backgroundColor = "#f5f0ff"; }}
+                          onMouseLeave={e => { e.currentTarget.style.borderColor = "#e5e7eb"; e.currentTarget.style.backgroundColor = "white"; }}
                         >
-                          <FiEdit2 size={14} className="text-[#7B2FFF] flex-shrink-0" />
-                          <span className="text-xs font-semibold flex-1 text-left text-[#1a1a2e] group-hover:text-[#7B2FFF]">
+                          <FiEdit2 size={14} className="flex-shrink-0" style={{ color: primaryColor }} />
+                          <span className="text-xs font-semibold flex-1 text-left text-[#1a1a2e]">
                             Assigned Requirements
                           </span>
-                          <span className="text-[11px] text-gray-400 group-hover:text-[#7B2FFF]">→</span>
+                          <span className="text-[11px] text-gray-400">→</span>
                         </button>
                       )}
                     </div>
@@ -994,7 +1039,9 @@ export default function Navbar() {
                 return (
                   <div key={label}>
                     <button
-                      className="w-full text-left text-[15px] font-medium text-[#333] bg-transparent border-none cursor-pointer py-3 px-2 rounded-lg hover:bg-[#f3eeff] hover:text-[#7B2FFF] transition-colors flex items-center justify-between"
+                      className="w-full text-left text-[15px] font-medium text-[#333] bg-transparent border-none cursor-pointer py-3 px-2 rounded-lg transition-colors flex items-center justify-between"
+                      onMouseEnter={e => { e.currentTarget.style.backgroundColor = primaryLight; e.currentTarget.style.color = primaryColor; }}
+                      onMouseLeave={e => { e.currentTarget.style.backgroundColor = "transparent"; e.currentTarget.style.color = "#333"; }}
                       onClick={() => {
                         if (!hasMenu) { setMobileOpen(false); navigate("/news"); return; }
                         setMobileActiveMenu(isOpen ? null : label);
@@ -1022,7 +1069,9 @@ export default function Navbar() {
                               return (
                                 <button
                                   key={itemLabel}
-                                  className="w-full text-left text-[13px] text-[#444] bg-transparent border-none cursor-pointer py-2 px-2 rounded-lg hover:bg-[#f3eeff] hover:text-[#7B2FFF] transition-colors"
+                                  className="w-full text-left text-[13px] text-[#444] bg-transparent border-none cursor-pointer py-2 px-2 rounded-lg transition-colors"
+                                  onMouseEnter={e => { e.currentTarget.style.backgroundColor = primaryLight; e.currentTarget.style.color = primaryColor; }}
+                                  onMouseLeave={e => { e.currentTarget.style.backgroundColor = "transparent"; e.currentTarget.style.color = "#444"; }}
                                   onClick={() => handleItemClick(label, itemLabel)}
                                 >
                                   {itemLabel}

@@ -1,3 +1,5 @@
+import { primaryColor } from "../utils/theme";
+
 export default function CoinIcon({ size = 20, className = "" }) {
   return (
     <span
@@ -9,7 +11,7 @@ export default function CoinIcon({ size = 20, className = "" }) {
         width: size,
         height: size,
         borderRadius: "50%",
-        background: "linear-gradient(135deg, #7B2FFF 60%, #a855f7 100%)",
+        background: `linear-gradient(135deg, ${primaryColor} 60%, #a855f7 100%)`,
         flexShrink: 0,
       }}
     >

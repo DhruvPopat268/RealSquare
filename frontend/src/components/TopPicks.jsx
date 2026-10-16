@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { topPickGroups } from "../data/properties";
 import ContactFlow from "./ContactFlow";
 import ImageSlider from "./ImageSlider";
+import { primaryColor } from "../utils/theme";
 
 const INTERVAL = 3000;
 
@@ -79,16 +80,18 @@ export default function TopPicks({ searchQuery }) {
               <button
                 key={g.id}
                 onClick={() => handleGroupChange(i)}
-                className={`px-4 py-1.5 rounded-full border text-sm font-medium transition flex flex-col items-center ${
-                  activeGroup === i
-                    ? "border-[#7B2FFF] text-[#7B2FFF] bg-[#f3eeff]"
-                    : "border-gray-300 text-gray-500 bg-white hover:border-[#7B2FFF] hover:text-[#7B2FFF]"
-                }`}
+                className="px-4 py-1.5 rounded-full border text-sm font-medium transition flex flex-col items-center"
+                style={activeGroup === i
+                  ? { borderColor: primaryColor, color: primaryColor, backgroundColor: "#f3eeff" }
+                  : { borderColor: "#d1d5db", color: "#6b7280", backgroundColor: "white" }
+                }
+                onMouseEnter={e => { if (activeGroup !== i) { e.currentTarget.style.borderColor = primaryColor; e.currentTarget.style.color = primaryColor; }}}
+                onMouseLeave={e => { if (activeGroup !== i) { e.currentTarget.style.borderColor = "#d1d5db"; e.currentTarget.style.color = "#6b7280"; }}}
               >
                 {g.developer}
                 {activeGroup === i && (
                   <span className="block w-full h-[3px] bg-[#d8c4ff] rounded mt-1.5 overflow-hidden">
-                    <span className="block h-full bg-[#7B2FFF] rounded transition-all duration-75" style={{ width: `${progress}%` }} />
+                    <span className="block h-full rounded transition-all duration-75" style={{ width: `${progress}%`, backgroundColor: primaryColor }} />
                   </span>
                 )}
               </button>
@@ -97,7 +100,7 @@ export default function TopPicks({ searchQuery }) {
         </div>
 
         {/* Main card */}
-        <div className="flex rounded-2xl overflow-hidden border-2 border-[#7B2FFF] h-[400px] max-md:flex-col max-md:h-auto">
+        <div className="flex rounded-2xl overflow-hidden h-[400px] max-md:flex-col max-md:h-auto" style={{ border: `2px solid ${primaryColor}` }}>
 
           {/* Left info panel */}
           <div className="w-[320px] flex-shrink-0 bg-gradient-to-br from-[#f3eeff] via-[#e8d5ff] to-[#fce4ec] p-6 flex flex-col gap-4 max-md:w-full">
@@ -107,7 +110,8 @@ export default function TopPicks({ searchQuery }) {
               <div>
                 <p className="text-sm font-bold text-[#1a1a2e]">{group.developer}</p>
                 <button
-                  className="text-xs text-[#7B2FFF] font-semibold underline"
+                  className="text-xs font-semibold underline"
+                  style={{ color: primaryColor }}
                   onClick={() => navigate(`/developer/${group.id}`)}
                 >
                   View All Projects
@@ -120,17 +124,24 @@ export default function TopPicks({ searchQuery }) {
               className="flex-1 cursor-pointer"
               onClick={() => handleProjectClick(project)}
             >
-              <h3 className="text-xl font-extrabold text-[#1a1a2e] mb-1 hover:text-[#7B2FFF] transition-colors">
+              <h3
+                className="text-xl font-extrabold text-[#1a1a2e] mb-1 transition-colors"
+                onMouseEnter={e => e.currentTarget.style.color = primaryColor}
+                onMouseLeave={e => e.currentTarget.style.color = "#1a1a2e"}
+              >
                 {project.name}
               </h3>
               <p className="text-xs text-gray-500 mb-3">{project.location}</p>
               <div className="text-2xl font-extrabold text-[#1a1a2e] mb-1">{project.price}</div>
               <p className="text-xs text-gray-500">{project.type}</p>
-              <span className="inline-block mt-2 text-xs text-[#7B2FFF] font-semibold">View Details →</span>
+              <span className="inline-block mt-2 text-xs font-semibold" style={{ color: primaryColor }}>View Details →</span>
             </div>
 
             <button
-              className="w-full bg-[#7B2FFF] hover:bg-[#6320d4] text-white rounded-xl py-3 text-sm font-bold transition"
+              className="w-full text-white rounded-xl py-3 text-sm font-bold transition"
+              style={{ backgroundColor: primaryColor }}
+              onMouseEnter={e => e.currentTarget.style.filter = "brightness(0.85)"}
+              onMouseLeave={e => e.currentTarget.style.filter = "brightness(1)"}
               onClick={() => setShowContact(true)}
             >
               Contact

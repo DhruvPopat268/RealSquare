@@ -2,6 +2,8 @@ import { useState, useRef } from "react";
 import { FiPhone, FiChevronRight } from "react-icons/fi";
 import { sellersByTab } from "../data/sellers";
 import ContactFlow from "./ContactFlow";
+import { primaryColor } from "../utils/theme";
+
 
 export default function RecommendedSellers({ activeTab, searchQuery }) {
   const [showContact, setShowContact] = useState(false);
@@ -85,7 +87,10 @@ export default function RecommendedSellers({ activeTab, searchQuery }) {
                           ))}
                         </div>
                         <button
-                          className="w-full py-2 border-[1.5px] border-[#7B2FFF] text-[#7B2FFF] rounded-lg text-[13px] font-semibold flex items-center justify-center gap-1.5 hover:bg-[#7B2FFF] hover:text-white transition-all cursor-pointer bg-transparent"
+                          className="w-full py-2 rounded-lg text-[13px] font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer bg-transparent"
+                          style={{ border: `1.5px solid ${primaryColor}`, color: primaryColor }}
+                          onMouseEnter={e => { e.currentTarget.style.backgroundColor = primaryColor; e.currentTarget.style.color = "white"; }}
+                          onMouseLeave={e => { e.currentTarget.style.backgroundColor = "transparent"; e.currentTarget.style.color = primaryColor; }}
                           onClick={() => setShowContact(true)}
                         >
                           <FiPhone size={14} /> Show Contact
@@ -101,7 +106,9 @@ export default function RecommendedSellers({ activeTab, searchQuery }) {
           {/* Right arrow */}
           <button
             onClick={() => scroll(1)}
-            className="absolute -right-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white border border-[#e0e0e0] rounded-full flex items-center justify-center text-[22px] shadow-[0_2px_8px_rgba(0,0,0,0.12)] cursor-pointer hover:bg-[#f3eeff] hover:border-[#7B2FFF] hover:text-[#7B2FFF] transition-all z-10 leading-none"
+            className="absolute -right-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white border border-[#e0e0e0] rounded-full flex items-center justify-center text-[22px] shadow-[0_2px_8px_rgba(0,0,0,0.12)] cursor-pointer transition-all z-10 leading-none"
+            onMouseEnter={e => { e.currentTarget.style.backgroundColor = "#f3eeff"; e.currentTarget.style.borderColor = primaryColor; e.currentTarget.style.color = primaryColor; }}
+            onMouseLeave={e => { e.currentTarget.style.backgroundColor = "white"; e.currentTarget.style.borderColor = "#e0e0e0"; e.currentTarget.style.color = ""; }}
           >
             ›
           </button>

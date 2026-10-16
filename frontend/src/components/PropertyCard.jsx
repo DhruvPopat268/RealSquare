@@ -5,6 +5,8 @@ import { MdVerified } from "react-icons/md";
 import ContactFlow from "./ContactFlow";
 import WishlistToast, { useWishlistToast } from "./WishlistToast";
 import ImageSlider from "./ImageSlider";
+import { primaryColor } from "../utils/theme";
+
 
 function timeAgo(ts) {
   if (!ts) return null;
@@ -120,13 +122,19 @@ export default function PropertyCard({ property, showPostedAt = false }) {
           </div>
           <div className="flex gap-2">
             <button
-              className="flex items-center gap-1.5 px-3 py-1.5 border border-[#7B2FFF] text-[#7B2FFF] rounded-lg text-xs font-semibold hover:bg-[#f5f0ff] transition"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition"
+              style={{ border: `1px solid ${primaryColor}`, color: primaryColor }}
+              onMouseEnter={e => e.currentTarget.style.backgroundColor = "#f5f0ff"}
+              onMouseLeave={e => e.currentTarget.style.backgroundColor = "transparent"}
               onClick={(e) => { e.stopPropagation(); setShowContact(true); }}
             >
               <FiPhone size={12} /> Contact
             </button>
             <button
-              className="px-3 py-1.5 bg-[#7B2FFF] text-white rounded-lg text-xs font-semibold hover:bg-[#6a1fe0] transition"
+              className="px-3 py-1.5 text-white rounded-lg text-xs font-semibold transition"
+              style={{ backgroundColor: primaryColor }}
+              onMouseEnter={e => e.currentTarget.style.filter = "brightness(0.85)"}
+              onMouseLeave={e => e.currentTarget.style.filter = "brightness(1)"}
               onClick={(e) => { e.stopPropagation(); navigate(`/property/${id}`); }}
             >
               View Details

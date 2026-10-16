@@ -4,6 +4,8 @@ import { FiMapPin, FiClock } from "react-icons/fi";
 import { newlyAddedProperties, rentProperties, commercialProperties, pgProperties, plotProperties } from "../data/properties";
 import ContactFlow from "./ContactFlow";
 import ImageSlider from "./ImageSlider";
+import { primaryColor } from "../utils/theme";
+
 
 // Match dynamic label → static mock data bucket
 function resolveSource(label) {
@@ -68,7 +70,8 @@ export default function NewlyAdded({ searchQuery, activeTab }) {
           </div>
           <button
             onClick={handleSeeAll}
-            className="text-sm font-semibold text-[#7B2FFF] hover:underline whitespace-nowrap"
+            className="text-sm font-semibold hover:underline whitespace-nowrap"
+            style={{ color: primaryColor }}
           >
             See all →
           </button>
@@ -97,14 +100,17 @@ export default function NewlyAdded({ searchQuery, activeTab }) {
                   </ImageSlider>
                   <div className="p-3 flex flex-col gap-1 flex-1">
                     <h3 className="text-xs font-bold text-gray-900 leading-snug line-clamp-2">{p.displayName}</h3>
-                    <span className="text-[11px] text-[#7B2FFF] font-medium">{p.type}</span>
+                    <span className="text-[11px] font-medium" style={{ color: primaryColor }}>{p.type}</span>
                     <div className="flex items-center gap-1 text-[11px] text-gray-400">
                       <FiMapPin size={10} />
                       <span className="truncate">{p.location}</span>
                     </div>
                     <div className="text-sm font-extrabold text-gray-900 mt-1">{p.price}</div>
                     <button
-                      className="mt-2 w-full py-1.5 border border-[#7B2FFF] text-[#7B2FFF] rounded-lg text-[11px] font-semibold hover:bg-[#7B2FFF] hover:text-white transition"
+                      className="mt-2 w-full py-1.5 rounded-lg text-[11px] font-semibold transition"
+                      style={{ border: `1px solid ${primaryColor}`, color: primaryColor }}
+                      onMouseEnter={e => { e.currentTarget.style.backgroundColor = primaryColor; e.currentTarget.style.color = "white"; }}
+                      onMouseLeave={e => { e.currentTarget.style.backgroundColor = "transparent"; e.currentTarget.style.color = primaryColor; }}
                       onClick={(e) => { e.stopPropagation(); setShowContact(true); }}
                     >
                       Contact

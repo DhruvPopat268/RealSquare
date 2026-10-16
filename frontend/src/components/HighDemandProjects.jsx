@@ -2,6 +2,8 @@ import { useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import ImageSlider from "./ImageSlider";
+import { primaryColor } from "../utils/theme";
+
 
 const HIGH_DEMAND_PROJECTS = [
   {
@@ -121,13 +123,17 @@ export default function HighDemandProjects({ searchQuery }) {
           <div className="flex gap-2">
             <button
               onClick={() => scroll(-1)}
-              className="w-9 h-9 rounded-full border border-gray-200 flex items-center justify-center text-gray-500 hover:border-[#7B2FFF] hover:text-[#7B2FFF] transition"
+              className="w-9 h-9 rounded-full border border-gray-200 flex items-center justify-center text-gray-500 transition"
+              onMouseEnter={e => { e.currentTarget.style.borderColor = primaryColor; e.currentTarget.style.color = primaryColor; }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = "#e5e7eb"; e.currentTarget.style.color = "#6b7280"; }}
             >
               <FiChevronLeft size={18} />
             </button>
             <button
               onClick={() => scroll(1)}
-              className="w-9 h-9 rounded-full border border-gray-200 flex items-center justify-center text-gray-500 hover:border-[#7B2FFF] hover:text-[#7B2FFF] transition"
+              className="w-9 h-9 rounded-full border border-gray-200 flex items-center justify-center text-gray-500 transition"
+              onMouseEnter={e => { e.currentTarget.style.borderColor = primaryColor; e.currentTarget.style.color = primaryColor; }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = "#e5e7eb"; e.currentTarget.style.color = "#6b7280"; }}
             >
               <FiChevronRight size={18} />
             </button>
@@ -144,7 +150,9 @@ export default function HighDemandProjects({ searchQuery }) {
               <div
                 key={project.id}
                 onClick={() => navigate(`/property/${project.propertyId}`)}
-                className="w-[420px] flex items-center gap-3 border border-gray-100 rounded-xl p-3 cursor-pointer hover:shadow-md hover:border-[#7B2FFF] transition-all group"
+                className="w-[420px] flex items-center gap-3 border border-gray-100 rounded-xl p-3 cursor-pointer transition-all group"
+                onMouseEnter={e => { e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.1)"; e.currentTarget.style.borderColor = primaryColor; }}
+                onMouseLeave={e => { e.currentTarget.style.boxShadow = ""; e.currentTarget.style.borderColor = "#f3f4f6"; }}
               >
                 {/* Image */}
                 <ImageSlider
@@ -154,7 +162,7 @@ export default function HighDemandProjects({ searchQuery }) {
 
                 {/* Info */}
                 <div className="flex-1 min-w-0">
-                  <h3 className="text-sm font-bold text-[#1a1a2e] truncate group-hover:text-[#7B2FFF] transition-colors">
+                  <h3 className="text-sm font-bold text-[#1a1a2e] truncate transition-colors">
                     {project.name}
                   </h3>
                   <p className="text-xs text-gray-400 truncate mb-1">by {project.developer}</p>

@@ -2,6 +2,8 @@ import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { properties, rentProperties, commercialProperties, pgProperties, plotProperties } from "../data/properties";
 import PropertyCardGrid from "./PropertyCardGrid";
+import { primaryColor } from "../utils/theme";
+
 
 // Match dynamic label → static mock data bucket
 function resolveSource(label) {
@@ -80,7 +82,8 @@ export default function PropertyListings({ activeTab, searchQuery, listingsRef }
               if (searchQuery) params.set("city", searchQuery.split(",")[0].trim());
               navigate(`/listings?${params.toString()}`);
             }}
-            className="text-sm font-semibold text-[#7B2FFF] hover:underline whitespace-nowrap"
+            className="text-sm font-semibold hover:underline whitespace-nowrap"
+            style={{ color: primaryColor }}
           >
             View All →
           </button>
@@ -92,11 +95,13 @@ export default function PropertyListings({ activeTab, searchQuery, listingsRef }
             <button
               key={f}
               onClick={() => setActive(f)}
-              className={`px-4 py-1.5 rounded-full border text-sm font-medium transition ${
-                active === f
-                  ? "bg-[#7B2FFF] border-[#7B2FFF] text-white"
-                  : "border-gray-300 text-gray-500 bg-white hover:border-[#7B2FFF] hover:text-[#7B2FFF]"
-              }`}
+              className="px-4 py-1.5 rounded-full border text-sm font-medium transition"
+              style={active === f
+                ? { backgroundColor: primaryColor, borderColor: primaryColor, color: "white" }
+                : { borderColor: "#d1d5db", color: "#6b7280", backgroundColor: "white" }
+              }
+              onMouseEnter={e => { if (active !== f) { e.currentTarget.style.borderColor = primaryColor; e.currentTarget.style.color = primaryColor; }}}
+              onMouseLeave={e => { if (active !== f) { e.currentTarget.style.borderColor = "#d1d5db"; e.currentTarget.style.color = "#6b7280"; }}}
             >
               {f}
             </button>

@@ -4,6 +4,8 @@ import { FiHome, FiDroplet, FiMaximize2, FiHeart, FiMapPin } from "react-icons/f
 import ContactFlow from "./ContactFlow";
 import WishlistToast, { useWishlistToast } from "./WishlistToast";
 import ImageSlider from "./ImageSlider";
+import { primaryColor } from "../utils/theme";
+
 
 export default function PropertyCardGrid({ property }) {
   const [showContact, setShowContact] = useState(false);
@@ -53,7 +55,7 @@ export default function PropertyCardGrid({ property }) {
 
       {/* Body */}
       <div className="p-3 sm:p-4">
-        <div className="text-base sm:text-lg font-bold text-[#7B2FFF] mb-1">{price}</div>
+        <div className="text-base sm:text-lg font-bold mb-1" style={{ color: primaryColor }}>{price}</div>
         <h3 className="text-xs sm:text-sm font-semibold text-gray-900 mb-1 leading-snug">{title}</h3>
         <div className="flex items-center gap-1 text-gray-400 text-xs mb-3">
           <FiMapPin size={11} />
@@ -69,7 +71,10 @@ export default function PropertyCardGrid({ property }) {
         </div>
 
         <button
-          className="w-full py-2 border border-[#7B2FFF] text-[#7B2FFF] rounded-lg text-xs font-semibold hover:bg-[#7B2FFF] hover:text-white transition"
+          className="w-full py-2 rounded-lg text-xs font-semibold transition"
+          style={{ border: `1px solid ${primaryColor}`, color: primaryColor }}
+          onMouseEnter={e => { e.currentTarget.style.backgroundColor = primaryColor; e.currentTarget.style.color = "white"; }}
+          onMouseLeave={e => { e.currentTarget.style.backgroundColor = "transparent"; e.currentTarget.style.color = primaryColor; }}
           onClick={(e) => { e.stopPropagation(); setShowContact(true); }}
         >
           Contact Owner
