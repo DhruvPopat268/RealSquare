@@ -43,7 +43,7 @@ export default function DeveloperProjects() {
           <p className="text-gray-500 mb-4">Developer not found.</p>
           <button
             onClick={() => navigate("/")}
-            className="bg-[#7B2FFF] text-white px-6 py-2 rounded-lg text-sm font-semibold"
+            className="bg-[var(--primary-color)] text-white px-6 py-2 rounded-lg text-sm font-semibold"
           >
             Go Home
           </button>
@@ -67,7 +67,7 @@ export default function DeveloperProjects() {
 
           {/* Breadcrumb */}
           <div className="flex items-center gap-2 text-sm text-gray-400 mb-5">
-            <button onClick={() => navigate(-1)} className="flex items-center gap-1 text-[#7B2FFF] font-medium hover:underline">
+            <button onClick={() => navigate(-1)} className="flex items-center gap-1 text-[var(--primary-color)] font-medium hover:underline">
               <FiArrowLeft size={13} /> Back
             </button>
             <span>/</span>
@@ -89,7 +89,7 @@ export default function DeveloperProjects() {
                 <div className="relative">
                   <button
                     onClick={() => setShowSort(!showSort)}
-                    className="flex items-center gap-2 border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-600 bg-white hover:border-[#7B2FFF] transition"
+                    className="flex items-center gap-2 border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-600 bg-white hover:border-[var(--primary-color)] transition"
                   >
                     {SORT_OPTIONS.find((o) => o.value === sortBy)?.label}
                     <FiChevronDown size={13} className={showSort ? "rotate-180 transition-transform" : "transition-transform"} />
@@ -100,7 +100,7 @@ export default function DeveloperProjects() {
                         <li
                           key={o.value}
                           onClick={() => { setSortBy(o.value); setShowSort(false); }}
-                          className={`px-4 py-2.5 text-sm cursor-pointer hover:bg-[#f3eeff] hover:text-[#7B2FFF] ${sortBy === o.value ? "bg-[#f3eeff] text-[#7B2FFF] font-semibold" : "text-gray-700"}`}
+                          className={`px-4 py-2.5 text-sm cursor-pointer hover:bg-[#f3eeff] hover:text-[var(--primary-color)] ${sortBy === o.value ? "bg-[#f3eeff] text-[var(--primary-color)] font-semibold" : "text-gray-700"}`}
                         >
                           {o.label}
                         </li>
@@ -168,7 +168,7 @@ export default function DeveloperProjects() {
                           {p.propertyId ? "Click to view full details" : "View all projects by this developer"}
                         </span>
                         <button
-                          className="flex items-center gap-1.5 bg-[#7B2FFF] hover:bg-[#6320d4] text-white px-4 py-2 rounded-lg text-xs font-semibold transition"
+                          className="flex items-center gap-1.5 bg-[var(--primary-color)] hover:bg-[#6320d4] text-white px-4 py-2 rounded-lg text-xs font-semibold transition"
                           onClick={(e) => { e.stopPropagation(); setShowContact(true); }}
                         >
                           <FiPhone size={12} /> Contact
@@ -193,7 +193,7 @@ export default function DeveloperProjects() {
                 </div>
                 <button
                   onClick={() => setShowContact(true)}
-                  className="w-full bg-[#7B2FFF] hover:bg-[#6320d4] text-white rounded-xl py-3 text-sm font-bold transition flex items-center justify-center gap-2"
+                  className="w-full bg-[var(--primary-color)] hover:bg-[#6320d4] text-white rounded-xl py-3 text-sm font-bold transition flex items-center justify-center gap-2"
                 >
                   <FiPhone size={14} /> Get Contact Details
                 </button>

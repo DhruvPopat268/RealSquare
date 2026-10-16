@@ -49,7 +49,7 @@ function VideoMediaField({ title, file, currentUrl, youtubeUrl, onFileChange, on
     <div className="rounded-xl border border-gray-100 p-4 flex flex-col gap-4">
       <div className="flex items-center justify-between gap-3">
         <h4 className="text-sm font-bold text-gray-800">{title}</h4>
-        <label className={`flex shrink-0 cursor-pointer items-center gap-2 rounded-xl border border-dashed border-[#7B2FFF] px-3 py-2 text-xs font-semibold text-[#7B2FFF] hover:bg-[#f5f0ff] ${disabled ? "pointer-events-none opacity-50" : ""}`}>
+        <label className={`flex shrink-0 cursor-pointer items-center gap-2 rounded-xl border border-dashed border-[var(--primary-color)] px-3 py-2 text-xs font-semibold text-[var(--primary-color)] hover:bg-[#f5f0ff] ${disabled ? "pointer-events-none opacity-50" : ""}`}>
           <FiUpload size={14} />
           {currentUrl && !clearUpload ? "Replace video" : "Choose video file"}
           <input
@@ -68,7 +68,7 @@ function VideoMediaField({ title, file, currentUrl, youtubeUrl, onFileChange, on
       <div className="flex flex-col gap-2">
         {currentUrl && !clearUpload && (
           <div className="flex items-center justify-between gap-3 rounded-lg bg-gray-50 px-3 py-2">
-            <a href={currentUrl} target="_blank" rel="noreferrer" className="text-xs text-[#7B2FFF] underline truncate">
+            <a href={currentUrl} target="_blank" rel="noreferrer" className="text-xs text-[var(--primary-color)] underline truncate">
               Current uploaded video
             </a>
             <button type="button" disabled={disabled} onClick={onRemoveUpload} className="text-xs text-red-600 disabled:opacity-50">
@@ -88,7 +88,7 @@ function VideoMediaField({ title, file, currentUrl, youtubeUrl, onFileChange, on
           </div>
         )}
         {clearUpload && (
-          <button type="button" disabled={disabled} onClick={onRemoveUpload} className="self-start text-xs text-[#7B2FFF] disabled:opacity-50">
+          <button type="button" disabled={disabled} onClick={onRemoveUpload} className="self-start text-xs text-[var(--primary-color)] disabled:opacity-50">
             Undo remove
           </button>
         )}
@@ -109,7 +109,7 @@ function VideoMediaField({ title, file, currentUrl, youtubeUrl, onFileChange, on
           onChange={(event) => onYoutubeChange(event.target.value)}
           placeholder="https://www.youtube.com/watch?v=..."
           disabled={disabled}
-          className="w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:border-[#7B2FFF] focus:outline-none focus:ring-1 focus:ring-[#7B2FFF]/20 disabled:bg-gray-50 disabled:text-gray-400"
+          className="w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:border-[var(--primary-color)] focus:outline-none focus:ring-1 focus:ring-[var(--primary-color)]/20 disabled:bg-gray-50 disabled:text-gray-400"
         />
       </div>
     </div>
@@ -493,7 +493,7 @@ export default function EditPropertyPage() {
             <p className="text-lg font-bold text-gray-800">{error ?? "Listing not found"}</p>
             <button
               onClick={() => navigate("/my-property-listings")}
-              className="flex items-center gap-2 px-4 py-2 border border-gray-200 rounded-xl text-gray-600 hover:text-[#7B2FFF] hover:border-[#7B2FFF] transition"
+              className="flex items-center gap-2 px-4 py-2 border border-gray-200 rounded-xl text-gray-600 hover:text-[var(--primary-color)] hover:border-[var(--primary-color)] transition"
             >
               <FiArrowLeft size={14} />
               Back to Listings
@@ -514,7 +514,7 @@ export default function EditPropertyPage() {
         <div className="mb-8">
           <button
             onClick={() => navigate("/my-property-listings")}
-            className="flex items-center gap-1.5 text-sm text-gray-400 hover:text-[#7B2FFF] transition mb-3"
+            className="flex items-center gap-1.5 text-sm text-gray-400 hover:text-[var(--primary-color)] transition mb-3"
           >
             <FiArrowLeft size={14} /> Back to My Property Listings
           </button>
@@ -593,7 +593,7 @@ export default function EditPropertyPage() {
                 aria-label="Zero Brokerage"
                 disabled={saving}
                 onClick={() => handleFormChange("zeroBrokerage", !form.zeroBrokerage)}
-                className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors disabled:opacity-50 ${form.zeroBrokerage ? "bg-[#7B2FFF]" : "bg-gray-300"}`}
+                className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors disabled:opacity-50 ${form.zeroBrokerage ? "bg-[var(--primary-color)]" : "bg-gray-300"}`}
               >
                 <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${form.zeroBrokerage ? "translate-x-6" : "translate-x-1"}`} />
               </button>
@@ -775,14 +775,14 @@ export default function EditPropertyPage() {
           <button
             onClick={() => navigate("/my-property-listings")}
             disabled={saving}
-            className="px-6 py-2.5 border border-gray-200 text-gray-600 rounded-xl text-sm font-bold hover:border-[#7B2FFF] hover:text-[#7B2FFF] transition disabled:opacity-50"
+            className="px-6 py-2.5 border border-gray-200 text-gray-600 rounded-xl text-sm font-bold hover:border-[var(--primary-color)] hover:text-[var(--primary-color)] transition disabled:opacity-50"
           >
             Cancel
           </button>
           <button
             onClick={handleSubmit}
             disabled={saving}
-            className="flex items-center gap-2 px-6 py-2.5 bg-[#7B2FFF] text-white rounded-xl text-sm font-bold hover:bg-[#6320d4] transition disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex items-center gap-2 px-6 py-2.5 bg-[var(--primary-color)] text-white rounded-xl text-sm font-bold hover:bg-[#6320d4] transition disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {saving ? "Saving..." : "Save Changes"}
           </button>

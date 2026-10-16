@@ -181,7 +181,7 @@ function GridCard({ listing, onStatusUpdate }) {
 
   return (
     <div
-      className="bg-white rounded-2xl border border-gray-100 hover:border-[#7B2FFF] hover:shadow-md transition-all cursor-pointer overflow-hidden group flex flex-col"
+      className="bg-white rounded-2xl border border-gray-100 hover:border-[var(--primary-color)] hover:shadow-md transition-all cursor-pointer overflow-hidden group flex flex-col"
       onClick={() => navigate(`/property/${listing._id}`)}
     >
       {/* Image */}
@@ -257,7 +257,7 @@ function GridCard({ listing, onStatusUpdate }) {
           )}
         </div>
 
-        <p className="text-base font-extrabold text-[#7B2FFF] mb-1">
+        <p className="text-base font-extrabold text-[var(--primary-color)] mb-1">
           {listing.price ?? <span className="text-sm font-semibold text-gray-400">Price on request</span>}
         </p>
 
@@ -295,7 +295,7 @@ function GridCard({ listing, onStatusUpdate }) {
             )}
             <button
               onClick={() => navigate(`/edit-property/${listing._id}`)}
-              className="flex items-center gap-1 px-2.5 py-1.5 bg-[#7B2FFF] text-white rounded-lg text-[11px] font-semibold hover:bg-[#6320d4] transition"
+              className="flex items-center gap-1 px-2.5 py-1.5 bg-[var(--primary-color)] text-white rounded-lg text-[11px] font-semibold hover:bg-[#6320d4] transition"
             >
               <FiEdit2 size={11} />
               Edit
@@ -317,10 +317,10 @@ function FilterSelect({ label, value, options, onChange, disabled }) {
         disabled={disabled}
         className={`w-full appearance-none bg-white border rounded-xl px-3 py-2 pr-8 text-xs font-semibold transition outline-none
           ${value
-            ? "border-[#7B2FFF] text-[#7B2FFF]"
+            ? "border-[var(--primary-color)] text-[var(--primary-color)]"
             : "border-gray-200 text-gray-500"}
-          ${disabled ? "opacity-40 cursor-not-allowed" : "hover:border-[#7B2FFF] cursor-pointer"}
-          focus:border-[#7B2FFF] focus:ring-1 focus:ring-[#7B2FFF]/20`}
+          ${disabled ? "opacity-40 cursor-not-allowed" : "hover:border-[var(--primary-color)] cursor-pointer"}
+          focus:border-[var(--primary-color)] focus:ring-1 focus:ring-[var(--primary-color)]/20`}
       >
         <option value="">{label}</option>
         {options.map((opt) => (
@@ -330,7 +330,7 @@ function FilterSelect({ label, value, options, onChange, disabled }) {
       <FiChevronDown
         size={13}
         className={`absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none transition ${
-          value ? "text-[#7B2FFF]" : "text-gray-400"
+          value ? "text-[var(--primary-color)]" : "text-gray-400"
         }`}
       />
     </div>
@@ -359,7 +359,7 @@ function ListingCard({ listing, onStatusUpdate }) {
 
   return (
     <div
-      className="bg-white rounded-2xl border border-gray-100 hover:border-[#7B2FFF] hover:shadow-md transition-all cursor-pointer overflow-hidden flex flex-col sm:flex-row group"
+      className="bg-white rounded-2xl border border-gray-100 hover:border-[var(--primary-color)] hover:shadow-md transition-all cursor-pointer overflow-hidden flex flex-col sm:flex-row group"
       onClick={() => navigate(`/property/${listing._id}`)}
     >
       {/* Image Gallery */}
@@ -440,7 +440,7 @@ function ListingCard({ listing, onStatusUpdate }) {
             )}
             <button
               onClick={() => navigate(`/edit-property/${listing._id}`)}
-              className="flex items-center gap-1 px-2.5 py-1.5 bg-[#7B2FFF] text-white rounded-lg text-[11px] font-semibold hover:bg-[#6320d4] transition"
+              className="flex items-center gap-1 px-2.5 py-1.5 bg-[var(--primary-color)] text-white rounded-lg text-[11px] font-semibold hover:bg-[#6320d4] transition"
             >
               <FiEdit2 size={11} />
               Edit
@@ -471,7 +471,7 @@ function ListingCard({ listing, onStatusUpdate }) {
           )}
         </div>
 
-        <p className="text-base font-extrabold text-[#7B2FFF] mb-1.5">
+        <p className="text-base font-extrabold text-[var(--primary-color)] mb-1.5">
           {listing.price ?? <span className="text-sm font-semibold text-gray-400">Price on request</span>}
         </p>
 
@@ -510,7 +510,7 @@ function EmptyState({ filtered, navigate }) {
   return (
     <div className="flex flex-col items-center justify-center py-20 px-4 text-center">
       <div className="w-16 h-16 rounded-full bg-[#f3eeff] flex items-center justify-center mb-4">
-        <FiList size={28} className="text-[#7B2FFF]" />
+        <FiList size={28} className="text-[var(--primary-color)]" />
       </div>
       <h3 className="text-lg font-bold text-[#1a1a2e] mb-1">
         {filtered ? "No listings match these filters" : "No listings yet"}
@@ -523,7 +523,7 @@ function EmptyState({ filtered, navigate }) {
       {!filtered && (
         <button
           onClick={() => navigate("/chatbot")}
-          className="flex items-center gap-2 px-5 py-2.5 bg-[#7B2FFF] text-white rounded-xl text-sm font-bold hover:bg-[#6320d4] transition"
+          className="flex items-center gap-2 px-5 py-2.5 bg-[var(--primary-color)] text-white rounded-xl text-sm font-bold hover:bg-[#6320d4] transition"
         >
           <FiPlus size={15} />
           List a Property
@@ -537,7 +537,7 @@ function EmptyState({ filtered, navigate }) {
 function LoadingMore() {
   return (
     <div className="flex items-center justify-center py-6 gap-2 text-sm text-gray-400">
-      <svg className="animate-spin w-4 h-4 text-[#7B2FFF]" fill="none" viewBox="0 0 24 24">
+      <svg className="animate-spin w-4 h-4 text-[var(--primary-color)]" fill="none" viewBox="0 0 24 24">
         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
       </svg>
@@ -801,7 +801,7 @@ export default function MyListingsPage() {
       <>
         <Navbar />
         <div className="min-h-[calc(100vh-62px)] bg-[#f7f8fa] flex items-center justify-center">
-          <div className="w-8 h-8 border-4 border-[#7B2FFF] border-t-transparent rounded-full animate-spin" />
+          <div className="w-8 h-8 border-4 border-[var(--primary-color)] border-t-transparent rounded-full animate-spin" />
         </div>
         <Footer />
       </>
@@ -816,7 +816,7 @@ export default function MyListingsPage() {
         <div className="min-h-[calc(100vh-62px)] bg-[#f7f8fa] flex items-center justify-center px-4">
           <div className="bg-white rounded-2xl shadow-[0_8px_40px_rgba(0,0,0,0.10)] w-full max-w-[420px] p-10 flex flex-col items-center text-center">
             <div className="w-16 h-16 rounded-full bg-[#f3eeff] flex items-center justify-center mb-5">
-              <FiLock size={28} className="text-[#7B2FFF]" />
+              <FiLock size={28} className="text-[var(--primary-color)]" />
             </div>
             <h2 className="text-xl font-extrabold text-[#1a1a2e] mb-2">Access Restricted</h2>
             <p className="text-sm text-gray-400 leading-relaxed mb-6">
@@ -824,7 +824,7 @@ export default function MyListingsPage() {
             </p>
             <button
               onClick={() => navigate("/")}
-              className="w-full bg-[#7B2FFF] hover:bg-[#6320d4] text-white py-3 rounded-xl font-semibold text-sm transition"
+              className="w-full bg-[var(--primary-color)] hover:bg-[#6320d4] text-white py-3 rounded-xl font-semibold text-sm transition"
             >
               Back to Home
             </button>
@@ -847,7 +847,7 @@ export default function MyListingsPage() {
           <div className="mb-6">
             <button
               onClick={() => navigate("/")}
-              className="flex items-center gap-1.5 text-sm text-gray-400 hover:text-[#7B2FFF] transition mb-3"
+              className="flex items-center gap-1.5 text-sm text-gray-400 hover:text-[var(--primary-color)] transition mb-3"
             >
               <FiArrowLeft size={14} /> Back to Home
             </button>
@@ -869,21 +869,21 @@ export default function MyListingsPage() {
                   <button
                     onClick={() => setView("grid")}
                     title="Grid view"
-                    className={`p-1.5 rounded-lg transition-colors ${view === "grid" ? "bg-[#7B2FFF] text-white" : "text-gray-400 hover:text-[#7B2FFF]"}`}
+                    className={`p-1.5 rounded-lg transition-colors ${view === "grid" ? "bg-[var(--primary-color)] text-white" : "text-gray-400 hover:text-[var(--primary-color)]"}`}
                   >
                     <FiGrid size={14} />
                   </button>
                   <button
                     onClick={() => setView("list")}
                     title="List view"
-                    className={`p-1.5 rounded-lg transition-colors ${view === "list" ? "bg-[#7B2FFF] text-white" : "text-gray-400 hover:text-[#7B2FFF]"}`}
+                    className={`p-1.5 rounded-lg transition-colors ${view === "list" ? "bg-[var(--primary-color)] text-white" : "text-gray-400 hover:text-[var(--primary-color)]"}`}
                   >
                     <FiList size={14} />
                   </button>
                 </div>
                 <button
                   onClick={() => navigate("/chatbot")}
-                  className="flex items-center gap-1.5 px-4 py-2 bg-[#7B2FFF] text-white rounded-xl text-xs font-bold hover:bg-[#6320d4] transition"
+                  className="flex items-center gap-1.5 px-4 py-2 bg-[var(--primary-color)] text-white rounded-xl text-xs font-bold hover:bg-[#6320d4] transition"
                 >
                   <FiPlus size={13} />
                   New Listing
@@ -924,7 +924,7 @@ export default function MyListingsPage() {
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-3 mb-5">
               <div className="bg-white border border-gray-100 rounded-2xl p-3 text-center hover:shadow-md transition">
                 <p className="text-xs text-gray-500 font-semibold mb-1">Total</p>
-                <p className="text-2xl font-extrabold text-[#7B2FFF]">{stats.total || 0}</p>
+                <p className="text-2xl font-extrabold text-[var(--primary-color)]">{stats.total || 0}</p>
               </div>
               <div className="bg-white border border-green-200 rounded-2xl p-3 text-center hover:shadow-md transition">
                 <p className="text-xs text-green-600 font-semibold mb-1">Active</p>
@@ -956,10 +956,10 @@ export default function MyListingsPage() {
           {/* ── Filter panel ─────────────────────────────────────────────── */}
           <div className="bg-white border border-gray-100 rounded-2xl p-4 mb-5 shadow-sm">
             <div className="flex items-center gap-1.5 mb-3">
-              <FiFilter size={13} className="text-[#7B2FFF]" />
+              <FiFilter size={13} className="text-[var(--primary-color)]" />
               <span className="text-xs font-bold text-[#1a1a2e]">Filter Listings</span>
               {hasAppliedFilters && (
-                <span className="ml-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#f3eeff] text-[#7B2FFF]">
+                <span className="ml-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#f3eeff] text-[var(--primary-color)]">
                   {appliedLabels.length} filter{appliedLabels.length !== 1 ? "s" : ""} applied
                 </span>
               )}
@@ -1015,7 +1015,7 @@ export default function MyListingsPage() {
                 disabled={!hasPendingChanges}
                 className={`flex items-center gap-1.5 px-4 py-1.5 rounded-xl text-xs font-bold transition ${
                   hasPendingChanges
-                    ? "bg-[#7B2FFF] text-white hover:bg-[#6320d4]"
+                    ? "bg-[var(--primary-color)] text-white hover:bg-[#6320d4]"
                     : "bg-gray-100 text-gray-400 cursor-not-allowed"
                 }`}
               >
@@ -1030,7 +1030,7 @@ export default function MyListingsPage() {
               {appliedLabels.map((label) => (
                 <span
                   key={label}
-                  className="flex items-center gap-1 text-[11px] font-semibold px-2.5 py-1 rounded-full bg-[#f3eeff] text-[#7B2FFF] border border-[#e0d0ff]"
+                  className="flex items-center gap-1 text-[11px] font-semibold px-2.5 py-1 rounded-full bg-[#f3eeff] text-[var(--primary-color)] border border-[#e0d0ff]"
                 >
                   {label}
                 </span>
@@ -1054,7 +1054,7 @@ export default function MyListingsPage() {
               <p className="text-sm text-red-500 font-medium">{error}</p>
               <button
                 onClick={handleRetry}
-                className="flex items-center gap-1.5 px-4 py-2 border border-gray-200 rounded-xl text-xs font-semibold text-gray-600 hover:border-[#7B2FFF] hover:text-[#7B2FFF] transition"
+                className="flex items-center gap-1.5 px-4 py-2 border border-gray-200 rounded-xl text-xs font-semibold text-gray-600 hover:border-[var(--primary-color)] hover:text-[var(--primary-color)] transition"
               >
                 <FiRefreshCw size={12} />
                 Retry

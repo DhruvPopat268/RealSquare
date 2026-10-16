@@ -2,6 +2,7 @@ import { useEffect, useRef, useCallback, useState } from "react";
 import { FiSearch, FiChevronDown, FiX, FiCheck } from "react-icons/fi";
 import { MdMyLocation } from "react-icons/md";
 import { fetchActiveCategories, fetchPropertyTypes } from "../chatbot/chatbotApi";
+import { primaryColor } from "../utils/theme";
 
 const API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 const DEFAULT_CATEGORY_ID = import.meta.env.VITE_CATEGORY_RESIDENTIAL_ID;
@@ -14,8 +15,8 @@ const TAB_CONFIG_MAP = [
     match: (label) => label.toUpperCase() === "BUY",
     config: {
       image: "https://images.openai.com/static-rsc-4/OgEyJmYehJ-0JcxBa8tjuxQBxocYJmaJ52cO7AQwOzJrbb8L9a6Qkrf0AXHrQBTQ2Z5aGJ4NeIBYRB3WmzFcsNk4Qz9o4u6qowFlA8z920FjJ8wNsXzjG8RXIkk6NsJx4_BGS33K0_eqaNxEHO1zEhjpjMuTQQ_UjKS1OveeGx1FmWmL9xRUEZj8uBxGetvZ?purpose=fullsize",
-      gradient: "linear-gradient(135deg, #c7d2fe, #818cf8, #4f46e5)",
-      overlay: "#3730a3",
+      gradient: `linear-gradient(135deg, color-mix(in srgb, ${primaryColor} 22%, white), color-mix(in srgb, ${primaryColor} 65%, white), ${primaryColor})`,
+      overlay: primaryColor,
     },
   },
   {
@@ -38,8 +39,8 @@ const TAB_CONFIG_MAP = [
 
 const DEFAULT_CONFIG = {
   image: "https://images.openai.com/static-rsc-4/OgEyJmYehJ-0JcxBa8tjuxQBxocYJmaJ52cO7AQwOzJrbb8L9a6Qkrf0AXHrQBTQ2Z5aGJ4NeIBYRB3WmzFcsNk4Qz9o4u6qowFlA8z920FjJ8wNsXzjG8RXIkk6NsJx4_BGS33K0_eqaNxEHO1zEhjpjMuTQQ_UjKS1OveeGx1FmWmL9xRUEZj8uBxGetvZ?purpose=fullsize",
-  gradient: "linear-gradient(135deg, #c7d2fe, #818cf8, #4f46e5)",
-  overlay: "#3730a3",
+  gradient: `linear-gradient(135deg, color-mix(in srgb, ${primaryColor} 22%, white), color-mix(in srgb, ${primaryColor} 65%, white), ${primaryColor})`,
+  overlay: primaryColor,
 };
 
 function getTabConfig(label) {
@@ -315,7 +316,7 @@ export default function Hero({ activeTab, setActiveTab, searchQuery, setSearchQu
               <button
                 type="button"
                 onClick={() => setShowPicker((v) => !v)}
-                className="w-full h-full flex items-center justify-between gap-1.5 pl-1.5 pr-2.5 text-[12px] font-semibold text-[#444] hover:text-[#7B2FFF] transition-colors cursor-pointer bg-transparent border-none"
+                className="w-full h-full flex items-center justify-between gap-1.5 pl-1.5 pr-2.5 text-[12px] font-semibold text-[#444] hover:text-[var(--primary-color)] transition-colors cursor-pointer bg-transparent border-none"
               >
                 <span className="flex items-center gap-1.5 truncate text-left leading-tight min-w-0">
                   {catLoading ? (
@@ -324,7 +325,7 @@ export default function Hero({ activeTab, setActiveTab, searchQuery, setSearchQu
                     <>
                       <span className="truncate">{pickerLabel}</span>
                       {!allSelected && (
-                        <span className="flex-shrink-0 inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full bg-[#7B2FFF] text-white text-[10px] font-bold leading-none">
+                        <span className="flex-shrink-0 inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full bg-[var(--primary-color)] text-white text-[10px] font-bold leading-none">
                           {selectedTypeIds.size}
                         </span>
                       )}
@@ -378,7 +379,7 @@ export default function Hero({ activeTab, setActiveTab, searchQuery, setSearchQu
               type="button"
               onClick={handleCurrentLocation}
               title="Use current location"
-              className="flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-lg text-[#7B2FFF] hover:bg-[#f3eeff] transition-colors cursor-pointer bg-transparent border-none"
+              className="flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-lg text-[var(--primary-color)] hover:bg-[#f3eeff] transition-colors cursor-pointer bg-transparent border-none"
             >
               <MdMyLocation size={18} />
             </button>
@@ -387,7 +388,7 @@ export default function Hero({ activeTab, setActiveTab, searchQuery, setSearchQu
             <button
               type="button"
               onClick={() => { onSearch(); setShowPicker(false); }}
-              className="flex-shrink-0 flex items-center gap-1.5 bg-[#7B2FFF] hover:bg-[#6920e0] active:bg-[#5a1ac7] text-white text-[13px] font-bold px-4 py-2 rounded-lg transition-colors cursor-pointer border-none"
+              className="flex-shrink-0 flex items-center gap-1.5 bg-[var(--primary-color)] hover:bg-[#6920e0] active:bg-[#5a1ac7] text-white text-[13px] font-bold px-4 py-2 rounded-lg transition-colors cursor-pointer border-none"
             >
               <FiSearch size={14} />
               Search
@@ -426,8 +427,8 @@ export default function Hero({ activeTab, setActiveTab, searchQuery, setSearchQu
                             onClick={() => handleCatSelect(cat)}
                             className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[12px] font-semibold border transition cursor-pointer
                               ${isActive
-                                ? "bg-[#7B2FFF] border-[#7B2FFF] text-white"
-                                : "bg-white border-gray-200 text-gray-600 hover:border-[#7B2FFF] hover:text-[#7B2FFF]"
+                                ? "bg-[var(--primary-color)] border-[var(--primary-color)] text-white"
+                                : "bg-white border-gray-200 text-gray-600 hover:border-[var(--primary-color)] hover:text-[var(--primary-color)]"
                               }`}
                           >
                             {isActive && <FiCheck size={11} />}
@@ -448,7 +449,7 @@ export default function Hero({ activeTab, setActiveTab, searchQuery, setSearchQu
                     {!allSelected && (
                       <button
                         onClick={() => setSelectedTypeIds(new Set(propertyTypes.map((t) => t.value)))}
-                        className="text-[11px] font-semibold text-[#7B2FFF] hover:underline cursor-pointer bg-transparent border-none p-0"
+                        className="text-[11px] font-semibold text-[var(--primary-color)] hover:underline cursor-pointer bg-transparent border-none p-0"
                       >
                         Reset all
                       </button>
@@ -474,7 +475,7 @@ export default function Hero({ activeTab, setActiveTab, searchQuery, setSearchQu
                             {/* Custom checkbox */}
                             <span
                               className={`flex-shrink-0 w-[14px] h-[14px] rounded-[3px] border-[1.5px] flex items-center justify-center transition
-                                ${isActive ? "bg-[#7B2FFF] border-[#7B2FFF]" : "bg-white border-gray-300"}`}
+                                ${isActive ? "bg-[var(--primary-color)] border-[var(--primary-color)]" : "bg-white border-gray-300"}`}
                             >
                               {isActive && (
                                 <svg width="8" height="6" viewBox="0 0 8 6" fill="none">

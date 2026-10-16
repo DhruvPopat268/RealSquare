@@ -6,6 +6,7 @@ import Footer from "../components/Footer";
 import CoinIcon from "../components/CoinIcon";
 import PageSpinner from "../components/PageSpinner";
 import api from "../utils/axiosInterceptor";
+import { primaryColor } from "../utils/theme";
 
 const BASE_URL = import.meta.env.VITE_API_URL;
 
@@ -115,7 +116,7 @@ export default function DepositCoinsPage() {
         key: import.meta.env.VITE_RAZORPAY_KEY_ID,
         amount: orderAmount, currency: currency || "INR", order_id: orderId,
         name: "RealSquare", description: `Purchase ${coinsCount} coins`,
-        theme: { color: "#7B2FFF" },
+        theme: { color: primaryColor },
         handler: () => { setLoading(false); setTxPage(1); setTransactions([]); fetchWalletData(1); setCoins(""); setSelectedOffer(null); },
         modal: {
           ondismiss: async () => {
@@ -157,7 +158,7 @@ export default function DepositCoinsPage() {
               </div>
               <div>
                 <p className="text-[11px] text-gray-400 font-medium uppercase tracking-wide">Balance</p>
-                <p className="text-lg font-extrabold text-[#7B2FFF] leading-tight">
+                <p className="text-lg font-extrabold text-[var(--primary-color)] leading-tight">
                   {wallet ? wallet.currentBalance.toLocaleString("en-IN") : "—"}
                 </p>
               </div>
@@ -255,14 +256,14 @@ export default function DepositCoinsPage() {
                         <button
                           key={offer._id}
                           onClick={() => handleSelectOffer(offer)}
-                          className={`rounded-xl border-2 p-3 text-left transition cursor-pointer ${isSelected ? "border-[#7B2FFF] bg-[#f5f0ff]" : "border-gray-200 bg-white hover:border-[#c4a8ff]"}`}
+                          className={`rounded-xl border-2 p-3 text-left transition cursor-pointer ${isSelected ? "border-[var(--primary-color)] bg-[#f5f0ff]" : "border-gray-200 bg-white hover:border-[#c4a8ff]"}`}
                         >
                           <div className="flex items-center gap-1 mb-1">
                             <CoinIcon size={16} />
                             <span className="text-sm font-extrabold text-[#1a1a2e]">{offer.coins.toLocaleString("en-IN")}</span>
                             <span className="text-xs text-gray-400">coins</span>
                           </div>
-                          <div className="text-xs font-bold text-[#7B2FFF]">₹{offer.amount.toLocaleString("en-IN")}</div>
+                          <div className="text-xs font-bold text-[var(--primary-color)]">₹{offer.amount.toLocaleString("en-IN")}</div>
                           {bonus > 0 && (
                             <div className="mt-1 inline-block bg-amber-100 text-amber-600 text-[10px] font-bold px-1.5 py-0.5 rounded-full">
                               +{bonus} bonus
@@ -287,7 +288,7 @@ export default function DepositCoinsPage() {
               {/* Coin input */}
               <div className="mb-4">
                 <label className="text-xs font-semibold text-gray-500 mb-1.5 block uppercase tracking-wide">Number of Coins</label>
-                <div className="flex items-center border border-gray-200 rounded-xl overflow-hidden focus-within:border-[#7B2FFF] transition">
+                <div className="flex items-center border border-gray-200 rounded-xl overflow-hidden focus-within:border-[var(--primary-color)] transition">
                   <span className="px-3 py-3 bg-gray-50 border-r border-gray-200 flex items-center"><CoinIcon size={20} /></span>
                   <input
                     type="number" min="1" value={coins}
@@ -306,7 +307,7 @@ export default function DepositCoinsPage() {
                     <div className="text-xs text-gray-400 mt-0.5">{coinsCount.toLocaleString("en-IN")} coins</div>
                   )}
                 </div>
-                <span className="text-base font-extrabold text-[#7B2FFF]">
+                <span className="text-base font-extrabold text-[var(--primary-color)]">
                   ₹{amount > 0 ? amount.toLocaleString("en-IN") : "0"}
                 </span>
               </div>
@@ -316,7 +317,7 @@ export default function DepositCoinsPage() {
               <button
                 onClick={handlePay}
                 disabled={loading || amount < 1}
-                className="w-full bg-[#7B2FFF] hover:bg-[#6320d4] disabled:opacity-60 text-white py-3 rounded-xl font-semibold text-sm transition flex items-center justify-center gap-2"
+                className="w-full bg-[var(--primary-color)] hover:bg-[#6320d4] disabled:opacity-60 text-white py-3 rounded-xl font-semibold text-sm transition flex items-center justify-center gap-2"
               >
                 <FiZap size={15} />
                 {loading ? "Processing..." : `Pay ₹${amount > 0 ? amount.toLocaleString("en-IN") : 0}`}

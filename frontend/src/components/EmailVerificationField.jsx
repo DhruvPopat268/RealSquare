@@ -93,7 +93,7 @@ export default function EmailVerificationField({
           value={value || ""}
           onChange={onChange}
           placeholder={placeholder}
-          className="min-w-0 flex-1 border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#7B2FFF] transition"
+          className="min-w-0 flex-1 border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[var(--primary-color)] transition"
         />
         {isVerified ? (
           <span className="flex shrink-0 items-center rounded-xl bg-green-50 px-3 text-xs font-semibold text-green-700">Verified</span>
@@ -102,7 +102,7 @@ export default function EmailVerificationField({
             type="button"
             onClick={() => sendOtp(true)}
             disabled={sending || !normalizedEmail}
-            className="shrink-0 rounded-xl border border-[#7B2FFF] px-3 text-sm font-semibold text-[#7B2FFF] transition hover:bg-[#f5f0ff] disabled:cursor-not-allowed disabled:opacity-50"
+            className="shrink-0 rounded-xl border border-[var(--primary-color)] px-3 text-sm font-semibold text-[var(--primary-color)] transition hover:bg-[#f5f0ff] disabled:cursor-not-allowed disabled:opacity-50"
           >
             {sending ? "Sending..." : "Verify"}
           </button>
@@ -127,7 +127,7 @@ export default function EmailVerificationField({
             </div>
             <p className="mt-2 text-sm text-gray-500">
               Enter the 6-digit code sent to <span className="font-semibold text-gray-700">{otpEmail}</span>{" "}
-              <button type="button" onClick={changeEmail} disabled={sending || verifying} className="font-semibold text-[#7B2FFF] hover:underline disabled:opacity-50">
+              <button type="button" onClick={changeEmail} disabled={sending || verifying} className="font-semibold text-[var(--primary-color)] hover:underline disabled:opacity-50">
                 Change
               </button>
               .
@@ -142,14 +142,14 @@ export default function EmailVerificationField({
               onChange={(event) => setOtp(event.target.value.replace(/\D/g, "").slice(0, 6))}
               onKeyDown={(event) => { if (event.key === "Enter") verifyOtp(); }}
               placeholder="6-digit code"
-              className="mt-5 w-full rounded-xl border border-gray-200 px-4 py-3 text-center text-lg tracking-[0.4em] outline-none focus:border-[#7B2FFF]"
+              className="mt-5 w-full rounded-xl border border-gray-200 px-4 py-3 text-center text-lg tracking-[0.4em] outline-none focus:border-[var(--primary-color)]"
             />
             {actionError && <p role="alert" className="mt-2 text-xs text-red-500">{actionError}</p>}
             <div className="mt-5 flex items-center justify-between gap-3">
-              <button type="button" onClick={() => sendOtp(false, otpEmail)} disabled={sending || verifying} className="text-sm font-medium text-[#7B2FFF] disabled:opacity-50">
+              <button type="button" onClick={() => sendOtp(false, otpEmail)} disabled={sending || verifying} className="text-sm font-medium text-[var(--primary-color)] disabled:opacity-50">
                 {sending ? "Sending..." : "Resend code"}
               </button>
-              <button type="button" onClick={verifyOtp} disabled={verifying || sending} className="rounded-xl bg-[#7B2FFF] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#6320d4] disabled:opacity-50">
+              <button type="button" onClick={verifyOtp} disabled={verifying || sending} className="rounded-xl bg-[var(--primary-color)] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#6320d4] disabled:opacity-50">
                 {verifying ? "Verifying..." : "Verify email"}
               </button>
             </div>

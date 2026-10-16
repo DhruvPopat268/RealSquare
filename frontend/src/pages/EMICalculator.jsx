@@ -81,13 +81,13 @@ export default function EMICalculator() {
                   type="number"
                   value={principalInput}
                   onChange={(e) => setPrincipalInput(e.target.value)}
-                  className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#7B2FFF] transition mb-3"
+                  className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[var(--primary-color)] transition mb-3"
                   placeholder="e.g. 5000000"
                 />
                 <input type="range" min={100000} max={50000000} step={100000}
                   value={principal}
                   onChange={(e) => handleSlider("principal", Number(e.target.value))}
-                  className="w-full accent-[#7B2FFF]" />
+                  className="w-full accent-[var(--primary-color)]" />
                 <div className="flex justify-between text-[11px] text-gray-400 mt-1">
                   <span>₹1L</span><span>₹5Cr</span>
                 </div>
@@ -100,14 +100,14 @@ export default function EMICalculator() {
                   type="number"
                   value={rateInput}
                   onChange={(e) => setRateInput(e.target.value)}
-                  className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#7B2FFF] transition mb-3"
+                  className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[var(--primary-color)] transition mb-3"
                   placeholder="e.g. 8.5"
                   step="0.1"
                 />
                 <input type="range" min={5} max={20} step={0.1}
                   value={rate}
                   onChange={(e) => handleSlider("rate", Number(e.target.value))}
-                  className="w-full accent-[#7B2FFF]" />
+                  className="w-full accent-[var(--primary-color)]" />
                 <div className="flex justify-between text-[11px] text-gray-400 mt-1">
                   <span>5%</span><span>20%</span>
                 </div>
@@ -120,13 +120,13 @@ export default function EMICalculator() {
                   type="number"
                   value={tenureInput}
                   onChange={(e) => setTenureInput(e.target.value)}
-                  className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#7B2FFF] transition mb-3"
+                  className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[var(--primary-color)] transition mb-3"
                   placeholder="e.g. 20"
                 />
                 <input type="range" min={1} max={30} step={1}
                   value={tenure}
                   onChange={(e) => handleSlider("tenure", Number(e.target.value))}
-                  className="w-full accent-[#7B2FFF]" />
+                  className="w-full accent-[var(--primary-color)]" />
                 <div className="flex justify-between text-[11px] text-gray-400 mt-1">
                   <span>1 Yr</span><span>30 Yrs</span>
                 </div>
@@ -134,7 +134,7 @@ export default function EMICalculator() {
 
               <button
                 onClick={handleSubmit}
-                className="w-full bg-[#7B2FFF] hover:bg-[#6320d4] text-white py-3 rounded-xl font-bold text-sm transition"
+                className="w-full bg-[var(--primary-color)] hover:bg-[#6320d4] text-white py-3 rounded-xl font-bold text-sm transition"
               >
                 Calculate EMI
               </button>
@@ -148,14 +148,14 @@ export default function EMICalculator() {
                   {/* EMI highlight */}
                   <div className="bg-white rounded-2xl p-6 shadow-sm text-center">
                     <p className="text-sm text-gray-500 mb-1">Monthly EMI</p>
-                    <p className="text-4xl font-extrabold text-[#7B2FFF]">{fmt(result.emi)}</p>
+                    <p className="text-4xl font-extrabold text-[var(--primary-color)]">{fmt(result.emi)}</p>
                   </div>
 
                   {/* Breakdown */}
                   <div className="bg-white rounded-2xl p-6 shadow-sm flex flex-col gap-0">
                     <div className="flex justify-between items-center py-3 border-b border-gray-100">
                       <span className="text-sm text-gray-600">Principal Amount</span>
-                      <span className="text-sm font-bold text-[#7B2FFF]">{fmt(principal)}</span>
+                      <span className="text-sm font-bold text-[var(--primary-color)]">{fmt(principal)}</span>
                     </div>
                     <div className="flex justify-between items-center py-3 border-b border-gray-100">
                       <span className="text-sm text-gray-600">Total Interest</span>
@@ -181,7 +181,7 @@ export default function EMICalculator() {
                           paddingAngle={3}
                           dataKey="value"
                         >
-                          <Cell fill="#7B2FFF" />
+                          <Cell fill="var(--primary-color)" />
                           <Cell fill="#f97316" />
                         </Pie>
                         <Tooltip formatter={(val) => fmt(val)} />

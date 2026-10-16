@@ -34,14 +34,14 @@ export default function PropertyOwnerCTA({ activeTab }) {
                 {/* House illustration */}
                 <g>
                   {/* Building */}
-                  <rect x="60" y="50" width="80" height="80" fill="#7B2FFF" opacity="0.1" rx="4"/>
-                  <rect x="70" y="60" width="60" height="60" fill="#7B2FFF" opacity="0.2" rx="2"/>
+                  <rect x="60" y="50" width="80" height="80" fill="var(--primary-color)" opacity="0.1" rx="4"/>
+                  <rect x="70" y="60" width="60" height="60" fill="var(--primary-color)" opacity="0.2" rx="2"/>
                   
                   {/* Windows */}
-                  <rect x="80" y="70" width="15" height="15" fill="#7B2FFF" opacity="0.4" rx="1"/>
-                  <rect x="105" y="70" width="15" height="15" fill="#7B2FFF" opacity="0.4" rx="1"/>
-                  <rect x="80" y="95" width="15" height="15" fill="#7B2FFF" opacity="0.4" rx="1"/>
-                  <rect x="105" y="95" width="15" height="15" fill="#7B2FFF" opacity="0.4" rx="1"/>
+                  <rect x="80" y="70" width="15" height="15" fill="var(--primary-color)" opacity="0.4" rx="1"/>
+                  <rect x="105" y="70" width="15" height="15" fill="var(--primary-color)" opacity="0.4" rx="1"/>
+                  <rect x="80" y="95" width="15" height="15" fill="var(--primary-color)" opacity="0.4" rx="1"/>
+                  <rect x="105" y="95" width="15" height="15" fill="var(--primary-color)" opacity="0.4" rx="1"/>
                   
                   {/* Cursor/Hand */}
                   <circle cx="150" cy="40" r="20" fill="#FF6B9D" opacity="0.2"/>
@@ -53,7 +53,7 @@ export default function PropertyOwnerCTA({ activeTab }) {
             {/* Center content */}
             <div className="flex-1 text-center">
               <p className="text-base text-gray-600 mb-4">{content.subtitle}</p>
-              <button className="bg-white border-2 border-[#7B2FFF] text-[#7B2FFF] hover:bg-[#7B2FFF] hover:text-white px-8 py-3 rounded-xl font-bold text-sm transition-all">
+              <button className="bg-white border-2 border-[var(--primary-color)] text-[var(--primary-color)] hover:bg-[var(--primary-color)] hover:text-white px-8 py-3 rounded-xl font-bold text-sm transition-all">
                 {content.buttonText}
               </button>
             </div>
@@ -64,16 +64,16 @@ export default function PropertyOwnerCTA({ activeTab }) {
                 {/* People illustration */}
                 <g>
                   {/* Person 1 */}
-                  <circle cx="70" cy="60" r="15" fill="#7B2FFF" opacity="0.3"/>
-                  <rect x="60" y="75" width="20" height="35" fill="#7B2FFF" opacity="0.2" rx="10"/>
+                  <circle cx="70" cy="60" r="15" fill="var(--primary-color)" opacity="0.3"/>
+                  <rect x="60" y="75" width="20" height="35" fill="var(--primary-color)" opacity="0.2" rx="10"/>
                   
                   {/* Person 2 */}
                   <circle cx="130" cy="65" r="18" fill="#FF6B9D" opacity="0.3"/>
                   <rect x="118" y="83" width="24" height="40" fill="#FF6B9D" opacity="0.2" rx="12"/>
                   
                   {/* Car */}
-                  <ellipse cx="100" cy="130" rx="40" ry="10" fill="#7B2FFF" opacity="0.1"/>
-                  <rect x="70" y="115" width="60" height="20" fill="#7B2FFF" opacity="0.2" rx="10"/>
+                  <ellipse cx="100" cy="130" rx="40" ry="10" fill="var(--primary-color)" opacity="0.1"/>
+                  <rect x="70" y="115" width="60" height="20" fill="var(--primary-color)" opacity="0.2" rx="10"/>
                 </g>
               </svg>
             </div>

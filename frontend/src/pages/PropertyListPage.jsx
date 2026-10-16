@@ -78,8 +78,8 @@ function FilterChip({ label, active, onClick }) {
       onClick={onClick}
       className={`text-xs px-3 py-1.5 rounded border transition font-medium ${
         active
-          ? "bg-[#7B2FFF] border-[#7B2FFF] text-white"
-          : "border-gray-300 text-gray-600 hover:border-[#7B2FFF] hover:text-[#7B2FFF] bg-white"
+          ? "bg-[var(--primary-color)] border-[var(--primary-color)] text-white"
+          : "border-gray-300 text-gray-600 hover:border-[var(--primary-color)] hover:text-[var(--primary-color)] bg-white"
       }`}
     >
       {active ? "" : "+ "}{label}
@@ -95,8 +95,8 @@ function FilterPanel({ selectedTypes, setSelectedTypes, selectedBhk, setSelected
         <div className="flex flex-col gap-1.5">
           {BUDGETS.map((b) => (
             <label key={b.label} className="flex items-center gap-2 cursor-pointer group">
-              <input type="radio" name="budget" checked={selectedBudget?.label === b.label} onChange={() => setSelectedBudget(selectedBudget?.label === b.label ? null : b)} className="accent-[#7B2FFF]" />
-              <span className="text-sm text-gray-600 group-hover:text-[#7B2FFF]">{b.label}</span>
+              <input type="radio" name="budget" checked={selectedBudget?.label === b.label} onChange={() => setSelectedBudget(selectedBudget?.label === b.label ? null : b)} className="accent-[var(--primary-color)]" />
+              <span className="text-sm text-gray-600 group-hover:text-[var(--primary-color)]">{b.label}</span>
             </label>
           ))}
         </div>
@@ -106,8 +106,8 @@ function FilterPanel({ selectedTypes, setSelectedTypes, selectedBhk, setSelected
         <div className="flex flex-col gap-1.5">
           {PROPERTY_TYPES.map((t) => (
             <label key={t} className="flex items-center gap-2 cursor-pointer group">
-              <input type="checkbox" checked={selectedTypes.includes(t)} onChange={() => toggle(selectedTypes, setSelectedTypes, t)} className="accent-[#7B2FFF]" />
-              <span className="text-sm text-gray-600 group-hover:text-[#7B2FFF]">{t}</span>
+              <input type="checkbox" checked={selectedTypes.includes(t)} onChange={() => toggle(selectedTypes, setSelectedTypes, t)} className="accent-[var(--primary-color)]" />
+              <span className="text-sm text-gray-600 group-hover:text-[var(--primary-color)]">{t}</span>
             </label>
           ))}
         </div>
@@ -125,8 +125,8 @@ function FilterPanel({ selectedTypes, setSelectedTypes, selectedBhk, setSelected
         <div className="flex flex-col gap-1.5">
           {STATUSES.map((s) => (
             <label key={s} className="flex items-center gap-2 cursor-pointer group">
-              <input type="checkbox" checked={selectedStatus.includes(s)} onChange={() => toggle(selectedStatus, setSelectedStatus, s)} className="accent-[#7B2FFF]" />
-              <span className="text-sm text-gray-600 group-hover:text-[#7B2FFF]">{s}</span>
+              <input type="checkbox" checked={selectedStatus.includes(s)} onChange={() => toggle(selectedStatus, setSelectedStatus, s)} className="accent-[var(--primary-color)]" />
+              <span className="text-sm text-gray-600 group-hover:text-[var(--primary-color)]">{s}</span>
             </label>
           ))}
         </div>
@@ -284,11 +284,11 @@ export default function PropertyListPage() {
                 {/* Mobile filter button */}
                 <button
                   onClick={openMobileFilter}
-                  className="md:hidden flex items-center gap-1.5 px-3 py-1.5 border border-[#7B2FFF] text-[#7B2FFF] rounded-lg text-sm font-semibold bg-white"
+                  className="md:hidden flex items-center gap-1.5 px-3 py-1.5 border border-[var(--primary-color)] text-[var(--primary-color)] rounded-lg text-sm font-semibold bg-white"
                 >
                   <FiSliders size={14} /> Filters
                   {activeFilterCount > 0 && (
-                    <span className="w-5 h-5 bg-[#7B2FFF] text-white text-[11px] font-bold rounded-full flex items-center justify-center">
+                    <span className="w-5 h-5 bg-[var(--primary-color)] text-white text-[11px] font-bold rounded-full flex items-center justify-center">
                       {activeFilterCount}
                     </span>
                   )}
@@ -297,7 +297,7 @@ export default function PropertyListPage() {
                 <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value)}
-                  className="border border-gray-300 rounded-lg px-3 py-1.5 text-sm text-gray-700 outline-none focus:border-[#7B2FFF] bg-white ml-auto"
+                  className="border border-gray-300 rounded-lg px-3 py-1.5 text-sm text-gray-700 outline-none focus:border-[var(--primary-color)] bg-white ml-auto"
                 >
                   <option value="relevance">Relevance</option>
                   <option value="price-asc">Price: Low to High</option>
@@ -315,27 +315,27 @@ export default function PropertyListPage() {
               <div className="flex items-center gap-2 flex-wrap mb-4 bg-white border border-gray-200 rounded-xl px-4 py-3">
                 <span className="text-xs font-semibold text-gray-500 mr-1">Applied:</span>
                 {selectedTypes.map((t) => (
-                  <span key={t} className="flex items-center gap-1 bg-[#f0ebff] text-[#7B2FFF] text-xs px-2.5 py-1 rounded-full font-medium">
+                  <span key={t} className="flex items-center gap-1 bg-[#f0ebff] text-[var(--primary-color)] text-xs px-2.5 py-1 rounded-full font-medium">
                     {t} <FiX size={10} className="cursor-pointer" onClick={() => toggle(selectedTypes, setSelectedTypes, t)} />
                   </span>
                 ))}
                 {selectedBhk.map((b) => (
-                  <span key={b} className="flex items-center gap-1 bg-[#f0ebff] text-[#7B2FFF] text-xs px-2.5 py-1 rounded-full font-medium">
+                  <span key={b} className="flex items-center gap-1 bg-[#f0ebff] text-[var(--primary-color)] text-xs px-2.5 py-1 rounded-full font-medium">
                     {b} <FiX size={10} className="cursor-pointer" onClick={() => toggle(selectedBhk, setSelectedBhk, b)} />
                   </span>
                 ))}
                 {selectedBudget && (
-                  <span className="flex items-center gap-1 bg-[#f0ebff] text-[#7B2FFF] text-xs px-2.5 py-1 rounded-full font-medium">
+                  <span className="flex items-center gap-1 bg-[#f0ebff] text-[var(--primary-color)] text-xs px-2.5 py-1 rounded-full font-medium">
                     {selectedBudget.label} <FiX size={10} className="cursor-pointer" onClick={() => setSelectedBudget(null)} />
                   </span>
                 )}
                 {selectedStatus.map((s) => (
-                  <span key={s} className="flex items-center gap-1 bg-[#f0ebff] text-[#7B2FFF] text-xs px-2.5 py-1 rounded-full font-medium">
+                  <span key={s} className="flex items-center gap-1 bg-[#f0ebff] text-[var(--primary-color)] text-xs px-2.5 py-1 rounded-full font-medium">
                     {s} <FiX size={10} className="cursor-pointer" onClick={() => toggle(selectedStatus, setSelectedStatus, s)} />
                   </span>
                 ))}
                 {selectedAmenities.map((a) => (
-                  <span key={a} className="flex items-center gap-1 bg-[#f0ebff] text-[#7B2FFF] text-xs px-2.5 py-1 rounded-full font-medium">
+                  <span key={a} className="flex items-center gap-1 bg-[#f0ebff] text-[var(--primary-color)] text-xs px-2.5 py-1 rounded-full font-medium">
                     {a} <FiX size={10} className="cursor-pointer" onClick={() => toggle(selectedAmenities, setSelectedAmenities, a)} />
                   </span>
                 ))}
@@ -353,7 +353,7 @@ export default function PropertyListPage() {
             ) : (
               <div className="bg-white rounded-xl border border-gray-200 p-16 text-center">
                 <p className="text-gray-500 text-base mb-4">No properties found for your selection.</p>
-                <button onClick={clearAll} className="bg-[#7B2FFF] text-white px-6 py-2 rounded-lg text-sm font-semibold hover:bg-[#6a1fe0] transition">
+                <button onClick={clearAll} className="bg-[var(--primary-color)] text-white px-6 py-2 rounded-lg text-sm font-semibold hover:bg-[#6a1fe0] transition">
                   Clear Filters
                 </button>
               </div>
@@ -395,7 +395,7 @@ export default function PropertyListPage() {
             </button>
             <button
               onClick={applyMobileFilter}
-              className="flex-1 py-3 bg-[#7B2FFF] text-white rounded-xl text-sm font-bold border-none cursor-pointer"
+              className="flex-1 py-3 bg-[var(--primary-color)] text-white rounded-xl text-sm font-bold border-none cursor-pointer"
             >
               Apply Filters
             </button>

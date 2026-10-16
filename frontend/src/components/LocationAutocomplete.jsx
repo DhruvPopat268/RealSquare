@@ -180,9 +180,9 @@ export default function LocationAutocomplete({
   return (
     <div ref={inputWrapRef} className="relative w-full">
       <div className={`flex items-center border rounded-lg transition bg-white ${
-        value ? "border-[#7B2FFF]" : "border-gray-200 focus-within:border-[#7B2FFF]"
-      } focus-within:border-[#7B2FFF] focus-within:ring-1 focus-within:ring-[#7B2FFF]`}>
-        <FiMapPin size={16} className={`ml-3 flex-shrink-0 ${value ? "text-[#7B2FFF]" : "text-gray-400"}`} />
+        value ? "border-[var(--primary-color)]" : "border-gray-200 focus-within:border-[var(--primary-color)]"
+      } focus-within:border-[var(--primary-color)] focus-within:ring-1 focus-within:ring-[var(--primary-color)]`}>
+        <FiMapPin size={16} className={`ml-3 flex-shrink-0 ${value ? "text-[var(--primary-color)]" : "text-gray-400"}`} />
         <input
           ref={inputRef}
           type="text"
@@ -197,11 +197,11 @@ export default function LocationAutocomplete({
           }}
           placeholder={placeholder}
           disabled={disabled}
-          className={`flex-1 px-3 py-2.5 text-sm outline-none bg-transparent ${value ? "text-[#7B2FFF] placeholder-gray-300" : "text-gray-800 placeholder-gray-400"} disabled:bg-gray-50 disabled:text-gray-500 disabled:cursor-not-allowed`}
+          className={`flex-1 px-3 py-2.5 text-sm outline-none bg-transparent ${value ? "text-[var(--primary-color)] placeholder-gray-300" : "text-gray-800 placeholder-gray-400"} disabled:bg-gray-50 disabled:text-gray-500 disabled:cursor-not-allowed`}
           autoComplete="off"
         />
         {loading && (
-          <span className="mr-3 w-4 h-4 border-2 border-gray-200 border-t-[#7B2FFF] rounded-full animate-spin flex-shrink-0" />
+          <span className="mr-3 w-4 h-4 border-2 border-gray-200 border-t-[var(--primary-color)] rounded-full animate-spin flex-shrink-0" />
         )}
       </div>
 
@@ -221,7 +221,7 @@ export default function LocationAutocomplete({
               className="px-4 py-3 border-b border-gray-100 last:border-b-0 cursor-pointer hover:bg-purple-50 transition flex items-start gap-3 bg-white"
               style={{ pointerEvents: "auto" }}
             >
-              <FiMapPin size={16} className="text-[#7B2FFF] flex-shrink-0 mt-0.5" />
+              <FiMapPin size={16} className="text-[var(--primary-color)] flex-shrink-0 mt-0.5" />
               <div className="flex-1 min-w-0">
                 <p className="font-semibold text-gray-900 text-base">
                   {suggestion.structured_formatting?.main_text}

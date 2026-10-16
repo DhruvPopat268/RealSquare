@@ -12,7 +12,7 @@ import ChatbotDateInput from "../chatbot/ChatbotDateInput";
 
 function BotAvatar() {
   return (
-    <div className="w-8 h-8 rounded-full bg-[#7B2FFF] flex items-center justify-center flex-shrink-0 shadow">
+    <div className="w-8 h-8 rounded-full bg-[var(--primary-color)] flex items-center justify-center flex-shrink-0 shadow">
       <FiClipboard size={15} className="text-white" />
     </div>
   );
@@ -24,9 +24,9 @@ function TypingIndicator() {
       <BotAvatar />
       <div className="bg-white border border-gray-200 rounded-2xl rounded-bl-sm px-4 py-3 shadow-sm">
         <div className="flex gap-1 items-center h-4">
-          <span className="w-2 h-2 bg-[#7B2FFF] rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
-          <span className="w-2 h-2 bg-[#7B2FFF] rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
-          <span className="w-2 h-2 bg-[#7B2FFF] rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+          <span className="w-2 h-2 bg-[var(--primary-color)] rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
+          <span className="w-2 h-2 bg-[var(--primary-color)] rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
+          <span className="w-2 h-2 bg-[var(--primary-color)] rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
         </div>
       </div>
     </div>
@@ -47,7 +47,7 @@ function BotMessage({ text }) {
 function UserMessage({ text }) {
   return (
     <div className="flex items-end gap-2 justify-end">
-      <div className="max-w-[75%] bg-[#7B2FFF] rounded-2xl rounded-br-sm px-4 py-3 shadow-sm">
+      <div className="max-w-[75%] bg-[var(--primary-color)] rounded-2xl rounded-br-sm px-4 py-3 shadow-sm">
         <p className="text-sm text-white leading-relaxed whitespace-pre-line">{text}</p>
       </div>
       <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center flex-shrink-0 text-xs font-bold text-gray-600">
@@ -64,7 +64,7 @@ function QuickReplies({ options, onSelect }) {
         <button
           key={opt}
           onClick={() => onSelect(opt)}
-          className="px-4 py-2 rounded-full border-2 border-[#7B2FFF] text-[#7B2FFF] text-sm font-medium bg-white hover:bg-[#f0ebff] transition"
+          className="px-4 py-2 rounded-full border-2 border-[var(--primary-color)] text-[var(--primary-color)] text-sm font-medium bg-white hover:bg-[#f0ebff] transition"
         >
           {opt}
         </button>
@@ -134,7 +134,7 @@ export default function CreateInquiryPage() {
 
           {/* Header */}
           <div className="bg-white rounded-2xl border border-gray-200 shadow-sm px-5 py-4 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-[#7B2FFF] flex items-center justify-center shadow">
+            <div className="w-10 h-10 rounded-full bg-[var(--primary-color)] flex items-center justify-center shadow">
               <FiClipboard size={18} className="text-white" />
             </div>
             <div>
@@ -165,7 +165,7 @@ export default function CreateInquiryPage() {
                       {isLastMessage && ["area", "notes"].includes(currentStep) && !isTyping && (
                         <button
                           onClick={() => handleUserReply("SKIP")}
-                          className="mt-2 ml-10 px-4 py-2 rounded-xl bg-[#7B2FFF] text-white text-xs font-semibold hover:bg-[#6320d4] transition border-none cursor-pointer"
+                          className="mt-2 ml-10 px-4 py-2 rounded-xl bg-[var(--primary-color)] text-white text-xs font-semibold hover:bg-[#6320d4] transition border-none cursor-pointer"
                         >
                           Skip
                         </button>
@@ -178,7 +178,7 @@ export default function CreateInquiryPage() {
                       {msg.id === lastUserMsgId && !isTyping && currentStep !== "submit" && (
                         <button
                           onClick={editLastAnswer}
-                          className="mr-10 text-xs text-[#7B2FFF] hover:underline bg-transparent border-none cursor-pointer px-1"
+                          className="mr-10 text-xs text-[var(--primary-color)] hover:underline bg-transparent border-none cursor-pointer px-1"
                         >
                           ✏️ Edit
                         </button>
@@ -236,12 +236,12 @@ export default function CreateInquiryPage() {
                     onKeyDown={(e) => e.key === "Enter" && submit()}
                     placeholder={showTextInput ? "Type your answer..." : "Choose an option above"}
                     disabled={!showTextInput}
-                    className="flex-1 border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#7B2FFF] transition disabled:bg-gray-50 disabled:text-gray-400 disabled:cursor-not-allowed"
+                    className="flex-1 border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[var(--primary-color)] transition disabled:bg-gray-50 disabled:text-gray-400 disabled:cursor-not-allowed"
                   />
                   <button
                     onClick={submit}
                     disabled={!canSend}
-                    className="w-10 h-10 rounded-xl bg-[#7B2FFF] disabled:opacity-40 flex items-center justify-center flex-shrink-0 hover:bg-[#6320d4] transition border-none cursor-pointer"
+                    className="w-10 h-10 rounded-xl bg-[var(--primary-color)] disabled:opacity-40 flex items-center justify-center flex-shrink-0 hover:bg-[#6320d4] transition border-none cursor-pointer"
                   >
                     <FiSend size={16} className="text-white" />
                   </button>

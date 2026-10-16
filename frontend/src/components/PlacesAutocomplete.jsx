@@ -80,7 +80,7 @@ export default function PlacesAutocomplete({ value, onChange, placeholder, cityB
 
   return (
     <div ref={wrapRef} className="relative">
-      <div className="flex items-center border border-gray-200 rounded-xl overflow-hidden focus-within:border-[#7B2FFF] transition bg-white">
+      <div className="flex items-center border border-gray-200 rounded-xl overflow-hidden focus-within:border-[var(--primary-color)] transition bg-white">
         <FiSearch size={14} className="ml-3 text-gray-400 flex-shrink-0" />
         <input
           type="text"
@@ -92,7 +92,7 @@ export default function PlacesAutocomplete({ value, onChange, placeholder, cityB
           className="flex-1 px-3 py-2.5 text-sm outline-none bg-transparent"
         />
         {searching && (
-          <div className="mr-3 w-3.5 h-3.5 border-2 border-[#7B2FFF] border-t-transparent rounded-full animate-spin flex-shrink-0" />
+          <div className="mr-3 w-3.5 h-3.5 border-2 border-[var(--primary-color)] border-t-transparent rounded-full animate-spin flex-shrink-0" />
         )}
       </div>
 
@@ -102,7 +102,7 @@ export default function PlacesAutocomplete({ value, onChange, placeholder, cityB
             <li
               key={s.place_id}
               onMouseDown={() => handleSelect(s.description)}
-              className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-gray-700 hover:bg-[#f0ebff] hover:text-[#7B2FFF] cursor-pointer transition"
+              className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-gray-700 hover:bg-[#f0ebff] hover:text-[var(--primary-color)] cursor-pointer transition"
             >
               <FiSearch size={12} className="text-gray-400 flex-shrink-0" />
               <span>{s.description}</span>

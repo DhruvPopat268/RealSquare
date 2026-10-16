@@ -1,6 +1,10 @@
 import { primaryColor } from "../utils/theme";
 
-export default function CoinIcon({ size = 20, className = "" }) {
+export default function CoinIcon({ size = 20, className = "", variant = "brand" }) {
+  const background = variant === "gold"
+    ? "linear-gradient(135deg, #f59e0b 60%, #fbbf24 100%)"
+    : `linear-gradient(135deg, ${primaryColor} 60%, #a855f7 100%)`;
+
   return (
     <span
       className={className}
@@ -11,7 +15,7 @@ export default function CoinIcon({ size = 20, className = "" }) {
         width: size,
         height: size,
         borderRadius: "50%",
-        background: `linear-gradient(135deg, ${primaryColor} 60%, #a855f7 100%)`,
+        background,
         flexShrink: 0,
       }}
     >

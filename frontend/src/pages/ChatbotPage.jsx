@@ -21,7 +21,7 @@ import ChatbotImageUpload from "../chatbot/ChatbotImageUpload";
 
 function BotAvatar() {
   return (
-    <div className="w-8 h-8 rounded-full bg-[#7B2FFF] flex items-center justify-center flex-shrink-0 shadow">
+    <div className="w-8 h-8 rounded-full bg-[var(--primary-color)] flex items-center justify-center flex-shrink-0 shadow">
       <FiHome size={15} className="text-white" />
     </div>
   );
@@ -33,9 +33,9 @@ function TypingIndicator() {
       <BotAvatar />
       <div className="bg-white border border-gray-200 rounded-2xl rounded-bl-sm px-4 py-3 shadow-sm">
         <div className="flex gap-1 items-center h-4">
-          <span className="w-2 h-2 bg-[#7B2FFF] rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
-          <span className="w-2 h-2 bg-[#7B2FFF] rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
-          <span className="w-2 h-2 bg-[#7B2FFF] rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+          <span className="w-2 h-2 bg-[var(--primary-color)] rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
+          <span className="w-2 h-2 bg-[var(--primary-color)] rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
+          <span className="w-2 h-2 bg-[var(--primary-color)] rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
         </div>
       </div>
     </div>
@@ -56,7 +56,7 @@ function BotMessage({ text }) {
 function UserMessage({ text }) {
   return (
     <div className="flex items-end gap-2 justify-end">
-      <div className="max-w-[75%] bg-[#7B2FFF] rounded-2xl rounded-br-sm px-4 py-3 shadow-sm">
+      <div className="max-w-[75%] bg-[var(--primary-color)] rounded-2xl rounded-br-sm px-4 py-3 shadow-sm">
         <p className="text-sm text-white leading-relaxed whitespace-pre-line">{text}</p>
       </div>
       <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center flex-shrink-0 text-xs font-bold text-gray-600">
@@ -73,7 +73,7 @@ function QuickReplies({ options, onSelect }) {
         <button
           key={opt}
           onClick={() => onSelect(opt)}
-          className="px-4 py-2 rounded-full border-2 border-[#7B2FFF] text-[#7B2FFF] text-sm font-medium bg-white hover:bg-[#f0ebff] transition"
+          className="px-4 py-2 rounded-full border-2 border-[var(--primary-color)] text-[var(--primary-color)] text-sm font-medium bg-white hover:bg-[#f0ebff] transition"
         >
           {opt}
         </button>
@@ -173,7 +173,7 @@ export default function ChatbotPage() {
       <>
         <Navbar />
         <div className="min-h-[calc(100vh-62px)] bg-[#f7f8fa] flex items-center justify-center">
-          <div className="w-8 h-8 border-4 border-[#7B2FFF] border-t-transparent rounded-full animate-spin" />
+          <div className="w-8 h-8 border-4 border-[var(--primary-color)] border-t-transparent rounded-full animate-spin" />
         </div>
         <Footer />
       </>
@@ -187,7 +187,7 @@ export default function ChatbotPage() {
         <div className="min-h-[calc(100vh-62px)] bg-[#f7f8fa] flex items-center justify-center px-4">
           <div className="bg-white rounded-2xl shadow-[0_8px_40px_rgba(0,0,0,0.10)] w-full max-w-[420px] p-10 flex flex-col items-center text-center">
             <div className="w-16 h-16 rounded-full bg-[#f3eeff] flex items-center justify-center mb-5">
-              <FiLock size={28} className="text-[#7B2FFF]" />
+              <FiLock size={28} className="text-[var(--primary-color)]" />
             </div>
             <h2 className="text-xl font-extrabold text-[#1a1a2e] mb-2">Access Restricted</h2>
             <p className="text-sm text-gray-400 leading-relaxed mb-6">
@@ -195,7 +195,7 @@ export default function ChatbotPage() {
             </p>
             <button
               onClick={() => navigate("/")}
-              className="w-full bg-[#7B2FFF] hover:bg-[#6320d4] text-white py-3 rounded-xl font-semibold text-sm transition"
+              className="w-full bg-[var(--primary-color)] hover:bg-[#6320d4] text-white py-3 rounded-xl font-semibold text-sm transition"
             >
               Back to Home
             </button>
@@ -221,7 +221,7 @@ export default function ChatbotPage() {
             </p>
             <button
               onClick={() => navigate("/profile")}
-              className="w-full bg-[#7B2FFF] hover:bg-[#6320d4] text-white py-3 rounded-xl font-semibold text-sm transition mb-3"
+              className="w-full bg-[var(--primary-color)] hover:bg-[#6320d4] text-white py-3 rounded-xl font-semibold text-sm transition mb-3"
             >
               Complete Profile
             </button>
@@ -253,7 +253,7 @@ export default function ChatbotPage() {
             </p>
             <button
               onClick={() => navigate("/plans")}
-              className="w-full bg-[#7B2FFF] hover:bg-[#6320d4] text-white py-3 rounded-xl font-semibold text-sm transition mb-3"
+              className="w-full bg-[var(--primary-color)] hover:bg-[#6320d4] text-white py-3 rounded-xl font-semibold text-sm transition mb-3"
             >
               View Plans
             </button>
@@ -278,7 +278,7 @@ export default function ChatbotPage() {
 
           {/* Header */}
           <div className="bg-white rounded-2xl border border-gray-200 shadow-sm px-5 py-4 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-[#7B2FFF] flex items-center justify-center shadow">
+            <div className="w-10 h-10 rounded-full bg-[var(--primary-color)] flex items-center justify-center shadow">
               <FiHome size={18} className="text-white" />
             </div>
             <div>
@@ -306,7 +306,7 @@ export default function ChatbotPage() {
                       {msg.id === lastUserMsgId && !isTyping && currentStep !== "submit" && (
                         <button
                           onClick={editLastAnswer}
-                          className="mr-10 text-xs text-[#7B2FFF] hover:underline bg-transparent border-none cursor-pointer px-1"
+                          className="mr-10 text-xs text-[var(--primary-color)] hover:underline bg-transparent border-none cursor-pointer px-1"
                         >
                           ✏️ Edit
                         </button>
@@ -383,12 +383,12 @@ export default function ChatbotPage() {
                     onKeyDown={(e) => e.key === "Enter" && submit()}
                     placeholder={showTextInput ? "Type your answer..." : "Choose an option above"}
                     disabled={!showTextInput}
-                    className="flex-1 border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#7B2FFF] transition disabled:bg-gray-50 disabled:text-gray-400 disabled:cursor-not-allowed"
+                    className="flex-1 border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[var(--primary-color)] transition disabled:bg-gray-50 disabled:text-gray-400 disabled:cursor-not-allowed"
                   />
                   <button
                     onClick={submit}
                     disabled={!canSend}
-                    className="w-10 h-10 rounded-xl bg-[#7B2FFF] disabled:opacity-40 flex items-center justify-center flex-shrink-0 hover:bg-[#6320d4] transition border-none cursor-pointer"
+                    className="w-10 h-10 rounded-xl bg-[var(--primary-color)] disabled:opacity-40 flex items-center justify-center flex-shrink-0 hover:bg-[#6320d4] transition border-none cursor-pointer"
                   >
                     <FiSend size={16} className="text-white" />
                   </button>

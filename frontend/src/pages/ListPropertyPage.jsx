@@ -42,8 +42,8 @@ function Chip({ label, selected, onClick }) {
       onClick={onClick}
       className={`px-4 py-2 rounded-xl border text-sm font-medium transition ${
         selected
-          ? "bg-[#f0ebff] border-[#7B2FFF] text-[#7B2FFF]"
-          : "border-gray-200 text-gray-600 bg-white hover:border-[#7B2FFF] hover:text-[#7B2FFF]"
+          ? "bg-[#f0ebff] border-[var(--primary-color)] text-[var(--primary-color)]"
+          : "border-gray-200 text-gray-600 bg-white hover:border-[var(--primary-color)] hover:text-[var(--primary-color)]"
       }`}
     >
       {label}
@@ -69,7 +69,7 @@ function Input({ value, onChange, placeholder, type = "text" }) {
       value={value}
       onChange={(e) => onChange(e.target.value)}
       placeholder={placeholder}
-      className="border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#7B2FFF] transition"
+      className="border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[var(--primary-color)] transition"
     />
   );
 }
@@ -79,7 +79,7 @@ function Select({ value, onChange, options, placeholder }) {
     <select
       value={value}
       onChange={(e) => onChange(e.target.value)}
-      className="border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#7B2FFF] transition bg-white text-gray-700"
+      className="border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[var(--primary-color)] transition bg-white text-gray-700"
     >
       {placeholder && <option value="">{placeholder}</option>}
       {options.map((o) => <option key={o}>{o}</option>)}
@@ -99,8 +99,8 @@ function ListingTypeSelection({ form, setForm, errors }) {
             onClick={() => setForm(() => ({ ...INIT, listingMode: mode }))}
             className={`border rounded-3xl p-6 text-left transition shadow-sm ${
               form.listingMode === mode
-                ? "border-[#7B2FFF] bg-[#f0ebff]"
-                : "border-gray-200 bg-white hover:border-[#7B2FFF]"
+                ? "border-[var(--primary-color)] bg-[#f0ebff]"
+                : "border-gray-200 bg-white hover:border-[var(--primary-color)]"
             }`}
           >
             <div className="flex items-center justify-between mb-3">
@@ -164,7 +164,7 @@ function BasicDetails({ form, setForm, errors }) {
         <div className="flex flex-col gap-1">
           <Input value={form.city} onChange={(v) => setForm((f) => ({ ...f, city: v }))} placeholder="e.g. Mumbai" />
           {form.city && (
-            <p className="text-xs text-[#7B2FFF] flex items-center gap-1 mt-0.5">
+            <p className="text-xs text-[var(--primary-color)] flex items-center gap-1 mt-0.5">
               <FiMapPin size={11} /> Location auto-detected
             </p>
           )}
@@ -264,7 +264,7 @@ function PropertyDetails({ form, setForm, errors }) {
           onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
           placeholder="Describe your property — highlights, nearby places, unique features..."
           rows={4}
-          className="border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#7B2FFF] transition resize-none"
+          className="border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[var(--primary-color)] transition resize-none"
         />
       </Field>
     </div>
@@ -300,7 +300,7 @@ function ProjectBasicDetails({ form, setForm, errors }) {
         <div className="flex flex-col gap-1">
           <Input value={form.city} onChange={(v) => setForm((f) => ({ ...f, city: v }))} placeholder="e.g. Mumbai" />
           {form.city && (
-            <p className="text-xs text-[#7B2FFF] flex items-center gap-1 mt-0.5">
+            <p className="text-xs text-[var(--primary-color)] flex items-center gap-1 mt-0.5">
               <FiMapPin size={11} /> Location auto-detected
             </p>
           )}
@@ -370,7 +370,7 @@ function ProjectDetails({ form, setForm, errors }) {
           onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
           placeholder="Describe the project — key amenities, location advantages, unit mix..."
           rows={4}
-          className="border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#7B2FFF] transition resize-none"
+          className="border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[var(--primary-color)] transition resize-none"
         />
       </Field>
     </div>
@@ -389,7 +389,7 @@ function PriceDetails({ form, setForm, errors }) {
       <h2 className="text-lg font-bold text-gray-900">Add Price Details</h2>
 
       <Field label={label} required>
-        <div className="flex items-center border border-gray-200 rounded-xl overflow-hidden focus-within:border-[#7B2FFF] transition">
+        <div className="flex items-center border border-gray-200 rounded-xl overflow-hidden focus-within:border-[var(--primary-color)] transition">
           <span className="px-3 py-2.5 text-sm text-gray-500 border-r border-gray-200 bg-gray-50">₹</span>
           <input
             type="number"
@@ -419,7 +419,7 @@ function PriceDetails({ form, setForm, errors }) {
       {!isProject && isRent && (
         <>
           <Field label="Security Deposit">
-            <div className="flex items-center border border-gray-200 rounded-xl overflow-hidden focus-within:border-[#7B2FFF] transition">
+            <div className="flex items-center border border-gray-200 rounded-xl overflow-hidden focus-within:border-[var(--primary-color)] transition">
               <span className="px-3 py-2.5 text-sm text-gray-500 border-r border-gray-200 bg-gray-50">₹</span>
               <input
                 type="number"
@@ -431,7 +431,7 @@ function PriceDetails({ form, setForm, errors }) {
             </div>
           </Field>
           <Field label="Maintenance Charges (monthly)">
-            <div className="flex items-center border border-gray-200 rounded-xl overflow-hidden focus-within:border-[#7B2FFF] transition">
+            <div className="flex items-center border border-gray-200 rounded-xl overflow-hidden focus-within:border-[var(--primary-color)] transition">
               <span className="px-3 py-2.5 text-sm text-gray-500 border-r border-gray-200 bg-gray-50">₹</span>
               <input
                 type="number"
@@ -460,7 +460,7 @@ function PriceDetails({ form, setForm, errors }) {
       </Field>
 
       <Field label="Mobile Number" required>
-        <div className="flex items-center border border-gray-200 rounded-xl overflow-hidden focus-within:border-[#7B2FFF] transition">
+        <div className="flex items-center border border-gray-200 rounded-xl overflow-hidden focus-within:border-[var(--primary-color)] transition">
           <span className="px-3 py-2.5 text-sm text-gray-500 border-r border-gray-200 bg-gray-50">+91</span>
           <input
             type="tel"
@@ -508,12 +508,12 @@ function Sidebar({ currentStep }) {
               {/* icon + line */}
               <div className="flex flex-col items-center">
                 <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 border-2 transition ${
-                  done ? "bg-[#7B2FFF] border-[#7B2FFF]" : active ? "border-[#7B2FFF] bg-white" : "border-gray-200 bg-white"
+                  done ? "bg-[var(--primary-color)] border-[var(--primary-color)]" : active ? "border-[var(--primary-color)] bg-white" : "border-gray-200 bg-white"
                 }`}>
                   {done ? (
                     <FiCheck size={14} className="text-white" />
                   ) : (
-                    <div className={`w-2.5 h-2.5 rounded-full ${active ? "bg-[#7B2FFF]" : "bg-gray-200"}`} />
+                    <div className={`w-2.5 h-2.5 rounded-full ${active ? "bg-[var(--primary-color)]" : "bg-gray-200"}`} />
                   )}
                 </div>
                 {!isLast && <div className="w-0.5 h-8 bg-gray-100 my-1" />}
@@ -521,11 +521,11 @@ function Sidebar({ currentStep }) {
 
               {/* label */}
               <div className="pb-6">
-                <p className={`text-sm font-semibold ${active ? "text-[#1a1a2e]" : done ? "text-[#7B2FFF]" : "text-gray-400"}`}>
+                <p className={`text-sm font-semibold ${active ? "text-[#1a1a2e]" : done ? "text-[var(--primary-color)]" : "text-gray-400"}`}>
                   {step.label}
                 </p>
                 <span className={`text-[11px] px-2 py-0.5 rounded-full font-medium ${
-                  active ? "bg-amber-50 text-amber-500" : done ? "bg-[#f0ebff] text-[#7B2FFF]" : "bg-gray-100 text-gray-400"
+                  active ? "bg-amber-50 text-amber-500" : done ? "bg-[#f0ebff] text-[var(--primary-color)]" : "bg-gray-100 text-gray-400"
                 }`}>
                   {active ? "In progress" : done ? "Completed" : "Pending"}
                 </span>
@@ -562,13 +562,13 @@ function SuccessScreen({ onGoHome }) {
       <div className="flex gap-3 justify-center flex-wrap">
         <button
           onClick={onGoHome}
-          className="bg-[#7B2FFF] hover:bg-[#6320d4] text-white px-8 py-3 rounded-xl font-semibold text-sm transition"
+          className="bg-[var(--primary-color)] hover:bg-[#6320d4] text-white px-8 py-3 rounded-xl font-semibold text-sm transition"
         >
           Back to Home
         </button>
         <button
           onClick={() => window.location.reload()}
-          className="border border-[#7B2FFF] text-[#7B2FFF] px-8 py-3 rounded-xl font-semibold text-sm hover:bg-[#f0ebff] transition"
+          className="border border-[var(--primary-color)] text-[var(--primary-color)] px-8 py-3 rounded-xl font-semibold text-sm hover:bg-[#f0ebff] transition"
         >
           List Another Listing
         </button>
@@ -668,7 +668,7 @@ export default function ListPropertyPage() {
           {/* Back link */}
           <button
             onClick={handleBack}
-            className="flex items-center gap-1 text-sm text-gray-500 hover:text-[#7B2FFF] transition mb-5 bg-transparent border-none cursor-pointer"
+            className="flex items-center gap-1 text-sm text-gray-500 hover:text-[var(--primary-color)] transition mb-5 bg-transparent border-none cursor-pointer"
           >
             <FiChevronLeft size={16} /> {step > 1 ? "Previous step" : "Return to dashboard"}
           </button>
@@ -694,7 +694,7 @@ export default function ListPropertyPage() {
 
                 <button
                   onClick={handleNext}
-                  className="mt-8 w-full bg-[#7B2FFF] hover:bg-[#6320d4] text-white py-4 rounded-xl font-bold text-sm transition"
+                  className="mt-8 w-full bg-[var(--primary-color)] hover:bg-[#6320d4] text-white py-4 rounded-xl font-bold text-sm transition"
                 >
                   {step < STEPS.length ? `Next, add ${STEPS[step].label.toLowerCase()}` : "Submit Listing"}
                 </button>

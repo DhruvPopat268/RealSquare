@@ -20,7 +20,7 @@ export default function StatsBar() {
             ${i === stats.length - 1 ? "sm:border-r-0" : ""}
           `}
         >
-          <span className="text-[28px] font-extrabold text-[#a78bfa]">{s.value}</span>
+          <span className="text-[28px] font-extrabold text-[var(--primary-color)]">{s.value}</span>
           <span className="text-[13px] text-white/65 mt-1">{s.label}</span>
         </div>
       ))}

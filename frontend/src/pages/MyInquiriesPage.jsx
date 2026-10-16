@@ -57,9 +57,9 @@ function FilterSelect({ label, value, options, onChange, disabled }) {
         onChange={(e) => onChange(e.target.value)}
         disabled={disabled}
         className={`w-full appearance-none bg-white border rounded-xl px-3 py-2 pr-8 text-xs font-semibold transition outline-none
-          ${value ? "border-[#7B2FFF] text-[#7B2FFF]" : "border-gray-200 text-gray-500"}
-          ${disabled ? "opacity-40 cursor-not-allowed" : "hover:border-[#7B2FFF] cursor-pointer"}
-          focus:border-[#7B2FFF] focus:ring-1 focus:ring-[#7B2FFF]/20`}
+          ${value ? "border-[var(--primary-color)] text-[var(--primary-color)]" : "border-gray-200 text-gray-500"}
+          ${disabled ? "opacity-40 cursor-not-allowed" : "hover:border-[var(--primary-color)] cursor-pointer"}
+          focus:border-[var(--primary-color)] focus:ring-1 focus:ring-[var(--primary-color)]/20`}
       >
         <option value="">{label}</option>
         {options.map((opt) => (
@@ -69,7 +69,7 @@ function FilterSelect({ label, value, options, onChange, disabled }) {
       <FiChevronDown
         size={13}
         className={`absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none transition ${
-          value ? "text-[#7B2FFF]" : "text-gray-400"
+          value ? "text-[var(--primary-color)]" : "text-gray-400"
         }`}
       />
     </div>
@@ -110,7 +110,7 @@ function InquiryCard({ inquiry, onRequestStatusUpdate, updating }) {
 
       {/* Location */}
       <div className="flex items-start gap-2">
-        <FiMapPin size={14} className="text-[#7B2FFF] flex-shrink-0 mt-0.5" />
+        <FiMapPin size={14} className="text-[var(--primary-color)] flex-shrink-0 mt-0.5" />
         <div>
           <p className="text-sm font-semibold text-[#1a1a2e]">{inquiry.preferredCity}</p>
           {inquiry.preferredArea && (
@@ -133,7 +133,7 @@ function InquiryCard({ inquiry, onRequestStatusUpdate, updating }) {
       {/* Row 1 — Purpose / Category / Type */}
       <div className="flex flex-wrap gap-2">
         {inquiry.listingType?.name && (
-          <span className="px-2.5 py-1 bg-[#f5f0ff] text-[#7B2FFF] border border-[#e0d5ff] rounded-lg text-[11px] font-bold">
+          <span className="px-2.5 py-1 bg-[#f5f0ff] text-[var(--primary-color)] border border-[#e0d5ff] rounded-lg text-[11px] font-bold">
             {inquiry.listingType.name}
           </span>
         )}
@@ -158,7 +158,7 @@ function InquiryCard({ inquiry, onRequestStatusUpdate, updating }) {
             </span>
           )}
           {inquiry.furnishingType && (
-            <span className="flex items-center gap-1 px-2.5 py-1 bg-[#f5f0ff] text-[#7B2FFF] rounded-lg text-[11px] font-semibold">
+            <span className="flex items-center gap-1 px-2.5 py-1 bg-[#f5f0ff] text-[var(--primary-color)] rounded-lg text-[11px] font-semibold">
               <FiHome size={11} />
               {inquiry.furnishingType}
             </span>
@@ -207,7 +207,7 @@ function InquiryCard({ inquiry, onRequestStatusUpdate, updating }) {
               type="button"
               onClick={() => setStatusMenuOpen((open) => !open)}
               disabled={Boolean(updating)}
-              className="flex items-center gap-2 rounded-lg bg-[#7B2FFF] px-3.5 py-2 text-xs font-bold text-white transition hover:bg-[#6320d4] disabled:opacity-60"
+              className="flex items-center gap-2 rounded-lg bg-[var(--primary-color)] px-3.5 py-2 text-xs font-bold text-white transition hover:bg-[#6320d4] disabled:opacity-60"
             >
               {updating ? "Updating…" : "Update Status"}
               <FiChevronDown size={13} />
@@ -412,7 +412,7 @@ export default function MyInquiriesPage() {
           {/* Page header */}
           <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-[#7B2FFF] flex items-center justify-center shadow-sm">
+              <div className="w-10 h-10 rounded-xl bg-[var(--primary-color)] flex items-center justify-center shadow-sm">
                 <FiClipboard size={18} className="text-white" />
               </div>
               <div>
@@ -421,7 +421,7 @@ export default function MyInquiriesPage() {
             </div>
             <button
               onClick={() => navigate("/create-inquiry")}
-              className="flex items-center gap-2 px-4 py-2.5 bg-[#7B2FFF] hover:bg-[#6320d4] text-white text-sm font-bold rounded-xl border-none cursor-pointer transition-colors shadow-sm"
+              className="flex items-center gap-2 px-4 py-2.5 bg-[var(--primary-color)] hover:bg-[#6320d4] text-white text-sm font-bold rounded-xl border-none cursor-pointer transition-colors shadow-sm"
             >
               <FiPlus size={16} />
               Create New Requirement
@@ -432,8 +432,8 @@ export default function MyInquiriesPage() {
           {stats && !initialLoading && (
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-9 gap-3 mb-5">
               <div className="bg-white border border-[#e0d5ff] rounded-2xl p-3 text-center hover:shadow-md transition">
-                <p className="text-[11px] text-[#7B2FFF] font-semibold mb-1">Total</p>
-                <p className="text-2xl font-extrabold text-[#7B2FFF]">{stats.total ?? 0}</p>
+                <p className="text-[11px] text-[var(--primary-color)] font-semibold mb-1">Total</p>
+                <p className="text-2xl font-extrabold text-[var(--primary-color)]">{stats.total ?? 0}</p>
               </div>
               <div className="bg-white border border-green-200 rounded-2xl p-3 text-center hover:shadow-md transition">
                 <p className="text-[11px] text-green-600 font-semibold mb-1">Active</p>
@@ -473,10 +473,10 @@ export default function MyInquiriesPage() {
           {/* Filter panel */}
           <div className="bg-white border border-gray-100 rounded-2xl p-4 mb-5 shadow-sm">
             <div className="flex items-center gap-1.5 mb-3">
-              <FiFilter size={13} className="text-[#7B2FFF]" />
+              <FiFilter size={13} className="text-[var(--primary-color)]" />
               <span className="text-xs font-bold text-[#1a1a2e]">Filter Requirements</span>
               {hasAppliedFilters && (
-                <span className="ml-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#f3eeff] text-[#7B2FFF]">
+                <span className="ml-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#f3eeff] text-[var(--primary-color)]">
                   {appliedLabels.length} filter{appliedLabels.length !== 1 ? "s" : ""} applied
                 </span>
               )}
@@ -491,7 +491,7 @@ export default function MyInquiriesPage() {
                 onChange={(e) => setSearchInput(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleApply()}
                 placeholder="Search by city or area..."
-                className="w-full border border-gray-200 rounded-xl pl-8 pr-3 py-2 text-xs font-semibold outline-none focus:border-[#7B2FFF] focus:ring-1 focus:ring-[#7B2FFF]/20 transition placeholder-gray-400"
+                className="w-full border border-gray-200 rounded-xl pl-8 pr-3 py-2 text-xs font-semibold outline-none focus:border-[var(--primary-color)] focus:ring-1 focus:ring-[var(--primary-color)]/20 transition placeholder-gray-400"
               />
             </div>
 
@@ -547,7 +547,7 @@ export default function MyInquiriesPage() {
               <button
                 onClick={handleApply}
                 disabled={!hasPendingChanges}
-                className="flex items-center gap-1.5 px-4 py-1.5 rounded-xl text-xs font-bold transition disabled:opacity-40 disabled:cursor-not-allowed bg-[#7B2FFF] text-white hover:bg-[#6320d4] border-none cursor-pointer"
+                className="flex items-center gap-1.5 px-4 py-1.5 rounded-xl text-xs font-bold transition disabled:opacity-40 disabled:cursor-not-allowed bg-[var(--primary-color)] text-white hover:bg-[#6320d4] border-none cursor-pointer"
               >
                 Apply Filters
               </button>
@@ -560,7 +560,7 @@ export default function MyInquiriesPage() {
               <p className="text-sm text-red-500 font-semibold">{error}</p>
               <button
                 onClick={() => { setError(null); setInitialLoading(true); loadPage(1, appliedFilters, appliedSearch, true); }}
-                className="text-sm text-[#7B2FFF] font-semibold underline bg-transparent border-none cursor-pointer"
+                className="text-sm text-[var(--primary-color)] font-semibold underline bg-transparent border-none cursor-pointer"
               >
                 Retry
               </button>
@@ -578,7 +578,7 @@ export default function MyInquiriesPage() {
           {!initialLoading && !error && inquiries.length === 0 && (
             <div className="flex flex-col items-center justify-center py-24 gap-4">
               <div className="w-16 h-16 rounded-2xl bg-[#f3eeff] flex items-center justify-center">
-                <FiClipboard size={28} className="text-[#7B2FFF]" />
+                <FiClipboard size={28} className="text-[var(--primary-color)]" />
               </div>
               <div className="text-center">
                 <p className="text-base font-bold text-[#1a1a2e]">
@@ -593,7 +593,7 @@ export default function MyInquiriesPage() {
               {!hasAppliedFilters && (
                 <button
                   onClick={() => navigate("/create-inquiry")}
-                  className="flex items-center gap-2 px-5 py-2.5 bg-[#7B2FFF] hover:bg-[#6320d4] text-white text-sm font-bold rounded-xl border-none cursor-pointer transition-colors"
+                  className="flex items-center gap-2 px-5 py-2.5 bg-[var(--primary-color)] hover:bg-[#6320d4] text-white text-sm font-bold rounded-xl border-none cursor-pointer transition-colors"
                 >
                   <FiPlus size={15} />
                   Create Requirement
@@ -655,7 +655,7 @@ export default function MyInquiriesPage() {
                   if (await handleStatusUpdate(inquiry._id, status)) setStatusConfirmation(null);
                 }}
                 disabled={Boolean(statusUpdating)}
-                className="rounded-xl bg-[#7B2FFF] px-4 py-2 text-xs font-bold text-white transition hover:bg-[#6320d4] disabled:opacity-60"
+                className="rounded-xl bg-[var(--primary-color)] px-4 py-2 text-xs font-bold text-white transition hover:bg-[#6320d4] disabled:opacity-60"
               >
                 {statusUpdating ? "Updating…" : "Confirm"}
               </button>

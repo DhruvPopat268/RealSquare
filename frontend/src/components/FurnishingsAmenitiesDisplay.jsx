@@ -43,13 +43,13 @@ function ItemCard({ name, icon, count }) {
   const itemName = typeof name === "string" && name.trim() ? name.trim() : "Item";
   return (
     <div className="flex flex-col items-center justify-center gap-2 rounded-xl border
-      border-[#7B2FFF] bg-[#f5f0ff] text-[#7B2FFF] p-3 select-none">
+      border-[var(--primary-color)] bg-[#f5f0ff] text-[var(--primary-color)] p-3 select-none">
       <ItemIcon icon={icon} label={itemName} />
       <span className="text-[11px] font-semibold text-center leading-tight line-clamp-2">
         {itemName}
       </span>
       {count > 1 && (
-        <span className="text-xs font-bold bg-[#7B2FFF] text-white px-2 py-0.5 rounded-full">
+        <span className="text-xs font-bold bg-[var(--primary-color)] text-white px-2 py-0.5 rounded-full">
           ×{count}
         </span>
       )}
@@ -94,7 +94,7 @@ export default function FurnishingsAmenitiesDisplay({ furnishType, furnishings =
         <div className="bg-white rounded-2xl p-6 flex flex-col gap-4">
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-bold text-[#1a1a2e]">Flat Furnishings</h2>
-            <span className="text-xs font-semibold text-[#7B2FFF] bg-[#f5f0ff] px-2.5 py-1 rounded-full">
+            <span className="text-xs font-semibold text-[var(--primary-color)] bg-[#f5f0ff] px-2.5 py-1 rounded-full">
               {furnishings.length} item{furnishings.length !== 1 ? "s" : ""}
             </span>
           </div>
@@ -111,7 +111,7 @@ export default function FurnishingsAmenitiesDisplay({ furnishType, furnishings =
         <div className="bg-white rounded-2xl p-6 flex flex-col gap-4">
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-bold text-[#1a1a2e]">Society Amenities</h2>
-            <span className="text-xs font-semibold text-[#7B2FFF] bg-[#f5f0ff] px-2.5 py-1 rounded-full">
+            <span className="text-xs font-semibold text-[var(--primary-color)] bg-[#f5f0ff] px-2.5 py-1 rounded-full">
               {amenities.length} item{amenities.length !== 1 ? "s" : ""}
             </span>
           </div>

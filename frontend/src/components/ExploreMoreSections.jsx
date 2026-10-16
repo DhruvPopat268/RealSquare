@@ -90,10 +90,10 @@ function FeaturedProjectsSection() {
             <p className="text-sm text-gray-400 mt-1">Best projects to look out for</p>
           </div>
           <div className="flex gap-2">
-            <button onClick={() => scroll(-1)} className="w-9 h-9 rounded-full border border-gray-200 flex items-center justify-center text-gray-500 hover:border-[#7B2FFF] hover:text-[#7B2FFF] transition">
+            <button onClick={() => scroll(-1)} className="w-9 h-9 rounded-full border border-gray-200 flex items-center justify-center text-gray-500 hover:border-[var(--primary-color)] hover:text-[var(--primary-color)] transition">
               <FiChevronRight size={18} className="rotate-180" />
             </button>
-            <button onClick={() => scroll(1)} className="w-9 h-9 rounded-full border border-gray-200 flex items-center justify-center text-gray-500 hover:border-[#7B2FFF] hover:text-[#7B2FFF] transition">
+            <button onClick={() => scroll(1)} className="w-9 h-9 rounded-full border border-gray-200 flex items-center justify-center text-gray-500 hover:border-[var(--primary-color)] hover:text-[var(--primary-color)] transition">
               <FiChevronRight size={18} />
             </button>
           </div>
@@ -148,10 +148,10 @@ function SpotlightProjectsSection() {
             <p className="text-sm text-gray-400 mt-1">Noteworthy projects to watch</p>
           </div>
           <div className="flex gap-2">
-            <button onClick={() => scroll(-1)} className="w-9 h-9 rounded-full border border-gray-200 flex items-center justify-center text-gray-500 hover:border-[#7B2FFF] hover:text-[#7B2FFF] transition bg-white">
+            <button onClick={() => scroll(-1)} className="w-9 h-9 rounded-full border border-gray-200 flex items-center justify-center text-gray-500 hover:border-[var(--primary-color)] hover:text-[var(--primary-color)] transition bg-white">
               <FiChevronRight size={18} className="rotate-180" />
             </button>
-            <button onClick={() => scroll(1)} className="w-9 h-9 rounded-full border border-gray-200 flex items-center justify-center text-gray-500 hover:border-[#7B2FFF] hover:text-[#7B2FFF] transition bg-white">
+            <button onClick={() => scroll(1)} className="w-9 h-9 rounded-full border border-gray-200 flex items-center justify-center text-gray-500 hover:border-[var(--primary-color)] hover:text-[var(--primary-color)] transition bg-white">
               <FiChevronRight size={18} />
             </button>
           </div>
@@ -198,7 +198,7 @@ function BuilderCard({ dev }) {
   const activeProject = dev.projects[activeIdx];
 
   return (
-    <div className="min-w-[340px] max-w-[340px] flex-shrink-0 border-t-4 border-[#7B2FFF] rounded-xl overflow-hidden bg-white shadow-sm hover:shadow-md transition-shadow flex flex-col">
+    <div className="min-w-[340px] max-w-[340px] flex-shrink-0 border-t-4 border-[var(--primary-color)] rounded-xl overflow-hidden bg-white shadow-sm hover:shadow-md transition-shadow flex flex-col">
       {/* Header */}
       <div className="p-4">
         <div className="flex items-center gap-3 mb-3">
@@ -228,7 +228,7 @@ function BuilderCard({ dev }) {
               onClick={() => setActiveIdx(i)}
               className={`text-xs whitespace-nowrap flex-shrink-0 pb-0.5 transition-colors ${
                 activeIdx === i
-                  ? "text-[#7B2FFF] font-semibold border-b-2 border-[#7B2FFF]"
+                  ? "text-[var(--primary-color)] font-semibold border-b-2 border-[var(--primary-color)]"
                   : "text-gray-400 hover:text-gray-700"
               }`}
             >
@@ -281,10 +281,10 @@ function TopBuildersSection() {
             <p className="text-sm text-gray-400 mt-1">Prominent real-estate builders</p>
           </div>
           <div className="flex gap-2">
-            <button onClick={() => scroll(-1)} className="w-9 h-9 rounded-full border border-gray-200 flex items-center justify-center text-gray-500 hover:border-[#7B2FFF] hover:text-[#7B2FFF] transition">
+            <button onClick={() => scroll(-1)} className="w-9 h-9 rounded-full border border-gray-200 flex items-center justify-center text-gray-500 hover:border-[var(--primary-color)] hover:text-[var(--primary-color)] transition">
               <FiChevronRight size={18} className="rotate-180" />
             </button>
-            <button onClick={() => scroll(1)} className="w-9 h-9 rounded-full border border-gray-200 flex items-center justify-center text-gray-500 hover:border-[#7B2FFF] hover:text-[#7B2FFF] transition">
+            <button onClick={() => scroll(1)} className="w-9 h-9 rounded-full border border-gray-200 flex items-center justify-center text-gray-500 hover:border-[var(--primary-color)] hover:text-[var(--primary-color)] transition">
               <FiChevronRight size={18} />
             </button>
           </div>
@@ -317,10 +317,10 @@ function TrustedDevelopersSection() {
             <p className="text-sm text-gray-400 mt-1">Exclusive showcase of top projects</p>
           </div>
           <div className="flex gap-2">
-            <button onClick={() => scroll(-1)} className="w-9 h-9 rounded-full border border-gray-200 flex items-center justify-center text-gray-500 hover:border-[#7B2FFF] hover:text-[#7B2FFF] transition bg-white">
+            <button onClick={() => scroll(-1)} className="w-9 h-9 rounded-full border border-gray-200 flex items-center justify-center text-gray-500 hover:border-[var(--primary-color)] hover:text-[var(--primary-color)] transition bg-white">
               <FiChevronRight size={18} className="rotate-180" />
             </button>
-            <button onClick={() => scroll(1)} className="w-9 h-9 rounded-full border border-gray-200 flex items-center justify-center text-gray-500 hover:border-[#7B2FFF] hover:text-[#7B2FFF] transition bg-white">
+            <button onClick={() => scroll(1)} className="w-9 h-9 rounded-full border border-gray-200 flex items-center justify-center text-gray-500 hover:border-[var(--primary-color)] hover:text-[var(--primary-color)] transition bg-white">
               <FiChevronRight size={18} />
             </button>
           </div>

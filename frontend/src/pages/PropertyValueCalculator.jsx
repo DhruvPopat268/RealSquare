@@ -75,7 +75,7 @@ const SELECT = ({ value, onChange, options }) => (
   <select
     value={value}
     onChange={(e) => onChange(e.target.value)}
-    className="border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#7B2FFF] transition bg-white"
+    className="border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[var(--primary-color)] transition bg-white"
   >
     {options.map((o) => <option key={o}>{o}</option>)}
   </select>
@@ -87,7 +87,7 @@ const INPUT = ({ value, onChange, placeholder, type = "number" }) => (
     value={value}
     onChange={(e) => onChange(e.target.value)}
     placeholder={placeholder}
-    className="border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#7B2FFF] transition"
+    className="border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[var(--primary-color)] transition"
   />
 );
 
@@ -213,7 +213,7 @@ export default function PropertyValueCalculator() {
 
               <button
                 onClick={handleCalculate}
-                className="w-full bg-[#7B2FFF] hover:bg-[#6320d4] text-white py-3 rounded-xl font-bold text-sm transition mt-1"
+                className="w-full bg-[var(--primary-color)] hover:bg-[#6320d4] text-white py-3 rounded-xl font-bold text-sm transition mt-1"
               >
                 Calculate Property Value
               </button>
@@ -226,11 +226,11 @@ export default function PropertyValueCalculator() {
                   {/* Estimated value */}
                   <div className="bg-white rounded-2xl p-6 shadow-sm text-center">
                     <p className="text-sm text-gray-500 mb-1">Estimated Property Value</p>
-                    <p className="text-4xl font-extrabold text-[#7B2FFF]">{fmt(result.estimated)}</p>
+                    <p className="text-4xl font-extrabold text-[var(--primary-color)]">{fmt(result.estimated)}</p>
                     <p className="text-xs text-gray-400 mt-2">
                       Range: <strong>{fmt(result.low)}</strong> – <strong>{fmt(result.high)}</strong>
                     </p>
-                    <div className="mt-3 inline-block bg-[#f0ebff] text-[#7B2FFF] text-xs font-semibold px-4 py-1.5 rounded-full">
+                    <div className="mt-3 inline-block bg-[#f0ebff] text-[var(--primary-color)] text-xs font-semibold px-4 py-1.5 rounded-full">
                       ₹{result.pricePerSqft.toLocaleString("en-IN")} / sq ft
                     </div>
                   </div>
@@ -264,7 +264,7 @@ export default function PropertyValueCalculator() {
                       <PieChart>
                         <Pie data={pieData} cx="50%" cy="50%" innerRadius={55} outerRadius={85}
                           paddingAngle={3} dataKey="value">
-                          <Cell fill="#7B2FFF" />
+                          <Cell fill="var(--primary-color)" />
                           <Cell fill="#22c55e" />
                         </Pie>
                         <Tooltip formatter={(val) => fmt(val)} />

@@ -6,6 +6,7 @@ import Footer from "../components/Footer";
 import CoinIcon from "../components/CoinIcon";
 import PageSpinner from "../components/PageSpinner";
 import api from "../utils/axiosInterceptor";
+import { primaryColor } from "../utils/theme";
 
 const BASE_URL = import.meta.env.VITE_API_URL;
 
@@ -120,7 +121,7 @@ export default function EnquiryPlansPage() {
         key: import.meta.env.VITE_RAZORPAY_KEY_ID,
         amount, currency: currency || "INR", order_id: orderId,
         name: "RealSquare", description: `${plan.name} Requirement Plan`,
-        theme: { color: "#7B2FFF" },
+        theme: { color: primaryColor },
         handler: () => {
           setPurchasing(null);
           sessionStorage.setItem("openProfile", "1");
@@ -193,7 +194,7 @@ export default function EnquiryPlansPage() {
                   onClick={() => setActiveTab(tab)}
                   className={`px-4 py-1.5 rounded-full text-lg font-semibold border transition cursor-pointer ${
                     activeTab === tab
-                      ? "bg-[#7B2FFF] text-white border-[#7B2FFF]"
+                      ? "bg-[var(--primary-color)] text-white border-[var(--primary-color)]"
                       : "bg-white text-gray-500 border-gray-200 hover:border-[#1a1a2e] hover:text-[#1a1a2e]"
                   }`}
                 >
@@ -248,7 +249,7 @@ export default function EnquiryPlansPage() {
                             {plan.coins > 0 && (
                               <div className="flex items-center gap-1">
                                 <CoinIcon size={18} />
-                                <span className="text-2xl font-extrabold text-[#7B2FFF]">
+                                <span className="text-2xl font-extrabold text-[var(--primary-color)]">
                                   {plan.coins.toLocaleString("en-IN")}
                                 </span>
                                 <span className="text-xs text-gray-400 self-end mb-1">coins</span>
@@ -269,20 +270,20 @@ export default function EnquiryPlansPage() {
                       {/* Features */}
                       <ul className="flex flex-col gap-2 mb-6 flex-1">
                         <li className="flex items-center gap-2 text-xs text-gray-600">
-                          <FiCheck size={13} className="text-[#7B2FFF] flex-shrink-0" />
+                          <FiCheck size={13} className="text-[var(--primary-color)] flex-shrink-0" />
                           {plan.numberOfEnquiriesGiven === -1
                             ? "Unlimited requirements"
                             : `${plan.numberOfEnquiriesGiven} requirement${plan.numberOfEnquiriesGiven === 1 ? "" : "s"}`}
                         </li>
                         <li className="flex items-center gap-2 text-xs text-gray-600">
-                          <FiCheck size={13} className="text-[#7B2FFF] flex-shrink-0" />
+                          <FiCheck size={13} className="text-[var(--primary-color)] flex-shrink-0" />
                           {plan.expiryInDays === -1
                             ? "Never expires"
                             : `Valid for ${plan.expiryInDays} day${plan.expiryInDays === 1 ? "" : "s"}`}
                         </li>
                         {(Array.isArray(plan.benefits) ? plan.benefits : []).map((benefit, index) => (
                           <li key={`${plan._id}-benefit-${index}`} className="flex items-start gap-2 text-xs text-gray-600">
-                            <FiCheck size={13} className="mt-0.5 text-[#7B2FFF] flex-shrink-0" />
+                            <FiCheck size={13} className="mt-0.5 text-[var(--primary-color)] flex-shrink-0" />
                             <span>{benefit}</span>
                           </li>
                         ))}
@@ -305,7 +306,7 @@ export default function EnquiryPlansPage() {
                             <button
                               onClick={() => setConfirmPlan(plan)}
                               disabled={!!purchasing}
-                              className="w-full py-2.5 rounded-xl text-sm font-semibold border-2 border-[#7B2FFF] text-[#7B2FFF] bg-white hover:bg-[#f3eeff] cursor-pointer transition disabled:opacity-60 flex items-center justify-center gap-1.5"
+                              className="w-full py-2.5 rounded-xl text-sm font-semibold border-2 border-[var(--primary-color)] text-[var(--primary-color)] bg-white hover:bg-[#f3eeff] cursor-pointer transition disabled:opacity-60 flex items-center justify-center gap-1.5"
                             >
                               <CoinIcon size={15} />
                               {purchasing === `${plan._id}-coins` ? "Processing..." : "Pay with Coins"}
@@ -315,7 +316,7 @@ export default function EnquiryPlansPage() {
                             <button
                               onClick={() => handlePurchaseOnline(plan)}
                               disabled={!!purchasing}
-                              className="w-full py-2.5 rounded-xl text-sm font-semibold border-none cursor-pointer transition disabled:opacity-60 bg-[#7B2FFF] hover:bg-[#6320d4] text-white flex items-center justify-center gap-1.5"
+                              className="w-full py-2.5 rounded-xl text-sm font-semibold border-none cursor-pointer transition disabled:opacity-60 bg-[var(--primary-color)] hover:bg-[#6320d4] text-white flex items-center justify-center gap-1.5"
                             >
                               <FiZap size={14} />
                               {purchasing === `${plan._id}-online` ? "Processing..." : `Pay ₹${plan.amount.toLocaleString("en-IN")} Online`}
@@ -349,7 +350,7 @@ export default function EnquiryPlansPage() {
               <p className="text-sm text-gray-400">
                 You are about to purchase the <span className="font-bold text-[#1a1a2e]">{confirmPlan.name}</span> requirement plan using
               </p>
-              <p className="text-2xl font-extrabold text-[#7B2FFF] mt-2">
+              <p className="text-2xl font-extrabold text-[var(--primary-color)] mt-2">
                 {(confirmPlan.coins ?? 0).toLocaleString("en-IN")} coins
               </p>
               <p className="text-xs text-gray-400 mt-1">This will be deducted from your wallet balance.</p>
@@ -365,7 +366,7 @@ export default function EnquiryPlansPage() {
               <button
                 onClick={() => handlePurchaseWithCoins(confirmPlan)}
                 disabled={!!purchasing}
-                className="flex-1 py-2.5 rounded-xl bg-[#7B2FFF] hover:bg-[#6320d4] disabled:opacity-60 text-white text-sm font-semibold cursor-pointer transition border-none flex items-center justify-center gap-1.5"
+                className="flex-1 py-2.5 rounded-xl bg-[var(--primary-color)] hover:bg-[#6320d4] disabled:opacity-60 text-white text-sm font-semibold cursor-pointer transition border-none flex items-center justify-center gap-1.5"
               >
                 <CoinIcon size={14} />
                 {purchasing ? "Processing..." : "Confirm"}

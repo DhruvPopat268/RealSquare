@@ -109,7 +109,7 @@ function CallSupportModal({ onClose }) {
             <div className="flex flex-col gap-4">
               <div>
                 <input
-                  className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#7B2FFF] transition"
+                  className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[var(--primary-color)] transition"
                   placeholder="Your Name"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
@@ -117,7 +117,7 @@ function CallSupportModal({ onClose }) {
                 {errors.name && <p className="text-xs text-red-500 mt-1">{errors.name}</p>}
               </div>
               <div>
-                <div className="flex items-center border border-gray-200 rounded-xl overflow-hidden focus-within:border-[#7B2FFF] transition">
+                <div className="flex items-center border border-gray-200 rounded-xl overflow-hidden focus-within:border-[var(--primary-color)] transition">
                   <span className="px-3 text-sm text-gray-500 border-r border-gray-200 py-3">+91</span>
                   <input
                     className="flex-1 px-3 py-3 text-sm outline-none"
@@ -132,7 +132,7 @@ function CallSupportModal({ onClose }) {
               </div>
               <div>
                 <input
-                  className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#7B2FFF] transition"
+                  className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[var(--primary-color)] transition"
                   placeholder="Your City"
                   value={city}
                   onChange={(e) => setCity(e.target.value)}
@@ -143,7 +143,7 @@ function CallSupportModal({ onClose }) {
 
             <button
               onClick={handleSubmit}
-              className="w-full mt-5 bg-[#7B2FFF] hover:bg-[#6320d4] text-white py-3 rounded-xl font-semibold text-sm transition"
+              className="w-full mt-5 bg-[var(--primary-color)] hover:bg-[#6320d4] text-white py-3 rounded-xl font-semibold text-sm transition"
             >
               Request Call
             </button>
@@ -159,7 +159,7 @@ function CallSupportModal({ onClose }) {
             </p>
             <button
               onClick={onClose}
-              className="mt-6 bg-[#7B2FFF] text-white px-8 py-2.5 rounded-xl text-sm font-semibold hover:bg-[#6320d4] transition"
+              className="mt-6 bg-[var(--primary-color)] text-white px-8 py-2.5 rounded-xl text-sm font-semibold hover:bg-[#6320d4] transition"
             >
               Done
             </button>
@@ -179,18 +179,18 @@ function PlanPurchasedModal({ planName, onClose }) {
           <FiX size={20} />
         </button>
         <div className="w-16 h-16 bg-[#f0ebff] rounded-full flex items-center justify-center mx-auto mb-4">
-          <FiCheck size={30} className="text-[#7B2FFF]" />
+          <FiCheck size={30} className="text-[var(--primary-color)]" />
         </div>
         <h3 className="text-xl font-extrabold text-[#1a1a2e] mb-2">Plan Activated! 🎉</h3>
         <p className="text-sm text-gray-500 leading-relaxed mb-1">
-          Your <strong className="text-[#7B2FFF]">{planName}</strong> plan has been successfully purchased.
+          Your <strong className="text-[var(--primary-color)]">{planName}</strong> plan has been successfully purchased.
         </p>
         <p className="text-sm text-gray-400 mb-6">
           Our onboarding team will reach out within 24 hours to get you started.
         </p>
         <button
           onClick={onClose}
-          className="w-full bg-[#7B2FFF] hover:bg-[#6320d4] text-white py-3 rounded-xl font-semibold text-sm transition"
+          className="w-full bg-[var(--primary-color)] hover:bg-[#6320d4] text-white py-3 rounded-xl font-semibold text-sm transition"
         >
           Start Listing Properties
         </button>
@@ -211,7 +211,7 @@ export default function BrokerPage() {
       <Navbar />
 
       {/* Hero */}
-      <div className="relative bg-gradient-to-br from-[#1a1a2e] via-[#2d1b69] to-[#7B2FFF] min-h-[340px] flex items-center overflow-hidden">
+      <div className="relative bg-gradient-to-br from-[#1a1a2e] via-[#2d1b69] to-[var(--primary-color)] min-h-[340px] flex items-center overflow-hidden">
         <div className="absolute inset-0">
           {[...Array(6)].map((_, i) => (
             <div key={i} className="absolute bg-white rounded-full opacity-5"
@@ -221,7 +221,7 @@ export default function BrokerPage() {
         <div className="max-w-[1200px] mx-auto px-6 py-16 relative z-10 w-full">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
             <div>
-              <span className="bg-[#7B2FFF]/30 text-purple-200 text-xs font-semibold px-3 py-1 rounded-full border border-purple-400/30 inline-block mb-4">
+              <span className="bg-[var(--primary-color)]/30 text-purple-200 text-xs font-semibold px-3 py-1 rounded-full border border-purple-400/30 inline-block mb-4">
                 For Brokers & Agents
               </span>
               <h1 className="text-4xl font-extrabold text-white mb-4 max-w-[600px] leading-tight">
@@ -233,7 +233,7 @@ export default function BrokerPage() {
               <div className="flex gap-3 flex-wrap">
                 <button
                   onClick={() => document.getElementById("plans")?.scrollIntoView({ behavior: "smooth" })}
-                  className="bg-white text-[#7B2FFF] font-bold px-6 py-3 rounded-xl hover:bg-purple-50 transition flex items-center gap-2"
+                  className="bg-white text-[var(--primary-color)] font-bold px-6 py-3 rounded-xl hover:bg-purple-50 transition flex items-center gap-2"
                 >
                   View Plans <FiArrowRight size={16} />
                 </button>
@@ -255,7 +255,7 @@ export default function BrokerPage() {
         <div className="max-w-[1200px] mx-auto px-6 py-6 grid grid-cols-2 md:grid-cols-4 gap-6">
           {STATS.map((s) => (
             <div key={s.label} className="text-center">
-              <p className="text-2xl font-extrabold text-[#7B2FFF]">{s.value}</p>
+              <p className="text-2xl font-extrabold text-[var(--primary-color)]">{s.value}</p>
               <p className="text-sm text-gray-500 mt-0.5">{s.label}</p>
             </div>
           ))}
@@ -283,7 +283,7 @@ export default function BrokerPage() {
                 {/* Plan name */}
                 <div className="px-5 pb-4 pt-2 border-b border-gray-100">
                   <div className="w-10 h-10 rounded-full bg-[#f0ebff] flex items-center justify-center mb-3">
-                    <FiStar size={18} className="text-[#7B2FFF]" />
+                    <FiStar size={18} className="text-[var(--primary-color)]" />
                   </div>
                   <h3 className="text-base font-bold text-[#1a1a2e]">{plan.name}</h3>
                 </div>
@@ -294,7 +294,7 @@ export default function BrokerPage() {
                   <ul className="flex flex-col gap-2.5">
                     {plan.features.map((f, i) => (
                       <li key={i} className="flex items-start gap-2 text-sm text-gray-600">
-                        <FiCheck size={14} className="text-[#7B2FFF] mt-0.5 flex-shrink-0" />
+                        <FiCheck size={14} className="text-[var(--primary-color)] mt-0.5 flex-shrink-0" />
                         {f}
                       </li>
                     ))}
@@ -305,7 +305,7 @@ export default function BrokerPage() {
                 <div className="px-5 pb-5 pt-4 border-t border-gray-100">
                   <button
                     onClick={() => setPurchasedPlan(plan.name)}
-                    className="w-full py-2.5 bg-[#7B2FFF] hover:bg-[#6320d4] text-white rounded-xl text-sm font-semibold transition"
+                    className="w-full py-2.5 bg-[var(--primary-color)] hover:bg-[#6320d4] text-white rounded-xl text-sm font-semibold transition"
                   >
                     Select Plan
                   </button>
@@ -318,14 +318,14 @@ export default function BrokerPage() {
 
 
       {/* Bottom CTA */}
-      <div className="bg-gradient-to-r from-[#7B2FFF] to-[#4f46e5] py-14 px-6">
+      <div className="bg-gradient-to-r from-[var(--primary-color)] to-[#4f46e5] py-14 px-6">
         <div className="max-w-[700px] mx-auto text-center">
           <h2 className="text-3xl font-extrabold text-white mb-3">Ready to scale your business?</h2>
           <p className="text-purple-200 mb-8">Join 15,000+ agents already growing with RealSquare. No setup fees, cancel anytime.</p>
           <div className="flex gap-3 justify-center flex-wrap">
             <button
               onClick={() => document.getElementById("plans")?.scrollIntoView({ behavior: "smooth" })}
-              className="bg-white text-[#7B2FFF] font-bold px-8 py-3 rounded-xl hover:bg-purple-50 transition"
+              className="bg-white text-[var(--primary-color)] font-bold px-8 py-3 rounded-xl hover:bg-purple-50 transition"
             >
               View All Plans
             </button>

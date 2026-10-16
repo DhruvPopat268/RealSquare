@@ -62,7 +62,7 @@ function InputField({ label, required, error, children }) {
 function TextInput({ value, onChange, placeholder, type = "text", prefix, maxLength, readOnly }) {
   if (prefix) {
     return (
-      <div className="flex items-center border border-gray-200 rounded-xl overflow-hidden focus-within:border-[#7B2FFF] transition">
+      <div className="flex items-center border border-gray-200 rounded-xl overflow-hidden focus-within:border-[var(--primary-color)] transition">
         <span className="px-3 text-sm text-gray-500 border-r border-gray-200 py-3 bg-gray-50">{prefix}</span>
         <input
           type={type}
@@ -84,7 +84,7 @@ function TextInput({ value, onChange, placeholder, type = "text", prefix, maxLen
       value={value}
       onChange={onChange}
       readOnly={readOnly}
-      className={`w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#7B2FFF] transition ${readOnly ? "bg-gray-50 text-gray-400" : ""}`}
+      className={`w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[var(--primary-color)] transition ${readOnly ? "bg-gray-50 text-gray-400" : ""}`}
     />
   );
 }
@@ -94,7 +94,7 @@ function SelectInput({ value, onChange, options, placeholder }) {
     <select
       value={value}
       onChange={onChange}
-      className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#7B2FFF] transition bg-white appearance-none"
+      className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[var(--primary-color)] transition bg-white appearance-none"
     >
       <option value="">{placeholder}</option>
       {options.map((o) => (
@@ -111,7 +111,7 @@ function TextareaInput({ value, onChange, placeholder, rows = 3 }) {
       placeholder={placeholder}
       value={value}
       onChange={onChange}
-      className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#7B2FFF] transition resize-none"
+      className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[var(--primary-color)] transition resize-none"
     />
   );
 }
@@ -133,14 +133,14 @@ function PhotoUpload({ label, value, onChange, onRemove, shape = "circle", icon:
       <button
         type="button"
         onClick={() => ref.current.click()}
-        className={`relative group bg-gray-100 hover:bg-[#f0ebff] border-2 border-dashed border-gray-300 hover:border-[#7B2FFF] transition overflow-hidden flex items-center justify-center ${
+        className={`relative group bg-gray-100 hover:bg-[#f0ebff] border-2 border-dashed border-gray-300 hover:border-[var(--primary-color)] transition overflow-hidden flex items-center justify-center ${
           isCircle ? "w-20 h-20 rounded-full" : "w-24 h-20 rounded-xl"
         }`}
       >
         {value ? (
           <img src={value} alt="preview" className="w-full h-full object-cover" />
         ) : (
-          <Icon size={22} className="text-gray-400 group-hover:text-[#7B2FFF] transition" />
+          <Icon size={22} className="text-gray-400 group-hover:text-[var(--primary-color)] transition" />
         )}
         {value && (
           <div className="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
@@ -185,14 +185,14 @@ function EnquiryCitiesField({ cities, onChange }) {
           {cities.map((city) => (
             <span
               key={city}
-              className="flex items-center gap-1.5 bg-[#f3eeff] text-[#7B2FFF] text-xs font-semibold px-3 py-1.5 rounded-full border border-[#e0d4ff]"
+              className="flex items-center gap-1.5 bg-[#f3eeff] text-[var(--primary-color)] text-xs font-semibold px-3 py-1.5 rounded-full border border-[#e0d4ff]"
             >
               <FiMapPin size={11} />
               {city}
               <button
                 type="button"
                 onClick={() => handleRemove(city)}
-                className="ml-0.5 text-[#7B2FFF] hover:text-red-500 bg-transparent border-none cursor-pointer p-0 leading-none transition"
+                className="ml-0.5 text-[var(--primary-color)] hover:text-red-500 bg-transparent border-none cursor-pointer p-0 leading-none transition"
               >
                 <FiX size={12} />
               </button>
@@ -551,12 +551,12 @@ function SwitchProfileModal({ currentRole, activePlan, activeEnquiryPlan, onCanc
               onClick={() => setSelected(r.key)}
               className={`flex flex-col items-start gap-1 p-3 rounded-xl border-2 text-left transition cursor-pointer ${
                 selected === r.key
-                  ? "border-[#7B2FFF] bg-[#f5f0ff]"
-                  : "border-gray-200 hover:border-[#7B2FFF] hover:bg-[#faf8ff]"
+                  ? "border-[var(--primary-color)] bg-[#f5f0ff]"
+                  : "border-gray-200 hover:border-[var(--primary-color)] hover:bg-[#faf8ff]"
               }`}
             >
               <span className="text-xl">{r.icon}</span>
-              <span className={`text-xs font-bold ${selected === r.key ? "text-[#7B2FFF]" : "text-[#1a1a2e]"}`}>{r.label}</span>
+              <span className={`text-xs font-bold ${selected === r.key ? "text-[var(--primary-color)]" : "text-[#1a1a2e]"}`}>{r.label}</span>
               <span className="text-[11px] text-gray-400 leading-snug">{r.desc}</span>
             </button>
           ))}
@@ -759,7 +759,7 @@ export default function UpdateProfilePage() {
       <>
         <Navbar />
         <div className="min-h-[calc(100vh-62px)] bg-[#f7f8fa] flex items-center justify-center">
-          <div className="w-8 h-8 border-4 border-[#7B2FFF] border-t-transparent rounded-full animate-spin" />
+          <div className="w-8 h-8 border-4 border-[var(--primary-color)] border-t-transparent rounded-full animate-spin" />
         </div>
         <Footer />
       </>
@@ -798,7 +798,7 @@ export default function UpdateProfilePage() {
             {!noRole && (
               <button
                 onClick={() => setShowSwitchModal(true)}
-                className="flex items-center gap-1.5 text-xs font-semibold text-[#7B2FFF] border border-[#7B2FFF] bg-transparent hover:bg-[#f5f0ff] rounded-xl px-3 py-1.5 cursor-pointer transition flex-shrink-0"
+                className="flex items-center gap-1.5 text-xs font-semibold text-[var(--primary-color)] border border-[var(--primary-color)] bg-transparent hover:bg-[#f5f0ff] rounded-xl px-3 py-1.5 cursor-pointer transition flex-shrink-0"
               >
                 <FiRefreshCw size={12} />
                 Switch Role
@@ -809,7 +809,7 @@ export default function UpdateProfilePage() {
           {/* Role badge */}
           {role && !noRole && (
             <div className="inline-flex items-center gap-1.5 bg-[#f5f0ff] border border-[#e0d4ff] rounded-full px-3 py-1 mb-6">
-              <span className="text-xs font-semibold text-[#7B2FFF] capitalize">{role}</span>
+              <span className="text-xs font-semibold text-[var(--primary-color)] capitalize">{role}</span>
             </div>
           )}
 
@@ -828,11 +828,11 @@ export default function UpdateProfilePage() {
                       setErrors({});
                     }}
                     className={`flex flex-col items-start gap-1 p-4 rounded-xl border-2 text-left transition cursor-pointer ${
-                      role === r.key ? "border-[#7B2FFF] bg-[#f5f0ff]" : "border-gray-200 bg-white hover:border-[#7B2FFF] hover:bg-[#faf8ff]"
+                      role === r.key ? "border-[var(--primary-color)] bg-[#f5f0ff]" : "border-gray-200 bg-white hover:border-[var(--primary-color)] hover:bg-[#faf8ff]"
                     }`}
                   >
                     <span className="text-2xl">{r.icon}</span>
-                    <span className={`text-sm font-bold ${role === r.key ? "text-[#7B2FFF]" : "text-[#1a1a2e]"}`}>{r.label}</span>
+                    <span className={`text-sm font-bold ${role === r.key ? "text-[var(--primary-color)]" : "text-[#1a1a2e]"}`}>{r.label}</span>
                     <span className="text-xs text-gray-400 leading-snug">{r.desc}</span>
                   </button>
                 ))}
@@ -858,7 +858,7 @@ export default function UpdateProfilePage() {
             <button
               onClick={handleSubmit}
               disabled={loading}
-              className="w-full mt-2 bg-[#7B2FFF] hover:bg-[#6320d4] disabled:opacity-60 text-white py-3 rounded-xl font-semibold text-sm transition flex items-center justify-center gap-2"
+              className="w-full mt-2 bg-[var(--primary-color)] hover:bg-[#6320d4] disabled:opacity-60 text-white py-3 rounded-xl font-semibold text-sm transition flex items-center justify-center gap-2"
             >
               {loading ? "Saving..." : <> Save Changes <FiArrowRight size={15} /> </>}
             </button>

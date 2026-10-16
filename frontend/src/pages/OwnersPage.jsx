@@ -32,22 +32,22 @@ function CallbackModal({ onClose }) {
             <p className="text-sm text-gray-400 mb-5">Our team will call you within 30 minutes</p>
             <div className="flex flex-col gap-4">
               <div>
-                <input className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#7B2FFF] transition" placeholder="Your Name" value={name} onChange={(e) => setName(e.target.value)} />
+                <input className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[var(--primary-color)] transition" placeholder="Your Name" value={name} onChange={(e) => setName(e.target.value)} />
                 {errors.name && <p className="text-xs text-red-500 mt-1">{errors.name}</p>}
               </div>
               <div>
-                <div className="flex items-center border border-gray-200 rounded-xl overflow-hidden focus-within:border-[#7B2FFF] transition">
+                <div className="flex items-center border border-gray-200 rounded-xl overflow-hidden focus-within:border-[var(--primary-color)] transition">
                   <span className="px-3 text-sm text-gray-500 border-r border-gray-200 py-3">+91</span>
                   <input className="flex-1 px-3 py-3 text-sm outline-none" placeholder="Phone Number" value={phone} onChange={(e) => setPhone(e.target.value)} maxLength={10} type="tel" />
                 </div>
                 {errors.phone && <p className="text-xs text-red-500 mt-1">{errors.phone}</p>}
               </div>
               <div>
-                <input className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#7B2FFF] transition" placeholder="Your City" value={city} onChange={(e) => setCity(e.target.value)} />
+                <input className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[var(--primary-color)] transition" placeholder="Your City" value={city} onChange={(e) => setCity(e.target.value)} />
                 {errors.city && <p className="text-xs text-red-500 mt-1">{errors.city}</p>}
               </div>
             </div>
-            <button onClick={() => { if (validate()) setSubmitted(true); }} className="w-full mt-5 bg-[#7B2FFF] hover:bg-[#6320d4] text-white py-3 rounded-xl font-semibold text-sm transition">
+            <button onClick={() => { if (validate()) setSubmitted(true); }} className="w-full mt-5 bg-[var(--primary-color)] hover:bg-[#6320d4] text-white py-3 rounded-xl font-semibold text-sm transition">
               Request Call
             </button>
           </>
@@ -58,7 +58,7 @@ function CallbackModal({ onClose }) {
             </div>
             <h3 className="text-lg font-bold text-[#1a1a2e] mb-2">You're all set!</h3>
             <p className="text-sm text-gray-500 leading-relaxed">Thanks <strong>{name}</strong>! Our team will call you on <strong>+91 {phone}</strong> shortly.</p>
-            <button onClick={onClose} className="mt-6 bg-[#7B2FFF] text-white px-8 py-2.5 rounded-xl text-sm font-semibold hover:bg-[#6320d4] transition">Done</button>
+            <button onClick={onClose} className="mt-6 bg-[var(--primary-color)] text-white px-8 py-2.5 rounded-xl text-sm font-semibold hover:bg-[#6320d4] transition">Done</button>
           </div>
         )}
       </div>
@@ -84,7 +84,7 @@ function VisibilityGauge({ percent }) {
 }
 
 function Cell({ val }) {
-  if (val === true) return <span className="text-[#7B2FFF] text-lg">✓</span>;
+  if (val === true) return <span className="text-[var(--primary-color)] text-lg">✓</span>;
   if (val === false) return <span className="text-gray-300 text-lg">✗</span>;
   return <span className="text-sm text-gray-700">{val}</span>;
 }
@@ -205,7 +205,7 @@ function ResidentialPlans({ onUpgrade, onCallback }) {
             <tr>
               <th className="w-[240px]" />
               {plans.map((plan, pi) => (
-                <th key={plan.name} className={`text-center pb-4 px-4 min-w-[140px] ${pi === popularIdx ? "border-x-2 border-t-2 border-[#7B2FFF] rounded-t-xl" : ""}`}>
+                <th key={plan.name} className={`text-center pb-4 px-4 min-w-[140px] ${pi === popularIdx ? "border-x-2 border-t-2 border-[var(--primary-color)] rounded-t-xl" : ""}`}>
                   {pi === popularIdx && (
                     <div className="bg-pink-100 text-pink-500 text-[10px] font-bold px-3 py-0.5 rounded-full inline-block mb-2 uppercase tracking-wide">
                       Most Popular
@@ -231,7 +231,7 @@ function ResidentialPlans({ onUpgrade, onCallback }) {
                   </span>
                 </td>
                 {row.vals.map((val, pi) => (
-                  <td key={pi} className={`py-3 px-4 text-center ${pi === popularIdx ? "border-x-2 border-[#7B2FFF] bg-[#faf8ff]" : ""}`}>
+                  <td key={pi} className={`py-3 px-4 text-center ${pi === popularIdx ? "border-x-2 border-[var(--primary-color)] bg-[#faf8ff]" : ""}`}>
                     <Cell val={val} />
                   </td>
                 ))}
@@ -240,14 +240,14 @@ function ResidentialPlans({ onUpgrade, onCallback }) {
             <tr className="border-t border-gray-200">
               <td />
               {plans.map((plan, pi) => (
-                <td key={plan.name} className={`py-5 px-4 text-center ${pi === popularIdx ? "border-x-2 border-[#7B2FFF] bg-[#faf8ff]" : ""}`}>
+                <td key={plan.name} className={`py-5 px-4 text-center ${pi === popularIdx ? "border-x-2 border-[var(--primary-color)] bg-[#faf8ff]" : ""}`}>
                   <p className="text-lg font-extrabold text-[#1a1a2e] mb-3">{plan.price}</p>
                   <button
                     onClick={() => onUpgrade(plan.name)}
                     className={`w-full py-2.5 rounded-xl text-sm font-bold transition ${
                       pi === popularIdx
-                        ? "bg-[#7B2FFF] hover:bg-[#6320d4] text-white"
-                        : "border border-[#7B2FFF] text-[#7B2FFF] hover:bg-[#f0ebff]"
+                        ? "bg-[var(--primary-color)] hover:bg-[#6320d4] text-white"
+                        : "border border-[var(--primary-color)] text-[var(--primary-color)] hover:bg-[#f0ebff]"
                     }`}
                   >
                     Purchase
@@ -258,7 +258,7 @@ function ResidentialPlans({ onUpgrade, onCallback }) {
             <tr>
               <td />
               {plans.map((_, pi) => (
-                <td key={pi} className={pi === popularIdx ? "border-x-2 border-b-2 border-[#7B2FFF] rounded-b-xl h-2" : ""} />
+                <td key={pi} className={pi === popularIdx ? "border-x-2 border-b-2 border-[var(--primary-color)] rounded-b-xl h-2" : ""} />
               ))}
             </tr>
           </tbody>
@@ -266,11 +266,11 @@ function ResidentialPlans({ onUpgrade, onCallback }) {
       </div>
 
       <div className="mt-6 flex flex-col gap-3">
-        <button onClick={onCallback} className="flex items-center gap-2 border border-gray-200 rounded-full px-4 py-2.5 text-sm text-gray-600 hover:border-[#7B2FFF] hover:text-[#7B2FFF] transition w-fit">
+        <button onClick={onCallback} className="flex items-center gap-2 border border-gray-200 rounded-full px-4 py-2.5 text-sm text-gray-600 hover:border-[var(--primary-color)] hover:text-[var(--primary-color)] transition w-fit">
           <span className="w-6 h-6 bg-[#f0ebff] rounded-full flex items-center justify-center text-xs">👤</span>
           Having Trouble? <strong>Request a Callback</strong>
         </button>
-        <p className="text-xs text-[#7B2FFF] font-semibold cursor-pointer hover:underline w-fit">Terms & Conditions</p>
+        <p className="text-xs text-[var(--primary-color)] font-semibold cursor-pointer hover:underline w-fit">Terms & Conditions</p>
         <p className="text-[11px] text-gray-400 leading-relaxed max-w-[700px]">*Photography services are only available in Bengaluru, Chennai, Delhi, Faridabad, Ghaziabad, Gurgaon, Hyderabad, Kolkata, Mumbai, Noida, Pune, Ahmedabad, Navi Mumbai, Thane and Greater Noida</p>
         <p className="text-[11px] text-gray-400">*These packages are only applicable for Residential listings. To view packages for commercial please select the commercial tab.</p>
       </div>
@@ -308,7 +308,7 @@ function CommercialPlans({ onUpgrade, onCallback }) {
             <tr>
               <th className="w-[240px]" />
               {plans.map((plan, pi) => (
-                <th key={plan.name} className={`text-center pb-4 px-4 min-w-[140px] ${pi === popularIdx ? "border-x-2 border-t-2 border-[#7B2FFF] rounded-t-xl" : ""}`}>
+                <th key={plan.name} className={`text-center pb-4 px-4 min-w-[140px] ${pi === popularIdx ? "border-x-2 border-t-2 border-[var(--primary-color)] rounded-t-xl" : ""}`}>
                   {pi === popularIdx && (
                     <div className="bg-pink-100 text-pink-500 text-[10px] font-bold px-3 py-0.5 rounded-full inline-block mb-2 uppercase tracking-wide">
                       Most Popular
@@ -329,7 +329,7 @@ function CommercialPlans({ onUpgrade, onCallback }) {
                   <span className="flex items-center gap-1.5">{row.label}</span>
                 </td>
                 {row.vals.map((val, pi) => (
-                  <td key={pi} className={`py-3 px-4 text-center ${pi === popularIdx ? "border-x-2 border-[#7B2FFF] bg-[#faf8ff]" : ""}`}>
+                  <td key={pi} className={`py-3 px-4 text-center ${pi === popularIdx ? "border-x-2 border-[var(--primary-color)] bg-[#faf8ff]" : ""}`}>
                     <Cell val={val} />
                   </td>
                 ))}
@@ -338,14 +338,14 @@ function CommercialPlans({ onUpgrade, onCallback }) {
             <tr className="border-t border-gray-200">
               <td />
               {plans.map((plan, pi) => (
-                <td key={plan.name} className={`py-5 px-4 text-center ${pi === popularIdx ? "border-x-2 border-[#7B2FFF] bg-[#faf8ff]" : ""}`}>
+                <td key={plan.name} className={`py-5 px-4 text-center ${pi === popularIdx ? "border-x-2 border-[var(--primary-color)] bg-[#faf8ff]" : ""}`}>
                   <p className="text-lg font-extrabold text-[#1a1a2e] mb-3">{plan.price}</p>
                   <button
                     onClick={() => onUpgrade(plan.name)}
                     className={`w-full py-2.5 rounded-xl text-sm font-bold transition ${
                       pi === popularIdx
-                        ? "bg-[#7B2FFF] hover:bg-[#6320d4] text-white"
-                        : "border border-[#7B2FFF] text-[#7B2FFF] hover:bg-[#f0ebff]"
+                        ? "bg-[var(--primary-color)] hover:bg-[#6320d4] text-white"
+                        : "border border-[var(--primary-color)] text-[var(--primary-color)] hover:bg-[#f0ebff]"
                     }`}
                   >
                     Purchase
@@ -356,7 +356,7 @@ function CommercialPlans({ onUpgrade, onCallback }) {
             <tr>
               <td />
               {plans.map((_, pi) => (
-                <td key={pi} className={pi === popularIdx ? "border-x-2 border-b-2 border-[#7B2FFF] rounded-b-xl h-2" : ""} />
+                <td key={pi} className={pi === popularIdx ? "border-x-2 border-b-2 border-[var(--primary-color)] rounded-b-xl h-2" : ""} />
               ))}
             </tr>
           </tbody>
@@ -364,11 +364,11 @@ function CommercialPlans({ onUpgrade, onCallback }) {
       </div>
 
       <div className="mt-6 flex flex-col gap-3">
-        <button onClick={onCallback} className="flex items-center gap-2 border border-gray-200 rounded-full px-4 py-2.5 text-sm text-gray-600 hover:border-[#7B2FFF] hover:text-[#7B2FFF] transition w-fit">
+        <button onClick={onCallback} className="flex items-center gap-2 border border-gray-200 rounded-full px-4 py-2.5 text-sm text-gray-600 hover:border-[var(--primary-color)] hover:text-[var(--primary-color)] transition w-fit">
           <span className="w-6 h-6 bg-[#f0ebff] rounded-full flex items-center justify-center text-xs">👤</span>
           Having Trouble? <strong>Request a Callback</strong>
         </button>
-        <p className="text-xs text-[#7B2FFF] font-semibold cursor-pointer hover:underline w-fit">Terms & Conditions</p>
+        <p className="text-xs text-[var(--primary-color)] font-semibold cursor-pointer hover:underline w-fit">Terms & Conditions</p>
         <p className="text-[11px] text-gray-400">*These packages are only applicable for Commercial listings. To view packages for residential please select the residential tab.</p>
       </div>
     </div>
@@ -449,12 +449,12 @@ function UpgradeModal({ planName, onClose }) {
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-[400px] p-8 text-center relative" onMouseDown={(e) => e.stopPropagation()}>
         <button className="absolute top-4 right-4 text-gray-400 hover:text-gray-700" onClick={onClose}><FiX size={20} /></button>
         <div className="w-16 h-16 bg-[#f0ebff] rounded-full flex items-center justify-center mx-auto mb-4">
-          <FiCheck size={30} className="text-[#7B2FFF]" />
+          <FiCheck size={30} className="text-[var(--primary-color)]" />
         </div>
         <h3 className="text-xl font-extrabold text-[#1a1a2e] mb-2">Plan Activated! 🎉</h3>
-        <p className="text-sm text-gray-500 mb-1">Your <strong className="text-[#7B2FFF]">{planName}</strong> plan has been successfully purchased.</p>
+        <p className="text-sm text-gray-500 mb-1">Your <strong className="text-[var(--primary-color)]">{planName}</strong> plan has been successfully purchased.</p>
         <p className="text-sm text-gray-400 mb-6">Our onboarding team will reach out within 24 hours.</p>
-        <button onClick={onClose} className="w-full bg-[#7B2FFF] hover:bg-[#6320d4] text-white py-3 rounded-xl font-semibold text-sm transition">Done</button>
+        <button onClick={onClose} className="w-full bg-[var(--primary-color)] hover:bg-[#6320d4] text-white py-3 rounded-xl font-semibold text-sm transition">Done</button>
       </div>
     </div>
   );
@@ -476,7 +476,7 @@ export default function OwnersPage() {
       <Navbar />
 
       {/* ── Hero ── */}
-      <div className="relative bg-gradient-to-br from-[#1a1a2e] via-[#2d1b69] to-[#7B2FFF] min-h-[420px] flex items-center overflow-hidden">
+      <div className="relative bg-gradient-to-br from-[#1a1a2e] via-[#2d1b69] to-[var(--primary-color)] min-h-[420px] flex items-center overflow-hidden">
         <div className="absolute inset-0">
           {[...Array(5)].map((_, i) => (
             <div key={i} className="absolute bg-white rounded-full opacity-5"
@@ -493,7 +493,7 @@ export default function OwnersPage() {
             </p>
             <button
               onClick={() => document.getElementById("plans-section")?.scrollIntoView({ behavior: "smooth" })}
-              className="bg-white text-[#7B2FFF] font-bold px-7 py-3 rounded-xl hover:bg-purple-50 transition flex items-center gap-2 w-fit"
+              className="bg-white text-[var(--primary-color)] font-bold px-7 py-3 rounded-xl hover:bg-purple-50 transition flex items-center gap-2 w-fit"
             >
               Explore Owner Plans <FiArrowRight size={16} />
             </button>
@@ -504,7 +504,7 @@ export default function OwnersPage() {
             <div className="relative w-[280px] h-[320px]">
               {/* Phone mockup */}
               <div className="absolute right-0 top-0 w-[200px] h-[300px] bg-white rounded-[28px] shadow-2xl flex flex-col items-center justify-center gap-4 border-4 border-white/20">
-                <div className="w-14 h-14 bg-[#7B2FFF] rounded-full flex items-center justify-center">
+                <div className="w-14 h-14 bg-[var(--primary-color)] rounded-full flex items-center justify-center">
                   <FiCheck size={28} className="text-white" />
                 </div>
                 <div className="w-[120px] h-[80px] bg-[#f0ebff] rounded-xl flex items-center justify-center text-4xl">🏡</div>
@@ -516,7 +516,7 @@ export default function OwnersPage() {
                 <div className="w-8 h-8 rounded-full border-2 border-gray-200" />
               </div>
               {/* Decorative circles */}
-              <div className="absolute -left-4 bottom-10 w-[90px] h-[90px] bg-[#7B2FFF]/30 rounded-full" />
+              <div className="absolute -left-4 bottom-10 w-[90px] h-[90px] bg-[var(--primary-color)]/30 rounded-full" />
               <div className="absolute left-8 bottom-0 w-[50px] h-[50px] bg-green-400/40 rounded-full" />
             </div>
           </div>
@@ -530,7 +530,7 @@ export default function OwnersPage() {
             <h2 className="text-xl font-extrabold text-[#1a1a2e]">Get 10x leads by upgrading to an owner plan</h2>
             <button
               onClick={() => setShowCommercial((v) => !v)}
-              className="text-sm text-[#7B2FFF] font-semibold hover:underline flex items-center gap-1"
+              className="text-sm text-[var(--primary-color)] font-semibold hover:underline flex items-center gap-1"
             >
               🏢 {showCommercial ? "Explore Residential Packages" : "Explore Commercial Packages"}
             </button>
@@ -589,10 +589,10 @@ export default function OwnersPage() {
                   <p className="text-sm text-gray-600 max-w-[200px]">Showcase your property to thousands of seekers every day</p>
                 </div>
                 <div className="flex flex-col items-center gap-1 flex-shrink-0">
-                  <div className="w-16 h-12 bg-[#7B2FFF] rounded-lg flex items-center justify-center">
+                  <div className="w-16 h-12 bg-[var(--primary-color)] rounded-lg flex items-center justify-center">
                     <span className="text-white text-xl">🏠</span>
                   </div>
-                  <span className="text-[10px] text-[#7B2FFF] font-semibold">Upgraded listing</span>
+                  <span className="text-[10px] text-[var(--primary-color)] font-semibold">Upgraded listing</span>
                 </div>
               </div>
 
@@ -625,7 +625,7 @@ export default function OwnersPage() {
       {/* ── How It Works ── */}
       <section className="bg-[#f0ebff]/40 py-16 px-6">
         <div className="max-w-[1200px] mx-auto">
-          <p className="text-center text-xs font-bold text-[#7B2FFF] uppercase tracking-widest mb-2">How It Works</p>
+          <p className="text-center text-xs font-bold text-[var(--primary-color)] uppercase tracking-widest mb-2">How It Works</p>
           <h2 className="text-2xl font-extrabold text-[#1a1a2e] text-center mb-12">
             4 easy steps to list & promote your properties
           </h2>
@@ -633,7 +633,7 @@ export default function OwnersPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
             {STEPS.map((step) => (
               <div key={step.num} className="flex flex-col items-center text-center relative">
-                <span className="text-[80px] font-extrabold text-[#7B2FFF]/10 leading-none select-none absolute -top-4 left-1/2 -translate-x-1/2">
+                <span className="text-[80px] font-extrabold text-[var(--primary-color)]/10 leading-none select-none absolute -top-4 left-1/2 -translate-x-1/2">
                   {step.num}
                 </span>
                 <div className="relative z-10 w-20 h-20 bg-[#f0ebff] rounded-2xl flex items-center justify-center text-4xl mb-4 shadow-sm">
@@ -643,7 +643,7 @@ export default function OwnersPage() {
                 <p className="text-sm font-bold text-[#1a1a2e] mb-2">{step.title}</p>
                 <p className="text-xs text-gray-500 leading-relaxed">{step.desc}</p>
                 {step.badge && (
-                  <span className="mt-2 bg-[#7B2FFF] text-white text-[10px] font-semibold px-2.5 py-0.5 rounded-full">
+                  <span className="mt-2 bg-[var(--primary-color)] text-white text-[10px] font-semibold px-2.5 py-0.5 rounded-full">
                     {step.badge}
                   </span>
                 )}
@@ -656,7 +656,7 @@ export default function OwnersPage() {
       {/* ── Testimonials ── */}
       <section className="bg-white py-16 px-6">
         <div className="max-w-[1200px] mx-auto">
-          <p className="text-xs font-bold text-[#7B2FFF] uppercase tracking-widest mb-2">Testimonials</p>
+          <p className="text-xs font-bold text-[var(--primary-color)] uppercase tracking-widest mb-2">Testimonials</p>
           <h2 className="text-2xl font-extrabold text-[#1a1a2e] mb-8">
             Boost your sales with our incredible packages
           </h2>
@@ -676,7 +676,7 @@ export default function OwnersPage() {
                     </div>
                     <p className="text-sm text-gray-700 leading-relaxed mb-4">{t.text}</p>
                     <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 bg-[#f0ebff] rounded-full flex items-center justify-center text-sm font-bold text-[#7B2FFF]">
+                      <div className="w-9 h-9 bg-[#f0ebff] rounded-full flex items-center justify-center text-sm font-bold text-[var(--primary-color)]">
                         {t.name[0]}
                       </div>
                       <div>
@@ -686,7 +686,7 @@ export default function OwnersPage() {
                     </div>
                   </div>
                   <div className="flex gap-2 mt-4 pt-4 border-t border-gray-100">
-                    <span className="text-xs bg-[#f0ebff] text-[#7B2FFF] px-3 py-1 rounded-full font-medium">
+                    <span className="text-xs bg-[#f0ebff] text-[var(--primary-color)] px-3 py-1 rounded-full font-medium">
                       Plan: {t.plan}
                     </span>
                     <span className="text-xs bg-gray-100 text-gray-600 px-3 py-1 rounded-full font-medium">
@@ -713,7 +713,7 @@ export default function OwnersPage() {
       {/* ── Benefits ── */}
       <section className="bg-[#f0ebff]/50 py-16 px-6">
         <div className="max-w-[1200px] mx-auto text-center">
-          <p className="text-xs font-bold text-[#7B2FFF] uppercase tracking-widest mb-2">Benefits</p>
+          <p className="text-xs font-bold text-[var(--primary-color)] uppercase tracking-widest mb-2">Benefits</p>
           <h2 className="text-2xl font-extrabold text-[#1a1a2e] mb-12">
             Unlock these benefits with a package purchase
           </h2>
@@ -732,14 +732,14 @@ export default function OwnersPage() {
       </section>
 
       {/* ── Bottom CTA ── */}
-      <div className="bg-gradient-to-r from-[#7B2FFF] to-[#4f46e5] py-14 px-6">
+      <div className="bg-gradient-to-r from-[var(--primary-color)] to-[#4f46e5] py-14 px-6">
         <div className="max-w-[700px] mx-auto text-center">
           <h2 className="text-3xl font-extrabold text-white mb-3">Ready to sell or rent your property?</h2>
           <p className="text-purple-200 mb-8">Join 2Mn+ owners already growing with RealSquare. Post your property and get genuine requirements.</p>
           <div className="flex gap-3 justify-center flex-wrap">
             <button
               onClick={() => setShowCallback(true)}
-              className="bg-white text-[#7B2FFF] font-bold px-8 py-3 rounded-xl hover:bg-purple-50 transition flex items-center gap-2"
+              className="bg-white text-[var(--primary-color)] font-bold px-8 py-3 rounded-xl hover:bg-purple-50 transition flex items-center gap-2"
             >
               <FiPhone size={15} /> Request a Callback
             </button>

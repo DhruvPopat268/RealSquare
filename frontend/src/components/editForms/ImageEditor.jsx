@@ -117,8 +117,8 @@ export default function ImageEditor({
               onDragEnd={handleDragEnd}
               className={`relative rounded-xl overflow-hidden border-2 transition group cursor-grab active:cursor-grabbing select-none
                 ${dragOver?.i === i && dragOver?.type === "existing"
-                  ? "border-[#7B2FFF] scale-95 opacity-70"
-                  : "border-transparent hover:border-[#7B2FFF]/40"
+                  ? "border-[var(--primary-color)] scale-95 opacity-70"
+                  : "border-transparent hover:border-[var(--primary-color)]/40"
                 }`}
             >
               <img
@@ -130,7 +130,7 @@ export default function ImageEditor({
 
               {/* Cover badge - existing image is cover only if it's first and no new files queued */}
               {i === 0 && newFiles.length === 0 && (
-                <span className="absolute top-1.5 left-1.5 text-[10px] font-bold bg-[#7B2FFF] text-white px-2 py-0.5 rounded-full">
+                <span className="absolute top-1.5 left-1.5 text-[10px] font-bold bg-[var(--primary-color)] text-white px-2 py-0.5 rounded-full">
                   Cover
                 </span>
               )}
@@ -174,7 +174,7 @@ export default function ImageEditor({
                 onDragEnd={handleDragEnd}
                 className={`relative rounded-xl overflow-hidden border-2 transition group cursor-grab active:cursor-grabbing
                   ${dragOver?.i === i && dragOver?.type === "new"
-                    ? "border-[#7B2FFF] scale-95 opacity-70"
+                    ? "border-[var(--primary-color)] scale-95 opacity-70"
                     : "border-amber-300"
                   }`}
               >
@@ -187,7 +187,7 @@ export default function ImageEditor({
 
                 {/* Cover badge - new image is cover if it's first in new files */}
                 {i === 0 && (
-                  <span className="absolute top-1.5 left-1.5 text-[10px] font-bold bg-[#7B2FFF] text-white px-2 py-0.5 rounded-full">
+                  <span className="absolute top-1.5 left-1.5 text-[10px] font-bold bg-[var(--primary-color)] text-white px-2 py-0.5 rounded-full">
                     Cover
                   </span>
                 )}
@@ -240,7 +240,7 @@ export default function ImageEditor({
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
-            className="flex items-center gap-2 px-4 py-2.5 border border-dashed border-[#7B2FFF] text-[#7B2FFF] rounded-xl text-sm font-semibold hover:bg-[#f5f0ff] transition"
+            className="flex items-center gap-2 px-4 py-2.5 border border-dashed border-[var(--primary-color)] text-[var(--primary-color)] rounded-xl text-sm font-semibold hover:bg-[#f5f0ff] transition"
           >
             <FiUpload size={14} />
             Add Photos

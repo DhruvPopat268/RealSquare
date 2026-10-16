@@ -121,7 +121,7 @@ export default function ChatbotPlacesInput({ mode = "city", cityName = "", onSub
 
   return (
     <div ref={inputWrapRef} className="relative w-full">
-      <div className="flex items-center border border-gray-200 rounded-xl focus-within:border-[#7B2FFF] transition bg-white">
+      <div className="flex items-center border border-gray-200 rounded-xl focus-within:border-[var(--primary-color)] transition bg-white">
         <FiSearch size={15} className="ml-3 text-gray-400 flex-shrink-0" />
         <input
           ref={inputRef}
@@ -134,7 +134,7 @@ export default function ChatbotPlacesInput({ mode = "city", cityName = "", onSub
           autoComplete="off"
         />
         {loading && (
-          <span className="mr-3 w-4 h-4 border-2 border-gray-200 border-t-[#7B2FFF] rounded-full animate-spin flex-shrink-0" />
+          <span className="mr-3 w-4 h-4 border-2 border-gray-200 border-t-[var(--primary-color)] rounded-full animate-spin flex-shrink-0" />
         )}
       </div>
 
@@ -148,7 +148,7 @@ export default function ChatbotPlacesInput({ mode = "city", cityName = "", onSub
             <li
               key={s.place_id}
               onMouseDown={() => handleSelect(s)}
-              className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-gray-700 cursor-pointer hover:bg-[#f0ebff] hover:text-[#7B2FFF] transition"
+              className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-gray-700 cursor-pointer hover:bg-[#f0ebff] hover:text-[var(--primary-color)] transition"
             >
               <FiSearch size={12} className="text-gray-400 flex-shrink-0" />
               <span>{mode === "city" ? s.description.split(",")[0].trim() : s.description}</span>

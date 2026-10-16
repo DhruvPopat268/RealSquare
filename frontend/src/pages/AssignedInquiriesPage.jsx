@@ -61,9 +61,9 @@ function FilterSelect({ label, value, options, onChange, disabled }) {
         onChange={(e) => onChange(e.target.value)}
         disabled={disabled}
         className={`w-full appearance-none bg-white border rounded-xl px-3 py-2 pr-8 text-xs font-semibold transition outline-none
-          ${value ? "border-[#7B2FFF] text-[#7B2FFF]" : "border-gray-200 text-gray-500"}
-          ${disabled ? "opacity-40 cursor-not-allowed" : "hover:border-[#7B2FFF] cursor-pointer"}
-          focus:border-[#7B2FFF] focus:ring-1 focus:ring-[#7B2FFF]/20`}
+          ${value ? "border-[var(--primary-color)] text-[var(--primary-color)]" : "border-gray-200 text-gray-500"}
+          ${disabled ? "opacity-40 cursor-not-allowed" : "hover:border-[var(--primary-color)] cursor-pointer"}
+          focus:border-[var(--primary-color)] focus:ring-1 focus:ring-[var(--primary-color)]/20`}
       >
         <option value="">{label}</option>
         {options.map((opt) => (
@@ -73,7 +73,7 @@ function FilterSelect({ label, value, options, onChange, disabled }) {
       <FiChevronDown
         size={13}
         className={`absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none transition ${
-          value ? "text-[#7B2FFF]" : "text-gray-400"
+          value ? "text-[var(--primary-color)]" : "text-gray-400"
         }`}
       />
     </div>
@@ -108,7 +108,7 @@ function AssignedInquiryCard({ assignment, onPurchase }) {
         <div className="flex items-center gap-2">
           <span className={`px-2.5 py-0.5 rounded-full text-[11px] font-semibold border ${
             purchased
-              ? "bg-[#f5f0ff] border-[#e0d5ff] text-[#7B2FFF]"
+              ? "bg-[#f5f0ff] border-[#e0d5ff] text-[var(--primary-color)]"
               : "bg-green-50 border-green-200 text-green-600"
           }`}>
             {purchased ? "Purchased" : "Active"}
@@ -118,7 +118,7 @@ function AssignedInquiryCard({ assignment, onPurchase }) {
 
       {/* createdBy — masked or real */}
       <div className={`flex items-start gap-3 p-3 rounded-xl border ${purchased ? "border-[#e0d5ff] bg-[#f9f7ff]" : "border-gray-100 bg-gray-50"}`}>
-        <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${purchased ? "bg-[#7B2FFF]" : "bg-gray-200"}`}>
+        <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${purchased ? "bg-[var(--primary-color)]" : "bg-gray-200"}`}>
           <FiUser size={14} className={purchased ? "text-white" : "text-gray-400"} />
         </div>
         <div className="flex-1 min-w-0">
@@ -139,7 +139,7 @@ function AssignedInquiryCard({ assignment, onPurchase }) {
           <button
             type="button"
             onClick={() => onPurchase(assignment)}
-            className="flex items-center gap-1 text-[11px] font-bold text-white bg-[#7B2FFF] hover:bg-[#6320d4] px-3 py-1.5 rounded-lg transition flex-shrink-0 border-none cursor-pointer"
+            className="flex items-center gap-1 text-[11px] font-bold text-white bg-[var(--primary-color)] hover:bg-[#6320d4] px-3 py-1.5 rounded-lg transition flex-shrink-0 border-none cursor-pointer"
           >
             <FiUnlock size={11} /> Unlock
           </button>
@@ -148,7 +148,7 @@ function AssignedInquiryCard({ assignment, onPurchase }) {
 
       {/* Location */}
       <div className="flex items-start gap-2">
-        <FiMapPin size={14} className="text-[#7B2FFF] flex-shrink-0 mt-0.5" />
+        <FiMapPin size={14} className="text-[var(--primary-color)] flex-shrink-0 mt-0.5" />
         <div>
           <p className="text-sm font-semibold text-[#1a1a2e]">{inquiry.preferredCity}</p>
           {inquiry.preferredArea && (
@@ -171,7 +171,7 @@ function AssignedInquiryCard({ assignment, onPurchase }) {
       {/* Row 1 — Purpose / Category / Type */}
       <div className="flex flex-wrap gap-2">
         {inquiry.listingType?.name && (
-          <span className="px-2.5 py-1 bg-[#f5f0ff] text-[#7B2FFF] border border-[#e0d5ff] rounded-lg text-[11px] font-bold">
+          <span className="px-2.5 py-1 bg-[#f5f0ff] text-[var(--primary-color)] border border-[#e0d5ff] rounded-lg text-[11px] font-bold">
             {inquiry.listingType.name}
           </span>
         )}
@@ -196,7 +196,7 @@ function AssignedInquiryCard({ assignment, onPurchase }) {
             </span>
           )}
           {inquiry.furnishingType && (
-            <span className="flex items-center gap-1 px-2.5 py-1 bg-[#f5f0ff] text-[#7B2FFF] rounded-lg text-[11px] font-semibold">
+            <span className="flex items-center gap-1 px-2.5 py-1 bg-[#f5f0ff] text-[var(--primary-color)] rounded-lg text-[11px] font-semibold">
               <FiHome size={11} />
               {inquiry.furnishingType}
             </span>
@@ -482,7 +482,7 @@ export default function AssignedInquiriesPage() {
       <>
         <Navbar />
         <div className="min-h-[calc(100vh-62px)] bg-[#f7f8fa] flex items-center justify-center">
-          <div className="w-8 h-8 border-4 border-[#7B2FFF] border-t-transparent rounded-full animate-spin" />
+          <div className="w-8 h-8 border-4 border-[var(--primary-color)] border-t-transparent rounded-full animate-spin" />
         </div>
         <Footer />
       </>
@@ -497,7 +497,7 @@ export default function AssignedInquiriesPage() {
         <div className="min-h-[calc(100vh-62px)] bg-[#f7f8fa] flex items-center justify-center px-4">
           <div className="bg-white rounded-2xl shadow-[0_8px_40px_rgba(0,0,0,0.10)] w-full max-w-[420px] p-10 flex flex-col items-center text-center">
             <div className="w-16 h-16 rounded-full bg-[#f3eeff] flex items-center justify-center mb-5">
-              <FiLock size={28} className="text-[#7B2FFF]" />
+              <FiLock size={28} className="text-[var(--primary-color)]" />
             </div>
             <h2 className="text-xl font-extrabold text-[#1a1a2e] mb-2">Access Restricted</h2>
             <p className="text-sm text-gray-400 leading-relaxed mb-6">
@@ -505,7 +505,7 @@ export default function AssignedInquiriesPage() {
             </p>
             <button
               onClick={() => navigate("/")}
-              className="w-full bg-[#7B2FFF] hover:bg-[#6320d4] text-white py-3 rounded-xl font-semibold text-sm transition"
+              className="w-full bg-[var(--primary-color)] hover:bg-[#6320d4] text-white py-3 rounded-xl font-semibold text-sm transition"
             >
               Back to Home
             </button>
@@ -525,7 +525,7 @@ export default function AssignedInquiriesPage() {
           {/* Page header */}
           <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-[#7B2FFF] flex items-center justify-center shadow-sm">
+              <div className="w-10 h-10 rounded-xl bg-[var(--primary-color)] flex items-center justify-center shadow-sm">
                 <FiClipboard size={18} className="text-white" />
               </div>
               <div>
@@ -547,8 +547,8 @@ export default function AssignedInquiriesPage() {
                 <p className="text-2xl font-extrabold text-green-600">{stats.active ?? 0}</p>
               </div>
               <div className="bg-white border border-[#e0d5ff] rounded-2xl p-3 text-center hover:shadow-md transition">
-                <p className="text-[11px] text-[#7B2FFF] font-semibold mb-1">Purchased</p>
-                <p className="text-2xl font-extrabold text-[#7B2FFF]">{stats.purchased ?? 0}</p>
+                <p className="text-[11px] text-[var(--primary-color)] font-semibold mb-1">Purchased</p>
+                <p className="text-2xl font-extrabold text-[var(--primary-color)]">{stats.purchased ?? 0}</p>
               </div>
               <div className="bg-white border border-red-200 rounded-2xl p-3 text-center hover:shadow-md transition">
                 <p className="text-[11px] text-red-500 font-semibold mb-1">Hot 🔥</p>
@@ -568,10 +568,10 @@ export default function AssignedInquiriesPage() {
           {/* Filter panel */}
           <div className="bg-white border border-gray-100 rounded-2xl p-4 mb-5 shadow-sm">
             <div className="flex items-center gap-1.5 mb-3">
-              <FiFilter size={13} className="text-[#7B2FFF]" />
+              <FiFilter size={13} className="text-[var(--primary-color)]" />
               <span className="text-xs font-bold text-[#1a1a2e]">Filter Requirements</span>
               {hasAppliedFilters && (
-                <span className="ml-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#f3eeff] text-[#7B2FFF]">
+                <span className="ml-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#f3eeff] text-[var(--primary-color)]">
                   {appliedLabels.length} filter{appliedLabels.length !== 1 ? "s" : ""} applied
                 </span>
               )}
@@ -587,7 +587,7 @@ export default function AssignedInquiriesPage() {
                 onKeyDown={(e) => e.key === "Enter" && handleApply()}
                 disabled={purchaseLoading}
                 placeholder="Search by city, area, name or mobile..."
-                className="w-full border border-gray-200 rounded-xl pl-8 pr-3 py-2 text-xs font-semibold outline-none focus:border-[#7B2FFF] focus:ring-1 focus:ring-[#7B2FFF]/20 transition placeholder-gray-400"
+                className="w-full border border-gray-200 rounded-xl pl-8 pr-3 py-2 text-xs font-semibold outline-none focus:border-[var(--primary-color)] focus:ring-1 focus:ring-[var(--primary-color)]/20 transition placeholder-gray-400"
               />
             </div>
 
@@ -644,7 +644,7 @@ export default function AssignedInquiriesPage() {
               <button
                 onClick={handleApply}
                 disabled={purchaseLoading || !hasPendingChanges}
-                className="flex items-center gap-1.5 px-4 py-1.5 rounded-xl text-xs font-bold transition disabled:opacity-40 disabled:cursor-not-allowed bg-[#7B2FFF] text-white hover:bg-[#6320d4] border-none cursor-pointer"
+                className="flex items-center gap-1.5 px-4 py-1.5 rounded-xl text-xs font-bold transition disabled:opacity-40 disabled:cursor-not-allowed bg-[var(--primary-color)] text-white hover:bg-[#6320d4] border-none cursor-pointer"
               >
                 Apply Filters
               </button>
@@ -657,7 +657,7 @@ export default function AssignedInquiriesPage() {
               <p className="text-sm text-red-500 font-semibold">{error}</p>
               <button
                 onClick={() => { setError(null); setInitialLoading(true); loadPage(1, appliedFilters, appliedSearch, true); }}
-                className="text-sm text-[#7B2FFF] font-semibold underline bg-transparent border-none cursor-pointer"
+                className="text-sm text-[var(--primary-color)] font-semibold underline bg-transparent border-none cursor-pointer"
               >
                 Retry
               </button>
@@ -675,7 +675,7 @@ export default function AssignedInquiriesPage() {
           {!initialLoading && !error && assignments.length === 0 && (
             <div className="flex flex-col items-center justify-center py-24 gap-4">
               <div className="w-16 h-16 rounded-2xl bg-[#f3eeff] flex items-center justify-center">
-                <FiClipboard size={28} className="text-[#7B2FFF]" />
+                <FiClipboard size={28} className="text-[var(--primary-color)]" />
               </div>
               <div className="text-center">
                 <p className="text-base font-bold text-[#1a1a2e]">
@@ -768,11 +768,11 @@ export default function AssignedInquiriesPage() {
                 type="button"
                 disabled={planEnquiriesRemaining === 0}
                 onClick={() => { setPurchaseMethod("plan"); setPurchaseError(""); }}
-                className={`rounded-xl border p-4 text-left transition disabled:cursor-not-allowed disabled:opacity-50 ${purchaseMethod === "plan" ? "border-[#7B2FFF] bg-[#f7f2ff] ring-2 ring-[#7B2FFF]/15" : "border-gray-200 hover:border-[#7B2FFF]"}`}
+                className={`rounded-xl border p-4 text-left transition disabled:cursor-not-allowed disabled:opacity-50 ${purchaseMethod === "plan" ? "border-[var(--primary-color)] bg-[#f7f2ff] ring-2 ring-[var(--primary-color)]/15" : "border-gray-200 hover:border-[var(--primary-color)]"}`}
               >
                 <span className="flex items-center justify-between gap-2">
                   <span className="text-sm font-bold text-[#1a1a2e]">Use requirement plan</span>
-                  <span className="text-xs font-bold text-[#7B2FFF]">{planEnquiriesRemaining === -1 ? "Unlimited" : `${planEnquiriesRemaining} remaining`}</span>
+                  <span className="text-xs font-bold text-[var(--primary-color)]">{planEnquiriesRemaining === -1 ? "Unlimited" : `${planEnquiriesRemaining} remaining`}</span>
                 </span>
                 <span className="mt-1 block text-xs text-gray-500">{enquiryPlan?.name ?? "No active requirement plan"}</span>
               </button>
@@ -781,11 +781,11 @@ export default function AssignedInquiriesPage() {
                 type="button"
                 disabled={coinsBalance < coinsPerEnquiry || coinsPerEnquiry <= 0}
                 onClick={() => { setPurchaseMethod("coins"); setPurchaseError(""); }}
-                className={`rounded-xl border p-4 text-left transition disabled:cursor-not-allowed disabled:opacity-50 ${purchaseMethod === "coins" ? "border-[#7B2FFF] bg-[#f7f2ff] ring-2 ring-[#7B2FFF]/15" : "border-gray-200 hover:border-[#7B2FFF]"}`}
+                className={`rounded-xl border p-4 text-left transition disabled:cursor-not-allowed disabled:opacity-50 ${purchaseMethod === "coins" ? "border-[var(--primary-color)] bg-[#f7f2ff] ring-2 ring-[var(--primary-color)]/15" : "border-gray-200 hover:border-[var(--primary-color)]"}`}
               >
                 <span className="flex items-center justify-between gap-2">
                   <span className="text-sm font-bold text-[#1a1a2e]">Use coins</span>
-                  <span className="flex items-center gap-1.5 text-xs font-bold text-[#7B2FFF]">
+                  <span className="flex items-center gap-1.5 text-xs font-bold text-[var(--primary-color)]">
                     <CoinIcon size={15} />
                     {coinsPerEnquiry.toLocaleString("en-IN")} coins
                   </span>
@@ -795,7 +795,7 @@ export default function AssignedInquiriesPage() {
             </div>
 
             {purchaseMethod && (
-              <p className="mt-4 text-center text-xs font-semibold text-[#7B2FFF]">
+              <p className="mt-4 text-center text-xs font-semibold text-[var(--primary-color)]">
                 {purchaseMethod === "plan" ? "Requirement plan selected" : "Coins selected"}
               </p>
             )}
@@ -804,7 +804,7 @@ export default function AssignedInquiriesPage() {
               type="button"
               disabled={!purchaseMethod}
               onClick={() => { setPurchaseError(""); setConfirmUnlockOpen(true); }}
-              className="mt-5 w-full rounded-xl bg-[#7B2FFF] px-4 py-3 text-sm font-bold text-white transition hover:bg-[#6320d4] disabled:cursor-not-allowed disabled:opacity-50"
+              className="mt-5 w-full rounded-xl bg-[var(--primary-color)] px-4 py-3 text-sm font-bold text-white transition hover:bg-[#6320d4] disabled:cursor-not-allowed disabled:opacity-50"
             >
               Confirm
             </button>
@@ -827,7 +827,7 @@ export default function AssignedInquiriesPage() {
             className="relative w-full max-w-sm rounded-2xl bg-white p-6 shadow-2xl"
           >
             <div className="mb-5 flex flex-col items-center text-center">
-              <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-[#f3eeff] text-[#7B2FFF]">
+              <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-[#f3eeff] text-[var(--primary-color)]">
                 <FiUnlock size={22} />
               </div>
               <h2 id="confirm-unlock-title" className="mb-1 text-base font-extrabold text-[#1a1a2e]">Confirm unlock</h2>
@@ -854,7 +854,7 @@ export default function AssignedInquiriesPage() {
                 type="button"
                 disabled={purchaseLoading}
                 onClick={handleUnlockAssignment}
-                className="flex-1 rounded-xl border-none bg-[#7B2FFF] py-2.5 text-sm font-bold text-white transition hover:bg-[#6320d4] disabled:cursor-wait disabled:opacity-60"
+                className="flex-1 rounded-xl border-none bg-[var(--primary-color)] py-2.5 text-sm font-bold text-white transition hover:bg-[#6320d4] disabled:cursor-wait disabled:opacity-60"
               >
                 {purchaseLoading ? "Unlocking..." : "Unlock"}
               </button>

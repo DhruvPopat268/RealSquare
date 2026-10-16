@@ -28,7 +28,7 @@ export default function ContactFlow({ onClose }) {
     setStep(3);
   };
 
-  const inputCls = "w-full border-[1.5px] border-[#e8e8e8] rounded-lg px-3.5 py-3 text-sm text-[#333] bg-[#fafafa] outline-none focus:border-[#7B2FFF] focus:bg-white transition-colors";
+  const inputCls = "w-full border-[1.5px] border-[#e8e8e8] rounded-lg px-3.5 py-3 text-sm text-[#333] bg-[#fafafa] outline-none focus:border-[var(--primary-color)] focus:bg-white transition-colors";
 
   return (
     <div
@@ -60,10 +60,10 @@ export default function ContactFlow({ onClose }) {
                     <span className={`absolute top-[13px] left-1/2 w-full h-0.5 z-0 ${isDone ? "bg-emerald-500" : "bg-[#e8e8e8]"}`} />
                   )}
                   <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold relative z-10 transition-all
-                    ${isDone ? "bg-emerald-500 text-white" : isActive ? "bg-[#7B2FFF] text-white" : "bg-[#e8e8e8] text-[#aaa]"}`}>
+                    ${isDone ? "bg-emerald-500 text-white" : isActive ? "bg-[var(--primary-color)] text-white" : "bg-[#e8e8e8] text-[#aaa]"}`}>
                     {isDone ? <FiCheck size={11} /> : i + 1}
                   </div>
-                  <span className={isDone ? "text-emerald-500" : isActive ? "text-[#7B2FFF]" : "text-[#bbb]"}>
+                  <span className={isDone ? "text-emerald-500" : isActive ? "text-[var(--primary-color)]" : "text-[#bbb]"}>
                     {label}
                   </span>
                 </div>
@@ -84,7 +84,7 @@ export default function ContactFlow({ onClose }) {
                   {errors.name && <span className="text-[11px] text-red-500 font-medium">{errors.name}</span>}
                 </div>
                 <div className="flex flex-col gap-1">
-                  <div className="flex items-center border-[1.5px] border-[#e8e8e8] rounded-lg overflow-hidden bg-[#fafafa] focus-within:border-[#7B2FFF] focus-within:bg-white transition-colors">
+                  <div className="flex items-center border-[1.5px] border-[#e8e8e8] rounded-lg overflow-hidden bg-[#fafafa] focus-within:border-[var(--primary-color)] focus-within:bg-white transition-colors">
                     <span className="px-3 py-3 text-sm font-semibold text-[#333] border-r border-[#e8e8e8] bg-[#f0f0f0] whitespace-nowrap">+91</span>
                     <input className="flex-1 border-none bg-transparent outline-none px-3 py-3 text-sm text-[#333]" placeholder="Phone Number" value={phone} onChange={(e) => setPhone(e.target.value)} type="tel" maxLength={10} />
                   </div>
@@ -96,7 +96,7 @@ export default function ContactFlow({ onClose }) {
                 </div>
               </div>
             </div>
-            <button className="block w-full py-4 bg-[#7B2FFF] hover:bg-[#5a1fd1] text-white text-[15px] font-bold border-none cursor-pointer transition-colors mt-4" onClick={handleSubmit}>
+            <button className="block w-full py-4 bg-[var(--primary-color)] hover:bg-[#5a1fd1] text-white text-[15px] font-bold border-none cursor-pointer transition-colors mt-4" onClick={handleSubmit}>
               Submit &amp; Get OTP
             </button>
           </>
@@ -119,11 +119,11 @@ export default function ContactFlow({ onClose }) {
                 />
                 {errors.otp && <span className="text-[11px] text-red-500 font-medium">{errors.otp}</span>}
               </div>
-              <button className="bg-transparent border-none text-[#7B2FFF] text-[13px] font-semibold cursor-pointer pt-3 underline" onClick={() => {}}>
+              <button className="bg-transparent border-none text-[var(--primary-color)] text-[13px] font-semibold cursor-pointer pt-3 underline" onClick={() => {}}>
                 Resend OTP
               </button>
             </div>
-            <button className="block w-full py-4 bg-[#7B2FFF] hover:bg-[#5a1fd1] text-white text-[15px] font-bold border-none cursor-pointer transition-colors mt-4" onClick={handleVerify}>
+            <button className="block w-full py-4 bg-[var(--primary-color)] hover:bg-[#5a1fd1] text-white text-[15px] font-bold border-none cursor-pointer transition-colors mt-4" onClick={handleVerify}>
               Verify
             </button>
           </>
@@ -137,7 +137,7 @@ export default function ContactFlow({ onClose }) {
             </div>
             <h3 className="text-lg font-extrabold text-[#111] leading-snug">Thank you for showing your interest!</h3>
             <p className="text-[14px] text-[#666]">Our team will reach out to you on <strong>+91 {phone}</strong> shortly.</p>
-            <button className="mt-2 px-10 py-3 bg-[#7B2FFF] hover:bg-[#5a1fd1] text-white text-[15px] font-bold rounded-lg border-none cursor-pointer transition-colors" onClick={onClose}>
+            <button className="mt-2 px-10 py-3 bg-[var(--primary-color)] hover:bg-[#5a1fd1] text-white text-[15px] font-bold rounded-lg border-none cursor-pointer transition-colors" onClick={onClose}>
               Done
             </button>
           </div>

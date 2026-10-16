@@ -32,8 +32,8 @@ function parsePriceToL(price) {
   return 0;
 }
 
-const selectCls = "appearance-none border-[1.5px] border-[#e0e0e0] rounded-lg py-2 pl-3 pr-8 text-[13px] text-[#333] bg-[#fafafa] cursor-pointer outline-none hover:border-[#7B2FFF] focus:border-[#7B2FFF] transition-colors w-full";
-const chipCls   = (active) => `px-3.5 py-1.5 rounded-full border-[1.5px] text-[13px] cursor-pointer transition-all whitespace-nowrap ${active ? "bg-[#7B2FFF] border-[#7B2FFF] text-white" : "border-[#e0e0e0] bg-[#fafafa] text-[#444] hover:border-[#7B2FFF] hover:text-[#7B2FFF]"}`;
+const selectCls = "appearance-none border-[1.5px] border-[#e0e0e0] rounded-lg py-2 pl-3 pr-8 text-[13px] text-[#333] bg-[#fafafa] cursor-pointer outline-none hover:border-[var(--primary-color)] focus:border-[var(--primary-color)] transition-colors w-full";
+const chipCls   = (active) => `px-3.5 py-1.5 rounded-full border-[1.5px] text-[13px] cursor-pointer transition-all whitespace-nowrap ${active ? "bg-[var(--primary-color)] border-[var(--primary-color)] text-white" : "border-[#e0e0e0] bg-[#fafafa] text-[#444] hover:border-[var(--primary-color)] hover:text-[var(--primary-color)]"}`;
 
 export default function BuyersPage() {
   const [searchParams] = useSearchParams();
@@ -146,11 +146,11 @@ export default function BuyersPage() {
             <button
               onClick={() => setShowFilters(!showFilters)}
               className={`flex items-center gap-1.5 px-4 py-2 border-[1.5px] rounded-lg text-[13px] font-semibold cursor-pointer transition-all whitespace-nowrap
-                ${showFilters ? "border-[#7B2FFF] text-[#7B2FFF] bg-[#f5f0ff]" : "border-[#e0e0e0] text-[#444] bg-[#fafafa] hover:border-[#7B2FFF] hover:text-[#7B2FFF] hover:bg-[#f5f0ff]"}`}
+                ${showFilters ? "border-[var(--primary-color)] text-[var(--primary-color)] bg-[#f5f0ff]" : "border-[#e0e0e0] text-[#444] bg-[#fafafa] hover:border-[var(--primary-color)] hover:text-[var(--primary-color)] hover:bg-[#f5f0ff]"}`}
             >
               <FiSliders size={13} /> Filters
               {activeFilterCount > 0 && (
-                <span className="w-[18px] h-[18px] bg-[#7B2FFF] text-white text-[11px] font-bold rounded-full flex items-center justify-center">
+                <span className="w-[18px] h-[18px] bg-[var(--primary-color)] text-white text-[11px] font-bold rounded-full flex items-center justify-center">
                   {activeFilterCount}
                 </span>
               )}
@@ -198,11 +198,11 @@ export default function BuyersPage() {
         {/* ── Active filter tags ── */}
         {activeFilterCount > 0 && (
           <div className="max-w-[1200px] mx-auto px-4 sm:px-6 py-2.5 flex gap-2 flex-wrap">
-            {selectedTypes.map((t) => <span key={t} className="flex items-center gap-1.5 bg-[#f0ebff] text-[#7B2FFF] text-[12px] font-semibold px-3 py-1 rounded-full">{t} <FiX size={11} className="cursor-pointer opacity-70 hover:opacity-100" onClick={() => toggle(selectedTypes, setSelectedTypes, t)} /></span>)}
-            {selectedBhk.map((b)   => <span key={b} className="flex items-center gap-1.5 bg-[#f0ebff] text-[#7B2FFF] text-[12px] font-semibold px-3 py-1 rounded-full">{b} <FiX size={11} className="cursor-pointer opacity-70 hover:opacity-100" onClick={() => toggle(selectedBhk, setSelectedBhk, b)} /></span>)}
-            {selectedArea   && <span className="flex items-center gap-1.5 bg-[#f0ebff] text-[#7B2FFF] text-[12px] font-semibold px-3 py-1 rounded-full">{selectedArea} <FiX size={11} className="cursor-pointer opacity-70 hover:opacity-100" onClick={() => setSelectedArea("")} /></span>}
-            {selectedBudget && <span className="flex items-center gap-1.5 bg-[#f0ebff] text-[#7B2FFF] text-[12px] font-semibold px-3 py-1 rounded-full">{selectedBudget.label} <FiX size={11} className="cursor-pointer opacity-70 hover:opacity-100" onClick={() => setSelectedBudget(null)} /></span>}
-            {selectedStatus && <span className="flex items-center gap-1.5 bg-[#f0ebff] text-[#7B2FFF] text-[12px] font-semibold px-3 py-1 rounded-full">{selectedStatus} <FiX size={11} className="cursor-pointer opacity-70 hover:opacity-100" onClick={() => setSelectedStatus("")} /></span>}
+            {selectedTypes.map((t) => <span key={t} className="flex items-center gap-1.5 bg-[#f0ebff] text-[var(--primary-color)] text-[12px] font-semibold px-3 py-1 rounded-full">{t} <FiX size={11} className="cursor-pointer opacity-70 hover:opacity-100" onClick={() => toggle(selectedTypes, setSelectedTypes, t)} /></span>)}
+            {selectedBhk.map((b)   => <span key={b} className="flex items-center gap-1.5 bg-[#f0ebff] text-[var(--primary-color)] text-[12px] font-semibold px-3 py-1 rounded-full">{b} <FiX size={11} className="cursor-pointer opacity-70 hover:opacity-100" onClick={() => toggle(selectedBhk, setSelectedBhk, b)} /></span>)}
+            {selectedArea   && <span className="flex items-center gap-1.5 bg-[#f0ebff] text-[var(--primary-color)] text-[12px] font-semibold px-3 py-1 rounded-full">{selectedArea} <FiX size={11} className="cursor-pointer opacity-70 hover:opacity-100" onClick={() => setSelectedArea("")} /></span>}
+            {selectedBudget && <span className="flex items-center gap-1.5 bg-[#f0ebff] text-[var(--primary-color)] text-[12px] font-semibold px-3 py-1 rounded-full">{selectedBudget.label} <FiX size={11} className="cursor-pointer opacity-70 hover:opacity-100" onClick={() => setSelectedBudget(null)} /></span>}
+            {selectedStatus && <span className="flex items-center gap-1.5 bg-[#f0ebff] text-[var(--primary-color)] text-[12px] font-semibold px-3 py-1 rounded-full">{selectedStatus} <FiX size={11} className="cursor-pointer opacity-70 hover:opacity-100" onClick={() => setSelectedStatus("")} /></span>}
           </div>
         )}
 
@@ -216,7 +216,7 @@ export default function BuyersPage() {
           </div>
           <div className="flex items-center gap-2 text-[13px] text-[#555]">
             <label>Sort by:</label>
-            <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} className="border-[1.5px] border-[#e0e0e0] rounded-lg px-3 py-1.5 text-[13px] text-[#333] bg-white outline-none cursor-pointer focus:border-[#7B2FFF]">
+            <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} className="border-[1.5px] border-[#e0e0e0] rounded-lg px-3 py-1.5 text-[13px] text-[#333] bg-white outline-none cursor-pointer focus:border-[var(--primary-color)]">
               <option value="relevance">Relevance</option>
               <option value="price-asc">Price: Low to High</option>
               <option value="price-desc">Price: High to Low</option>
@@ -233,7 +233,7 @@ export default function BuyersPage() {
           ) : (
             <div className="text-center py-16 text-[#888]">
               <p className="text-base mb-4">No properties match your filters.</p>
-              <button onClick={clearAll} className="bg-[#7B2FFF] text-white border-none px-6 py-2.5 rounded-lg text-[14px] font-semibold cursor-pointer">
+              <button onClick={clearAll} className="bg-[var(--primary-color)] text-white border-none px-6 py-2.5 rounded-lg text-[14px] font-semibold cursor-pointer">
                 Clear filters
               </button>
             </div>

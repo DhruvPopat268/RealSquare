@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { FiX, FiCheck, FiCalendar, FiClock } from "react-icons/fi";
+import { primaryColor } from "../utils/theme";
 
 const timeSlots = [
   "9:00 AM - 10:00 AM",
@@ -84,11 +85,13 @@ export default function ScheduleVisit({ onClose }) {
                     <button
                       key={d.value}
                       onClick={() => setSelectedDate(d)}
-                      className={`flex flex-col items-center gap-0.5 min-w-[56px] px-2 py-2.5 rounded-xl border-[1.5px] flex-shrink-0 cursor-pointer transition-all
-                        ${active
-                          ? "border-[#7B2FFF] bg-[#7B2FFF]"
-                          : "border-[#e8e8e8] bg-[#fafafa] hover:border-[#7B2FFF] hover:bg-[#f5f0ff]"
-                        }`}
+                      className="flex flex-col items-center gap-0.5 min-w-[56px] px-2 py-2.5 rounded-xl border-[1.5px] flex-shrink-0 cursor-pointer transition-all"
+                      style={active
+                        ? { borderColor: primaryColor, backgroundColor: primaryColor }
+                        : { borderColor: "#e8e8e8", backgroundColor: "#fafafa" }
+                      }
+                      onMouseEnter={e => { if (!active) { e.currentTarget.style.borderColor = primaryColor; e.currentTarget.style.backgroundColor = "#f5f0ff"; }}}
+                      onMouseLeave={e => { if (!active) { e.currentTarget.style.borderColor = "#e8e8e8"; e.currentTarget.style.backgroundColor = "#fafafa"; }}}
                     >
                       <span className={`text-[11px] font-semibold uppercase ${active ? "text-white" : "text-[#888]"}`}>{d.label}</span>
                       <span className={`text-xl font-extrabold leading-none ${active ? "text-white" : "text-[#111]"}`}>{d.date}</span>
@@ -113,8 +116,8 @@ export default function ScheduleVisit({ onClose }) {
                       onClick={() => setSelectedSlot(slot)}
                       className={`py-2.5 px-3 rounded-lg border-[1.5px] text-[13px] font-medium cursor-pointer transition-all text-center
                         ${active
-                          ? "border-[#7B2FFF] bg-[#7B2FFF] text-white"
-                          : "border-[#e8e8e8] bg-[#fafafa] text-[#444] hover:border-[#7B2FFF] hover:text-[#7B2FFF] hover:bg-[#f5f0ff]"
+                          ? "border-[var(--primary-color)] bg-[var(--primary-color)] text-white"
+                          : "border-[#e8e8e8] bg-[#fafafa] text-[#444] hover:border-[var(--primary-color)] hover:text-[var(--primary-color)] hover:bg-[#f5f0ff]"
                         }`}
                     >
                       {slot}
@@ -127,7 +130,7 @@ export default function ScheduleVisit({ onClose }) {
             </div>
 
             <button
-              className="block w-full py-4 bg-[#7B2FFF] hover:bg-[#5a1fd1] text-white text-[15px] font-bold border-none cursor-pointer transition-colors mt-4"
+              className="block w-full py-4 bg-[var(--primary-color)] hover:bg-[#5a1fd1] text-white text-[15px] font-bold border-none cursor-pointer transition-colors mt-4"
               onClick={handleSubmit}
             >
               Confirm Visit
@@ -143,11 +146,11 @@ export default function ScheduleVisit({ onClose }) {
             </div>
             <h3 className="text-lg font-extrabold text-[#111]">Your visit has been booked!</h3>
             <p className="text-[14px] text-[#666]">You can visit on</p>
-            <div className="text-xl font-extrabold text-[#7B2FFF]">{selectedDate.full}</div>
+            <div className="text-xl font-extrabold text-[var(--primary-color)]">{selectedDate.full}</div>
             <div className="text-[15px] text-[#444]">between <strong>{selectedSlot}</strong></div>
             <p className="text-[12px] text-[#aaa] mt-1">Our team will send you a reminder before your visit.</p>
             <button
-              className="mt-2 px-10 py-3 bg-[#7B2FFF] hover:bg-[#5a1fd1] text-white text-[15px] font-bold rounded-lg border-none cursor-pointer transition-colors"
+              className="mt-2 px-10 py-3 bg-[var(--primary-color)] hover:bg-[#5a1fd1] text-white text-[15px] font-bold rounded-lg border-none cursor-pointer transition-colors"
               onClick={onClose}
             >
               Done

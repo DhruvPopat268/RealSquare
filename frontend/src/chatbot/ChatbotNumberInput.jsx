@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { FiSend } from "react-icons/fi";
+import { primaryColor } from "../utils/theme";
 
 export default function ChatbotNumberInput({ placeholder, min = 0, allowZero = false, onSubmit }) {
   const [value, setValue] = useState("");
@@ -42,12 +43,18 @@ export default function ChatbotNumberInput({ placeholder, min = 0, allowZero = f
           onKeyDown={(e) => e.key === "Enter" && submit()}
           placeholder={placeholder ?? "Enter a number..."}
           className={`flex-1 border rounded-xl px-4 py-2.5 text-sm outline-none transition
-            ${error ? "border-red-400 focus:border-red-400" : "border-gray-200 focus:border-[#7B2FFF]"}`}
+            ${error ? "border-red-400 focus:border-red-400" : "border-gray-200"}`}
+          style={!error ? { "--tw-border-opacity": 1 } : {}}
+          onFocus={e => { if (!error) e.currentTarget.style.borderColor = primaryColor; }}
+          onBlur={e => { if (!error) e.currentTarget.style.borderColor = "#e5e7eb"; }}
         />
         <button
           onClick={submit}
           disabled={!value.trim()}
-          className="w-10 h-10 rounded-xl bg-[#7B2FFF] disabled:opacity-40 flex items-center justify-center flex-shrink-0 hover:bg-[#6320d4] transition border-none cursor-pointer"
+          className="w-10 h-10 rounded-xl disabled:opacity-40 flex items-center justify-center flex-shrink-0 transition border-none cursor-pointer"
+          style={{ backgroundColor: primaryColor }}
+          onMouseEnter={e => e.currentTarget.style.filter = "brightness(0.85)"}
+          onMouseLeave={e => e.currentTarget.style.filter = "brightness(1)"}
         >
           <FiSend size={16} className="text-white" />
         </button>

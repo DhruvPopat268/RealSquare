@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { FiChevronDown, FiMenu, FiX, FiUser, FiEye, FiHeart, FiPhone, FiEdit2, FiRefreshCw, FiAlertTriangle, FiList } from "react-icons/fi";
+import { FiChevronDown, FiMenu, FiX, FiUser, FiEye, FiHeart, FiStar, FiEdit2, FiRefreshCw, FiAlertTriangle, FiList } from "react-icons/fi";
 import api from "../utils/axiosInterceptor";
 import { properties } from "../data/properties";
 import CoinIcon from "./CoinIcon";
@@ -567,10 +567,10 @@ export default function Navbar() {
                       <p className="text-sm font-bold text-[#1a1a2e] truncate">{navLabel}</p>
                       <p className="text-[10px] font-semibold" style={{ color: profileCompletionColor }}>{profileCompletionPercentage}% complete</p>
                       <p className="text-xs text-gray-400 truncate">+91 {user.mobile}</p>
-                      {user.role && <p className="text-[11px] font-semibold mt-0.5" style={{ color: primaryColor }}>{user.role.name}</p>}
+                      {user.role && <p className="text-[11px] font-semibold mt-0.5 text-[#1a1a2e]">{user.role.name}</p>}
                       <div className="flex items-center gap-1.5 mt-1">
-                        <CoinIcon size={16} />
-                        <span className="text-xs font-bold text-amber-500">{(user.coinsBalance ?? 0).toLocaleString()} coins</span>
+                        <CoinIcon size={16} variant="gold" />
+                        <span className="text-xs font-bold text-[#1a1a2e]">{(user.coinsBalance ?? 0).toLocaleString()} coins</span>
                       </div>
                     </div>
                     <button
@@ -600,7 +600,7 @@ export default function Navbar() {
                         <span className="text-[11px] font-bold px-2 py-0.5 rounded-full" style={{ color: primaryColor, backgroundColor: primaryLight }}>{user.activePlan.name}</span>
                         <button
                           onClick={() => { setProfileOpen(false); navigate("/plans"); }}
-                          className="text-[10px] font-bold text-white bg-amber-400 border-none rounded-lg px-2 py-1 cursor-pointer hover:bg-amber-500 transition"
+                          className="text-[10px] font-bold text-[#1a1a2e] bg-transparent border border-[var(--primary-color)] rounded-lg px-2 py-1 cursor-pointer hover:bg-gray-100 transition"
                         >
                           Change Listing Plan
                         </button>
@@ -652,7 +652,7 @@ export default function Navbar() {
                         <span className="text-[11px] font-bold px-2 py-0.5 rounded-full" style={{ color: primaryColor, backgroundColor: primaryLight }}>{user.activeEnquiryPlan.name}</span>
                         <button
                           onClick={() => { setProfileOpen(false); navigate("/enquiry-plans"); }}
-                          className="text-[10px] font-bold text-white bg-amber-400 border-none rounded-lg px-2 py-1 cursor-pointer hover:bg-amber-500 transition"
+                          className="text-[10px] font-bold text-[#1a1a2e] bg-transparent border border-[var(--primary-color)] rounded-lg px-2 py-1 cursor-pointer hover:bg-gray-100 transition"
                         >
                           Change Requirement Plan
                         </button>
@@ -767,8 +767,8 @@ export default function Navbar() {
                   <div className="flex gap-2 mb-3">
                     {[
                       { key: "viewed", label: "Viewed", icon: <FiEye size={12} /> },
-                      { key: "saved", label: "Saved", icon: <FiHeart size={12} /> },
-                      { key: "contacted", label: "Contacted", icon: <FiPhone size={12} /> },
+                      { key: "saved", label: "Interested", icon: <FiStar size={12} /> },
+                      { key: "contacted", label: "Favorites", icon: <FiHeart size={12} /> },
                     ].map(({ key, label, icon }) => (
                       <button
                         key={key}
@@ -924,13 +924,13 @@ export default function Navbar() {
                       <span className="text-sm font-bold text-[#1a1a2e] truncate">{navLabel}</span>
                       <span className="text-[10px] font-semibold" style={{ color: profileCompletionColor }}>{profileCompletionPercentage}% complete</span>
                       <span className="text-xs text-gray-400">+91 {user.mobile}</span>
-                      {user.role && <span className="text-[11px] font-semibold" style={{ color: primaryColor }}>{user.role.name}</span>}
+                      {user.role && <span className="text-[11px] font-semibold text-[#1a1a2e]">{user.role.name}</span>}
                     </div>
                   </div>
                   {/* Coins + Edit + Switch */}
                   <div className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg mx-2 mb-2">
-                    <CoinIcon size={16} />
-                    <span className="text-xs font-bold text-amber-500 flex-1">{(user.coinsBalance ?? 0).toLocaleString()} coins</span>
+                    <CoinIcon size={16} variant="gold" />
+                    <span className="text-xs font-bold text-[#1a1a2e] flex-1">{(user.coinsBalance ?? 0).toLocaleString()} coins</span>
                     <button onClick={() => { setMobileOpen(false); navigate("/profile"); }} className="flex items-center gap-1 px-2 py-1 rounded-lg hover:bg-white/60 text-[#1a1a2e] transition text-xs font-semibold border-none bg-transparent cursor-pointer">Edit <FiEdit2 size={11} /></button>
                     <button onClick={() => { setShowSwitchModal(true); setSwitchSelected(null); }} className="flex items-center gap-1 px-2 py-1 rounded-lg hover:bg-[#fff0f0] text-red-400 hover:text-red-500 transition text-xs font-semibold border border-red-200 hover:border-red-300 bg-transparent cursor-pointer"><FiRefreshCw size={11} />Switch</button>
                   </div>

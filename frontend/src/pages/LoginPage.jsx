@@ -112,7 +112,7 @@ export default function LoginPage() {
                 </div>
               </div>
 
-              <div className="flex items-center border border-gray-200 rounded-xl overflow-hidden focus-within:border-[#7B2FFF] transition mb-1">
+              <div className="flex items-center border border-gray-200 rounded-xl overflow-hidden focus-within:border-[var(--primary-color)] transition mb-1">
                 <span className="px-3 text-sm text-gray-500 border-r border-gray-200 py-3 bg-gray-50">+91</span>
                 <input
                   type="tel"
@@ -127,13 +127,13 @@ export default function LoginPage() {
               {errors.mobile && <p className="text-xs text-red-500 mb-3">{errors.mobile}</p>}
 
               <p className="text-xs text-gray-400 mb-5">
-                By continuing, you agree to our <span className="text-[#7B2FFF] cursor-pointer">Terms</span> &amp; <span className="text-[#7B2FFF] cursor-pointer">Privacy Policy</span>
+                By continuing, you agree to our <span className="text-[var(--primary-color)] cursor-pointer">Terms</span> &amp; <span className="text-[var(--primary-color)] cursor-pointer">Privacy Policy</span>
               </p>
 
               <button
                 onClick={handleSendOtp}
                 disabled={loading}
-                className="w-full bg-[#7B2FFF] hover:bg-[#6320d4] disabled:opacity-60 text-white py-3 rounded-xl font-semibold text-sm transition flex items-center justify-center gap-2"
+                className="w-full bg-[var(--primary-color)] hover:bg-[#6320d4] disabled:opacity-60 text-white py-3 rounded-xl font-semibold text-sm transition flex items-center justify-center gap-2"
               >
                 {loading ? "Sending..." : <> Send OTP <FiArrowRight size={15} /> </>}
               </button>
@@ -169,7 +169,7 @@ export default function LoginPage() {
                         errors.otp
                           ? "border-red-400"
                           : val
-                          ? "border-[#7B2FFF]"
+                          ? "border-[var(--primary-color)]"
                           : "border-gray-300"
                       }`}
                   />
@@ -179,7 +179,7 @@ export default function LoginPage() {
 
               <p className="text-xs text-gray-400 mb-5">
                 Didn't receive?{" "}
-                <button className="text-[#7B2FFF] font-semibold bg-transparent border-none cursor-pointer p-0" onClick={() => setOtp(["", "", "", "", "", ""])}>
+                <button className="text-[var(--primary-color)] font-semibold bg-transparent border-none cursor-pointer p-0" onClick={() => setOtp(["", "", "", "", "", ""])}>
                   Resend OTP
                 </button>
               </p>
@@ -187,7 +187,7 @@ export default function LoginPage() {
               <button
                 onClick={handleVerifyOtp}
                 disabled={loading}
-                className="w-full bg-[#7B2FFF] hover:bg-[#6320d4] disabled:opacity-60 text-white py-3 rounded-xl font-semibold text-sm transition"
+                className="w-full bg-[var(--primary-color)] hover:bg-[#6320d4] disabled:opacity-60 text-white py-3 rounded-xl font-semibold text-sm transition"
               >
                 {loading ? "Verifying..." : "Verify & Continue"}
               </button>

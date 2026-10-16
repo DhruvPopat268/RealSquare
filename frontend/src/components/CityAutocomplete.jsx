@@ -133,10 +133,10 @@ export default function CityAutocomplete({
   return (
     <div ref={inputWrapRef} className="relative w-full">
       <div className={`flex items-center border rounded-lg bg-white transition
-        ${disabled ? "border-gray-100 bg-gray-50" : value ? "border-[#7B2FFF]" : "border-gray-200"}
-        focus-within:border-[#7B2FFF] focus-within:ring-1 focus-within:ring-[#7B2FFF]`}
+        ${disabled ? "border-gray-100 bg-gray-50" : value ? "border-[var(--primary-color)]" : "border-gray-200"}
+        focus-within:border-[var(--primary-color)] focus-within:ring-1 focus-within:ring-[var(--primary-color)]`}
       >
-        <FiMapPin size={16} className={`ml-3 flex-shrink-0 ${value ? "text-[#7B2FFF]" : "text-gray-400"}`} />
+        <FiMapPin size={16} className={`ml-3 flex-shrink-0 ${value ? "text-[var(--primary-color)]" : "text-gray-400"}`} />
         <input
           ref={inputRef}
           type="text"
@@ -149,11 +149,11 @@ export default function CityAutocomplete({
           disabled={disabled}
           autoComplete="off"
           className={`flex-1 px-3 py-2.5 text-sm outline-none bg-transparent
-            ${value ? "text-[#7B2FFF]" : "text-gray-800"}
+            ${value ? "text-[var(--primary-color)]" : "text-gray-800"}
             placeholder-gray-400 disabled:cursor-not-allowed disabled:text-gray-400`}
         />
         {loading && (
-          <span className="mr-3 w-4 h-4 border-2 border-gray-200 border-t-[#7B2FFF] rounded-full animate-spin flex-shrink-0" />
+          <span className="mr-3 w-4 h-4 border-2 border-gray-200 border-t-[var(--primary-color)] rounded-full animate-spin flex-shrink-0" />
         )}
       </div>
 
@@ -167,7 +167,7 @@ export default function CityAutocomplete({
             <li
               key={s.place_id}
               onMouseDown={() => handleSelect(s)}
-              className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-gray-700 cursor-pointer hover:bg-[#f0ebff] hover:text-[#7B2FFF] transition border-b border-gray-100 last:border-b-0"
+              className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-gray-700 cursor-pointer hover:bg-[#f0ebff] hover:text-[var(--primary-color)] transition border-b border-gray-100 last:border-b-0"
             >
               <FiMapPin size={13} className="text-gray-400 flex-shrink-0" />
               <span className="font-medium">{s.description.split(",")[0].trim()}</span>

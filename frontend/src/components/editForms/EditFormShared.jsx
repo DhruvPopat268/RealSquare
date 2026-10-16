@@ -44,9 +44,9 @@ export function TextInput({ value, onChange, placeholder, disabled }) {
       placeholder={placeholder ?? ""}
       disabled={disabled}
       className={`w-full border rounded-xl px-3 py-2.5 text-sm placeholder-gray-400
-        focus:outline-none focus:ring-1 focus:ring-[#7B2FFF]/20
+        focus:outline-none focus:ring-1 focus:ring-[var(--primary-color)]/20
         disabled:bg-gray-50 disabled:text-gray-400 transition
-        ${hasValue ? "border-[#7B2FFF] text-[#7B2FFF]" : "border-gray-200 text-gray-800 focus:border-[#7B2FFF]"}`}
+        ${hasValue ? "border-[var(--primary-color)] text-[var(--primary-color)]" : "border-gray-200 text-gray-800 focus:border-[var(--primary-color)]"}`}
     />
   );
 }
@@ -63,9 +63,9 @@ export function NumberInput({ value, onChange, placeholder, min, disabled }) {
       min={min ?? 0}
       disabled={disabled}
       className={`w-full border rounded-xl px-3 py-2.5 text-sm placeholder-gray-400
-        focus:outline-none focus:ring-1 focus:ring-[#7B2FFF]/20
+        focus:outline-none focus:ring-1 focus:ring-[var(--primary-color)]/20
         disabled:bg-gray-50 disabled:text-gray-400 transition
-        ${hasValue ? "border-[#7B2FFF] text-[#7B2FFF]" : "border-gray-200 text-gray-800 focus:border-[#7B2FFF]"}`}
+        ${hasValue ? "border-[var(--primary-color)] text-[var(--primary-color)]" : "border-gray-200 text-gray-800 focus:border-[var(--primary-color)]"}`}
     />
   );
 }
@@ -83,9 +83,9 @@ export function SelectField({ value, onChange, options, placeholder, disabled })
         onChange={(e) => onChange(e.target.value)}
         disabled={disabled}
         className={`w-full appearance-none border rounded-xl px-3 py-2.5 text-sm transition
-          focus:outline-none focus:border-[#7B2FFF] focus:ring-1 focus:ring-[#7B2FFF]/20
+          focus:outline-none focus:border-[var(--primary-color)] focus:ring-1 focus:ring-[var(--primary-color)]/20
           disabled:bg-gray-50 disabled:text-gray-400
-          ${value ? "border-[#7B2FFF] text-[#7B2FFF]" : "border-gray-200 text-gray-500"}`}
+          ${value ? "border-[var(--primary-color)] text-[var(--primary-color)]" : "border-gray-200 text-gray-500"}`}
       >
         <option value="">{placeholder ?? "Select…"}</option>
         {normalised.map((o) => (
@@ -117,16 +117,16 @@ export function AreaField({ value, unit, onValueChange, onUnitChange, placeholde
         placeholder={placeholder ?? "Area"}
         min={0}
         className={`flex-1 min-w-0 border rounded-xl px-3 py-2.5 text-sm placeholder-gray-400
-          focus:outline-none focus:ring-1 focus:ring-[#7B2FFF]/20 transition
-          ${hasValue ? "border-[#7B2FFF] text-[#7B2FFF]" : "border-gray-200 text-gray-800 focus:border-[#7B2FFF]"}`}
+          focus:outline-none focus:ring-1 focus:ring-[var(--primary-color)]/20 transition
+          ${hasValue ? "border-[var(--primary-color)] text-[var(--primary-color)]" : "border-gray-200 text-gray-800 focus:border-[var(--primary-color)]"}`}
       />
       <div className="relative w-28 flex-shrink-0">
         <select
           value={unit ?? "sqft"}
           onChange={(e) => onUnitChange(e.target.value)}
           className={`w-full appearance-none border rounded-xl px-3 py-2.5 text-sm
-            focus:outline-none focus:ring-1 focus:ring-[#7B2FFF]/20 transition
-            ${hasValue ? "border-[#7B2FFF] text-[#7B2FFF]" : "border-gray-200 text-gray-600 focus:border-[#7B2FFF]"}`}
+            focus:outline-none focus:ring-1 focus:ring-[var(--primary-color)]/20 transition
+            ${hasValue ? "border-[var(--primary-color)] text-[var(--primary-color)]" : "border-gray-200 text-gray-600 focus:border-[var(--primary-color)]"}`}
         >
           {AREA_UNITS.map((u) => (
             <option key={u.value} value={u.value}>{u.label}</option>
@@ -152,8 +152,8 @@ export function DateField({ value, onChange, placeholder }) {
       onChange={(e) => onChange(e.target.value ? new Date(e.target.value).toISOString() : "")}
       placeholder={placeholder}
       className={`w-full border rounded-xl px-3 py-2.5 text-sm
-        focus:outline-none focus:ring-1 focus:ring-[#7B2FFF]/20 transition
-        ${hasValue ? "border-[#7B2FFF] text-[#7B2FFF]" : "border-gray-200 text-gray-800 focus:border-[#7B2FFF]"}`}
+        focus:outline-none focus:ring-1 focus:ring-[var(--primary-color)]/20 transition
+        ${hasValue ? "border-[var(--primary-color)] text-[var(--primary-color)]" : "border-gray-200 text-gray-800 focus:border-[var(--primary-color)]"}`}
     />
   );
 }
@@ -175,10 +175,10 @@ export function ChipGroup({ options, selected = [], onToggle, max }) {
             onClick={() => onToggle(val)}
             className={`px-3 py-1.5 rounded-full border text-xs font-semibold transition
               ${active
-                ? "bg-[#7B2FFF] border-[#7B2FFF] text-white"
+                ? "bg-[var(--primary-color)] border-[var(--primary-color)] text-white"
                 : maxed
                   ? "border-gray-100 text-gray-300 cursor-not-allowed"
-                  : "border-gray-200 text-gray-600 hover:border-[#7B2FFF] hover:text-[#7B2FFF]"
+                  : "border-gray-200 text-gray-600 hover:border-[var(--primary-color)] hover:text-[var(--primary-color)]"
               }`}
           >
             {label}
@@ -197,12 +197,12 @@ export function Toggle({ value, onChange, label }) {
       onClick={() => onChange(!value)}
       className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border text-sm font-semibold transition
         ${value
-          ? "bg-[#f3eeff] border-[#7B2FFF] text-[#7B2FFF]"
-          : "bg-white border-gray-200 text-gray-500 hover:border-[#7B2FFF] hover:text-[#7B2FFF]"
+          ? "bg-[#f3eeff] border-[var(--primary-color)] text-[var(--primary-color)]"
+          : "bg-white border-gray-200 text-gray-500 hover:border-[var(--primary-color)] hover:text-[var(--primary-color)]"
         }`}
     >
       <span className={`w-4 h-4 rounded-full border-2 flex items-center justify-center transition
-        ${value ? "border-[#7B2FFF] bg-[#7B2FFF]" : "border-gray-300 bg-white"}`}>
+        ${value ? "border-[var(--primary-color)] bg-[var(--primary-color)]" : "border-gray-300 bg-white"}`}>
         {value && (
           <svg className="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />

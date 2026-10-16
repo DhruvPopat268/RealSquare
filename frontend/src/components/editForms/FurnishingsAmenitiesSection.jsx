@@ -84,13 +84,13 @@ function FurnishingCard({ item, active, count, onToggle, onCountChange, disabled
       className={`relative flex flex-col items-center justify-center gap-2 rounded-xl border p-3
         transition select-none focus:outline-none
         ${active
-          ? "border-[#7B2FFF] bg-[#f5f0ff] text-[#7B2FFF]"
-          : "border-gray-200 bg-white text-gray-500 hover:border-[#7B2FFF] hover:text-[#7B2FFF]"
+          ? "border-[var(--primary-color)] bg-[#f5f0ff] text-[var(--primary-color)]"
+          : "border-gray-200 bg-white text-gray-500 hover:border-[var(--primary-color)] hover:text-[var(--primary-color)]"
         }
         disabled:opacity-40 disabled:cursor-not-allowed`}
     >
       {/* Icon */}
-      <span className={`text-2xl leading-none ${active ? "text-[#7B2FFF]" : "text-gray-400"}`}>
+      <span className={`text-2xl leading-none ${active ? "text-[var(--primary-color)]" : "text-gray-400"}`}>
         <ItemIcon icon={item.icon} label={item.name} />
       </span>
 
@@ -109,21 +109,21 @@ function FurnishingCard({ item, active, count, onToggle, onCountChange, disabled
             type="button"
             disabled={disabled || count <= 1}
             onClick={(e) => { stopProp(e); onCountChange(item._id.toString(), count - 1); }}
-            className="w-6 h-6 flex items-center justify-center rounded-full border border-[#7B2FFF]
-              text-[#7B2FFF] text-sm font-bold hover:bg-[#7B2FFF] hover:text-white transition
+            className="w-6 h-6 flex items-center justify-center rounded-full border border-[var(--primary-color)]
+              text-[var(--primary-color)] text-sm font-bold hover:bg-[var(--primary-color)] hover:text-white transition
               disabled:opacity-30 disabled:cursor-not-allowed"
           >
             −
           </button>
-          <span className="min-w-[1.5rem] text-center text-sm font-bold text-[#7B2FFF]">
+          <span className="min-w-[1.5rem] text-center text-sm font-bold text-[var(--primary-color)]">
             {count}
           </span>
           <button
             type="button"
             disabled={disabled}
             onClick={(e) => { stopProp(e); onCountChange(item._id.toString(), count + 1); }}
-            className="w-6 h-6 flex items-center justify-center rounded-full border border-[#7B2FFF]
-              text-[#7B2FFF] text-sm font-bold hover:bg-[#7B2FFF] hover:text-white transition
+            className="w-6 h-6 flex items-center justify-center rounded-full border border-[var(--primary-color)]
+              text-[var(--primary-color)] text-sm font-bold hover:bg-[var(--primary-color)] hover:text-white transition
               disabled:opacity-30 disabled:cursor-not-allowed"
           >
             +
@@ -145,12 +145,12 @@ function AmenityCard({ item, active, onToggle, disabled }) {
       className={`flex flex-col items-center justify-center gap-2 rounded-xl border p-3
         transition select-none focus:outline-none
         ${active
-          ? "border-[#7B2FFF] bg-[#f5f0ff] text-[#7B2FFF]"
-          : "border-gray-200 bg-white text-gray-500 hover:border-[#7B2FFF] hover:text-[#7B2FFF]"
+          ? "border-[var(--primary-color)] bg-[#f5f0ff] text-[var(--primary-color)]"
+          : "border-gray-200 bg-white text-gray-500 hover:border-[var(--primary-color)] hover:text-[var(--primary-color)]"
         }
         disabled:opacity-40 disabled:cursor-not-allowed`}
     >
-      <span className={`text-2xl leading-none ${active ? "text-[#7B2FFF]" : "text-gray-400"}`}>
+      <span className={`text-2xl leading-none ${active ? "text-[var(--primary-color)]" : "text-gray-400"}`}>
         <ItemIcon icon={item.icon} label={item.name} />
       </span>
       <span className="text-[11px] font-semibold text-center leading-tight line-clamp-2">
@@ -229,7 +229,7 @@ export default function FurnishingsAmenitiesSection({
         <div className="bg-white rounded-2xl p-6 flex flex-col gap-4">
           <div className="flex items-center justify-between border-b border-gray-100 pb-3">
             <h3 className="text-base font-bold text-[#1a1a2e]">Flat Furnishings</h3>
-            <span className="text-xs font-semibold text-[#7B2FFF] bg-[#f5f0ff] px-2.5 py-1 rounded-full">
+            <span className="text-xs font-semibold text-[var(--primary-color)] bg-[#f5f0ff] px-2.5 py-1 rounded-full">
               {selectedFurnishCount} selected
             </span>
           </div>
@@ -260,7 +260,7 @@ export default function FurnishingsAmenitiesSection({
         <div className="bg-white rounded-2xl p-6 flex flex-col gap-4">
           <div className="flex items-center justify-between border-b border-gray-100 pb-3">
             <h3 className="text-base font-bold text-[#1a1a2e]">Society Amenities</h3>
-            <span className="text-xs font-semibold text-[#7B2FFF] bg-[#f5f0ff] px-2.5 py-1 rounded-full">
+            <span className="text-xs font-semibold text-[var(--primary-color)] bg-[#f5f0ff] px-2.5 py-1 rounded-full">
               {selectedAmenityCount} selected
             </span>
           </div>

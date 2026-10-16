@@ -29,13 +29,13 @@ export default function ResearchInsights() {
           <rect x="55" y="72" width="38" height="16" rx="2" fill="#6366f1" />
           <rect x="57" y="74" width="34" height="12" rx="1" fill="#e0e7ff" />
           <rect x="50" y="88" width="48" height="3" rx="1.5" fill="#4f46e5" />
-          <polyline points="60,83 67,78 74,81 81,75 88,77" stroke="#7B2FFF" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+          <polyline points="60,83 67,78 74,81 81,75 88,77" stroke="var(--primary-color)" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
           <circle cx="88" cy="68" r="7" fill="#fbbf24" />
           <rect x="82" y="75" width="12" height="14" rx="3" fill="#6366f1" />
           <line x1="82" y1="80" x2="74" y2="85" stroke="#fbbf24" strokeWidth="2.5" strokeLinecap="round" />
           <line x1="94" y1="80" x2="100" y2="84" stroke="#fbbf24" strokeWidth="2.5" strokeLinecap="round" />
-          <polyline points="108,75 118,62 128,66 138,52" stroke="#7B2FFF" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
-          <polygon points="138,52 133,54 136,59" fill="#7B2FFF" />
+          <polyline points="108,75 118,62 128,66 138,52" stroke="var(--primary-color)" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+          <polygon points="138,52 133,54 136,59" fill="var(--primary-color)" />
         </svg>
       ),
     },
@@ -61,11 +61,11 @@ export default function ResearchInsights() {
           <rect x="63" y="78" width="10" height="13" rx="3" fill="#ec4899" />
           <line x1="63" y1="83" x2="57" y2="88" stroke="#fbbf24" strokeWidth="2.5" strokeLinecap="round" />
           <line x1="73" y1="83" x2="79" y2="87" stroke="#fbbf24" strokeWidth="2.5" strokeLinecap="round" />
-          <circle cx="110" cy="75" r="14" stroke="#7B2FFF" strokeWidth="3" fill="#ede9fe" fillOpacity="0.6" />
-          <line x1="120" y1="85" x2="132" y2="97" stroke="#7B2FFF" strokeWidth="3.5" strokeLinecap="round" />
+          <circle cx="110" cy="75" r="14" stroke="var(--primary-color)" strokeWidth="3" fill="#ede9fe" fillOpacity="0.6" />
+          <line x1="120" y1="85" x2="132" y2="97" stroke="var(--primary-color)" strokeWidth="3.5" strokeLinecap="round" />
           <circle cx="110" cy="75" r="8" fill="#c4b5fd" fillOpacity="0.4" />
-          <circle cx="110" cy="73" r="3" fill="#7B2FFF" />
-          <line x1="110" y1="76" x2="110" y2="81" stroke="#7B2FFF" strokeWidth="1.5" strokeLinecap="round" />
+          <circle cx="110" cy="73" r="3" fill="var(--primary-color)" />
+          <line x1="110" y1="76" x2="110" y2="81" stroke="var(--primary-color)" strokeWidth="1.5" strokeLinecap="round" />
         </svg>
       ),
     },
@@ -89,11 +89,11 @@ export default function ResearchInsights() {
           <line x1="61" y1="79" x2="94" y2="79" stroke="#a5b4fc" strokeWidth="1.5" strokeLinecap="round" />
           <line x1="61" y1="84" x2="94" y2="84" stroke="#a5b4fc" strokeWidth="1.5" strokeLinecap="round" />
           <line x1="61" y1="89" x2="80" y2="89" stroke="#a5b4fc" strokeWidth="1.5" strokeLinecap="round" />
-          <circle cx="100" cy="68" r="13" stroke="#7B2FFF" strokeWidth="2.5" fill="#ede9fe" fillOpacity="0.5" />
-          <line x1="109" y1="77" x2="120" y2="88" stroke="#7B2FFF" strokeWidth="3" strokeLinecap="round" />
-          <rect x="92" y="68" width="4" height="8" rx="1" fill="#7B2FFF" />
+          <circle cx="100" cy="68" r="13" stroke="var(--primary-color)" strokeWidth="2.5" fill="#ede9fe" fillOpacity="0.5" />
+          <line x1="109" y1="77" x2="120" y2="88" stroke="var(--primary-color)" strokeWidth="3" strokeLinecap="round" />
+          <rect x="92" y="68" width="4" height="8" rx="1" fill="var(--primary-color)" />
           <rect x="98" y="64" width="4" height="12" rx="1" fill="#a78bfa" />
-          <rect x="104" y="66" width="4" height="10" rx="1" fill="#7B2FFF" />
+          <rect x="104" y="66" width="4" height="10" rx="1" fill="var(--primary-color)" />
         </svg>
       ),
     },
@@ -120,9 +120,9 @@ export default function ResearchInsights() {
                 </div>
               </div>
               <div className="px-5 py-4">
-                <p className="font-bold text-gray-900 text-[15px] flex items-center gap-1 group-hover:text-[#7B2FFF] transition-colors">
+                <p className="font-bold text-gray-900 text-[15px] flex items-center gap-1 group-hover:text-[var(--primary-color)] transition-colors">
                   {card.title}
-                  <span className="text-[#7B2FFF]">›</span>
+                  <span className="text-[var(--primary-color)]">›</span>
                 </p>
                 <p className="text-xs text-gray-400 mt-1 leading-relaxed">{card.subtitle}</p>
               </div>

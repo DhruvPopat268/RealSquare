@@ -205,7 +205,7 @@ export default function PaymentTransactionsPage() {
                             href={tx.invoiceUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="mt-1 flex items-center justify-end gap-1 text-xs font-semibold text-[#7B2FFF] hover:underline"
+                            className="mt-1 flex items-center justify-end gap-1 text-xs font-semibold text-[var(--primary-color)] hover:underline"
                           >
                             <FiExternalLink size={12} /> View invoice
                           </a>
@@ -214,7 +214,7 @@ export default function PaymentTransactionsPage() {
                             type="button"
                             onClick={() => handleGenerateInvoice(tx._id)}
                             disabled={generatingInvoiceId !== null}
-                            className="mt-1 flex items-center justify-end gap-1 ml-auto border-0 bg-transparent p-0 text-xs font-semibold text-[#7B2FFF] hover:underline disabled:cursor-wait disabled:opacity-60"
+                            className="mt-1 flex items-center justify-end gap-1 ml-auto border-0 bg-transparent p-0 text-xs font-semibold text-[var(--primary-color)] hover:underline disabled:cursor-wait disabled:opacity-60"
                           >
                             <FiFileText size={13} />
                             {generatingInvoiceId === tx._id ? "Generating…" : "Generate invoice"}

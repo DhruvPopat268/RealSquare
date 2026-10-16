@@ -64,7 +64,7 @@ function InputField({ label, required, error, children }) {
 function TextInput({ value, onChange, placeholder, type = "text", prefix, maxLength, readOnly }) {
   if (prefix) {
     return (
-      <div className="flex items-center border border-gray-200 rounded-xl overflow-hidden focus-within:border-[#7B2FFF] transition">
+      <div className="flex items-center border border-gray-200 rounded-xl overflow-hidden focus-within:border-[var(--primary-color)] transition">
         <span className="px-3 text-sm text-gray-500 border-r border-gray-200 py-3 bg-gray-50">{prefix}</span>
         <input
           type={type} maxLength={maxLength} placeholder={placeholder}
@@ -78,7 +78,7 @@ function TextInput({ value, onChange, placeholder, type = "text", prefix, maxLen
     <input
       type={type} maxLength={maxLength} placeholder={placeholder}
       value={value} onChange={onChange} readOnly={readOnly}
-      className={`w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#7B2FFF] transition ${readOnly ? "bg-gray-50 text-gray-400" : ""}`}
+      className={`w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[var(--primary-color)] transition ${readOnly ? "bg-gray-50 text-gray-400" : ""}`}
     />
   );
 }
@@ -86,7 +86,7 @@ function TextInput({ value, onChange, placeholder, type = "text", prefix, maxLen
 function SelectInput({ value, onChange, options, placeholder }) {
   return (
     <select value={value} onChange={onChange}
-      className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#7B2FFF] transition bg-white appearance-none"
+      className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[var(--primary-color)] transition bg-white appearance-none"
     >
       <option value="">{placeholder}</option>
       {options.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
@@ -97,7 +97,7 @@ function SelectInput({ value, onChange, options, placeholder }) {
 function TextareaInput({ value, onChange, placeholder, rows = 3 }) {
   return (
     <textarea rows={rows} placeholder={placeholder} value={value} onChange={onChange}
-      className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#7B2FFF] transition resize-none"
+      className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[var(--primary-color)] transition resize-none"
     />
   );
 }
@@ -118,11 +118,11 @@ function EnquiryCitiesField({ cities = [], onChange }) {
       {cities.length > 0 && (
         <div className="flex flex-wrap gap-2 mb-3">
           {cities.map((city) => (
-            <span key={city} className="flex items-center gap-1.5 bg-[#f3eeff] text-[#7B2FFF] text-xs font-semibold px-3 py-1.5 rounded-full border border-[#e0d4ff]">
+            <span key={city} className="flex items-center gap-1.5 bg-[#f3eeff] text-[var(--primary-color)] text-xs font-semibold px-3 py-1.5 rounded-full border border-[#e0d4ff]">
               <FiMapPin size={11} />
               {city}
               <button type="button" onClick={() => onChange(cities.filter((item) => item !== city))}
-                className="ml-0.5 text-[#7B2FFF] hover:text-red-500 bg-transparent border-none cursor-pointer p-0 leading-none transition">
+                className="ml-0.5 text-[var(--primary-color)] hover:text-red-500 bg-transparent border-none cursor-pointer p-0 leading-none transition">
                 <FiX size={12} />
               </button>
             </span>
@@ -151,12 +151,12 @@ function PhotoUpload({ label, value, onChange, shape = "circle", icon: Icon = Fi
     <div className="flex flex-col items-center gap-2">
       <input ref={ref} type="file" accept="image/*" className="hidden" onChange={handleFile} />
       <button type="button" onClick={() => ref.current.click()}
-        className={`relative group bg-gray-100 hover:bg-[#f0ebff] border-2 border-dashed border-gray-300 hover:border-[#7B2FFF] transition overflow-hidden flex items-center justify-center ${isCircle ? "w-20 h-20 rounded-full" : "w-24 h-20 rounded-xl"}`}
+        className={`relative group bg-gray-100 hover:bg-[#f0ebff] border-2 border-dashed border-gray-300 hover:border-[var(--primary-color)] transition overflow-hidden flex items-center justify-center ${isCircle ? "w-20 h-20 rounded-full" : "w-24 h-20 rounded-xl"}`}
       >
         {value ? (
           <img src={value} alt="preview" className="w-full h-full object-cover" />
         ) : (
-          <Icon size={22} className="text-gray-400 group-hover:text-[#7B2FFF] transition" />
+          <Icon size={22} className="text-gray-400 group-hover:text-[var(--primary-color)] transition" />
         )}
         {value && (
           <div className="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
@@ -500,7 +500,7 @@ export default function CompleteProfilePage() {
               <p className="text-sm text-gray-400 mt-0.5">Help us personalise your experience</p>
             </div>
             <button onClick={handleSkip} disabled={skipping || loading}
-              className="flex items-center gap-1.5 text-sm text-[#7B2FFF] bg-transparent border border-[#7B2FFF] rounded-xl px-3 py-1.5 transition cursor-pointer flex-shrink-0 hover:bg-[#f5f0ff] disabled:opacity-60 disabled:cursor-wait"
+              className="flex items-center gap-1.5 text-sm text-[var(--primary-color)] bg-transparent border border-[var(--primary-color)] rounded-xl px-3 py-1.5 transition cursor-pointer flex-shrink-0 hover:bg-[#f5f0ff] disabled:opacity-60 disabled:cursor-wait"
             >
               <FiSkipForward size={14} /> {skipping ? "Skipping..." : "Skip"}
             </button>
@@ -516,12 +516,12 @@ export default function CompleteProfilePage() {
                   onClick={() => { setSelectedRole(role.key); setForm(INITIAL_FORM); setErrors({}); }}
                   className={`flex flex-col items-start gap-1 p-4 rounded-xl border-2 text-left transition cursor-pointer ${
                     selectedRole === role.key
-                      ? "border-[#7B2FFF] bg-[#f5f0ff]"
-                      : "border-gray-200 bg-white hover:border-[#7B2FFF] hover:bg-[#faf8ff]"
+                      ? "border-[var(--primary-color)] bg-[#f5f0ff]"
+                      : "border-gray-200 bg-white hover:border-[var(--primary-color)] hover:bg-[#faf8ff]"
                   }`}
                 >
                   <span className="text-2xl">{role.icon}</span>
-                  <span className={`text-sm font-bold ${selectedRole === role.key ? "text-[#7B2FFF]" : "text-[#1a1a2e]"}`}>
+                  <span className={`text-sm font-bold ${selectedRole === role.key ? "text-[var(--primary-color)]" : "text-[#1a1a2e]"}`}>
                     {role.label}
                   </span>
                   <span className="text-xs text-gray-400 leading-snug">{role.desc}</span>
@@ -546,7 +546,7 @@ export default function CompleteProfilePage() {
               )}
 
               <button onClick={handleSubmit} disabled={loading || skipping}
-                className="w-full mt-2 bg-[#7B2FFF] hover:bg-[#6320d4] disabled:opacity-60 text-white py-3 rounded-xl font-semibold text-sm transition flex items-center justify-center gap-2"
+                className="w-full mt-2 bg-[var(--primary-color)] hover:bg-[#6320d4] disabled:opacity-60 text-white py-3 rounded-xl font-semibold text-sm transition flex items-center justify-center gap-2"
               >
                 {loading ? "Saving..." : <> Save & Continue <FiArrowRight size={15} /> </>}
               </button>

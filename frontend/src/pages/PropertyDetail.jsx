@@ -403,7 +403,7 @@ export default function PropertyDetail() {
               })()}
               <button
                 onClick={() => navigate(`/edit-property/${property._id}`)}
-                className="bg-[#7B2FFF] shadow-md px-3 py-1.5 rounded-xl flex items-center gap-1.5 text-xs font-medium text-white hover:bg-[#6320d4] transition"
+                className="bg-[var(--primary-color)] shadow-md px-3 py-1.5 rounded-xl flex items-center gap-1.5 text-xs font-medium text-white hover:bg-[#6320d4] transition"
               >
                 <FiEdit2 size={12} /> EDIT
               </button>
@@ -442,7 +442,7 @@ export default function PropertyDetail() {
                         ${showOverlay ? "blur-sm brightness-50 scale-105" : "hover:brightness-95"}`}
                     />
                     {i === 0 && (
-                      <span className="absolute top-2 left-2 text-[10px] font-bold bg-[#7B2FFF] text-white px-2 py-0.5 rounded-full z-10">
+                      <span className="absolute top-2 left-2 text-[10px] font-bold bg-[var(--primary-color)] text-white px-2 py-0.5 rounded-full z-10">
                         Cover
                       </span>
                     )}

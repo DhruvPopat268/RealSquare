@@ -86,7 +86,7 @@ function CityPickerModal({ selectedCity, onSelect, onClose }) {
 
         {/* Search */}
         <div className="px-5 pb-4">
-          <div className="flex items-center gap-2 border-2 border-gray-200 focus-within:border-[#7B2FFF] rounded-xl px-3 py-2.5 transition">
+          <div className="flex items-center gap-2 border-2 border-gray-200 focus-within:border-[var(--primary-color)] rounded-xl px-3 py-2.5 transition">
             <FiSearch size={15} className="text-gray-400 flex-shrink-0" />
             <input
               autoFocus
@@ -96,7 +96,7 @@ function CityPickerModal({ selectedCity, onSelect, onClose }) {
               onChange={handleCitySearch}
             />
             {citySearching && (
-              <span className="w-4 h-4 border-2 border-[#7B2FFF] border-t-transparent rounded-full animate-spin flex-shrink-0" />
+              <span className="w-4 h-4 border-2 border-[var(--primary-color)] border-t-transparent rounded-full animate-spin flex-shrink-0" />
             )}
           </div>
         </div>
@@ -112,7 +112,7 @@ function CityPickerModal({ selectedCity, onSelect, onClose }) {
                   onMouseDown={() => onSelect(cityName)}
                   className="w-full flex items-center gap-3 px-5 py-3 hover:bg-[#f5f0ff] text-left transition"
                 >
-                  <FiMapPin size={13} className="text-[#7B2FFF] flex-shrink-0" />
+                  <FiMapPin size={13} className="text-[var(--primary-color)] flex-shrink-0" />
                   <span className="text-sm text-gray-800 font-medium">{cityName}</span>
                   <span className="text-xs text-gray-400 truncate">{s.description.split(",").slice(1).join(",")}</span>
                 </button>
@@ -131,7 +131,7 @@ function CityPickerModal({ selectedCity, onSelect, onClose }) {
                   key={c.name}
                   onMouseDown={() => onSelect(c.name)}
                   className={`relative rounded-xl overflow-hidden h-[72px] border-2 transition ${
-                    selectedCity === c.name ? "border-[#7B2FFF]" : "border-transparent hover:border-[#7B2FFF]"
+                    selectedCity === c.name ? "border-[var(--primary-color)]" : "border-transparent hover:border-[var(--primary-color)]"
                   }`}
                 >
                   <img src={c.image} alt={c.name} className="w-full h-full object-cover" />
@@ -200,8 +200,8 @@ function LineChart({ data, quarters }) {
       {/* Area fill */}
       <defs>
         <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#7B2FFF" stopOpacity="0.15" />
-          <stop offset="100%" stopColor="#7B2FFF" stopOpacity="0" />
+          <stop offset="0%" stopColor="var(--primary-color)" stopOpacity="0.15" />
+          <stop offset="100%" stopColor="var(--primary-color)" stopOpacity="0" />
         </linearGradient>
       </defs>
       <polygon
@@ -210,11 +210,11 @@ function LineChart({ data, quarters }) {
       />
 
       {/* Line */}
-      <polyline points={points} fill="none" stroke="#7B2FFF" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+      <polyline points={points} fill="none" stroke="var(--primary-color)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
 
       {/* Dots */}
       {data.map((v, i) => (
-        <circle key={i} cx={px(i)} cy={py(v)} r="4" fill="#7B2FFF" stroke="white" strokeWidth="2" />
+        <circle key={i} cx={px(i)} cy={py(v)} r="4" fill="var(--primary-color)" stroke="white" strokeWidth="2" />
       ))}
     </svg>
   );
@@ -250,8 +250,8 @@ function TrendModal({ locality, trendData, onClose }) {
               onClick={() => setPropType(t)}
               className={`px-4 py-1.5 rounded-lg border text-sm font-semibold transition ${
                 propType === t
-                  ? "bg-[#7B2FFF] border-[#7B2FFF] text-white"
-                  : "border-gray-300 text-gray-600 hover:border-[#7B2FFF] hover:text-[#7B2FFF]"
+                  ? "bg-[var(--primary-color)] border-[var(--primary-color)] text-white"
+                  : "border-gray-300 text-gray-600 hover:border-[var(--primary-color)] hover:text-[var(--primary-color)]"
               }`}
             >
               {t}
@@ -320,9 +320,9 @@ export default function PriceTrends() {
 
           {/* Breadcrumb */}
           <div className="flex items-center gap-1 text-sm text-gray-400 mb-6">
-            <button onClick={() => navigate("/")} className="hover:text-[#7B2FFF]">Home</button>
+            <button onClick={() => navigate("/")} className="hover:text-[var(--primary-color)]">Home</button>
             <FiChevronRight size={13} />
-            <button onClick={() => navigate(`/price-trends/${cityName.toLowerCase()}`)} className="hover:text-[#7B2FFF]">{cityName}</button>
+            <button onClick={() => navigate(`/price-trends/${cityName.toLowerCase()}`)} className="hover:text-[var(--primary-color)]">{cityName}</button>
             <FiChevronRight size={13} />
             <span className="text-gray-600">Property Rates in {cityName}</span>
           </div>
@@ -334,13 +334,13 @@ export default function PriceTrends() {
 
           {/* City: selected chip + change button only */}
           <div className="flex items-center justify-center gap-3 mb-6">
-            <span className="flex items-center gap-2 px-4 py-1.5 bg-[#7B2FFF] text-white rounded-full text-sm font-semibold">
+            <span className="flex items-center gap-2 px-4 py-1.5 bg-[var(--primary-color)] text-white rounded-full text-sm font-semibold">
               <FiMapPin size={13} />
               {cityName}
             </span>
             <button
               onClick={() => setShowPicker(true)}
-              className="flex items-center gap-1.5 px-4 py-1.5 rounded-full border border-gray-300 text-sm font-medium text-gray-500 hover:border-[#7B2FFF] hover:text-[#7B2FFF] transition"
+              className="flex items-center gap-1.5 px-4 py-1.5 rounded-full border border-gray-300 text-sm font-medium text-gray-500 hover:border-[var(--primary-color)] hover:text-[var(--primary-color)] transition"
             >
               <FiChevronDown size={13} /> Change City
             </button>
@@ -348,13 +348,13 @@ export default function PriceTrends() {
 
           {/* Buy / Rent toggle */}
           <div className="flex justify-center mb-8">
-            <div className="flex rounded-lg border border-[#7B2FFF] overflow-hidden">
+            <div className="flex rounded-lg border border-[var(--primary-color)] overflow-hidden">
               {["buy", "rent"].map((t) => (
                 <button
                   key={t}
                   onClick={() => setIntent(t)}
                   className={`px-12 py-2.5 text-sm font-semibold transition capitalize ${
-                    intent === t ? "bg-[#7B2FFF] text-white" : "bg-white text-gray-700 hover:bg-[#f5f0ff]"
+                    intent === t ? "bg-[var(--primary-color)] text-white" : "bg-white text-gray-700 hover:bg-[#f5f0ff]"
                   }`}
                 >
                   {t === "buy" ? "Buy" : "Rent"}
@@ -375,7 +375,7 @@ export default function PriceTrends() {
               <p className="text-2xl font-bold text-gray-900">{data.priceRange}</p>
               <button
                 onClick={() => navigate(`/listings?listingType=${intent.toUpperCase()}&city=${cityName}`)}
-                className="text-xs text-[#7B2FFF] font-semibold mt-1 hover:underline text-left"
+                className="text-xs text-[var(--primary-color)] font-semibold mt-1 hover:underline text-left"
               >
                 See {(data.totalProperties / 1000).toFixed(0)}K+ Properties →
               </button>
@@ -390,7 +390,7 @@ export default function PriceTrends() {
                 onClick={() => setPropType(t)}
                 className={`pb-3 text-sm font-semibold transition border-b-2 -mb-px ${
                   propType === t
-                    ? "border-[#7B2FFF] text-[#7B2FFF]"
+                    ? "border-[var(--primary-color)] text-[var(--primary-color)]"
                     : "border-transparent text-gray-400 hover:text-gray-700"
                 }`}
               >
@@ -421,13 +421,13 @@ export default function PriceTrends() {
                 <span className="text-sm text-gray-500">{row.priceRange}</span>
                 <button
                   onClick={() => setTrendModal({ locality: row.locality, trendData: row.trend })}
-                  className="w-fit px-4 py-1.5 border border-[#7B2FFF] text-[#7B2FFF] rounded-lg text-xs font-semibold hover:bg-[#f5f0ff] transition"
+                  className="w-fit px-4 py-1.5 border border-[var(--primary-color)] text-[var(--primary-color)] rounded-lg text-xs font-semibold hover:bg-[#f5f0ff] transition"
                 >
                   See Trend
                 </button>
                 <button
                   onClick={() => navigate(`/listings?listingType=${intent.toUpperCase()}&city=${cityName}&areas=${encodeURIComponent(row.locality)}`)}
-                  className="w-fit px-4 py-1.5 bg-[#7B2FFF] text-white rounded-lg text-xs font-semibold hover:bg-[#6320d4] transition"
+                  className="w-fit px-4 py-1.5 bg-[var(--primary-color)] text-white rounded-lg text-xs font-semibold hover:bg-[#6320d4] transition"
                 >
                   See {row.count}+ Properties
                 </button>

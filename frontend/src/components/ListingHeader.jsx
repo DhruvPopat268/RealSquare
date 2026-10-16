@@ -335,7 +335,7 @@ export default function ListingHeader() {
           {/* Logo */}
           <div className="flex-shrink-0 cursor-pointer" onClick={() => navigate("/")}>
             <span className="text-xl font-extrabold text-[#1a1a2e] tracking-tight">
-              Real<span className="text-[#7B2FFF]">Square</span>
+              Real<span className="text-[var(--primary-color)]">Square</span>
             </span>
           </div>
 
@@ -344,12 +344,12 @@ export default function ListingHeader() {
 
             {/* City/Intent trigger button */}
             <button
-              className="flex items-center gap-1 px-3 py-2 rounded-md bg-transparent border-none text-sm font-bold text-[#1a1a2e] cursor-pointer whitespace-nowrap hover:bg-[#f3eeff] hover:text-[#7B2FFF] transition-colors"
+              className="flex items-center gap-1 px-3 py-2 rounded-md bg-transparent border-none text-sm font-bold text-[#1a1a2e] cursor-pointer whitespace-nowrap hover:bg-[#f3eeff] hover:text-[var(--primary-color)] transition-colors"
               onClick={() => { setModalType(currentType); setModalCity(currentCity); setModalAreas([...editAreas]); setShowModal(true); }}
             >
               {currentType} In
               <span
-                className="inline-flex items-center gap-1 ml-1 px-2 py-0.5 rounded-lg bg-[#f0ebff] text-[#7B2FFF] hover:bg-[#e4d9ff] transition text-sm font-semibold"
+                className="inline-flex items-center gap-1 ml-1 px-2 py-0.5 rounded-lg bg-[#f0ebff] text-[var(--primary-color)] hover:bg-[#e4d9ff] transition text-sm font-semibold"
                 onClick={(e) => { e.stopPropagation(); openCityModal("inline"); }}
               >
                 {displayCity} <FiChevronDown size={11} />
@@ -359,13 +359,13 @@ export default function ListingHeader() {
             {/* Inline search box */}
             <div
               ref={searchRef}
-              className="flex-1 flex items-center gap-1.5 min-w-0 bg-[#f7f8fa] border-2 border-[#7B2FFF] rounded-lg px-3 py-1.5 cursor-text relative focus-within:bg-white focus-within:border-[#5b21b6] transition-colors"
+              className="flex-1 flex items-center gap-1.5 min-w-0 bg-[#f7f8fa] border-2 border-[var(--primary-color)] rounded-lg px-3 py-1.5 cursor-text relative focus-within:bg-white focus-within:border-[#5b21b6] transition-colors"
               onClick={() => document.getElementById("lh-input")?.focus()}
             >
               <FiSearch size={14} className="text-gray-400 flex-shrink-0" />
 
               {editAreas.map((a) => (
-                <span key={a} className="flex items-center gap-1 bg-[#ede9fe] text-[#7B2FFF] border border-[#c4b5fd] text-xs font-semibold px-2 py-0.5 rounded-full whitespace-nowrap flex-shrink-0">
+                <span key={a} className="flex items-center gap-1 bg-[#ede9fe] text-[var(--primary-color)] border border-[#c4b5fd] text-xs font-semibold px-2 py-0.5 rounded-full whitespace-nowrap flex-shrink-0">
                   {a}
                   <FiX size={10} className="cursor-pointer opacity-70 hover:opacity-100" onClick={(e) => { e.stopPropagation(); removeAreaChip(a); }} />
                 </span>
@@ -381,7 +381,7 @@ export default function ListingHeader() {
               />
 
               {inlineSearching && (
-                <span className="w-3.5 h-3.5 border-2 border-[#7B2FFF] border-t-transparent rounded-full animate-spin flex-shrink-0" />
+                <span className="w-3.5 h-3.5 border-2 border-[var(--primary-color)] border-t-transparent rounded-full animate-spin flex-shrink-0" />
               )}
 
               {/* Inline suggestions dropdown */}
@@ -420,12 +420,12 @@ export default function ListingHeader() {
 
           {/* Right actions — desktop */}
           <div className="hidden md:flex items-center gap-3.5 flex-shrink-0">
-            <a href="#" className="text-[13px] font-medium text-[#444] no-underline whitespace-nowrap hover:text-[#7B2FFF] transition-colors">Download App</a>
-            <button className="flex items-center gap-1.5 border-none bg-transparent text-sm font-bold text-[#1a1a2e] cursor-pointer whitespace-nowrap hover:text-[#7B2FFF] transition-colors">
+            <a href="#" className="text-[13px] font-medium text-[#444] no-underline whitespace-nowrap hover:text-[var(--primary-color)] transition-colors">Download App</a>
+            <button className="flex items-center gap-1.5 border-none bg-transparent text-sm font-bold text-[#1a1a2e] cursor-pointer whitespace-nowrap hover:text-[var(--primary-color)] transition-colors">
               List Property
-              <span className="bg-[#7B2FFF] text-white text-[10px] font-bold px-1.5 py-0.5 rounded tracking-wide">FREE</span>
+              <span className="bg-[var(--primary-color)] text-white text-[10px] font-bold px-1.5 py-0.5 rounded tracking-wide">FREE</span>
             </button>
-            <button className="flex items-center gap-1.5 bg-[#7B2FFF] border-none rounded-full px-3 py-1.5 cursor-pointer text-white text-[15px]">☰ 👤</button>
+            <button className="flex items-center gap-1.5 bg-[var(--primary-color)] border-none rounded-full px-3 py-1.5 cursor-pointer text-white text-[15px]">☰ 👤</button>
           </div>
 
           {/* Mobile hamburger */}
@@ -437,14 +437,14 @@ export default function ListingHeader() {
         {/* Mobile search bar — always visible below logo row */}
         <div className="md:hidden px-4 pb-3">
           <button
-            className="w-full flex items-center gap-2 bg-[#f7f8fa] border-2 border-[#7B2FFF] rounded-xl px-4 py-2.5 text-left"
+            className="w-full flex items-center gap-2 bg-[#f7f8fa] border-2 border-[var(--primary-color)] rounded-xl px-4 py-2.5 text-left"
             onClick={() => { setModalType(currentType); setModalCity(currentCity || "Mumbai"); setModalAreas([...editAreas]); setShowModal(true); }}
           >
-            <FiSearch size={15} className="text-[#7B2FFF] flex-shrink-0" />
+            <FiSearch size={15} className="text-[var(--primary-color)] flex-shrink-0" />
             <span className="flex-1 text-sm text-gray-400 truncate">
               {editAreas.length ? editAreas.join(", ") : `Search in ${displayCity}...`}
             </span>
-            <span className="text-xs font-bold text-[#7B2FFF] bg-[#f0ebff] px-2 py-0.5 rounded-full flex-shrink-0">
+            <span className="text-xs font-bold text-[var(--primary-color)] bg-[#f0ebff] px-2 py-0.5 rounded-full flex-shrink-0">
               {currentType}
             </span>
           </button>
@@ -477,8 +477,8 @@ export default function ListingHeader() {
                     onClick={() => setModalType(t)}
                     className={`px-4 py-1.5 rounded-full border text-sm font-semibold transition ${
                       modalType === t
-                        ? "bg-[#7B2FFF] border-[#7B2FFF] text-white"
-                        : "border-gray-300 text-gray-600 hover:border-[#7B2FFF] hover:text-[#7B2FFF]"
+                        ? "bg-[var(--primary-color)] border-[var(--primary-color)] text-white"
+                        : "border-gray-300 text-gray-600 hover:border-[var(--primary-color)] hover:text-[var(--primary-color)]"
                     }`}
                   >
                     {t}
@@ -493,18 +493,18 @@ export default function ListingHeader() {
             <div className="flex flex-col md:flex-row md:items-center gap-3 px-5 py-4">
               {/* City picker */}
               <button
-                className="flex items-center gap-2 py-2.5 px-3 border border-gray-200 rounded-xl hover:border-[#7B2FFF] hover:text-[#7B2FFF] transition group w-full md:w-auto md:border-0 md:border-r md:rounded-none md:pr-4 md:py-0 md:px-0 flex-shrink-0"
+                className="flex items-center gap-2 py-2.5 px-3 border border-gray-200 rounded-xl hover:border-[var(--primary-color)] hover:text-[var(--primary-color)] transition group w-full md:w-auto md:border-0 md:border-r md:rounded-none md:pr-4 md:py-0 md:px-0 flex-shrink-0"
                 onClick={() => openCityModal("main")}
               >
-                <FiMapPin size={15} className="text-[#7B2FFF]" />
-                <span className="text-sm font-bold text-[#1a1a2e] group-hover:text-[#7B2FFF] flex-1 text-left">{modalCity}</span>
+                <FiMapPin size={15} className="text-[var(--primary-color)]" />
+                <span className="text-sm font-bold text-[#1a1a2e] group-hover:text-[var(--primary-color)] flex-1 text-left">{modalCity}</span>
                 <FiChevronDown size={13} className="text-gray-400" />
               </button>
 
               {/* Area input + chips */}
               <div className="flex-1 flex items-center flex-wrap gap-1.5 border border-gray-200 rounded-xl px-3 py-2 min-h-[44px] md:border-0 md:rounded-none md:px-3 md:py-0">
                 {modalAreas.map((a) => (
-                  <span key={a} className="flex items-center gap-1 bg-[#ede9fe] text-[#7B2FFF] border border-[#c4b5fd] text-xs font-semibold px-2.5 py-1 rounded-full">
+                  <span key={a} className="flex items-center gap-1 bg-[#ede9fe] text-[var(--primary-color)] border border-[#c4b5fd] text-xs font-semibold px-2.5 py-1 rounded-full">
                     {a}
                     <FiX size={10} className="cursor-pointer opacity-70 hover:opacity-100" onClick={() => removeModalArea(a)} />
                   </span>
@@ -517,14 +517,14 @@ export default function ListingHeader() {
                   autoFocus
                 />
                 {searching && (
-                  <span className="w-4 h-4 border-2 border-[#7B2FFF] border-t-transparent rounded-full animate-spin flex-shrink-0" />
+                  <span className="w-4 h-4 border-2 border-[var(--primary-color)] border-t-transparent rounded-full animate-spin flex-shrink-0" />
                 )}
               </div>
 
               {/* Search button — full width on mobile */}
               <button
                 onClick={handleModalSearch}
-                className="w-full md:w-auto bg-[#7B2FFF] hover:bg-[#6320d4] text-white px-6 py-3 md:py-2.5 rounded-xl text-sm font-bold transition flex-shrink-0"
+                className="w-full md:w-auto bg-[var(--primary-color)] hover:bg-[#6320d4] text-white px-6 py-3 md:py-2.5 rounded-xl text-sm font-bold transition flex-shrink-0"
               >
                 Search
               </button>
@@ -574,8 +574,8 @@ export default function ListingHeader() {
                         <button key={loc} onClick={() => addModalArea(loc)}
                           className={`px-3 py-1.5 rounded-full border text-xs font-medium transition ${
                             modalAreas.includes(loc)
-                              ? "bg-[#7B2FFF] border-[#7B2FFF] text-white"
-                              : "border-gray-300 text-gray-600 hover:border-[#7B2FFF] hover:text-[#7B2FFF]"
+                              ? "bg-[var(--primary-color)] border-[var(--primary-color)] text-white"
+                              : "border-gray-300 text-gray-600 hover:border-[var(--primary-color)] hover:text-[var(--primary-color)]"
                           }`}>
                           {loc}
                         </button>
@@ -592,7 +592,7 @@ export default function ListingHeader() {
                       key={c.name}
                       onClick={() => { setModalCity(c.name); setModalAreas([]); }}
                       className={`relative rounded-xl overflow-hidden h-[64px] border-2 transition ${
-                        modalCity === c.name ? "border-[#7B2FFF]" : "border-transparent hover:border-[#7B2FFF]"
+                        modalCity === c.name ? "border-[var(--primary-color)]" : "border-transparent hover:border-[var(--primary-color)]"
                       }`}
                     >
                       <img src={c.image} alt={c.name} className="w-full h-full object-cover" />
@@ -631,7 +631,7 @@ export default function ListingHeader() {
 
             {/* Search input */}
             <div className="px-5 pb-4">
-              <div className="flex items-center gap-2 border-2 border-gray-200 focus-within:border-[#7B2FFF] rounded-xl px-3 py-2.5 transition">
+              <div className="flex items-center gap-2 border-2 border-gray-200 focus-within:border-[var(--primary-color)] rounded-xl px-3 py-2.5 transition">
                 <FiSearch size={15} className="text-gray-400 flex-shrink-0" />
                 <input
                   autoFocus
@@ -641,7 +641,7 @@ export default function ListingHeader() {
                   onChange={handleCitySearch}
                 />
                 {citySearching && (
-                  <span className="w-4 h-4 border-2 border-[#7B2FFF] border-t-transparent rounded-full animate-spin flex-shrink-0" />
+                  <span className="w-4 h-4 border-2 border-[var(--primary-color)] border-t-transparent rounded-full animate-spin flex-shrink-0" />
                 )}
               </div>
             </div>
@@ -657,7 +657,7 @@ export default function ListingHeader() {
                       onMouseDown={() => selectCity(cityName)}
                       className="w-full flex items-center gap-3 px-5 py-3 hover:bg-[#f5f0ff] text-left transition"
                     >
-                      <FiMapPin size={13} className="text-[#7B2FFF] flex-shrink-0" />
+                      <FiMapPin size={13} className="text-[var(--primary-color)] flex-shrink-0" />
                       <span className="text-sm text-gray-800 font-medium">{cityName}</span>
                       <span className="text-xs text-gray-400 truncate">{s.description.split(",").slice(1).join(",")}</span>
                     </button>
@@ -675,10 +675,10 @@ export default function ListingHeader() {
                     <button
                       onMouseDown={() => selectCity("All Cities")}
                       className={`relative rounded-xl overflow-hidden h-[72px] border-2 transition col-span-1 ${
-                        !currentCity ? "border-[#7B2FFF]" : "border-transparent hover:border-[#7B2FFF]"
+                        !currentCity ? "border-[var(--primary-color)]" : "border-transparent hover:border-[var(--primary-color)]"
                       } bg-gradient-to-br from-[#f0ebff] to-[#e4d9ff] flex items-center justify-center`}
                     >
-                      <span className={`text-xs font-bold ${!currentCity ? "text-[#7B2FFF]" : "text-[#7B2FFF]"}`}>All Cities</span>
+                      <span className={`text-xs font-bold ${!currentCity ? "text-[var(--primary-color)]" : "text-[var(--primary-color)]"}`}>All Cities</span>
                     </button>
                   )}
                   {POPULAR_CITIES.map((c) => (
@@ -687,8 +687,8 @@ export default function ListingHeader() {
                       onMouseDown={() => selectCity(c.name)}
                       className={`relative rounded-xl overflow-hidden h-[72px] border-2 transition ${
                         (cityModalSource === "main" ? modalCity : currentCity) === c.name
-                          ? "border-[#7B2FFF]"
-                          : "border-transparent hover:border-[#7B2FFF]"
+                          ? "border-[var(--primary-color)]"
+                          : "border-transparent hover:border-[var(--primary-color)]"
                       }`}
                     >
                       <img src={c.image} alt={c.name} className="w-full h-full object-cover" />
@@ -713,8 +713,8 @@ export default function ListingHeader() {
             <h3 className="text-base font-bold text-[#1a1a2e] mb-2">Change City?</h3>
             <p className="text-sm text-gray-500 mb-5 leading-relaxed">
               Selecting <strong>"{cityChangeModal.area}"</strong> will change your city from{" "}
-              <strong className="text-[#7B2FFF]">{currentCity}</strong> to{" "}
-              <strong className="text-[#7B2FFF]">{cityChangeModal.newCity}</strong>. Do you want to proceed?
+              <strong className="text-[var(--primary-color)]">{currentCity}</strong> to{" "}
+              <strong className="text-[var(--primary-color)]">{cityChangeModal.newCity}</strong>. Do you want to proceed?
             </p>
             <div className="flex gap-3">
               <button
@@ -725,7 +725,7 @@ export default function ListingHeader() {
               </button>
               <button
                 onClick={confirmCityChange}
-                className="flex-1 py-2.5 rounded-xl bg-[#7B2FFF] hover:bg-[#6320d4] text-white text-sm font-semibold transition"
+                className="flex-1 py-2.5 rounded-xl bg-[var(--primary-color)] hover:bg-[#6320d4] text-white text-sm font-semibold transition"
               >
                 Yes, Change City
               </button>
