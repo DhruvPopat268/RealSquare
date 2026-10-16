@@ -46,7 +46,7 @@ const SELL_ID = import.meta.env.VITE_LISTING_TYPE_SELL_ID;
 
 async function loadPurposeTabs() {
   const { data } = await axios.get(
-    `${import.meta.env.VITE_API_URL}/api/mixed/property-listings/active-purposes`,
+    `${import.meta.env.VITE_API_URL}/api/mixed/unprotected/active-purposes`,
     { withCredentials: true }
   );
   return data.data

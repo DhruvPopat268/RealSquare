@@ -5,7 +5,7 @@ const config = { withCredentials: true };
 
 // ── Q2: active purposes ─────────────────────────────────────────────────────
 export async function fetchActivePurposes({ showBuyLabel = false } = {}) {
-  const { data } = await axios.get(`${API}/api/mixed/property-listings/active-purposes`, config);
+  const { data } = await axios.get(`${API}/api/mixed/unprotected/active-purposes`, config);
   const SELL_ID = import.meta.env.VITE_LISTING_TYPE_SELL_ID;
   return data.data
     .sort((a, b) => a.order - b.order)
@@ -17,7 +17,7 @@ export async function fetchActivePurposes({ showBuyLabel = false } = {}) {
 
 // ── Q3: active categories (Residential / Commercial) ────────────────────────
 export async function fetchActiveCategories() {
-  const { data } = await axios.get(`${API}/api/mixed/property-listings/active-categories`, config);
+  const { data } = await axios.get(`${API}/api/mixed/unprotected/active-categories`, config);
   return data.data
     .sort((a, b) => a.order - b.order)
     .map((c) => ({ label: c.name, value: c._id }));
@@ -26,7 +26,7 @@ export async function fetchActiveCategories() {
 // ── Q4: property types by categoryId ────────────────────────────────────────
 export async function fetchPropertyTypes(categoryId) {
   const { data } = await axios.get(
-    `${API}/api/mixed/property-listings/active-property-types?categoryId=${categoryId}`, config
+    `${API}/api/mixed/unprotected/active-property-types?categoryId=${categoryId}`, config
   );
   return data.data
     .sort((a, b) => a.order - b.order)

@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { FiArrowRight, FiSkipForward, FiCamera, FiImage, FiMapPin, FiX } from "react-icons/fi";
 import axios from "axios";
@@ -171,14 +171,14 @@ function PhotoUpload({ label, value, onChange, shape = "circle", icon: Icon = Fi
 
 // ── Role-specific field sets ──────────────────────────────────────────────────
 
-function CustomerFields({ form, setForm, errors, mobile, verifiedEmail, onEmailVerified }) {
+function CustomerFields({ form, setForm, errors, mobile, verifiedEmail, onEmailVerified, hideProfilePhoto }) {
   return (
     <>
-      <div className="flex justify-center mb-2">
+      {!hideProfilePhoto && <div className="flex justify-center mb-2">
         <PhotoUpload label="Profile Photo (Optional)" value={form.profilePhotoPreview}
           onChange={(url, file) => setForm((p) => ({ ...p, profilePhotoPreview: url, profilePhotoFile: file }))}
         />
-      </div>
+      </div>}
       <InputField label="Full Name" required error={errors.fullName}>
         <TextInput value={form.fullName} onChange={(e) => setForm((p) => ({ ...p, fullName: e.target.value }))} placeholder="Your full name" />
       </InputField>
@@ -198,14 +198,14 @@ function CustomerFields({ form, setForm, errors, mobile, verifiedEmail, onEmailV
   );
 }
 
-function OwnerFields({ form, setForm, errors, mobile, verifiedEmail, onEmailVerified }) {
+function OwnerFields({ form, setForm, errors, mobile, verifiedEmail, onEmailVerified, hideProfilePhoto }) {
   return (
     <>
-      <div className="flex justify-center mb-2">
+      {!hideProfilePhoto && <div className="flex justify-center mb-2">
         <PhotoUpload label="Profile Photo (Optional)" value={form.profilePhotoPreview}
           onChange={(url, file) => setForm((p) => ({ ...p, profilePhotoPreview: url, profilePhotoFile: file }))}
         />
-      </div>
+      </div>}
       <InputField label="Full Name" required error={errors.fullName}>
         <TextInput value={form.fullName} onChange={(e) => setForm((p) => ({ ...p, fullName: e.target.value }))} placeholder="Your full name" />
       </InputField>
@@ -257,14 +257,14 @@ function OwnerFields({ form, setForm, errors, mobile, verifiedEmail, onEmailVeri
   );
 }
 
-function BrokerFields({ form, setForm, errors, mobile, verifiedEmail, onEmailVerified }) {
+function BrokerFields({ form, setForm, errors, mobile, verifiedEmail, onEmailVerified, hideProfilePhoto }) {
   return (
     <>
-      <div className="flex justify-center mb-2">
+      {!hideProfilePhoto && <div className="flex justify-center mb-2">
         <PhotoUpload label="Profile Photo (Optional)" value={form.profilePhotoPreview}
           onChange={(url, file) => setForm((p) => ({ ...p, profilePhotoPreview: url, profilePhotoFile: file }))}
         />
-      </div>
+      </div>}
       <InputField label="Full Name" required error={errors.fullName}>
         <TextInput value={form.fullName} onChange={(e) => setForm((p) => ({ ...p, fullName: e.target.value }))} placeholder="Your full name" />
       </InputField>
@@ -297,14 +297,14 @@ function BrokerFields({ form, setForm, errors, mobile, verifiedEmail, onEmailVer
   );
 }
 
-function BuilderFields({ form, setForm, errors, mobile, verifiedEmail, onEmailVerified }) {
+function BuilderFields({ form, setForm, errors, mobile, verifiedEmail, onEmailVerified, hideProfilePhoto }) {
   return (
     <>
-      <div className="flex justify-center mb-2">
+      {!hideProfilePhoto && <div className="flex justify-center mb-2">
         <PhotoUpload label="Profile Photo (Optional)" value={form.profilePhotoPreview}
           onChange={(url, file) => setForm((p) => ({ ...p, profilePhotoPreview: url, profilePhotoFile: file }))}
         />
-      </div>
+      </div>}
       <InputField label="Company / Builder Name" required error={errors.name}>
         <TextInput value={form.name} onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))} placeholder="Your company name" />
       </InputField>
@@ -355,20 +355,55 @@ const INITIAL_FORM = {
   cinNumber: "", foundedYear: "", totalProjectsDelivered: "",
 };
 
+function readSwitchedRoleMarker() {
+  try {
+    return JSON.parse(localStorage.getItem("isSwitchedRole") || "null")?.switchedRole === true;
+  } catch {
+    localStorage.removeItem("isSwitchedRole");
+    return false;
+  }
+}
+
 export default function CompleteProfilePage() {
   const navigate = useNavigate();
   const location = useLocation();
   const mobile = location.state?.mobile || "";
+  const isSwitchedRole = location.state?.isSwitchedRole === true || readSwitchedRoleMarker();
+  const initialUser = location.state?.user;
+  const initialIdentity = {
+    fullName: isSwitchedRole ? initialUser?.name || "" : "",
+    name: isSwitchedRole ? initialUser?.name || "" : "",
+    email: isSwitchedRole ? initialUser?.email || "" : "",
+  };
 
   const [selectedRole, setSelectedRole] = useState(null);
-  const [form, setForm] = useState(INITIAL_FORM);
+  const [form, setForm] = useState(() => ({ ...INITIAL_FORM, ...initialIdentity }));
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
-  const [verifiedEmail, setVerifiedEmail] = useState("");
+  const [verifiedEmail, setVerifiedEmail] = useState(() => initialUser?.emailVerified ? initialUser.email?.trim().toLowerCase() || "" : "");
   const [skipping, setSkipping] = useState(false);
   const [skipError, setSkipError] = useState("");
 
   const returnTo = new URLSearchParams(location.search).get("returnTo") || "/";
+
+  useEffect(() => {
+    if (!isSwitchedRole || initialUser) return;
+    let cancelled = false;
+    api.get(`${BASE_URL}/api/system-users/me`, { withCredentials: true })
+      .then(({ data }) => {
+        if (cancelled || !data.success) return;
+        const user = data.data;
+        setForm((current) => ({
+          ...current,
+          fullName: current.fullName || user.name || "",
+          name: current.name || user.name || "",
+          email: current.email || user.email || "",
+        }));
+        if (user.emailVerified && user.email) setVerifiedEmail(user.email.trim().toLowerCase());
+      })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, [isSwitchedRole, initialUser]);
 
   const validate = () => {
     const e = {};
@@ -467,6 +502,7 @@ export default function CompleteProfilePage() {
       }
 
       await api.post(`${BASE_URL}/api/system-users/complete-profile`, fd, { withCredentials: true });
+      if (isSwitchedRole) localStorage.removeItem("isSwitchedRole");
       navigate(returnTo, { replace: true });
     } catch (err) {
       setErrors({ submit: err.message });
@@ -480,6 +516,7 @@ export default function CompleteProfilePage() {
     setSkipping(true);
     try {
       await api.post(`${BASE_URL}/api/system-users/assign-customer-role`, undefined, { withCredentials: true });
+      if (isSwitchedRole) localStorage.removeItem("isSwitchedRole");
       navigate(returnTo, { replace: true });
     } catch (err) {
       setSkipError(err.message || "Could not continue as a customer");
@@ -513,7 +550,11 @@ export default function CompleteProfilePage() {
             <div className="grid grid-cols-2 gap-3">
               {ROLES.map((role) => (
                 <button key={role.key}
-                  onClick={() => { setSelectedRole(role.key); setForm(INITIAL_FORM); setErrors({}); }}
+                  onClick={() => {
+                    setSelectedRole(role.key);
+                    setForm((current) => ({ ...INITIAL_FORM, fullName: current.fullName, name: current.name, email: current.email }));
+                    setErrors({});
+                  }}
                   className={`flex flex-col items-start gap-1 p-4 rounded-xl border-2 text-left transition cursor-pointer ${
                     selectedRole === role.key
                       ? "border-[var(--primary-color)] bg-[#f5f0ff]"
@@ -532,10 +573,10 @@ export default function CompleteProfilePage() {
 
           {selectedRole && (
             <div className="flex flex-col gap-4 border-t border-gray-100 pt-6">
-              {selectedRole === "customer" && <CustomerFields form={form} setForm={setForm} errors={errors} mobile={mobile} verifiedEmail={verifiedEmail} onEmailVerified={setVerifiedEmail} />}
-              {selectedRole === "owner"    && <OwnerFields    form={form} setForm={setForm} errors={errors} mobile={mobile} verifiedEmail={verifiedEmail} onEmailVerified={setVerifiedEmail} />}
-              {selectedRole === "broker"   && <BrokerFields   form={form} setForm={setForm} errors={errors} mobile={mobile} verifiedEmail={verifiedEmail} onEmailVerified={setVerifiedEmail} />}
-              {selectedRole === "builder"  && <BuilderFields  form={form} setForm={setForm} errors={errors} mobile={mobile} verifiedEmail={verifiedEmail} onEmailVerified={setVerifiedEmail} />}
+              {selectedRole === "customer" && <CustomerFields form={form} setForm={setForm} errors={errors} mobile={mobile} verifiedEmail={verifiedEmail} onEmailVerified={setVerifiedEmail} hideProfilePhoto={isSwitchedRole} />}
+              {selectedRole === "owner"    && <OwnerFields    form={form} setForm={setForm} errors={errors} mobile={mobile} verifiedEmail={verifiedEmail} onEmailVerified={setVerifiedEmail} hideProfilePhoto={isSwitchedRole} />}
+              {selectedRole === "broker"   && <BrokerFields   form={form} setForm={setForm} errors={errors} mobile={mobile} verifiedEmail={verifiedEmail} onEmailVerified={setVerifiedEmail} hideProfilePhoto={isSwitchedRole} />}
+              {selectedRole === "builder"  && <BuilderFields  form={form} setForm={setForm} errors={errors} mobile={mobile} verifiedEmail={verifiedEmail} onEmailVerified={setVerifiedEmail} hideProfilePhoto={isSwitchedRole} />}
 
               {Object.values(errors).some(Boolean) && (
                 <div role="alert" className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">

@@ -76,12 +76,28 @@ export default function LoginPage() {
       const response = await fetch(`${BASE_URL}/api/system-users/verify-otp`, { method: "POST", credentials: "include", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ mobile, otp: otpValue }) });
       const data = await response.json();
       if (!response.ok) throw new Error(data.message || "Invalid OTP");
-      await fetch(`${BASE_URL}/api/system-users/me`, { credentials: "include" });
+      const meResponse = await fetch(`${BASE_URL}/api/system-users/me`, { credentials: "include" });
+      const meResult = meResponse.ok ? await meResponse.json() : null;
+      let switchMarker = null;
+      try {
+        switchMarker = JSON.parse(localStorage.getItem("isSwitchedRole") || "null");
+      } catch {
+        localStorage.removeItem("isSwitchedRole");
+      }
+      const isSwitchedRole = switchMarker?.switchedRole === true && switchMarker.mobile === mobile;
+      if (switchMarker && !isSwitchedRole) localStorage.removeItem("isSwitchedRole");
       if (data.data.isNew) {
         const params = new URLSearchParams(location.search);
         const returnTo = params.get("returnTo") || "/";
-        navigate(`/complete-profile?returnTo=${encodeURIComponent(returnTo)}`, { state: { mobile } });
+        navigate(`/complete-profile?returnTo=${encodeURIComponent(returnTo)}`, {
+          state: {
+            mobile,
+            user: meResult?.success ? meResult.data : null,
+            isSwitchedRole,
+          },
+        });
       } else {
+        if (isSwitchedRole) localStorage.removeItem("isSwitchedRole");
         const params = new URLSearchParams(location.search);
         const returnTo = params.get("returnTo") || "/";
         navigate(returnTo, { replace: true });

@@ -529,7 +529,15 @@ export default function Navbar() {
                   <button
                     onClick={async () => {
                       if (!switchSelected) return;
-                      await api.post(`${import.meta.env.VITE_API_URL}/api/system-users/switch-role`, undefined, { withCredentials: true });
+                      const switchRoleUrl = `${import.meta.env.VITE_API_URL}/api/system-users/switch-role`;
+                      const switchResponse = await api.post(switchRoleUrl, undefined, { withCredentials: true });
+                      if (switchResponse.status === 200 && switchResponse.data?.success) {
+                        localStorage.setItem("isSwitchedRole", JSON.stringify({ mobile: user?.mobile, switchedRole: true }));
+                        const followupResponse = await api.post(switchRoleUrl, undefined, { withCredentials: true });
+                        if (followupResponse.status === 200 && followupResponse.data?.success) {
+                          localStorage.removeItem("isSwitchedRole");
+                        }
+                      }
                       setShowSwitchModal(false);
                       setProfileOpen(false);
                       setSwitchSelected(null);
