@@ -5,8 +5,9 @@ import {
   SECURITY_DEPOSIT_OPTIONS, SECURITY_DEPOSIT_MAP,
   AREA_UNIT_OPTIONS, BHK_OPTIONS,
   RESIDENTIAL_PLOT_IDS, COMMERCIAL_PLOT_IDS, COMMERCIAL_OFFICE_IDS, COMMERCIAL_OTHERS_IDS,
+  COMMERCIAL_COWORKING_SPACE_ID,
   CATEGORY_RESIDENTIAL_ID, CATEGORY_COMMERCIAL_ID,
-  LISTING_TYPE_SELL_ID, LISTING_TYPE_PG_ID,
+  LISTING_TYPE_SELL_ID, LISTING_TYPE_RENT_ID, LISTING_TYPE_PG_ID,
   PG_ROOM_TYPE_OPTIONS,
 } from "./chatbotConstants";
 import { fetchActivePurposes, fetchActiveCategories, fetchPropertyTypes } from "./chatbotApi";
@@ -79,7 +80,10 @@ export async function propertyListingFlow(step, answer, collectedData, { botSay,
     setCollectedData(() => updated);
     try {
       await botSay(`Great! What type of ${answer.toLowerCase()} property is it?`);
-      const types = await fetchPropertyTypes(matched?.value);
+      const propertyTypes = await fetchPropertyTypes(matched?.value);
+      const types = matched?.value === CATEGORY_COMMERCIAL_ID && collectedData.listingTypeId !== LISTING_TYPE_RENT_ID
+        ? propertyTypes.filter((type) => type.value !== COMMERCIAL_COWORKING_SPACE_ID)
+        : propertyTypes;
       await botSay("Select the property type:", types.map((t) => t.label));
       setCollectedData(() => ({ ...updated, _propertyTypes: types }));
       goTo("property_type", { ...updated, _propertyTypes: types });
@@ -140,6 +144,8 @@ export async function propertyListingFlow(step, answer, collectedData, { botSay,
     const isCommercial  = updated.categoryId === CATEGORY_COMMERCIAL_ID;
     const isCommPlot    = COMMERCIAL_PLOT_IDS.includes(updated.propertyTypeId);
     const isPG          = updated.listingTypeId === LISTING_TYPE_PG_ID;
+    const isCoworking   = updated.propertyTypeId === COMMERCIAL_COWORKING_SPACE_ID
+      && updated.listingTypeId === LISTING_TYPE_RENT_ID;
 
     if (isResidential && isPG) {
       goTo("pg_name", updated);
@@ -147,6 +153,9 @@ export async function propertyListingFlow(step, answer, collectedData, { botSay,
       goTo("plot_area_unit", updated);
     } else if (isResidential && !isPlot) {
       goTo("res_bhk", updated);
+    } else if (isCommercial && isCoworking) {
+      await botSay("Which floor is the coworking space on? (Use -1 for underground, 0 for ground floor, and 1 or higher for floors above ground.)", [], true);
+      goTo("coworking_floor", { ...updated, _coworkingWorkspaces: [] });
     } else if (isCommercial && isCommPlot) {
       goTo("comm_plot_area_unit", updated);
     } else if (isCommercial) {
@@ -467,6 +476,85 @@ export async function propertyListingFlow(step, answer, collectedData, { botSay,
     return;
   }
 
+  // COWORKING SPACE BRANCH (Rent listings only)
+  if (step === "coworking_floor") {
+    if (!answer?.trim()) return;
+    const updated = { ...collectedData, _coworkingFloor: answer.trim() };
+    setCollectedData(() => updated);
+    await botSay("What is the office number?", [], true);
+    goTo("coworking_office_number", updated);
+    return;
+  }
+
+  if (step === "coworking_office_number") {
+    if (!answer?.trim()) return;
+    const updated = { ...collectedData, _coworkingOfficeNumber: answer.trim() };
+    setCollectedData(() => updated);
+    await botSay("What type of workspace would you like to add?", ["Hall", "Cabins"]);
+    goTo("coworking_workspace_type", updated);
+    return;
+  }
+
+  if (step === "coworking_workspace_type") {
+    if (answer !== "Hall" && answer !== "Cabins") return;
+    const updated = { ...collectedData, _coworkingPendingType: answer };
+    setCollectedData(() => updated);
+    const isHall = answer === "Hall";
+    await botSay(isHall ? "How many seats are available in the hall?" : "How many cabins are available?");
+    setCustomInput({ type: "number", key: "coworking_workspace_count", placeholder: isHall ? "Number of seats..." : "Number of cabins...", min: 0 });
+    goTo("coworking_workspace_count", updated);
+    return;
+  }
+
+  if (step === "coworking_workspace_count") {
+    if (!answer || Number(answer) <= 0) return;
+    const updated = { ...collectedData, _coworkingPendingCount: Number(answer) };
+    setCollectedData(() => updated);
+    const unit = collectedData._coworkingPendingType === "Hall" ? "seat" : "cabin";
+    await botSay(`What is the monthly rent per ${unit}? (in ₹)`);
+    setCustomInput({ type: "number", key: "coworking_workspace_rent", placeholder: `Monthly rent per ${unit} in ₹...`, min: 0 });
+    goTo("coworking_workspace_rent", updated);
+    return;
+  }
+
+  if (step === "coworking_workspace_rent") {
+    if (!answer || Number(answer) <= 0) return;
+    const updated = { ...collectedData, _coworkingPendingRent: Number(answer) };
+    setCollectedData(() => updated);
+    const unit = collectedData._coworkingPendingType === "Hall" ? "seat" : "cabin";
+    await botSay(`What is the deposit per ${unit}? (in ₹)`);
+    setCustomInput({ type: "number", key: "coworking_workspace_deposit", placeholder: `Deposit per ${unit} in ₹...`, min: 0, allowZero: true });
+    goTo("coworking_workspace_deposit", updated);
+    return;
+  }
+
+  if (step === "coworking_workspace_deposit") {
+    if (answer === "" || answer == null || !Number.isFinite(Number(answer)) || Number(answer) < 0) return;
+    const entry = {
+      type: collectedData._coworkingPendingType,
+      count: collectedData._coworkingPendingCount,
+      rentPerUnitMonthly: collectedData._coworkingPendingRent,
+      depositPerUnit: Number(answer),
+    };
+    const workspaces = [...(collectedData._coworkingWorkspaces ?? []), entry];
+    const updated = { ...collectedData, _coworkingWorkspaces: workspaces };
+    ["_coworkingPendingType", "_coworkingPendingCount", "_coworkingPendingRent"].forEach((key) => delete updated[key]);
+    setCollectedData(() => updated);
+    await botSay(`${entry.type} workspace added. Would you like to add another workspace?`, ["Add another workspace", "Done"]);
+    goTo("coworking_workspace_more", updated);
+    return;
+  }
+
+  if (step === "coworking_workspace_more") {
+    if (answer === "Add another workspace") {
+      await botSay("What type of workspace would you like to add?", ["Hall", "Cabins"]);
+      goTo("coworking_workspace_type", collectedData);
+    } else if (answer === "Done") {
+      goTo("purpose_questions", collectedData);
+    }
+    return;
+  }
+
   if (step === "comm_builtup_unit") {
     if (!answer) {
       await botSay("What unit are the areas in? (built-up & carpet)", AREA_UNIT_OPTIONS);
@@ -523,7 +611,12 @@ export async function propertyListingFlow(step, answer, collectedData, { botSay,
   if (step === "purpose_questions") {
     const isSell = collectedData.listingTypeId === LISTING_TYPE_SELL_ID;
     const isPG   = collectedData.listingTypeId === LISTING_TYPE_PG_ID;
+    const isCoworkingRent = collectedData.categoryId === CATEGORY_COMMERCIAL_ID
+      && collectedData.propertyTypeId === COMMERCIAL_COWORKING_SPACE_ID
+      && collectedData.listingTypeId === LISTING_TYPE_RENT_ID;
     if (isPG) {
+      goTo("ask_images", collectedData);
+    } else if (isCoworkingRent) {
       goTo("ask_images", collectedData);
     } else if (isSell) {
       await botSay("What is the expected sale price? (in ₹)");
@@ -617,6 +710,18 @@ export async function propertyListingFlow(step, answer, collectedData, { botSay,
       detailLines.push(`  • Carpet Area      : ${details.carpetArea.value} ${details.carpetArea.unit}`);
     if (details.propertyType)
       detailLines.push(`  • Property Type    : ${details.propertyType}`);
+
+    if (d._coworkingFloor)
+      detailLines.push(`  • Workspace Floor : ${d._coworkingFloor}`);
+    if (d._coworkingOfficeNumber)
+      detailLines.push(`  • Office Number    : ${d._coworkingOfficeNumber}`);
+    if (d._coworkingWorkspaces?.length) {
+      detailLines.push("  • Workspaces       :");
+      d._coworkingWorkspaces.forEach((workspace, index) => {
+        const unit = workspace.type === "Hall" ? "seat" : "cabin";
+        detailLines.push(`      ${index + 1}). ${workspace.type} — ${workspace.count} ${workspace.type === "Hall" ? "seats" : "cabins"} — ₹${workspace.rentPerUnitMonthly.toLocaleString()} / ${unit} / month — ₹${workspace.depositPerUnit.toLocaleString()} deposit / ${unit}`);
+      });
+    }
 
     // PG
     if (details.pgName)
