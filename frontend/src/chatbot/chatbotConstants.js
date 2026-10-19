@@ -51,6 +51,14 @@ export const COMMERCIAL_PLOT_IDS     = (import.meta.env.VITE_COMMERCIAL_PROPERTY
 export const COMMERCIAL_OFFICE_IDS   = (import.meta.env.VITE_COMMERCIAL_PROPERTY_TYPE_OFFICE_IDS ?? "").split(",").filter(Boolean);
 export const COMMERCIAL_OTHERS_IDS   = (import.meta.env.VITE_COMMERCIAL_PROPERTY_TYPE_OTHERS_IDS ?? "").split(",").filter(Boolean);
 
+// Project listing selections excluded through comma-separated environment IDs.
+export const PROJECT_LISTING_TYPE_EXCLUDE_IDS = (import.meta.env.VITE_PROJECT_LISTING_TYPE_EXCLUDE_LIST ?? "")
+  .split(",").map((id) => id.trim()).filter(Boolean);
+export const PROJECT_RESIDENTIAL_PROPERTY_TYPE_EXCLUDE_IDS = (import.meta.env.VITE_PROJECT_RESIDENTIAL_PROPERTY_TYPE_EXCLUDE_LIST ?? "")
+  .split(",").map((id) => id.trim()).filter(Boolean);
+export const PROJECT_COMMERCIAL_PROPERTY_TYPE_EXCLUDE_IDS = (import.meta.env.VITE_PROJECT_COMMERCIAL_PROPERTY_TYPE_EXCLUDE_LIST ?? "")
+  .split(",").map((id) => id.trim()).filter(Boolean);
+
 // Category IDs from env
 export const CATEGORY_RESIDENTIAL_ID = import.meta.env.VITE_CATEGORY_RESIDENTIAL_ID;
 export const CATEGORY_COMMERCIAL_ID  = import.meta.env.VITE_CATEGORY_COMMERCIAL_ID;

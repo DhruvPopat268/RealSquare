@@ -25,11 +25,6 @@ export async function propertyListingFlow(step, answer, collectedData, { botSay,
   // ── Q1: Property Listing or Project Listing ───────────────────────────────
   if (step === "listing_mode") {
     if (!answer) return;
-    if (answer === "Project Listing") {
-      await botSay("🚧 Project listing is coming soon! Currently you can only do Property Listing.\n\nWould you like to continue with Property Listing?", ["Yes, continue", "No, go back"]);
-      goTo("project_fallback", collectedData);
-      return;
-    }
     const updated = { ...collectedData, listingMode: answer };
     setCollectedData(() => updated);
     try {
@@ -40,27 +35,6 @@ export async function propertyListingFlow(step, answer, collectedData, { botSay,
       goTo("purpose", { ...updated, _purposes: purposes });
     } catch {
       await botSay("⚠️ Failed to load options. Please refresh and try again.");
-    }
-    return;
-  }
-
-  // ── Project fallback ──────────────────────────────────────────────────────
-  if (step === "project_fallback") {
-    if (!answer) return;
-    if (answer === "Yes, continue") {
-      const updated = { ...collectedData, listingMode: "Property Listing" };
-      setCollectedData(() => updated);
-      try {
-        await botSay("Fetching options...");
-        const purposes = await fetchActivePurposes();
-        await botSay("What are you looking to do with this property?", purposes.map((p) => p.label));
-        setCollectedData(() => ({ ...updated, _purposes: purposes }));
-        goTo("purpose", { ...updated, _purposes: purposes });
-      } catch {
-        await botSay("⚠️ Failed to load options. Please refresh and try again.");
-      }
-    } else {
-      await botSay("👋 No problem! Come back when Project Listing is available. You can close this window.");
     }
     return;
   }

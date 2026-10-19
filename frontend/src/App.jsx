@@ -30,9 +30,11 @@ import CompleteProfilePage from "./pages/CompleteProfilePage";
 import UpdateProfilePage from "./pages/UpdateProfilePage";
 import ListPropertyPage from "./pages/ListPropertyPage";
 import ChatbotPage from "./pages/ChatbotPage";
+import ProjectListingPage from "./pages/ProjectListingPage";
 import CreateInquiryPage from "./pages/CreateInquiryPage";
 import DepositCoinsPage from "./pages/DepositCoinsPage";
 import EditPropertyPage from "./pages/EditPropertyPage";
+import EditProjectPage from "./pages/EditProjectPage";
 import PaymentTransactionsPage from "./pages/PaymentTransactionsPage";
 import PlansPage from "./pages/PlansPage";
 import EnquiryPlansPage from "./pages/EnquiryPlansPage";
@@ -149,12 +151,14 @@ function App() {
       <Route path="/profile" element={<UpdateProfilePage />} />
       <Route path="/list-property" element={<ListPropertyPage />} />
       <Route path="/chatbot" element={<ChatbotPage />} />
+      <Route path="/project-listing" element={<ProjectListingPage />} />
       <Route path="/create-inquiry" element={<CreateInquiryPage />} />
       <Route path="/deposit-coins" element={<DepositCoinsPage />} />
       <Route path="/payment-transactions" element={<PaymentTransactionsPage />} />
       <Route path="/plans" element={<PlansPage />} />
       <Route path="/enquiry-plans" element={<EnquiryPlansPage />} />
       <Route path="/edit-property/:id" element={<EditPropertyPage />} />
+      <Route path="/edit-project/:id" element={<EditProjectPage />} />
       <Route path="/my-property-listings" element={<MyListingsPage />} />
       <Route path="/my-inquiries" element={<MyInquiriesPage />} />
       <Route path="/assigned-inquiries" element={<AssignedInquiriesPage />} />

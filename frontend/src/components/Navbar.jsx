@@ -742,6 +742,18 @@ export default function Navbar() {
                           )}
                         </button>
                       )}
+                      {canViewMyListings && (
+                        <button
+                          onClick={() => { setProfileOpen(false); navigate("/my-property-listings?view=projects"); }}
+                          className="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl border border-gray-200 transition group mt-2"
+                          onMouseEnter={e => { e.currentTarget.style.borderColor = primaryColor; e.currentTarget.style.backgroundColor = "#f5f0ff"; }}
+                          onMouseLeave={e => { e.currentTarget.style.borderColor = "#e5e7eb"; e.currentTarget.style.backgroundColor = "transparent"; }}
+                        >
+                          <FiList size={14} className="flex-shrink-0" style={{ color: primaryColor }} />
+                          <span className="text-xs font-semibold flex-1 text-left text-[#1a1a2e]">My Project Listings</span>
+                          <span className="text-[11px] text-gray-400">→</span>
+                        </button>
+                      )}
                       <button
                         onClick={() => { setProfileOpen(false); navigate("/my-inquiries"); }}
                         className={`w-full flex items-center gap-2 px-3 py-2.5 rounded-xl border border-gray-200 transition group ${canViewMyListings ? "mt-2" : ""}`}
@@ -1008,6 +1020,18 @@ export default function Navbar() {
                           ) : (
                             <span className="text-[11px] text-gray-400">→</span>
                           )}
+                        </button>
+                      )}
+                      {canViewMyListings && (
+                        <button
+                          onClick={() => { setMobileOpen(false); navigate("/my-property-listings?view=projects"); }}
+                          className="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl border border-gray-200 bg-white transition cursor-pointer mt-2"
+                          onMouseEnter={e => { e.currentTarget.style.borderColor = primaryColor; e.currentTarget.style.backgroundColor = "#f5f0ff"; }}
+                          onMouseLeave={e => { e.currentTarget.style.borderColor = "#e5e7eb"; e.currentTarget.style.backgroundColor = "white"; }}
+                        >
+                          <FiList size={14} className="flex-shrink-0" style={{ color: primaryColor }} />
+                          <span className="text-xs font-semibold flex-1 text-left text-[#1a1a2e]">My Project Listings</span>
+                          <span className="text-[11px] text-gray-400">→</span>
                         </button>
                       )}
                       <button

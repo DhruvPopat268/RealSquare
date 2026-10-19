@@ -82,8 +82,9 @@ function QuickReplies({ options, onSelect }) {
   );
 }
 
-export default function ChatbotPage() {
+export default function ChatbotPage({ flow = propertyListingFlow, assistantTitle = "RealSquare Listing Assistant", projectListing = false }) {
   const navigate = useNavigate();
+  const listingNoun = projectListing ? "project" : "property";
   const [input, setInput] = useState("");
   const [allowed, setAllowed] = useState(null); // null = loading, true/false
   const [profileCompleted, setProfileCompleted] = useState(null); // null = loading, true/false
@@ -122,7 +123,7 @@ export default function ChatbotPage() {
   }, []);
 
   const { messages, isTyping, quickReplies, awaitingInput, customInput, handleUserReply, editLastAnswer, startFlow, currentStep } =
-    useChatbot(propertyListingFlow);
+    useChatbot(flow);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { if (allowed && profileCompleted && canListStatus?.canList) startFlow(); }, [allowed, profileCompleted, canListStatus]);
@@ -144,6 +145,14 @@ export default function ChatbotPage() {
     if (!canSend) return;
     handleUserReply(input);
     setInput("");
+  };
+
+  const handleQuickReply = (option) => {
+    if (!projectListing && currentStep === "listing_mode" && option === "Project Listing") {
+      navigate("/project-listing");
+      return;
+    }
+    handleUserReply(option);
   };
 
   // called by ChatbotPlacesInput when user selects a place
@@ -191,7 +200,7 @@ export default function ChatbotPage() {
             </div>
             <h2 className="text-xl font-extrabold text-[#1a1a2e] mb-2">Access Restricted</h2>
             <p className="text-sm text-gray-400 leading-relaxed mb-6">
-              You don't have permission to list a property. Only Owners, Brokers, and Builders can access this page.
+              You don't have permission to list a {listingNoun}. Only Owners, Brokers, and Builders can access this page.
             </p>
             <button
               onClick={() => navigate("/")}
@@ -217,7 +226,7 @@ export default function ChatbotPage() {
             </div>
             <h2 className="text-xl font-extrabold text-[#1a1a2e] mb-2">Profile Incomplete</h2>
             <p className="text-sm text-gray-400 leading-relaxed mb-6">
-              Please complete your profile to list properties. You need to fill in your name and other required details.
+              Please complete your profile to list {projectListing ? "projects" : "properties"}. You need to fill in your name and other required details.
             </p>
             <button
               onClick={() => navigate("/profile")}
@@ -282,7 +291,7 @@ export default function ChatbotPage() {
               <FiHome size={18} className="text-white" />
             </div>
             <div>
-              <p className="text-sm font-extrabold text-[#1a1a2e]">RealSquare Listing Assistant</p>
+              <p className="text-sm font-extrabold text-[#1a1a2e]">{assistantTitle}</p>
               <p className="text-xs text-green-500 font-medium flex items-center gap-1">
                 <span className="w-1.5 h-1.5 rounded-full bg-green-500 inline-block" />
                 Online · Typically replies instantly
@@ -316,7 +325,7 @@ export default function ChatbotPage() {
               )}
               {isTyping && <TypingIndicator />}
               {!isTyping && quickReplies.length > 0 && (
-                <QuickReplies options={quickReplies} onSelect={(opt) => handleUserReply(opt)} />
+                <QuickReplies options={quickReplies} onSelect={handleQuickReply} />
               )}
             </div>
 
