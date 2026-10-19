@@ -481,73 +481,129 @@ export async function propertyListingFlow(step, answer, collectedData, { botSay,
     if (!answer?.trim()) return;
     const updated = { ...collectedData, _coworkingFloor: answer.trim() };
     setCollectedData(() => updated);
-    await botSay("What is the office number?", [], true);
-    goTo("coworking_office_number", updated);
-    return;
-  }
-
-  if (step === "coworking_office_number") {
-    if (!answer?.trim()) return;
-    const updated = { ...collectedData, _coworkingOfficeNumber: answer.trim() };
-    setCollectedData(() => updated);
-    await botSay("What type of workspace would you like to add?", ["Hall", "Cabins"]);
+    await botSay("What type of workspace would you like to add?", ["Hall", "Cabins", "Virtual Space"]);
     goTo("coworking_workspace_type", updated);
     return;
   }
 
   if (step === "coworking_workspace_type") {
+    if (answer === "Virtual Space") {
+      await botSay("Virtual Space is coming soon. Please try another workspace type.", ["Hall", "Cabins"]);
+      return;
+    }
     if (answer !== "Hall" && answer !== "Cabins") return;
     const updated = { ...collectedData, _coworkingPendingType: answer };
     setCollectedData(() => updated);
-    const isHall = answer === "Hall";
-    await botSay(isHall ? "How many seats are available in the hall?" : "How many cabins are available?");
-    setCustomInput({ type: "number", key: "coworking_workspace_count", placeholder: isHall ? "Number of seats..." : "Number of cabins...", min: 0 });
-    goTo("coworking_workspace_count", updated);
+    if (answer === "Hall") {
+      await botSay("How many seats are available in the hall?");
+      setCustomInput({ type: "number", key: "coworking_hall_seats", placeholder: "Number of seats...", min: 0 });
+      goTo("coworking_hall_seats", updated);
+    } else {
+      await botSay("How many cabins are available?");
+      setCustomInput({ type: "number", key: "coworking_cabin_count", placeholder: "Number of cabins...", min: 0 });
+      goTo("coworking_cabin_count", updated);
+    }
     return;
   }
 
-  if (step === "coworking_workspace_count") {
+  if (step === "coworking_hall_seats") {
     if (!answer || Number(answer) <= 0) return;
-    const updated = { ...collectedData, _coworkingPendingCount: Number(answer) };
+    const updated = { ...collectedData, _coworkingPendingSeatCount: Number(answer) };
     setCollectedData(() => updated);
-    const unit = collectedData._coworkingPendingType === "Hall" ? "seat" : "cabin";
-    await botSay(`What is the monthly rent per ${unit}? (in ₹)`);
-    setCustomInput({ type: "number", key: "coworking_workspace_rent", placeholder: `Monthly rent per ${unit} in ₹...`, min: 0 });
-    goTo("coworking_workspace_rent", updated);
+    await botSay("What is the monthly rent per seat in the hall? (in ₹)");
+    setCustomInput({ type: "number", key: "coworking_hall_rent", placeholder: "Monthly rent per seat in ₹...", min: 0 });
+    goTo("coworking_hall_rent", updated);
     return;
   }
 
-  if (step === "coworking_workspace_rent") {
+  if (step === "coworking_hall_rent") {
     if (!answer || Number(answer) <= 0) return;
-    const updated = { ...collectedData, _coworkingPendingRent: Number(answer) };
-    setCollectedData(() => updated);
-    const unit = collectedData._coworkingPendingType === "Hall" ? "seat" : "cabin";
-    await botSay(`What is the deposit per ${unit}? (in ₹)`);
-    setCustomInput({ type: "number", key: "coworking_workspace_deposit", placeholder: `Deposit per ${unit} in ₹...`, min: 0, allowZero: true });
-    goTo("coworking_workspace_deposit", updated);
-    return;
-  }
-
-  if (step === "coworking_workspace_deposit") {
-    if (answer === "" || answer == null || !Number.isFinite(Number(answer)) || Number(answer) < 0) return;
     const entry = {
-      type: collectedData._coworkingPendingType,
-      count: collectedData._coworkingPendingCount,
-      rentPerUnitMonthly: collectedData._coworkingPendingRent,
-      depositPerUnit: Number(answer),
+      type: "Hall",
+      seatCount: collectedData._coworkingPendingSeatCount,
+      rentPerSeatMonthly: Number(answer),
     };
-    const workspaces = [...(collectedData._coworkingWorkspaces ?? []), entry];
-    const updated = { ...collectedData, _coworkingWorkspaces: workspaces };
-    ["_coworkingPendingType", "_coworkingPendingCount", "_coworkingPendingRent"].forEach((key) => delete updated[key]);
+    const updated = {
+      ...collectedData,
+      _coworkingWorkspaces: [...(collectedData._coworkingWorkspaces ?? []), entry],
+    };
+    delete updated._coworkingPendingType;
+    delete updated._coworkingPendingSeatCount;
     setCollectedData(() => updated);
-    await botSay(`${entry.type} workspace added. Would you like to add another workspace?`, ["Add another workspace", "Done"]);
+    await botSay("Hall added. Would you like to add another workspace?", ["Add another workspace", "Done"]);
+    goTo("coworking_workspace_more", updated);
+    return;
+  }
+
+  if (step === "coworking_cabin_count") {
+    if (!answer || Number(answer) <= 0) return;
+    const existingCabins = (collectedData._coworkingWorkspaces ?? []).filter((workspace) => workspace.type === "Cabin").length;
+    const updated = {
+      ...collectedData,
+      _coworkingCabinTotal: Number(answer),
+      _coworkingCabinIndex: 0,
+      _coworkingCabinStartNumber: existingCabins + 1,
+      _coworkingPendingCabins: [],
+    };
+    setCollectedData(() => updated);
+    const cabinNumber = updated._coworkingCabinStartNumber;
+    await botSay(`How many seats are available in Cabin ${cabinNumber}?`);
+    setCustomInput({ type: "number", key: "coworking_cabin_seats_1", placeholder: `Seats in Cabin ${cabinNumber}...`, min: 0 });
+    goTo("coworking_cabin_seats", updated);
+    return;
+  }
+
+  if (step === "coworking_cabin_seats") {
+    if (!answer || Number(answer) <= 0) return;
+    const cabinNumber = collectedData._coworkingCabinStartNumber + collectedData._coworkingCabinIndex;
+    const updated = { ...collectedData, _coworkingPendingCabinSeats: Number(answer) };
+    setCollectedData(() => updated);
+    await botSay(`What is the monthly rent per seat in Cabin ${cabinNumber}? (in ₹)`);
+    setCustomInput({ type: "number", key: `coworking_cabin_rent_${cabinNumber}`, placeholder: `Monthly rent per seat in Cabin ${cabinNumber}...`, min: 0 });
+    goTo("coworking_cabin_rent", updated);
+    return;
+  }
+
+  if (step === "coworking_cabin_rent") {
+    if (!answer || Number(answer) <= 0) return;
+    const cabinNumber = collectedData._coworkingCabinStartNumber + collectedData._coworkingCabinIndex;
+    const pendingCabins = [
+      ...(collectedData._coworkingPendingCabins ?? []),
+      {
+        type: "Cabin",
+        cabinNumber,
+        seatCount: collectedData._coworkingPendingCabinSeats,
+        rentPerSeatMonthly: Number(answer),
+      },
+    ];
+    const nextIndex = collectedData._coworkingCabinIndex + 1;
+    const updated = {
+      ...collectedData,
+      _coworkingPendingCabins: pendingCabins,
+      _coworkingCabinIndex: nextIndex,
+    };
+    delete updated._coworkingPendingCabinSeats;
+    setCollectedData(() => updated);
+
+    if (nextIndex < collectedData._coworkingCabinTotal) {
+      const nextCabinNumber = updated._coworkingCabinStartNumber + nextIndex;
+      await botSay(`How many seats are available in Cabin ${nextCabinNumber}?`);
+      setCustomInput({ type: "number", key: `coworking_cabin_seats_${nextCabinNumber}`, placeholder: `Seats in Cabin ${nextCabinNumber}...`, min: 0 });
+      goTo("coworking_cabin_seats", updated);
+      return;
+    }
+
+    updated._coworkingWorkspaces = [...(updated._coworkingWorkspaces ?? []), ...pendingCabins];
+    ["_coworkingCabinTotal", "_coworkingCabinIndex", "_coworkingCabinStartNumber", "_coworkingPendingCabins"].forEach((key) => delete updated[key]);
+    setCollectedData(() => updated);
+    await botSay(`${pendingCabins.length} cabin${pendingCabins.length === 1 ? "" : "s"} added. Would you like to add another workspace?`, ["Add another workspace", "Done"]);
     goTo("coworking_workspace_more", updated);
     return;
   }
 
   if (step === "coworking_workspace_more") {
     if (answer === "Add another workspace") {
-      await botSay("What type of workspace would you like to add?", ["Hall", "Cabins"]);
+      await botSay("What type of workspace would you like to add?", ["Hall", "Cabins", "Virtual Space"]);
       goTo("coworking_workspace_type", collectedData);
     } else if (answer === "Done") {
       goTo("purpose_questions", collectedData);
@@ -713,13 +769,11 @@ export async function propertyListingFlow(step, answer, collectedData, { botSay,
 
     if (d._coworkingFloor)
       detailLines.push(`  • Workspace Floor : ${d._coworkingFloor}`);
-    if (d._coworkingOfficeNumber)
-      detailLines.push(`  • Office Number    : ${d._coworkingOfficeNumber}`);
     if (d._coworkingWorkspaces?.length) {
       detailLines.push("  • Workspaces       :");
       d._coworkingWorkspaces.forEach((workspace, index) => {
-        const unit = workspace.type === "Hall" ? "seat" : "cabin";
-        detailLines.push(`      ${index + 1}). ${workspace.type} — ${workspace.count} ${workspace.type === "Hall" ? "seats" : "cabins"} — ₹${workspace.rentPerUnitMonthly.toLocaleString()} / ${unit} / month — ₹${workspace.depositPerUnit.toLocaleString()} deposit / ${unit}`);
+        const label = workspace.type === "Cabin" ? `Cabin ${workspace.cabinNumber}` : "Hall";
+        detailLines.push(`      ${index + 1}). ${label} — ${workspace.seatCount} seats — ₹${workspace.rentPerSeatMonthly.toLocaleString()} / seat / month`);
       });
     }
 

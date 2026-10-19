@@ -59,8 +59,6 @@ function buildProjectSummary(data) {
     "",
     `Project: ${data.projectName}`,
     `Developer / Builder: ${data.developerName}`,
-    `Launch date: ${data.launchDate}`,
-    `Description: ${data.projectDescription}`,
     `Category: ${data.categoryName}`,
     `Property type: ${data.propertyTypeName}`,
     `Location: ${data.locality?.address}, ${data.cityName}`,
@@ -239,25 +237,6 @@ export async function projectListingFlow(step, answer, collectedData, helpers) {
   if (step === "developer_name") {
     if (!answer) return;
     const updated = { ...collectedData, developerName: answer };
-    setCollectedData(() => updated);
-    await botSay("When was the project launched?");
-    helpers.setCustomInput({ type: "date", key: "project_launch_date" });
-    goTo("launch_date", updated);
-    return;
-  }
-
-  if (step === "launch_date") {
-    if (!answer) return;
-    const updated = { ...collectedData, launchDate: answer };
-    setCollectedData(() => updated);
-    await botSay("Add a short description of the project.", [], true);
-    goTo("project_description", updated);
-    return;
-  }
-
-  if (step === "project_description") {
-    if (!answer?.trim()) return;
-    const updated = { ...collectedData, projectDescription: answer.trim() };
     setCollectedData(() => updated);
     await botSay("What is the project's launch status?", PROJECT_STATUS_OPTIONS);
     goTo("project_status", updated);
