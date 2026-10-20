@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import {
   FiClipboard, FiMapPin, FiCalendar,
-  FiMessageSquare, FiHome, FiUser, FiPhone,
+  FiMessageSquare, FiHome, FiUser, FiPhone, FiMail,
   FiFilter, FiChevronDown, FiX, FiLock, FiUnlock,
 } from "react-icons/fi";
 import Navbar from "../components/Navbar";
@@ -132,6 +132,12 @@ function AssignedInquiryCard({ assignment, onPurchase }) {
                 <FiPhone size={11} className="text-gray-400" />
                 <p className="text-xs text-gray-500">{inquiry.createdBy?.mobile}</p>
               </div>
+              {inquiry.createdBy?.email && (
+                <div className="flex items-center gap-1">
+                  <FiMail size={11} className="text-gray-400" />
+                  <p className="text-xs text-gray-500">{inquiry.createdBy.email}</p>
+                </div>
+              )}
             </div>
           )}
         </div>

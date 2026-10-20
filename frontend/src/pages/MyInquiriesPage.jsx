@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   FiClipboard, FiMapPin, FiCalendar,
-  FiMessageSquare, FiPlus, FiHome,
+  FiMessageSquare, FiPlus, FiHome, FiMail,
   FiFilter, FiChevronDown, FiX,
 } from "react-icons/fi";
 import Navbar from "../components/Navbar";
@@ -192,6 +192,12 @@ function InquiryCard({ inquiry, onRequestStatusUpdate, updating }) {
             Last Follow-up Date: <span className="font-semibold text-[#1a1a2e]">{formatDate(inquiry.lastFollowUpDate)}</span>
           </span>
         </div>
+        {inquiry.createdBy?.email && (
+          <div className="flex items-center gap-1.5">
+            <FiMail size={12} className="text-gray-400 flex-shrink-0" />
+            <span className="text-[11px] text-gray-500">{inquiry.createdBy.email}</span>
+          </div>
+        )}
         {inquiry.remarks && (
           <div className="flex items-start gap-1.5">
             <FiMessageSquare size={12} className="text-gray-400 flex-shrink-0 mt-0.5" />
