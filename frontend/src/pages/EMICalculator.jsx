@@ -134,7 +134,7 @@ export default function EMICalculator() {
 
               <button
                 onClick={handleSubmit}
-                className="w-full bg-[var(--primary-color)] hover:bg-[#6320d4] text-white py-3 rounded-xl font-bold text-sm transition"
+                className="w-full bg-[var(--primary-color)] hover:bg-[var(--primary-color-hover)] text-white py-3 rounded-xl font-bold text-sm transition"
               >
                 Calculate EMI
               </button>

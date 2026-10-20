@@ -12,7 +12,7 @@ function ArticleCard({ article }) {
       </div>
       <div className="p-4 flex flex-col flex-1">
         {article.city && (
-          <span className="text-[10px] font-semibold bg-[#f0ebff] px-2 py-0.5 rounded-full w-fit mb-2" style={{ color: primaryColor }}>{article.city}</span>
+          <span className="text-[10px] font-semibold bg-[var(--primary-color-light)] px-2 py-0.5 rounded-full w-fit mb-2" style={{ color: primaryColor }}>{article.city}</span>
         )}
         <h3 className="text-sm font-bold text-gray-900 leading-snug mb-2 line-clamp-2">{article.title}</h3>
         <p className="text-xs text-gray-500 leading-relaxed mb-3 line-clamp-2 flex-1">{article.excerpt}</p>

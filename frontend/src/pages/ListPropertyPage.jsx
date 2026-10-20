@@ -42,7 +42,7 @@ function Chip({ label, selected, onClick }) {
       onClick={onClick}
       className={`px-4 py-2 rounded-xl border text-sm font-medium transition ${
         selected
-          ? "bg-[#f0ebff] border-[var(--primary-color)] text-[var(--primary-color)]"
+          ? "bg-[var(--primary-color-light)] border-[var(--primary-color)] text-[var(--primary-color)]"
           : "border-gray-200 text-gray-600 bg-white hover:border-[var(--primary-color)] hover:text-[var(--primary-color)]"
       }`}
     >
@@ -99,7 +99,7 @@ function ListingTypeSelection({ form, setForm, errors }) {
             onClick={() => setForm(() => ({ ...INIT, listingMode: mode }))}
             className={`border rounded-3xl p-6 text-left transition shadow-sm ${
               form.listingMode === mode
-                ? "border-[var(--primary-color)] bg-[#f0ebff]"
+                ? "border-[var(--primary-color)] bg-[var(--primary-color-light)]"
                 : "border-gray-200 bg-white hover:border-[var(--primary-color)]"
             }`}
           >
@@ -525,7 +525,7 @@ function Sidebar({ currentStep }) {
                   {step.label}
                 </p>
                 <span className={`text-[11px] px-2 py-0.5 rounded-full font-medium ${
-                  active ? "bg-amber-50 text-amber-500" : done ? "bg-[#f0ebff] text-[var(--primary-color)]" : "bg-gray-100 text-gray-400"
+                  active ? "bg-amber-50 text-amber-500" : done ? "bg-[var(--primary-color-light)] text-[var(--primary-color)]" : "bg-gray-100 text-gray-400"
                 }`}>
                   {active ? "In progress" : done ? "Completed" : "Pending"}
                 </span>
@@ -562,13 +562,13 @@ function SuccessScreen({ onGoHome }) {
       <div className="flex gap-3 justify-center flex-wrap">
         <button
           onClick={onGoHome}
-          className="bg-[var(--primary-color)] hover:bg-[#6320d4] text-white px-8 py-3 rounded-xl font-semibold text-sm transition"
+          className="bg-[var(--primary-color)] hover:bg-[var(--primary-color-hover)] text-white px-8 py-3 rounded-xl font-semibold text-sm transition"
         >
           Back to Home
         </button>
         <button
           onClick={() => window.location.reload()}
-          className="border border-[var(--primary-color)] text-[var(--primary-color)] px-8 py-3 rounded-xl font-semibold text-sm hover:bg-[#f0ebff] transition"
+          className="border border-[var(--primary-color)] text-[var(--primary-color)] px-8 py-3 rounded-xl font-semibold text-sm hover:bg-[var(--primary-color-light)] transition"
         >
           List Another Listing
         </button>
@@ -662,7 +662,7 @@ export default function ListPropertyPage() {
       <PageSpinner />
       <Navbar />
 
-      <div className="bg-[#f0ebff]/30 min-h-screen py-8 px-4">
+      <div className="bg-[var(--primary-color-light)]/30 min-h-screen py-8 px-4">
         <div className="max-w-[1000px] mx-auto">
 
           {/* Back link */}
@@ -694,7 +694,7 @@ export default function ListPropertyPage() {
 
                 <button
                   onClick={handleNext}
-                  className="mt-8 w-full bg-[var(--primary-color)] hover:bg-[#6320d4] text-white py-4 rounded-xl font-bold text-sm transition"
+                  className="mt-8 w-full bg-[var(--primary-color)] hover:bg-[var(--primary-color-hover)] text-white py-4 rounded-xl font-bold text-sm transition"
                 >
                   {step < STEPS.length ? `Next, add ${STEPS[step].label.toLowerCase()}` : "Submit Listing"}
                 </button>

@@ -240,7 +240,7 @@ export default function ImageEditor({
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
-            className="flex items-center gap-2 px-4 py-2.5 border border-dashed border-[var(--primary-color)] text-[var(--primary-color)] rounded-xl text-sm font-semibold hover:bg-[#f5f0ff] transition"
+            className="flex items-center gap-2 px-4 py-2.5 border border-dashed border-[var(--primary-color)] text-[var(--primary-color)] rounded-xl text-sm font-semibold hover:bg-[var(--primary-color-light)] transition"
           >
             <FiUpload size={14} />
             Add Photos

@@ -118,7 +118,7 @@ function EnquiryCitiesField({ cities = [], onChange }) {
       {cities.length > 0 && (
         <div className="flex flex-wrap gap-2 mb-3">
           {cities.map((city) => (
-            <span key={city} className="flex items-center gap-1.5 bg-[#f3eeff] text-[var(--primary-color)] text-xs font-semibold px-3 py-1.5 rounded-full border border-[#e0d4ff]">
+            <span key={city} className="flex items-center gap-1.5 bg-[var(--primary-color-light)] text-[var(--primary-color)] text-xs font-semibold px-3 py-1.5 rounded-full border border-[#e0d4ff]">
               <FiMapPin size={11} />
               {city}
               <button type="button" onClick={() => onChange(cities.filter((item) => item !== city))}
@@ -151,7 +151,7 @@ function PhotoUpload({ label, value, onChange, shape = "circle", icon: Icon = Fi
     <div className="flex flex-col items-center gap-2">
       <input ref={ref} type="file" accept="image/*" className="hidden" onChange={handleFile} />
       <button type="button" onClick={() => ref.current.click()}
-        className={`relative group bg-gray-100 hover:bg-[#f0ebff] border-2 border-dashed border-gray-300 hover:border-[var(--primary-color)] transition overflow-hidden flex items-center justify-center ${isCircle ? "w-20 h-20 rounded-full" : "w-24 h-20 rounded-xl"}`}
+        className={`relative group bg-gray-100 hover:bg-[var(--primary-color-light)] border-2 border-dashed border-gray-300 hover:border-[var(--primary-color)] transition overflow-hidden flex items-center justify-center ${isCircle ? "w-20 h-20 rounded-full" : "w-24 h-20 rounded-xl"}`}
       >
         {value ? (
           <img src={value} alt="preview" className="w-full h-full object-cover" />
@@ -537,7 +537,7 @@ export default function CompleteProfilePage() {
               <p className="text-sm text-gray-400 mt-0.5">Help us personalise your experience</p>
             </div>
             <button onClick={handleSkip} disabled={skipping || loading}
-              className="flex items-center gap-1.5 text-sm text-[var(--primary-color)] bg-transparent border border-[var(--primary-color)] rounded-xl px-3 py-1.5 transition cursor-pointer flex-shrink-0 hover:bg-[#f5f0ff] disabled:opacity-60 disabled:cursor-wait"
+              className="flex items-center gap-1.5 text-sm text-[var(--primary-color)] bg-transparent border border-[var(--primary-color)] rounded-xl px-3 py-1.5 transition cursor-pointer flex-shrink-0 hover:bg-[var(--primary-color-light)] disabled:opacity-60 disabled:cursor-wait"
             >
               <FiSkipForward size={14} /> {skipping ? "Skipping..." : "Skip"}
             </button>
@@ -557,8 +557,8 @@ export default function CompleteProfilePage() {
                   }}
                   className={`flex flex-col items-start gap-1 p-4 rounded-xl border-2 text-left transition cursor-pointer ${
                     selectedRole === role.key
-                      ? "border-[var(--primary-color)] bg-[#f5f0ff]"
-                      : "border-gray-200 bg-white hover:border-[var(--primary-color)] hover:bg-[#faf8ff]"
+                      ? "border-[var(--primary-color)] bg-[var(--primary-color-light)]"
+                      : "border-gray-200 bg-white hover:border-[var(--primary-color)] hover:bg-[var(--primary-color-light)]"
                   }`}
                 >
                   <span className="text-2xl">{role.icon}</span>
@@ -587,7 +587,7 @@ export default function CompleteProfilePage() {
               )}
 
               <button onClick={handleSubmit} disabled={loading || skipping}
-                className="w-full mt-2 bg-[var(--primary-color)] hover:bg-[#6320d4] disabled:opacity-60 text-white py-3 rounded-xl font-semibold text-sm transition flex items-center justify-center gap-2"
+                className="w-full mt-2 bg-[var(--primary-color)] hover:bg-[var(--primary-color-hover)] disabled:opacity-60 text-white py-3 rounded-xl font-semibold text-sm transition flex items-center justify-center gap-2"
               >
                 {loading ? "Saving..." : <> Save & Continue <FiArrowRight size={15} /> </>}
               </button>

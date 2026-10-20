@@ -47,7 +47,7 @@ function CallbackModal({ onClose }) {
                 {errors.city && <p className="text-xs text-red-500 mt-1">{errors.city}</p>}
               </div>
             </div>
-            <button onClick={() => { if (validate()) setSubmitted(true); }} className="w-full mt-5 bg-[var(--primary-color)] hover:bg-[#6320d4] text-white py-3 rounded-xl font-semibold text-sm transition">
+            <button onClick={() => { if (validate()) setSubmitted(true); }} className="w-full mt-5 bg-[var(--primary-color)] hover:bg-[var(--primary-color-hover)] text-white py-3 rounded-xl font-semibold text-sm transition">
               Request Call
             </button>
           </>
@@ -58,7 +58,7 @@ function CallbackModal({ onClose }) {
             </div>
             <h3 className="text-lg font-bold text-[#1a1a2e] mb-2">You're all set!</h3>
             <p className="text-sm text-gray-500 leading-relaxed">Thanks <strong>{name}</strong>! Our team will call you on <strong>+91 {phone}</strong> shortly.</p>
-            <button onClick={onClose} className="mt-6 bg-[var(--primary-color)] text-white px-8 py-2.5 rounded-xl text-sm font-semibold hover:bg-[#6320d4] transition">Done</button>
+            <button onClick={onClose} className="mt-6 bg-[var(--primary-color)] text-white px-8 py-2.5 rounded-xl text-sm font-semibold hover:bg-[var(--primary-color-hover)] transition">Done</button>
           </div>
         )}
       </div>
@@ -231,7 +231,7 @@ function ResidentialPlans({ onUpgrade, onCallback }) {
                   </span>
                 </td>
                 {row.vals.map((val, pi) => (
-                  <td key={pi} className={`py-3 px-4 text-center ${pi === popularIdx ? "border-x-2 border-[var(--primary-color)] bg-[#faf8ff]" : ""}`}>
+                  <td key={pi} className={`py-3 px-4 text-center ${pi === popularIdx ? "border-x-2 border-[var(--primary-color)] bg-[var(--primary-color-light)]" : ""}`}>
                     <Cell val={val} />
                   </td>
                 ))}
@@ -240,14 +240,14 @@ function ResidentialPlans({ onUpgrade, onCallback }) {
             <tr className="border-t border-gray-200">
               <td />
               {plans.map((plan, pi) => (
-                <td key={plan.name} className={`py-5 px-4 text-center ${pi === popularIdx ? "border-x-2 border-[var(--primary-color)] bg-[#faf8ff]" : ""}`}>
+                <td key={plan.name} className={`py-5 px-4 text-center ${pi === popularIdx ? "border-x-2 border-[var(--primary-color)] bg-[var(--primary-color-light)]" : ""}`}>
                   <p className="text-lg font-extrabold text-[#1a1a2e] mb-3">{plan.price}</p>
                   <button
                     onClick={() => onUpgrade(plan.name)}
                     className={`w-full py-2.5 rounded-xl text-sm font-bold transition ${
                       pi === popularIdx
-                        ? "bg-[var(--primary-color)] hover:bg-[#6320d4] text-white"
-                        : "border border-[var(--primary-color)] text-[var(--primary-color)] hover:bg-[#f0ebff]"
+                        ? "bg-[var(--primary-color)] hover:bg-[var(--primary-color-hover)] text-white"
+                        : "border border-[var(--primary-color)] text-[var(--primary-color)] hover:bg-[var(--primary-color-light)]"
                     }`}
                   >
                     Purchase
@@ -267,7 +267,7 @@ function ResidentialPlans({ onUpgrade, onCallback }) {
 
       <div className="mt-6 flex flex-col gap-3">
         <button onClick={onCallback} className="flex items-center gap-2 border border-gray-200 rounded-full px-4 py-2.5 text-sm text-gray-600 hover:border-[var(--primary-color)] hover:text-[var(--primary-color)] transition w-fit">
-          <span className="w-6 h-6 bg-[#f0ebff] rounded-full flex items-center justify-center text-xs">👤</span>
+          <span className="w-6 h-6 bg-[var(--primary-color-light)] rounded-full flex items-center justify-center text-xs">👤</span>
           Having Trouble? <strong>Request a Callback</strong>
         </button>
         <p className="text-xs text-[var(--primary-color)] font-semibold cursor-pointer hover:underline w-fit">Terms & Conditions</p>
@@ -329,7 +329,7 @@ function CommercialPlans({ onUpgrade, onCallback }) {
                   <span className="flex items-center gap-1.5">{row.label}</span>
                 </td>
                 {row.vals.map((val, pi) => (
-                  <td key={pi} className={`py-3 px-4 text-center ${pi === popularIdx ? "border-x-2 border-[var(--primary-color)] bg-[#faf8ff]" : ""}`}>
+                  <td key={pi} className={`py-3 px-4 text-center ${pi === popularIdx ? "border-x-2 border-[var(--primary-color)] bg-[var(--primary-color-light)]" : ""}`}>
                     <Cell val={val} />
                   </td>
                 ))}
@@ -338,14 +338,14 @@ function CommercialPlans({ onUpgrade, onCallback }) {
             <tr className="border-t border-gray-200">
               <td />
               {plans.map((plan, pi) => (
-                <td key={plan.name} className={`py-5 px-4 text-center ${pi === popularIdx ? "border-x-2 border-[var(--primary-color)] bg-[#faf8ff]" : ""}`}>
+                <td key={plan.name} className={`py-5 px-4 text-center ${pi === popularIdx ? "border-x-2 border-[var(--primary-color)] bg-[var(--primary-color-light)]" : ""}`}>
                   <p className="text-lg font-extrabold text-[#1a1a2e] mb-3">{plan.price}</p>
                   <button
                     onClick={() => onUpgrade(plan.name)}
                     className={`w-full py-2.5 rounded-xl text-sm font-bold transition ${
                       pi === popularIdx
-                        ? "bg-[var(--primary-color)] hover:bg-[#6320d4] text-white"
-                        : "border border-[var(--primary-color)] text-[var(--primary-color)] hover:bg-[#f0ebff]"
+                        ? "bg-[var(--primary-color)] hover:bg-[var(--primary-color-hover)] text-white"
+                        : "border border-[var(--primary-color)] text-[var(--primary-color)] hover:bg-[var(--primary-color-light)]"
                     }`}
                   >
                     Purchase
@@ -365,7 +365,7 @@ function CommercialPlans({ onUpgrade, onCallback }) {
 
       <div className="mt-6 flex flex-col gap-3">
         <button onClick={onCallback} className="flex items-center gap-2 border border-gray-200 rounded-full px-4 py-2.5 text-sm text-gray-600 hover:border-[var(--primary-color)] hover:text-[var(--primary-color)] transition w-fit">
-          <span className="w-6 h-6 bg-[#f0ebff] rounded-full flex items-center justify-center text-xs">👤</span>
+          <span className="w-6 h-6 bg-[var(--primary-color-light)] rounded-full flex items-center justify-center text-xs">👤</span>
           Having Trouble? <strong>Request a Callback</strong>
         </button>
         <p className="text-xs text-[var(--primary-color)] font-semibold cursor-pointer hover:underline w-fit">Terms & Conditions</p>
@@ -448,13 +448,13 @@ function UpgradeModal({ planName, onClose }) {
     <div className="fixed inset-0 z-[600] flex items-center justify-center bg-black/50 px-4" onMouseDown={onClose}>
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-[400px] p-8 text-center relative" onMouseDown={(e) => e.stopPropagation()}>
         <button className="absolute top-4 right-4 text-gray-400 hover:text-gray-700" onClick={onClose}><FiX size={20} /></button>
-        <div className="w-16 h-16 bg-[#f0ebff] rounded-full flex items-center justify-center mx-auto mb-4">
+        <div className="w-16 h-16 bg-[var(--primary-color-light)] rounded-full flex items-center justify-center mx-auto mb-4">
           <FiCheck size={30} className="text-[var(--primary-color)]" />
         </div>
         <h3 className="text-xl font-extrabold text-[#1a1a2e] mb-2">Plan Activated! 🎉</h3>
         <p className="text-sm text-gray-500 mb-1">Your <strong className="text-[var(--primary-color)]">{planName}</strong> plan has been successfully purchased.</p>
         <p className="text-sm text-gray-400 mb-6">Our onboarding team will reach out within 24 hours.</p>
-        <button onClick={onClose} className="w-full bg-[var(--primary-color)] hover:bg-[#6320d4] text-white py-3 rounded-xl font-semibold text-sm transition">Done</button>
+        <button onClick={onClose} className="w-full bg-[var(--primary-color)] hover:bg-[var(--primary-color-hover)] text-white py-3 rounded-xl font-semibold text-sm transition">Done</button>
       </div>
     </div>
   );
@@ -507,7 +507,7 @@ export default function OwnersPage() {
                 <div className="w-14 h-14 bg-[var(--primary-color)] rounded-full flex items-center justify-center">
                   <FiCheck size={28} className="text-white" />
                 </div>
-                <div className="w-[120px] h-[80px] bg-[#f0ebff] rounded-xl flex items-center justify-center text-4xl">🏡</div>
+                <div className="w-[120px] h-[80px] bg-[var(--primary-color-light)] rounded-xl flex items-center justify-center text-4xl">🏡</div>
                 <div className="flex flex-col gap-2 w-[140px]">
                   {[80, 60, 40].map((w, i) => (
                     <div key={i} className="h-2 bg-purple-200 rounded-full" style={{ width: `${w}%` }} />
@@ -623,7 +623,7 @@ export default function OwnersPage() {
       </section>
 
       {/* ── How It Works ── */}
-      <section className="bg-[#f0ebff]/40 py-16 px-6">
+      <section className="bg-[var(--primary-color-light)]/40 py-16 px-6">
         <div className="max-w-[1200px] mx-auto">
           <p className="text-center text-xs font-bold text-[var(--primary-color)] uppercase tracking-widest mb-2">How It Works</p>
           <h2 className="text-2xl font-extrabold text-[#1a1a2e] text-center mb-12">
@@ -636,7 +636,7 @@ export default function OwnersPage() {
                 <span className="text-[80px] font-extrabold text-[var(--primary-color)]/10 leading-none select-none absolute -top-4 left-1/2 -translate-x-1/2">
                   {step.num}
                 </span>
-                <div className="relative z-10 w-20 h-20 bg-[#f0ebff] rounded-2xl flex items-center justify-center text-4xl mb-4 shadow-sm">
+                <div className="relative z-10 w-20 h-20 bg-[var(--primary-color-light)] rounded-2xl flex items-center justify-center text-4xl mb-4 shadow-sm">
                   {step.icon}
                 </div>
                 <p className="text-[11px] font-bold text-[#e11d48] uppercase tracking-wide mb-1">Step {step.num}</p>
@@ -676,7 +676,7 @@ export default function OwnersPage() {
                     </div>
                     <p className="text-sm text-gray-700 leading-relaxed mb-4">{t.text}</p>
                     <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 bg-[#f0ebff] rounded-full flex items-center justify-center text-sm font-bold text-[var(--primary-color)]">
+                      <div className="w-9 h-9 bg-[var(--primary-color-light)] rounded-full flex items-center justify-center text-sm font-bold text-[var(--primary-color)]">
                         {t.name[0]}
                       </div>
                       <div>
@@ -686,7 +686,7 @@ export default function OwnersPage() {
                     </div>
                   </div>
                   <div className="flex gap-2 mt-4 pt-4 border-t border-gray-100">
-                    <span className="text-xs bg-[#f0ebff] text-[var(--primary-color)] px-3 py-1 rounded-full font-medium">
+                    <span className="text-xs bg-[var(--primary-color-light)] text-[var(--primary-color)] px-3 py-1 rounded-full font-medium">
                       Plan: {t.plan}
                     </span>
                     <span className="text-xs bg-gray-100 text-gray-600 px-3 py-1 rounded-full font-medium">
@@ -711,7 +711,7 @@ export default function OwnersPage() {
       </section>
 
       {/* ── Benefits ── */}
-      <section className="bg-[#f0ebff]/50 py-16 px-6">
+      <section className="bg-[var(--primary-color-light)]/50 py-16 px-6">
         <div className="max-w-[1200px] mx-auto text-center">
           <p className="text-xs font-bold text-[var(--primary-color)] uppercase tracking-widest mb-2">Benefits</p>
           <h2 className="text-2xl font-extrabold text-[#1a1a2e] mb-12">

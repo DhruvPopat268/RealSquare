@@ -149,7 +149,7 @@ export default function LoginPage() {
               <button
                 onClick={handleSendOtp}
                 disabled={loading}
-                className="w-full bg-[var(--primary-color)] hover:bg-[#6320d4] disabled:opacity-60 text-white py-3 rounded-xl font-semibold text-sm transition flex items-center justify-center gap-2"
+                className="w-full bg-[var(--primary-color)] hover:bg-[var(--primary-color-hover)] disabled:opacity-60 text-white py-3 rounded-xl font-semibold text-sm transition flex items-center justify-center gap-2"
               >
                 {loading ? "Sending..." : <> Send OTP <FiArrowRight size={15} /> </>}
               </button>
@@ -203,7 +203,7 @@ export default function LoginPage() {
               <button
                 onClick={handleVerifyOtp}
                 disabled={loading}
-                className="w-full bg-[var(--primary-color)] hover:bg-[#6320d4] disabled:opacity-60 text-white py-3 rounded-xl font-semibold text-sm transition"
+                className="w-full bg-[var(--primary-color)] hover:bg-[var(--primary-color-hover)] disabled:opacity-60 text-white py-3 rounded-xl font-semibold text-sm transition"
               >
                 {loading ? "Verifying..." : "Verify & Continue"}
               </button>

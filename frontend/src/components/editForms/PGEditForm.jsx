@@ -142,7 +142,7 @@ export default function PGEditForm({ listing, form, onChange, furnishingsAmeniti
             <p className="text-xs font-bold text-blue-600 uppercase tracking-wide">Add Room</p>
             <div className="flex gap-2">
               <SelectField value={newRoomType} onChange={setNewRoomType} options={ROOM_TYPE_OPTIONS} placeholder="Select room type" />
-              <button type="button" onClick={handleAddRoom} className="flex items-center gap-1 px-4 py-2 bg-[var(--primary-color)] text-white rounded-xl font-semibold hover:bg-[#6320d4] transition">
+              <button type="button" onClick={handleAddRoom} className="flex items-center gap-1 px-4 py-2 bg-[var(--primary-color)] text-white rounded-xl font-semibold hover:bg-[var(--primary-color-hover)] transition">
                 <FiPlus size={14} />
                 Add
               </button>

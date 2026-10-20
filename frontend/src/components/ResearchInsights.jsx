@@ -114,7 +114,7 @@ export default function ResearchInsights() {
               onClick={() => navigate(card.to)}
               className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all text-left overflow-hidden group"
             >
-              <div className="h-[160px] bg-[#f0ebff] flex items-center justify-center px-8 py-4">
+              <div className="h-[160px] bg-[var(--primary-color-light)] flex items-center justify-center px-8 py-4">
                 <div className="w-full h-full max-w-[200px] mx-auto">
                   {card.illustration}
                 </div>

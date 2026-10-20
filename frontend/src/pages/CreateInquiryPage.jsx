@@ -64,7 +64,7 @@ function QuickReplies({ options, onSelect }) {
         <button
           key={opt}
           onClick={() => onSelect(opt)}
-          className="px-4 py-2 rounded-full border-2 border-[var(--primary-color)] text-[var(--primary-color)] text-sm font-medium bg-white hover:bg-[#f0ebff] transition"
+          className="px-4 py-2 rounded-full border-2 border-[var(--primary-color)] text-[var(--primary-color)] text-sm font-medium bg-white hover:bg-[var(--primary-color-light)] transition"
         >
           {opt}
         </button>
@@ -165,7 +165,7 @@ export default function CreateInquiryPage() {
                       {isLastMessage && ["area", "notes"].includes(currentStep) && !isTyping && (
                         <button
                           onClick={() => handleUserReply("SKIP")}
-                          className="mt-2 ml-10 px-4 py-2 rounded-xl bg-[var(--primary-color)] text-white text-xs font-semibold hover:bg-[#6320d4] transition border-none cursor-pointer"
+                          className="mt-2 ml-10 px-4 py-2 rounded-xl bg-[var(--primary-color)] text-white text-xs font-semibold hover:bg-[var(--primary-color-hover)] transition border-none cursor-pointer"
                         >
                           Skip
                         </button>
@@ -241,7 +241,7 @@ export default function CreateInquiryPage() {
                   <button
                     onClick={submit}
                     disabled={!canSend}
-                    className="w-10 h-10 rounded-xl bg-[var(--primary-color)] disabled:opacity-40 flex items-center justify-center flex-shrink-0 hover:bg-[#6320d4] transition border-none cursor-pointer"
+                    className="w-10 h-10 rounded-xl bg-[var(--primary-color)] disabled:opacity-40 flex items-center justify-center flex-shrink-0 hover:bg-[var(--primary-color-hover)] transition border-none cursor-pointer"
                   >
                     <FiSend size={16} className="text-white" />
                   </button>

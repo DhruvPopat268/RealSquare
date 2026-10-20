@@ -294,7 +294,7 @@ export default function PlansPage() {
                           <button
                             onClick={() => setConfirmPlan(plan)}
                             disabled={!!purchasing}
-                            className="w-full py-2.5 rounded-xl text-sm font-semibold border-2 border-[var(--primary-color)] text-[var(--primary-color)] bg-white hover:bg-[#f3eeff] cursor-pointer transition disabled:opacity-60 flex items-center justify-center gap-1.5"
+                            className="w-full py-2.5 rounded-xl text-sm font-semibold border-2 border-[var(--primary-color)] text-[var(--primary-color)] bg-white hover:bg-[var(--primary-color-light)] cursor-pointer transition disabled:opacity-60 flex items-center justify-center gap-1.5"
                           >
                             <CoinIcon size={15} />
                             {purchasing === `${plan._id}-coins` ? "Processing..." : "Pay with Coins"}
@@ -304,7 +304,7 @@ export default function PlansPage() {
                           <button
                             onClick={() => handlePurchaseOnline(plan)}
                             disabled={!!purchasing}
-                            className="w-full py-2.5 rounded-xl text-sm font-semibold border-none cursor-pointer transition disabled:opacity-60 bg-[var(--primary-color)] hover:bg-[#6320d4] text-white flex items-center justify-center gap-1.5"
+                            className="w-full py-2.5 rounded-xl text-sm font-semibold border-none cursor-pointer transition disabled:opacity-60 bg-[var(--primary-color)] hover:bg-[var(--primary-color-hover)] text-white flex items-center justify-center gap-1.5"
                           >
                             <FiZap size={14} />
                             {purchasing === `${plan._id}-online` ? "Processing..." : `Pay ₹${plan.amount.toLocaleString("en-IN")} Online`}
@@ -328,7 +328,7 @@ export default function PlansPage() {
           <div className="absolute inset-0 bg-black/50" />
           <div className="relative bg-white rounded-2xl shadow-[0_16px_60px_rgba(0,0,0,0.18)] w-full max-w-[380px] p-6" onClick={(e) => e.stopPropagation()}>
             <div className="flex flex-col items-center text-center mb-5">
-              <div className="w-12 h-12 rounded-full bg-[#f3eeff] flex items-center justify-center mb-3">
+              <div className="w-12 h-12 rounded-full bg-[var(--primary-color-light)] flex items-center justify-center mb-3">
                 <CoinIcon size={26} />
               </div>
               <h3 className="text-base font-extrabold text-[#1a1a2e] mb-1">Confirm Purchase</h3>
@@ -349,7 +349,7 @@ export default function PlansPage() {
               <button
                 onClick={() => handlePurchaseWithCoins(confirmPlan)}
                 disabled={!!purchasing}
-                className="flex-1 py-2.5 rounded-xl bg-[var(--primary-color)] hover:bg-[#6320d4] disabled:opacity-60 text-white text-sm font-semibold cursor-pointer transition border-none flex items-center justify-center gap-1.5"
+                className="flex-1 py-2.5 rounded-xl bg-[var(--primary-color)] hover:bg-[var(--primary-color-hover)] disabled:opacity-60 text-white text-sm font-semibold cursor-pointer transition border-none flex items-center justify-center gap-1.5"
               >
                 <CoinIcon size={14} />
                 {purchasing ? "Processing..." : "Confirm"}

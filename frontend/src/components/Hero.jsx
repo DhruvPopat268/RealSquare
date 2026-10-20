@@ -379,7 +379,7 @@ export default function Hero({ activeTab, setActiveTab, searchQuery, setSearchQu
               type="button"
               onClick={handleCurrentLocation}
               title="Use current location"
-              className="flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-lg text-[var(--primary-color)] hover:bg-[#f3eeff] transition-colors cursor-pointer bg-transparent border-none"
+              className="flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-lg text-[var(--primary-color)] hover:bg-[var(--primary-color-light)] transition-colors cursor-pointer bg-transparent border-none"
             >
               <MdMyLocation size={18} />
             </button>
@@ -388,7 +388,7 @@ export default function Hero({ activeTab, setActiveTab, searchQuery, setSearchQu
             <button
               type="button"
               onClick={() => { onSearch(); setShowPicker(false); }}
-              className="flex-shrink-0 flex items-center gap-1.5 bg-[var(--primary-color)] hover:bg-[#6920e0] active:bg-[#5a1ac7] text-white text-[13px] font-bold px-4 py-2 rounded-lg transition-colors cursor-pointer border-none"
+              className="flex-shrink-0 flex items-center gap-1.5 bg-[var(--primary-color)] hover:bg-[var(--primary-color-hover)] active:bg-[var(--primary-color-hover)] text-white text-[13px] font-bold px-4 py-2 rounded-lg transition-colors cursor-pointer border-none"
             >
               <FiSearch size={14} />
               Search

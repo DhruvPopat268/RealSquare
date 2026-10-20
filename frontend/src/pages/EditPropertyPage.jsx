@@ -49,7 +49,7 @@ function VideoMediaField({ title, file, currentUrl, youtubeUrl, onFileChange, on
     <div className="rounded-xl border border-gray-100 p-4 flex flex-col gap-4">
       <div className="flex items-center justify-between gap-3">
         <h4 className="text-sm font-bold text-gray-800">{title}</h4>
-        <label className={`flex shrink-0 cursor-pointer items-center gap-2 rounded-xl border border-dashed border-[var(--primary-color)] px-3 py-2 text-xs font-semibold text-[var(--primary-color)] hover:bg-[#f5f0ff] ${disabled ? "pointer-events-none opacity-50" : ""}`}>
+        <label className={`flex shrink-0 cursor-pointer items-center gap-2 rounded-xl border border-dashed border-[var(--primary-color)] px-3 py-2 text-xs font-semibold text-[var(--primary-color)] hover:bg-[var(--primary-color-light)] ${disabled ? "pointer-events-none opacity-50" : ""}`}>
           <FiUpload size={14} />
           {currentUrl && !clearUpload ? "Replace video" : "Choose video file"}
           <input
@@ -782,7 +782,7 @@ export default function EditPropertyPage() {
           <button
             onClick={handleSubmit}
             disabled={saving}
-            className="flex items-center gap-2 px-6 py-2.5 bg-[var(--primary-color)] text-white rounded-xl text-sm font-bold hover:bg-[#6320d4] transition disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex items-center gap-2 px-6 py-2.5 bg-[var(--primary-color)] text-white rounded-xl text-sm font-bold hover:bg-[var(--primary-color-hover)] transition disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {saving ? "Saving..." : "Save Changes"}
           </button>

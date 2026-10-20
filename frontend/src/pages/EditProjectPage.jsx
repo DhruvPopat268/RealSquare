@@ -103,7 +103,7 @@ export default function EditProjectPage() {
           {form.category === "Residential" ? (
             <Section title="BHK configurations">
               <p className="text-xs text-gray-500">Select all configurations available in this project.</p>
-              <div className="flex flex-wrap gap-2">{BHK_OPTIONS.map((option) => <button type="button" key={option} onClick={() => update("residentialConfigurations", form.residentialConfigurations.includes(option) ? form.residentialConfigurations.filter((item) => item !== option) : [...form.residentialConfigurations, option])} className={`rounded-full border px-4 py-2 text-sm font-semibold ${form.residentialConfigurations.includes(option) ? "border-[var(--primary-color)] bg-[#f3eeff] text-[var(--primary-color)]" : "border-gray-200 text-gray-500"}`}>{option}</button>)}</div>
+              <div className="flex flex-wrap gap-2">{BHK_OPTIONS.map((option) => <button type="button" key={option} onClick={() => update("residentialConfigurations", form.residentialConfigurations.includes(option) ? form.residentialConfigurations.filter((item) => item !== option) : [...form.residentialConfigurations, option])} className={`rounded-full border px-4 py-2 text-sm font-semibold ${form.residentialConfigurations.includes(option) ? "border-[var(--primary-color)] bg-[var(--primary-color-light)] text-[var(--primary-color)]" : "border-gray-200 text-gray-500"}`}>{option}</button>)}</div>
             </Section>
           ) : (
             <Section title="Area configurations">

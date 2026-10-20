@@ -197,7 +197,7 @@ export function Toggle({ value, onChange, label }) {
       onClick={() => onChange(!value)}
       className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border text-sm font-semibold transition
         ${value
-          ? "bg-[#f3eeff] border-[var(--primary-color)] text-[var(--primary-color)]"
+          ? "bg-[var(--primary-color-light)] border-[var(--primary-color)] text-[var(--primary-color)]"
           : "bg-white border-gray-200 text-gray-500 hover:border-[var(--primary-color)] hover:text-[var(--primary-color)]"
         }`}
     >

@@ -108,7 +108,7 @@ function AssignedInquiryCard({ assignment, onPurchase }) {
         <div className="flex items-center gap-2">
           <span className={`px-2.5 py-0.5 rounded-full text-[11px] font-semibold border ${
             purchased
-              ? "bg-[#f5f0ff] border-[#e0d5ff] text-[var(--primary-color)]"
+              ? "bg-[var(--primary-color-light)] border-[#e0d5ff] text-[var(--primary-color)]"
               : "bg-green-50 border-green-200 text-green-600"
           }`}>
             {purchased ? "Purchased" : "Active"}
@@ -145,7 +145,7 @@ function AssignedInquiryCard({ assignment, onPurchase }) {
           <button
             type="button"
             onClick={() => onPurchase(assignment)}
-            className="flex items-center gap-1 text-[11px] font-bold text-white bg-[var(--primary-color)] hover:bg-[#6320d4] px-3 py-1.5 rounded-lg transition flex-shrink-0 border-none cursor-pointer"
+            className="flex items-center gap-1 text-[11px] font-bold text-white bg-[var(--primary-color)] hover:bg-[var(--primary-color-hover)] px-3 py-1.5 rounded-lg transition flex-shrink-0 border-none cursor-pointer"
           >
             <FiUnlock size={11} /> Unlock
           </button>
@@ -177,7 +177,7 @@ function AssignedInquiryCard({ assignment, onPurchase }) {
       {/* Row 1 — Purpose / Category / Type */}
       <div className="flex flex-wrap gap-2">
         {inquiry.listingType?.name && (
-          <span className="px-2.5 py-1 bg-[#f5f0ff] text-[var(--primary-color)] border border-[#e0d5ff] rounded-lg text-[11px] font-bold">
+          <span className="px-2.5 py-1 bg-[var(--primary-color-light)] text-[var(--primary-color)] border border-[#e0d5ff] rounded-lg text-[11px] font-bold">
             {inquiry.listingType.name}
           </span>
         )}
@@ -202,7 +202,7 @@ function AssignedInquiryCard({ assignment, onPurchase }) {
             </span>
           )}
           {inquiry.furnishingType && (
-            <span className="flex items-center gap-1 px-2.5 py-1 bg-[#f5f0ff] text-[var(--primary-color)] rounded-lg text-[11px] font-semibold">
+            <span className="flex items-center gap-1 px-2.5 py-1 bg-[var(--primary-color-light)] text-[var(--primary-color)] rounded-lg text-[11px] font-semibold">
               <FiHome size={11} />
               {inquiry.furnishingType}
             </span>
@@ -502,7 +502,7 @@ export default function AssignedInquiriesPage() {
         <Navbar />
         <div className="min-h-[calc(100vh-62px)] bg-[#f7f8fa] flex items-center justify-center px-4">
           <div className="bg-white rounded-2xl shadow-[0_8px_40px_rgba(0,0,0,0.10)] w-full max-w-[420px] p-10 flex flex-col items-center text-center">
-            <div className="w-16 h-16 rounded-full bg-[#f3eeff] flex items-center justify-center mb-5">
+            <div className="w-16 h-16 rounded-full bg-[var(--primary-color-light)] flex items-center justify-center mb-5">
               <FiLock size={28} className="text-[var(--primary-color)]" />
             </div>
             <h2 className="text-xl font-extrabold text-[#1a1a2e] mb-2">Access Restricted</h2>
@@ -511,7 +511,7 @@ export default function AssignedInquiriesPage() {
             </p>
             <button
               onClick={() => navigate("/")}
-              className="w-full bg-[var(--primary-color)] hover:bg-[#6320d4] text-white py-3 rounded-xl font-semibold text-sm transition"
+              className="w-full bg-[var(--primary-color)] hover:bg-[var(--primary-color-hover)] text-white py-3 rounded-xl font-semibold text-sm transition"
             >
               Back to Home
             </button>
@@ -577,7 +577,7 @@ export default function AssignedInquiriesPage() {
               <FiFilter size={13} className="text-[var(--primary-color)]" />
               <span className="text-xs font-bold text-[#1a1a2e]">Filter Requirements</span>
               {hasAppliedFilters && (
-                <span className="ml-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#f3eeff] text-[var(--primary-color)]">
+                <span className="ml-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-[var(--primary-color-light)] text-[var(--primary-color)]">
                   {appliedLabels.length} filter{appliedLabels.length !== 1 ? "s" : ""} applied
                 </span>
               )}
@@ -650,7 +650,7 @@ export default function AssignedInquiriesPage() {
               <button
                 onClick={handleApply}
                 disabled={purchaseLoading || !hasPendingChanges}
-                className="flex items-center gap-1.5 px-4 py-1.5 rounded-xl text-xs font-bold transition disabled:opacity-40 disabled:cursor-not-allowed bg-[var(--primary-color)] text-white hover:bg-[#6320d4] border-none cursor-pointer"
+                className="flex items-center gap-1.5 px-4 py-1.5 rounded-xl text-xs font-bold transition disabled:opacity-40 disabled:cursor-not-allowed bg-[var(--primary-color)] text-white hover:bg-[var(--primary-color-hover)] border-none cursor-pointer"
               >
                 Apply Filters
               </button>
@@ -680,7 +680,7 @@ export default function AssignedInquiriesPage() {
           {/* Empty */}
           {!initialLoading && !error && assignments.length === 0 && (
             <div className="flex flex-col items-center justify-center py-24 gap-4">
-              <div className="w-16 h-16 rounded-2xl bg-[#f3eeff] flex items-center justify-center">
+              <div className="w-16 h-16 rounded-2xl bg-[var(--primary-color-light)] flex items-center justify-center">
                 <FiClipboard size={28} className="text-[var(--primary-color)]" />
               </div>
               <div className="text-center">
@@ -810,7 +810,7 @@ export default function AssignedInquiriesPage() {
               type="button"
               disabled={!purchaseMethod}
               onClick={() => { setPurchaseError(""); setConfirmUnlockOpen(true); }}
-              className="mt-5 w-full rounded-xl bg-[var(--primary-color)] px-4 py-3 text-sm font-bold text-white transition hover:bg-[#6320d4] disabled:cursor-not-allowed disabled:opacity-50"
+              className="mt-5 w-full rounded-xl bg-[var(--primary-color)] px-4 py-3 text-sm font-bold text-white transition hover:bg-[var(--primary-color-hover)] disabled:cursor-not-allowed disabled:opacity-50"
             >
               Confirm
             </button>
@@ -833,7 +833,7 @@ export default function AssignedInquiriesPage() {
             className="relative w-full max-w-sm rounded-2xl bg-white p-6 shadow-2xl"
           >
             <div className="mb-5 flex flex-col items-center text-center">
-              <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-[#f3eeff] text-[var(--primary-color)]">
+              <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-[var(--primary-color-light)] text-[var(--primary-color)]">
                 <FiUnlock size={22} />
               </div>
               <h2 id="confirm-unlock-title" className="mb-1 text-base font-extrabold text-[#1a1a2e]">Confirm unlock</h2>
@@ -860,7 +860,7 @@ export default function AssignedInquiriesPage() {
                 type="button"
                 disabled={purchaseLoading}
                 onClick={handleUnlockAssignment}
-                className="flex-1 rounded-xl border-none bg-[var(--primary-color)] py-2.5 text-sm font-bold text-white transition hover:bg-[#6320d4] disabled:cursor-wait disabled:opacity-60"
+                className="flex-1 rounded-xl border-none bg-[var(--primary-color)] py-2.5 text-sm font-bold text-white transition hover:bg-[var(--primary-color-hover)] disabled:cursor-wait disabled:opacity-60"
               >
                 {purchaseLoading ? "Unlocking..." : "Unlock"}
               </button>

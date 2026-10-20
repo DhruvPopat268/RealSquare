@@ -117,7 +117,7 @@ export default function ScheduleVisit({ onClose }) {
                       className={`py-2.5 px-3 rounded-lg border-[1.5px] text-[13px] font-medium cursor-pointer transition-all text-center
                         ${active
                           ? "border-[var(--primary-color)] bg-[var(--primary-color)] text-white"
-                          : "border-[#e8e8e8] bg-[#fafafa] text-[#444] hover:border-[var(--primary-color)] hover:text-[var(--primary-color)] hover:bg-[#f5f0ff]"
+                          : "border-[#e8e8e8] bg-[#fafafa] text-[#444] hover:border-[var(--primary-color)] hover:text-[var(--primary-color)] hover:bg-[var(--primary-color-light)]"
                         }`}
                     >
                       {slot}
@@ -130,7 +130,7 @@ export default function ScheduleVisit({ onClose }) {
             </div>
 
             <button
-              className="block w-full py-4 bg-[var(--primary-color)] hover:bg-[#5a1fd1] text-white text-[15px] font-bold border-none cursor-pointer transition-colors mt-4"
+              className="block w-full py-4 bg-[var(--primary-color)] hover:bg-[var(--primary-color-hover)] text-white text-[15px] font-bold border-none cursor-pointer transition-colors mt-4"
               onClick={handleSubmit}
             >
               Confirm Visit
@@ -150,7 +150,7 @@ export default function ScheduleVisit({ onClose }) {
             <div className="text-[15px] text-[#444]">between <strong>{selectedSlot}</strong></div>
             <p className="text-[12px] text-[#aaa] mt-1">Our team will send you a reminder before your visit.</p>
             <button
-              className="mt-2 px-10 py-3 bg-[var(--primary-color)] hover:bg-[#5a1fd1] text-white text-[15px] font-bold rounded-lg border-none cursor-pointer transition-colors"
+              className="mt-2 px-10 py-3 bg-[var(--primary-color)] hover:bg-[var(--primary-color-hover)] text-white text-[15px] font-bold rounded-lg border-none cursor-pointer transition-colors"
               onClick={onClose}
             >
               Done

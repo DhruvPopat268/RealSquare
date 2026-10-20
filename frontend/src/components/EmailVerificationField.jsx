@@ -102,7 +102,7 @@ export default function EmailVerificationField({
             type="button"
             onClick={() => sendOtp(true)}
             disabled={sending || !normalizedEmail}
-            className="shrink-0 rounded-xl border border-[var(--primary-color)] px-3 text-sm font-semibold text-[var(--primary-color)] transition hover:bg-[#f5f0ff] disabled:cursor-not-allowed disabled:opacity-50"
+            className="shrink-0 rounded-xl border border-[var(--primary-color)] px-3 text-sm font-semibold text-[var(--primary-color)] transition hover:bg-[var(--primary-color-light)] disabled:cursor-not-allowed disabled:opacity-50"
           >
             {sending ? "Sending..." : "Verify"}
           </button>
@@ -149,7 +149,7 @@ export default function EmailVerificationField({
               <button type="button" onClick={() => sendOtp(false, otpEmail)} disabled={sending || verifying} className="text-sm font-medium text-[var(--primary-color)] disabled:opacity-50">
                 {sending ? "Sending..." : "Resend code"}
               </button>
-              <button type="button" onClick={verifyOtp} disabled={verifying || sending} className="rounded-xl bg-[var(--primary-color)] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#6320d4] disabled:opacity-50">
+              <button type="button" onClick={verifyOtp} disabled={verifying || sending} className="rounded-xl bg-[var(--primary-color)] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[var(--primary-color-hover)] disabled:opacity-50">
                 {verifying ? "Verifying..." : "Verify email"}
               </button>
             </div>

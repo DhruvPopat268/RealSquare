@@ -146,7 +146,7 @@ export default function BuyersPage() {
             <button
               onClick={() => setShowFilters(!showFilters)}
               className={`flex items-center gap-1.5 px-4 py-2 border-[1.5px] rounded-lg text-[13px] font-semibold cursor-pointer transition-all whitespace-nowrap
-                ${showFilters ? "border-[var(--primary-color)] text-[var(--primary-color)] bg-[#f5f0ff]" : "border-[#e0e0e0] text-[#444] bg-[#fafafa] hover:border-[var(--primary-color)] hover:text-[var(--primary-color)] hover:bg-[#f5f0ff]"}`}
+                ${showFilters ? "border-[var(--primary-color)] text-[var(--primary-color)] bg-[var(--primary-color-light)]" : "border-[#e0e0e0] text-[#444] bg-[#fafafa] hover:border-[var(--primary-color)] hover:text-[var(--primary-color)] hover:bg-[var(--primary-color-light)]"}`}
             >
               <FiSliders size={13} /> Filters
               {activeFilterCount > 0 && (
@@ -198,11 +198,11 @@ export default function BuyersPage() {
         {/* ── Active filter tags ── */}
         {activeFilterCount > 0 && (
           <div className="max-w-[1200px] mx-auto px-4 sm:px-6 py-2.5 flex gap-2 flex-wrap">
-            {selectedTypes.map((t) => <span key={t} className="flex items-center gap-1.5 bg-[#f0ebff] text-[var(--primary-color)] text-[12px] font-semibold px-3 py-1 rounded-full">{t} <FiX size={11} className="cursor-pointer opacity-70 hover:opacity-100" onClick={() => toggle(selectedTypes, setSelectedTypes, t)} /></span>)}
-            {selectedBhk.map((b)   => <span key={b} className="flex items-center gap-1.5 bg-[#f0ebff] text-[var(--primary-color)] text-[12px] font-semibold px-3 py-1 rounded-full">{b} <FiX size={11} className="cursor-pointer opacity-70 hover:opacity-100" onClick={() => toggle(selectedBhk, setSelectedBhk, b)} /></span>)}
-            {selectedArea   && <span className="flex items-center gap-1.5 bg-[#f0ebff] text-[var(--primary-color)] text-[12px] font-semibold px-3 py-1 rounded-full">{selectedArea} <FiX size={11} className="cursor-pointer opacity-70 hover:opacity-100" onClick={() => setSelectedArea("")} /></span>}
-            {selectedBudget && <span className="flex items-center gap-1.5 bg-[#f0ebff] text-[var(--primary-color)] text-[12px] font-semibold px-3 py-1 rounded-full">{selectedBudget.label} <FiX size={11} className="cursor-pointer opacity-70 hover:opacity-100" onClick={() => setSelectedBudget(null)} /></span>}
-            {selectedStatus && <span className="flex items-center gap-1.5 bg-[#f0ebff] text-[var(--primary-color)] text-[12px] font-semibold px-3 py-1 rounded-full">{selectedStatus} <FiX size={11} className="cursor-pointer opacity-70 hover:opacity-100" onClick={() => setSelectedStatus("")} /></span>}
+            {selectedTypes.map((t) => <span key={t} className="flex items-center gap-1.5 bg-[var(--primary-color-light)] text-[var(--primary-color)] text-[12px] font-semibold px-3 py-1 rounded-full">{t} <FiX size={11} className="cursor-pointer opacity-70 hover:opacity-100" onClick={() => toggle(selectedTypes, setSelectedTypes, t)} /></span>)}
+            {selectedBhk.map((b)   => <span key={b} className="flex items-center gap-1.5 bg-[var(--primary-color-light)] text-[var(--primary-color)] text-[12px] font-semibold px-3 py-1 rounded-full">{b} <FiX size={11} className="cursor-pointer opacity-70 hover:opacity-100" onClick={() => toggle(selectedBhk, setSelectedBhk, b)} /></span>)}
+            {selectedArea   && <span className="flex items-center gap-1.5 bg-[var(--primary-color-light)] text-[var(--primary-color)] text-[12px] font-semibold px-3 py-1 rounded-full">{selectedArea} <FiX size={11} className="cursor-pointer opacity-70 hover:opacity-100" onClick={() => setSelectedArea("")} /></span>}
+            {selectedBudget && <span className="flex items-center gap-1.5 bg-[var(--primary-color-light)] text-[var(--primary-color)] text-[12px] font-semibold px-3 py-1 rounded-full">{selectedBudget.label} <FiX size={11} className="cursor-pointer opacity-70 hover:opacity-100" onClick={() => setSelectedBudget(null)} /></span>}
+            {selectedStatus && <span className="flex items-center gap-1.5 bg-[var(--primary-color-light)] text-[var(--primary-color)] text-[12px] font-semibold px-3 py-1 rounded-full">{selectedStatus} <FiX size={11} className="cursor-pointer opacity-70 hover:opacity-100" onClick={() => setSelectedStatus("")} /></span>}
           </div>
         )}
 

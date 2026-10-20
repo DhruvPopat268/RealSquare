@@ -148,7 +148,7 @@ export default function ChatbotPlacesInput({ mode = "city", cityName = "", onSub
             <li
               key={s.place_id}
               onMouseDown={() => handleSelect(s)}
-              className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-gray-700 cursor-pointer hover:bg-[#f0ebff] hover:text-[var(--primary-color)] transition"
+              className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-gray-700 cursor-pointer hover:bg-[var(--primary-color-light)] hover:text-[var(--primary-color)] transition"
             >
               <FiSearch size={12} className="text-gray-400 flex-shrink-0" />
               <span>{mode === "city" ? s.description.split(",")[0].trim() : s.description}</span>

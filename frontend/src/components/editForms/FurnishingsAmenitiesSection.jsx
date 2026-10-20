@@ -84,7 +84,7 @@ function FurnishingCard({ item, active, count, onToggle, onCountChange, disabled
       className={`relative flex flex-col items-center justify-center gap-2 rounded-xl border p-3
         transition select-none focus:outline-none
         ${active
-          ? "border-[var(--primary-color)] bg-[#f5f0ff] text-[var(--primary-color)]"
+          ? "border-[var(--primary-color)] bg-[var(--primary-color-light)] text-[var(--primary-color)]"
           : "border-gray-200 bg-white text-gray-500 hover:border-[var(--primary-color)] hover:text-[var(--primary-color)]"
         }
         disabled:opacity-40 disabled:cursor-not-allowed`}
@@ -145,7 +145,7 @@ function AmenityCard({ item, active, onToggle, disabled }) {
       className={`flex flex-col items-center justify-center gap-2 rounded-xl border p-3
         transition select-none focus:outline-none
         ${active
-          ? "border-[var(--primary-color)] bg-[#f5f0ff] text-[var(--primary-color)]"
+          ? "border-[var(--primary-color)] bg-[var(--primary-color-light)] text-[var(--primary-color)]"
           : "border-gray-200 bg-white text-gray-500 hover:border-[var(--primary-color)] hover:text-[var(--primary-color)]"
         }
         disabled:opacity-40 disabled:cursor-not-allowed`}
@@ -229,7 +229,7 @@ export default function FurnishingsAmenitiesSection({
         <div className="bg-white rounded-2xl p-6 flex flex-col gap-4">
           <div className="flex items-center justify-between border-b border-gray-100 pb-3">
             <h3 className="text-base font-bold text-[#1a1a2e]">Flat Furnishings</h3>
-            <span className="text-xs font-semibold text-[var(--primary-color)] bg-[#f5f0ff] px-2.5 py-1 rounded-full">
+            <span className="text-xs font-semibold text-[var(--primary-color)] bg-[var(--primary-color-light)] px-2.5 py-1 rounded-full">
               {selectedFurnishCount} selected
             </span>
           </div>
@@ -260,7 +260,7 @@ export default function FurnishingsAmenitiesSection({
         <div className="bg-white rounded-2xl p-6 flex flex-col gap-4">
           <div className="flex items-center justify-between border-b border-gray-100 pb-3">
             <h3 className="text-base font-bold text-[#1a1a2e]">Society Amenities</h3>
-            <span className="text-xs font-semibold text-[var(--primary-color)] bg-[#f5f0ff] px-2.5 py-1 rounded-full">
+            <span className="text-xs font-semibold text-[var(--primary-color)] bg-[var(--primary-color-light)] px-2.5 py-1 rounded-full">
               {selectedAmenityCount} selected
             </span>
           </div>

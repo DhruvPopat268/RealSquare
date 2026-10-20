@@ -153,7 +153,7 @@ export default function DepositCoinsPage() {
           {/* Wallet stats */}
           <div className="grid grid-cols-3 gap-3 mb-7">
             <div className="bg-white rounded-2xl shadow-[0_2px_16px_rgba(0,0,0,0.07)] p-4 flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-[#f5f0ff] flex items-center justify-center flex-shrink-0">
+              <div className="w-10 h-10 rounded-xl bg-[var(--primary-color-light)] flex items-center justify-center flex-shrink-0">
                 <CoinIcon size={24} />
               </div>
               <div>
@@ -256,7 +256,7 @@ export default function DepositCoinsPage() {
                         <button
                           key={offer._id}
                           onClick={() => handleSelectOffer(offer)}
-                          className={`rounded-xl border-2 p-3 text-left transition cursor-pointer ${isSelected ? "border-[var(--primary-color)] bg-[#f5f0ff]" : "border-gray-200 bg-white hover:border-[#c4a8ff]"}`}
+                          className={`rounded-xl border-2 p-3 text-left transition cursor-pointer ${isSelected ? "border-[var(--primary-color)] bg-[var(--primary-color-light)]" : "border-gray-200 bg-white hover:border-[#c4a8ff]"}`}
                         >
                           <div className="flex items-center gap-1 mb-1">
                             <CoinIcon size={16} />
@@ -300,7 +300,7 @@ export default function DepositCoinsPage() {
               </div>
 
               {/* Amount summary */}
-              <div className="bg-[#f5f0ff] border border-[#e0d4ff] rounded-xl px-4 py-3 mb-5 flex items-center justify-between">
+              <div className="bg-[var(--primary-color-light)] border border-[#e0d4ff] rounded-xl px-4 py-3 mb-5 flex items-center justify-between">
                 <div>
                   <span className="text-sm text-gray-500">Amount to pay</span>
                   {selectedOffer && coinsCount !== amount && (
@@ -317,7 +317,7 @@ export default function DepositCoinsPage() {
               <button
                 onClick={handlePay}
                 disabled={loading || amount < 1}
-                className="w-full bg-[var(--primary-color)] hover:bg-[#6320d4] disabled:opacity-60 text-white py-3 rounded-xl font-semibold text-sm transition flex items-center justify-center gap-2"
+                className="w-full bg-[var(--primary-color)] hover:bg-[var(--primary-color-hover)] disabled:opacity-60 text-white py-3 rounded-xl font-semibold text-sm transition flex items-center justify-center gap-2"
               >
                 <FiZap size={15} />
                 {loading ? "Processing..." : `Pay ₹${amount > 0 ? amount.toLocaleString("en-IN") : 0}`}

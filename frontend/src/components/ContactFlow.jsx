@@ -96,7 +96,7 @@ export default function ContactFlow({ onClose }) {
                 </div>
               </div>
             </div>
-            <button className="block w-full py-4 bg-[var(--primary-color)] hover:bg-[#5a1fd1] text-white text-[15px] font-bold border-none cursor-pointer transition-colors mt-4" onClick={handleSubmit}>
+            <button className="block w-full py-4 bg-[var(--primary-color)] hover:bg-[var(--primary-color-hover)] text-white text-[15px] font-bold border-none cursor-pointer transition-colors mt-4" onClick={handleSubmit}>
               Submit &amp; Get OTP
             </button>
           </>
@@ -123,7 +123,7 @@ export default function ContactFlow({ onClose }) {
                 Resend OTP
               </button>
             </div>
-            <button className="block w-full py-4 bg-[var(--primary-color)] hover:bg-[#5a1fd1] text-white text-[15px] font-bold border-none cursor-pointer transition-colors mt-4" onClick={handleVerify}>
+            <button className="block w-full py-4 bg-[var(--primary-color)] hover:bg-[var(--primary-color-hover)] text-white text-[15px] font-bold border-none cursor-pointer transition-colors mt-4" onClick={handleVerify}>
               Verify
             </button>
           </>
@@ -137,7 +137,7 @@ export default function ContactFlow({ onClose }) {
             </div>
             <h3 className="text-lg font-extrabold text-[#111] leading-snug">Thank you for showing your interest!</h3>
             <p className="text-[14px] text-[#666]">Our team will reach out to you on <strong>+91 {phone}</strong> shortly.</p>
-            <button className="mt-2 px-10 py-3 bg-[var(--primary-color)] hover:bg-[#5a1fd1] text-white text-[15px] font-bold rounded-lg border-none cursor-pointer transition-colors" onClick={onClose}>
+            <button className="mt-2 px-10 py-3 bg-[var(--primary-color)] hover:bg-[var(--primary-color-hover)] text-white text-[15px] font-bold rounded-lg border-none cursor-pointer transition-colors" onClick={onClose}>
               Done
             </button>
           </div>

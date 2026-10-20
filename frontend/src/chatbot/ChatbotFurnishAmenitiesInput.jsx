@@ -69,7 +69,7 @@ export default function ChatbotFurnishAmenitiesInput({ furnishings, amenities, f
     <div className="w-full">
       <button
         onClick={() => setOpen(true)}
-        className="px-5 py-2.5 rounded-xl bg-[var(--primary-color)] text-white text-sm font-medium hover:bg-[#6320d4] transition border-none cursor-pointer"
+        className="px-5 py-2.5 rounded-xl bg-[var(--primary-color)] text-white text-sm font-medium hover:bg-[var(--primary-color-hover)] transition border-none cursor-pointer"
       >
         {totalSelected > 0 ? `Edit Selection (${totalSelected} selected)` : showFurnishings ? "Select Furnishings & Amenities" : "Select Amenities"}
       </button>
@@ -101,7 +101,7 @@ export default function ChatbotFurnishAmenitiesInput({ furnishings, amenities, f
                           key={item._id}
                           onClick={() => !item.hasCount && toggleFurnish(item)}
                           className={`relative flex flex-col items-center gap-1.5 p-2.5 rounded-xl border-2 transition
-                            ${selected ? "border-[var(--primary-color)] bg-[#f5f0ff]" : "border-gray-200 bg-white"}
+                            ${selected ? "border-[var(--primary-color)] bg-[var(--primary-color-light)]" : "border-gray-200 bg-white"}
                             ${!item.hasCount ? "cursor-pointer hover:border-[var(--primary-color)]" : "cursor-default"}`}
                         >
                           {selected && !item.hasCount && (
@@ -146,7 +146,7 @@ export default function ChatbotFurnishAmenitiesInput({ furnishings, amenities, f
                         key={item._id}
                         onClick={() => toggleAmenity(item)}
                         className={`relative flex flex-col items-center gap-1.5 p-2.5 rounded-xl border-2 cursor-pointer transition
-                          ${selected ? "border-[var(--primary-color)] bg-[#f5f0ff]" : "border-gray-200 bg-white hover:border-[var(--primary-color)]"}`}
+                          ${selected ? "border-[var(--primary-color)] bg-[var(--primary-color-light)]" : "border-gray-200 bg-white hover:border-[var(--primary-color)]"}`}
                       >
                         {selected && (
                           <span className="absolute top-1.5 right-1.5 w-4 h-4 rounded-full bg-[var(--primary-color)] flex items-center justify-center">
@@ -172,7 +172,7 @@ export default function ChatbotFurnishAmenitiesInput({ furnishings, amenities, f
               </button>
               <button
                 onClick={handleConfirm}
-                className="px-5 py-2 rounded-xl bg-[var(--primary-color)] text-white text-sm font-medium hover:bg-[#6320d4] transition border-none cursor-pointer"
+                className="px-5 py-2 rounded-xl bg-[var(--primary-color)] text-white text-sm font-medium hover:bg-[var(--primary-color-hover)] transition border-none cursor-pointer"
               >
                 Confirm
               </button>

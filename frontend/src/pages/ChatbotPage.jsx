@@ -73,7 +73,7 @@ function QuickReplies({ options, onSelect }) {
         <button
           key={opt}
           onClick={() => onSelect(opt)}
-          className="px-4 py-2 rounded-full border-2 border-[var(--primary-color)] text-[var(--primary-color)] text-sm font-medium bg-white hover:bg-[#f0ebff] transition"
+          className="px-4 py-2 rounded-full border-2 border-[var(--primary-color)] text-[var(--primary-color)] text-sm font-medium bg-white hover:bg-[var(--primary-color-light)] transition"
         >
           {opt}
         </button>
@@ -195,7 +195,7 @@ export default function ChatbotPage({ flow = propertyListingFlow, assistantTitle
         <Navbar />
         <div className="min-h-[calc(100vh-62px)] bg-[#f7f8fa] flex items-center justify-center px-4">
           <div className="bg-white rounded-2xl shadow-[0_8px_40px_rgba(0,0,0,0.10)] w-full max-w-[420px] p-10 flex flex-col items-center text-center">
-            <div className="w-16 h-16 rounded-full bg-[#f3eeff] flex items-center justify-center mb-5">
+            <div className="w-16 h-16 rounded-full bg-[var(--primary-color-light)] flex items-center justify-center mb-5">
               <FiLock size={28} className="text-[var(--primary-color)]" />
             </div>
             <h2 className="text-xl font-extrabold text-[#1a1a2e] mb-2">Access Restricted</h2>
@@ -204,7 +204,7 @@ export default function ChatbotPage({ flow = propertyListingFlow, assistantTitle
             </p>
             <button
               onClick={() => navigate("/")}
-              className="w-full bg-[var(--primary-color)] hover:bg-[#6320d4] text-white py-3 rounded-xl font-semibold text-sm transition"
+              className="w-full bg-[var(--primary-color)] hover:bg-[var(--primary-color-hover)] text-white py-3 rounded-xl font-semibold text-sm transition"
             >
               Back to Home
             </button>
@@ -230,7 +230,7 @@ export default function ChatbotPage({ flow = propertyListingFlow, assistantTitle
             </p>
             <button
               onClick={() => navigate("/profile")}
-              className="w-full bg-[var(--primary-color)] hover:bg-[#6320d4] text-white py-3 rounded-xl font-semibold text-sm transition mb-3"
+              className="w-full bg-[var(--primary-color)] hover:bg-[var(--primary-color-hover)] text-white py-3 rounded-xl font-semibold text-sm transition mb-3"
             >
               Complete Profile
             </button>
@@ -262,7 +262,7 @@ export default function ChatbotPage({ flow = propertyListingFlow, assistantTitle
             </p>
             <button
               onClick={() => navigate("/plans")}
-              className="w-full bg-[var(--primary-color)] hover:bg-[#6320d4] text-white py-3 rounded-xl font-semibold text-sm transition mb-3"
+              className="w-full bg-[var(--primary-color)] hover:bg-[var(--primary-color-hover)] text-white py-3 rounded-xl font-semibold text-sm transition mb-3"
             >
               View Plans
             </button>
@@ -397,7 +397,7 @@ export default function ChatbotPage({ flow = propertyListingFlow, assistantTitle
                   <button
                     onClick={submit}
                     disabled={!canSend}
-                    className="w-10 h-10 rounded-xl bg-[var(--primary-color)] disabled:opacity-40 flex items-center justify-center flex-shrink-0 hover:bg-[#6320d4] transition border-none cursor-pointer"
+                    className="w-10 h-10 rounded-xl bg-[var(--primary-color)] disabled:opacity-40 flex items-center justify-center flex-shrink-0 hover:bg-[var(--primary-color-hover)] transition border-none cursor-pointer"
                   >
                     <FiSend size={16} className="text-white" />
                   </button>

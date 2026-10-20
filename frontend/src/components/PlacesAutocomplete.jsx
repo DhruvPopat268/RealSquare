@@ -102,7 +102,7 @@ export default function PlacesAutocomplete({ value, onChange, placeholder, cityB
             <li
               key={s.place_id}
               onMouseDown={() => handleSelect(s.description)}
-              className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-gray-700 hover:bg-[#f0ebff] hover:text-[var(--primary-color)] cursor-pointer transition"
+              className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-gray-700 hover:bg-[var(--primary-color-light)] hover:text-[var(--primary-color)] cursor-pointer transition"
             >
               <FiSearch size={12} className="text-gray-400 flex-shrink-0" />
               <span>{s.description}</span>

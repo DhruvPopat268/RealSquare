@@ -133,7 +133,7 @@ function PhotoUpload({ label, value, onChange, onRemove, shape = "circle", icon:
       <button
         type="button"
         onClick={() => ref.current.click()}
-        className={`relative group bg-gray-100 hover:bg-[#f0ebff] border-2 border-dashed border-gray-300 hover:border-[var(--primary-color)] transition overflow-hidden flex items-center justify-center ${
+        className={`relative group bg-gray-100 hover:bg-[var(--primary-color-light)] border-2 border-dashed border-gray-300 hover:border-[var(--primary-color)] transition overflow-hidden flex items-center justify-center ${
           isCircle ? "w-20 h-20 rounded-full" : "w-24 h-20 rounded-xl"
         }`}
       >
@@ -185,7 +185,7 @@ function EnquiryCitiesField({ cities, onChange }) {
           {cities.map((city) => (
             <span
               key={city}
-              className="flex items-center gap-1.5 bg-[#f3eeff] text-[var(--primary-color)] text-xs font-semibold px-3 py-1.5 rounded-full border border-[#e0d4ff]"
+              className="flex items-center gap-1.5 bg-[var(--primary-color-light)] text-[var(--primary-color)] text-xs font-semibold px-3 py-1.5 rounded-full border border-[#e0d4ff]"
             >
               <FiMapPin size={11} />
               {city}
@@ -551,8 +551,8 @@ function SwitchProfileModal({ currentRole, activePlan, activeEnquiryPlan, onCanc
               onClick={() => setSelected(r.key)}
               className={`flex flex-col items-start gap-1 p-3 rounded-xl border-2 text-left transition cursor-pointer ${
                 selected === r.key
-                  ? "border-[var(--primary-color)] bg-[#f5f0ff]"
-                  : "border-gray-200 hover:border-[var(--primary-color)] hover:bg-[#faf8ff]"
+                  ? "border-[var(--primary-color)] bg-[var(--primary-color-light)]"
+                  : "border-gray-200 hover:border-[var(--primary-color)] hover:bg-[var(--primary-color-light)]"
               }`}
             >
               <span className="text-xl">{r.icon}</span>
@@ -798,7 +798,7 @@ export default function UpdateProfilePage() {
             {!noRole && (
               <button
                 onClick={() => setShowSwitchModal(true)}
-                className="flex items-center gap-1.5 text-xs font-semibold text-[var(--primary-color)] border border-[var(--primary-color)] bg-transparent hover:bg-[#f5f0ff] rounded-xl px-3 py-1.5 cursor-pointer transition flex-shrink-0"
+                className="flex items-center gap-1.5 text-xs font-semibold text-[var(--primary-color)] border border-[var(--primary-color)] bg-transparent hover:bg-[var(--primary-color-light)] rounded-xl px-3 py-1.5 cursor-pointer transition flex-shrink-0"
               >
                 <FiRefreshCw size={12} />
                 Switch Role
@@ -808,7 +808,7 @@ export default function UpdateProfilePage() {
 
           {/* Role badge */}
           {role && !noRole && (
-            <div className="inline-flex items-center gap-1.5 bg-[#f5f0ff] border border-[#e0d4ff] rounded-full px-3 py-1 mb-6">
+            <div className="inline-flex items-center gap-1.5 bg-[var(--primary-color-light)] border border-[#e0d4ff] rounded-full px-3 py-1 mb-6">
               <span className="text-xs font-semibold text-[var(--primary-color)] capitalize">{role}</span>
             </div>
           )}
@@ -828,7 +828,7 @@ export default function UpdateProfilePage() {
                       setErrors({});
                     }}
                     className={`flex flex-col items-start gap-1 p-4 rounded-xl border-2 text-left transition cursor-pointer ${
-                      role === r.key ? "border-[var(--primary-color)] bg-[#f5f0ff]" : "border-gray-200 bg-white hover:border-[var(--primary-color)] hover:bg-[#faf8ff]"
+                      role === r.key ? "border-[var(--primary-color)] bg-[var(--primary-color-light)]" : "border-gray-200 bg-white hover:border-[var(--primary-color)] hover:bg-[var(--primary-color-light)]"
                     }`}
                   >
                     <span className="text-2xl">{r.icon}</span>
@@ -858,7 +858,7 @@ export default function UpdateProfilePage() {
             <button
               onClick={handleSubmit}
               disabled={loading}
-              className="w-full mt-2 bg-[var(--primary-color)] hover:bg-[#6320d4] disabled:opacity-60 text-white py-3 rounded-xl font-semibold text-sm transition flex items-center justify-center gap-2"
+              className="w-full mt-2 bg-[var(--primary-color)] hover:bg-[var(--primary-color-hover)] disabled:opacity-60 text-white py-3 rounded-xl font-semibold text-sm transition flex items-center justify-center gap-2"
             >
               {loading ? "Saving..." : <> Save Changes <FiArrowRight size={15} /> </>}
             </button>

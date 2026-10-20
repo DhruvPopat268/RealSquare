@@ -100,7 +100,7 @@ export default function DeveloperProjects() {
                         <li
                           key={o.value}
                           onClick={() => { setSortBy(o.value); setShowSort(false); }}
-                          className={`px-4 py-2.5 text-sm cursor-pointer hover:bg-[#f3eeff] hover:text-[var(--primary-color)] ${sortBy === o.value ? "bg-[#f3eeff] text-[var(--primary-color)] font-semibold" : "text-gray-700"}`}
+                          className={`px-4 py-2.5 text-sm cursor-pointer hover:bg-[var(--primary-color-light)] hover:text-[var(--primary-color)] ${sortBy === o.value ? "bg-[var(--primary-color-light)] text-[var(--primary-color)] font-semibold" : "text-gray-700"}`}
                         >
                           {o.label}
                         </li>
@@ -168,7 +168,7 @@ export default function DeveloperProjects() {
                           {p.propertyId ? "Click to view full details" : "View all projects by this developer"}
                         </span>
                         <button
-                          className="flex items-center gap-1.5 bg-[var(--primary-color)] hover:bg-[#6320d4] text-white px-4 py-2 rounded-lg text-xs font-semibold transition"
+                          className="flex items-center gap-1.5 bg-[var(--primary-color)] hover:bg-[var(--primary-color-hover)] text-white px-4 py-2 rounded-lg text-xs font-semibold transition"
                           onClick={(e) => { e.stopPropagation(); setShowContact(true); }}
                         >
                           <FiPhone size={12} /> Contact
@@ -193,7 +193,7 @@ export default function DeveloperProjects() {
                 </div>
                 <button
                   onClick={() => setShowContact(true)}
-                  className="w-full bg-[var(--primary-color)] hover:bg-[#6320d4] text-white rounded-xl py-3 text-sm font-bold transition flex items-center justify-center gap-2"
+                  className="w-full bg-[var(--primary-color)] hover:bg-[var(--primary-color-hover)] text-white rounded-xl py-3 text-sm font-bold transition flex items-center justify-center gap-2"
                 >
                   <FiPhone size={14} /> Get Contact Details
                 </button>

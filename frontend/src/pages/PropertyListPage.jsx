@@ -315,27 +315,27 @@ export default function PropertyListPage() {
               <div className="flex items-center gap-2 flex-wrap mb-4 bg-white border border-gray-200 rounded-xl px-4 py-3">
                 <span className="text-xs font-semibold text-gray-500 mr-1">Applied:</span>
                 {selectedTypes.map((t) => (
-                  <span key={t} className="flex items-center gap-1 bg-[#f0ebff] text-[var(--primary-color)] text-xs px-2.5 py-1 rounded-full font-medium">
+                  <span key={t} className="flex items-center gap-1 bg-[var(--primary-color-light)] text-[var(--primary-color)] text-xs px-2.5 py-1 rounded-full font-medium">
                     {t} <FiX size={10} className="cursor-pointer" onClick={() => toggle(selectedTypes, setSelectedTypes, t)} />
                   </span>
                 ))}
                 {selectedBhk.map((b) => (
-                  <span key={b} className="flex items-center gap-1 bg-[#f0ebff] text-[var(--primary-color)] text-xs px-2.5 py-1 rounded-full font-medium">
+                  <span key={b} className="flex items-center gap-1 bg-[var(--primary-color-light)] text-[var(--primary-color)] text-xs px-2.5 py-1 rounded-full font-medium">
                     {b} <FiX size={10} className="cursor-pointer" onClick={() => toggle(selectedBhk, setSelectedBhk, b)} />
                   </span>
                 ))}
                 {selectedBudget && (
-                  <span className="flex items-center gap-1 bg-[#f0ebff] text-[var(--primary-color)] text-xs px-2.5 py-1 rounded-full font-medium">
+                  <span className="flex items-center gap-1 bg-[var(--primary-color-light)] text-[var(--primary-color)] text-xs px-2.5 py-1 rounded-full font-medium">
                     {selectedBudget.label} <FiX size={10} className="cursor-pointer" onClick={() => setSelectedBudget(null)} />
                   </span>
                 )}
                 {selectedStatus.map((s) => (
-                  <span key={s} className="flex items-center gap-1 bg-[#f0ebff] text-[var(--primary-color)] text-xs px-2.5 py-1 rounded-full font-medium">
+                  <span key={s} className="flex items-center gap-1 bg-[var(--primary-color-light)] text-[var(--primary-color)] text-xs px-2.5 py-1 rounded-full font-medium">
                     {s} <FiX size={10} className="cursor-pointer" onClick={() => toggle(selectedStatus, setSelectedStatus, s)} />
                   </span>
                 ))}
                 {selectedAmenities.map((a) => (
-                  <span key={a} className="flex items-center gap-1 bg-[#f0ebff] text-[var(--primary-color)] text-xs px-2.5 py-1 rounded-full font-medium">
+                  <span key={a} className="flex items-center gap-1 bg-[var(--primary-color-light)] text-[var(--primary-color)] text-xs px-2.5 py-1 rounded-full font-medium">
                     {a} <FiX size={10} className="cursor-pointer" onClick={() => toggle(selectedAmenities, setSelectedAmenities, a)} />
                   </span>
                 ))}
@@ -353,7 +353,7 @@ export default function PropertyListPage() {
             ) : (
               <div className="bg-white rounded-xl border border-gray-200 p-16 text-center">
                 <p className="text-gray-500 text-base mb-4">No properties found for your selection.</p>
-                <button onClick={clearAll} className="bg-[var(--primary-color)] text-white px-6 py-2 rounded-lg text-sm font-semibold hover:bg-[#6a1fe0] transition">
+                <button onClick={clearAll} className="bg-[var(--primary-color)] text-white px-6 py-2 rounded-lg text-sm font-semibold hover:bg-[var(--primary-color-hover)] transition">
                   Clear Filters
                 </button>
               </div>

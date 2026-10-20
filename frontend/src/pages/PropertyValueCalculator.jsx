@@ -213,7 +213,7 @@ export default function PropertyValueCalculator() {
 
               <button
                 onClick={handleCalculate}
-                className="w-full bg-[var(--primary-color)] hover:bg-[#6320d4] text-white py-3 rounded-xl font-bold text-sm transition mt-1"
+                className="w-full bg-[var(--primary-color)] hover:bg-[var(--primary-color-hover)] text-white py-3 rounded-xl font-bold text-sm transition mt-1"
               >
                 Calculate Property Value
               </button>
@@ -230,7 +230,7 @@ export default function PropertyValueCalculator() {
                     <p className="text-xs text-gray-400 mt-2">
                       Range: <strong>{fmt(result.low)}</strong> – <strong>{fmt(result.high)}</strong>
                     </p>
-                    <div className="mt-3 inline-block bg-[#f0ebff] text-[var(--primary-color)] text-xs font-semibold px-4 py-1.5 rounded-full">
+                    <div className="mt-3 inline-block bg-[var(--primary-color-light)] text-[var(--primary-color)] text-xs font-semibold px-4 py-1.5 rounded-full">
                       ₹{result.pricePerSqft.toLocaleString("en-IN")} / sq ft
                     </div>
                   </div>

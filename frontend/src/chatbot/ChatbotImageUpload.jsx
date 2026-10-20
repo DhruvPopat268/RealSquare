@@ -56,7 +56,7 @@ export default function ChatbotImageUpload({ onSubmit }) {
 
       {/* Selected count pill */}
       {images.length > 0 && (
-        <div className="flex items-center justify-between bg-[#f3eeff] rounded-xl px-4 py-2.5">
+        <div className="flex items-center justify-between bg-[var(--primary-color-light)] rounded-xl px-4 py-2.5">
           <div className="flex items-center gap-2">
             <FiImage size={16} style={{ color: primaryColor }} />
             <span className="text-sm font-medium" style={{ color: primaryColor }}>

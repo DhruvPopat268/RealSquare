@@ -110,7 +110,7 @@ function CityPickerModal({ selectedCity, onSelect, onClose }) {
                 <button
                   key={s.place_id}
                   onMouseDown={() => onSelect(cityName)}
-                  className="w-full flex items-center gap-3 px-5 py-3 hover:bg-[#f5f0ff] text-left transition"
+                  className="w-full flex items-center gap-3 px-5 py-3 hover:bg-[var(--primary-color-light)] text-left transition"
                 >
                   <FiMapPin size={13} className="text-[var(--primary-color)] flex-shrink-0" />
                   <span className="text-sm text-gray-800 font-medium">{cityName}</span>
@@ -354,7 +354,7 @@ export default function PriceTrends() {
                   key={t}
                   onClick={() => setIntent(t)}
                   className={`px-12 py-2.5 text-sm font-semibold transition capitalize ${
-                    intent === t ? "bg-[var(--primary-color)] text-white" : "bg-white text-gray-700 hover:bg-[#f5f0ff]"
+                    intent === t ? "bg-[var(--primary-color)] text-white" : "bg-white text-gray-700 hover:bg-[var(--primary-color-light)]"
                   }`}
                 >
                   {t === "buy" ? "Buy" : "Rent"}
@@ -421,13 +421,13 @@ export default function PriceTrends() {
                 <span className="text-sm text-gray-500">{row.priceRange}</span>
                 <button
                   onClick={() => setTrendModal({ locality: row.locality, trendData: row.trend })}
-                  className="w-fit px-4 py-1.5 border border-[var(--primary-color)] text-[var(--primary-color)] rounded-lg text-xs font-semibold hover:bg-[#f5f0ff] transition"
+                  className="w-fit px-4 py-1.5 border border-[var(--primary-color)] text-[var(--primary-color)] rounded-lg text-xs font-semibold hover:bg-[var(--primary-color-light)] transition"
                 >
                   See Trend
                 </button>
                 <button
                   onClick={() => navigate(`/listings?listingType=${intent.toUpperCase()}&city=${cityName}&areas=${encodeURIComponent(row.locality)}`)}
-                  className="w-fit px-4 py-1.5 bg-[var(--primary-color)] text-white rounded-lg text-xs font-semibold hover:bg-[#6320d4] transition"
+                  className="w-fit px-4 py-1.5 bg-[var(--primary-color)] text-white rounded-lg text-xs font-semibold hover:bg-[var(--primary-color-hover)] transition"
                 >
                   See {row.count}+ Properties
                 </button>

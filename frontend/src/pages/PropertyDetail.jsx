@@ -335,7 +335,7 @@ export default function PropertyDetail() {
                 href={`https://www.google.com/maps?q=${property.locality.latitude},${property.locality.longitude}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 mt-3 px-4 py-1.5 rounded-full border border-[#5E23DC] text-[#5E23DC] text-sm font-medium hover:bg-[#5E23DC] hover:text-white transition-colors w-fit"
+                className="inline-flex items-center gap-2 mt-3 px-4 py-1.5 rounded-full border border-[#5E23DC] text-[#5E23DC] text-sm font-medium hover:bg-[var(--primary-color-hover)] hover:text-white transition-colors w-fit"
               >
                 <FiExternalLink size={13} />
                 View on Map
@@ -403,7 +403,7 @@ export default function PropertyDetail() {
               })()}
               <button
                 onClick={() => navigate(`/edit-property/${property._id}`)}
-                className="bg-[var(--primary-color)] shadow-md px-3 py-1.5 rounded-xl flex items-center gap-1.5 text-xs font-medium text-white hover:bg-[#6320d4] transition"
+                className="bg-[var(--primary-color)] shadow-md px-3 py-1.5 rounded-xl flex items-center gap-1.5 text-xs font-medium text-white hover:bg-[var(--primary-color-hover)] transition"
               >
                 <FiEdit2 size={12} /> EDIT
               </button>

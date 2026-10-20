@@ -185,7 +185,7 @@ function TabSection({ title, subtitle, items, renderPreview }) {
                   <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
                 </div>
               ) : (
-                <div className={`w-[120px] h-[76px] rounded-lg border-2 bg-[#f0ebff] flex items-center justify-center transition ${active === i ? "border-[var(--primary-color)]" : "border-gray-200"}`}>
+                <div className={`w-[120px] h-[76px] rounded-lg border-2 bg-[var(--primary-color-light)] flex items-center justify-center transition ${active === i ? "border-[var(--primary-color)]" : "border-gray-200"}`}>
                   <FiStar size={20} className="text-[var(--primary-color)]" />
                 </div>
               )}
@@ -220,7 +220,7 @@ function TabSection({ title, subtitle, items, renderPreview }) {
                   <p className="text-lg font-extrabold text-amber-500 leading-none">{current.coins}</p>
                 </div>
               </div>
-              <button className="bg-[var(--primary-color)] hover:bg-[#6320d4] text-white px-6 py-2.5 rounded-xl text-sm font-semibold transition flex items-center gap-2">
+              <button className="bg-[var(--primary-color)] hover:bg-[var(--primary-color-hover)] text-white px-6 py-2.5 rounded-xl text-sm font-semibold transition flex items-center gap-2">
                 🔓 Unlock Now
               </button>
             </div>
@@ -279,7 +279,7 @@ function CallSupportModal({ onClose }) {
                 {errors.city && <p className="text-xs text-red-500 mt-1">{errors.city}</p>}
               </div>
             </div>
-            <button onClick={() => { if (validate()) setSubmitted(true); }} className="w-full mt-5 bg-[var(--primary-color)] hover:bg-[#6320d4] text-white py-3 rounded-xl font-semibold text-sm transition">
+            <button onClick={() => { if (validate()) setSubmitted(true); }} className="w-full mt-5 bg-[var(--primary-color)] hover:bg-[var(--primary-color-hover)] text-white py-3 rounded-xl font-semibold text-sm transition">
               Request Call
             </button>
           </>
@@ -290,7 +290,7 @@ function CallSupportModal({ onClose }) {
             </div>
             <h3 className="text-lg font-bold text-[#1a1a2e] mb-2">You're all set!</h3>
             <p className="text-sm text-gray-500 leading-relaxed">Thanks <strong>{name}</strong>! Our team will call you on <strong>+91 {phone}</strong> shortly.</p>
-            <button onClick={onClose} className="mt-6 bg-[var(--primary-color)] text-white px-8 py-2.5 rounded-xl text-sm font-semibold hover:bg-[#6320d4] transition">Done</button>
+            <button onClick={onClose} className="mt-6 bg-[var(--primary-color)] text-white px-8 py-2.5 rounded-xl text-sm font-semibold hover:bg-[var(--primary-color-hover)] transition">Done</button>
           </div>
         )}
       </div>
@@ -381,7 +381,7 @@ export default function DeveloperPage() {
           subtitle="Digitally rich content to showcase every aspect of your project"
           items={CONTENT_PRODUCTS}
           renderPreview={() => (
-            <div className="rounded-2xl bg-[#f0ebff] border border-[#e4d9ff] h-[260px] flex flex-col items-center justify-center gap-3 text-center px-8">
+            <div className="rounded-2xl bg-[var(--primary-color-light)] border border-[#e4d9ff] h-[260px] flex flex-col items-center justify-center gap-3 text-center px-8">
               <div className="w-14 h-14 bg-[var(--primary-color)]/10 rounded-full flex items-center justify-center">
                 <FiStar size={24} className="text-[var(--primary-color)]" />
               </div>

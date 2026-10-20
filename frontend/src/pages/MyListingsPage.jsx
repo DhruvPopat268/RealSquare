@@ -262,7 +262,7 @@ function GridCard({ listing, onStatusUpdate }) {
       onClick={() => navigate(`/property/${listing._id}`)}
     >
       {/* Image */}
-      <div className="relative h-[200px] bg-[#f3eeff] flex items-center justify-center overflow-hidden flex-shrink-0">
+      <div className="relative h-[200px] bg-[var(--primary-color-light)] flex items-center justify-center overflow-hidden flex-shrink-0">
         {images.length > 0 ? (
           <>
             <img
@@ -372,7 +372,7 @@ function GridCard({ listing, onStatusUpdate }) {
             )}
             <button
               onClick={() => navigate(`/edit-property/${listing._id}`)}
-              className="flex items-center gap-1 px-2.5 py-1.5 bg-[var(--primary-color)] text-white rounded-lg text-[11px] font-semibold hover:bg-[#6320d4] transition"
+              className="flex items-center gap-1 px-2.5 py-1.5 bg-[var(--primary-color)] text-white rounded-lg text-[11px] font-semibold hover:bg-[var(--primary-color-hover)] transition"
             >
               <FiEdit2 size={11} />
               Edit
@@ -440,7 +440,7 @@ function ListingCard({ listing, onStatusUpdate }) {
       onClick={() => navigate(`/property/${listing._id}`)}
     >
       {/* Image Gallery */}
-      <div className="relative w-full sm:w-[220px] sm:flex-shrink-0 h-[180px] sm:h-auto bg-[#f3eeff] flex items-center justify-center overflow-hidden">
+      <div className="relative w-full sm:w-[220px] sm:flex-shrink-0 h-[180px] sm:h-auto bg-[var(--primary-color-light)] flex items-center justify-center overflow-hidden">
         {images.length > 0 ? (
           <>
             <img
@@ -517,7 +517,7 @@ function ListingCard({ listing, onStatusUpdate }) {
             )}
             <button
               onClick={() => navigate(`/edit-property/${listing._id}`)}
-              className="flex items-center gap-1 px-2.5 py-1.5 bg-[var(--primary-color)] text-white rounded-lg text-[11px] font-semibold hover:bg-[#6320d4] transition"
+              className="flex items-center gap-1 px-2.5 py-1.5 bg-[var(--primary-color)] text-white rounded-lg text-[11px] font-semibold hover:bg-[var(--primary-color-hover)] transition"
             >
               <FiEdit2 size={11} />
               Edit
@@ -586,7 +586,7 @@ function ListingCard({ listing, onStatusUpdate }) {
 function EmptyState({ filtered, navigate }) {
   return (
     <div className="flex flex-col items-center justify-center py-20 px-4 text-center">
-      <div className="w-16 h-16 rounded-full bg-[#f3eeff] flex items-center justify-center mb-4">
+      <div className="w-16 h-16 rounded-full bg-[var(--primary-color-light)] flex items-center justify-center mb-4">
         <FiList size={28} className="text-[var(--primary-color)]" />
       </div>
       <h3 className="text-lg font-bold text-[#1a1a2e] mb-1">
@@ -600,7 +600,7 @@ function EmptyState({ filtered, navigate }) {
       {!filtered && (
         <button
           onClick={() => navigate("/chatbot")}
-          className="flex items-center gap-2 px-5 py-2.5 bg-[var(--primary-color)] text-white rounded-xl text-sm font-bold hover:bg-[#6320d4] transition"
+          className="flex items-center gap-2 px-5 py-2.5 bg-[var(--primary-color)] text-white rounded-xl text-sm font-bold hover:bg-[var(--primary-color-hover)] transition"
         >
           <FiPlus size={15} />
           List a Property
@@ -935,7 +935,7 @@ export default function MyListingsPage() {
         <Navbar />
         <div className="min-h-[calc(100vh-62px)] bg-[#f7f8fa] flex items-center justify-center px-4">
           <div className="bg-white rounded-2xl shadow-[0_8px_40px_rgba(0,0,0,0.10)] w-full max-w-[420px] p-10 flex flex-col items-center text-center">
-            <div className="w-16 h-16 rounded-full bg-[#f3eeff] flex items-center justify-center mb-5">
+            <div className="w-16 h-16 rounded-full bg-[var(--primary-color-light)] flex items-center justify-center mb-5">
               <FiLock size={28} className="text-[var(--primary-color)]" />
             </div>
             <h2 className="text-xl font-extrabold text-[#1a1a2e] mb-2">Access Restricted</h2>
@@ -944,7 +944,7 @@ export default function MyListingsPage() {
             </p>
             <button
               onClick={() => navigate("/")}
-              className="w-full bg-[var(--primary-color)] hover:bg-[#6320d4] text-white py-3 rounded-xl font-semibold text-sm transition"
+              className="w-full bg-[var(--primary-color)] hover:bg-[var(--primary-color-hover)] text-white py-3 rounded-xl font-semibold text-sm transition"
             >
               Back to Home
             </button>
@@ -1024,7 +1024,7 @@ export default function MyListingsPage() {
                       <button
                         type="button"
                         onClick={() => openProjectUnitsModal(project)}
-                        className="inline-flex items-center gap-2 rounded-xl bg-[var(--primary-color)] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#6320d4]"
+                        className="inline-flex items-center gap-2 rounded-xl bg-[var(--primary-color)] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[var(--primary-color-hover)]"
                       >
                         Update available units
                       </button>
@@ -1080,7 +1080,7 @@ export default function MyListingsPage() {
                       <p className="mt-5 text-sm text-gray-500">Current status: <span className="font-bold text-gray-800">{projectStatusModal.project.listingStatus}</span></p>
                       <div className="mt-4 flex flex-col gap-2">
                         {(projectStatusModal.project.listingStatus === "Active" ? ["Inactive", "Sold"] : ["Active"]).map((status) => (
-                          <button key={status} type="button" onClick={() => setProjectStatusModal((modal) => ({ ...modal, selectedStatus: status }))} className="w-full rounded-xl border border-gray-200 px-4 py-3 text-left text-sm font-semibold text-gray-700 transition hover:border-[var(--primary-color)] hover:bg-[#f5f0ff] hover:text-[var(--primary-color)]">
+                          <button key={status} type="button" onClick={() => setProjectStatusModal((modal) => ({ ...modal, selectedStatus: status }))} className="w-full rounded-xl border border-gray-200 px-4 py-3 text-left text-sm font-semibold text-gray-700 transition hover:border-[var(--primary-color)] hover:bg-[var(--primary-color-light)] hover:text-[var(--primary-color)]">
                             <FiZap size={14} className="mr-2 inline" /> Mark as {status}
                           </button>
                         ))}
@@ -1146,7 +1146,7 @@ export default function MyListingsPage() {
                 </div>
                 <button
                   onClick={() => navigate("/chatbot")}
-                  className="flex items-center gap-1.5 px-4 py-2 bg-[var(--primary-color)] text-white rounded-xl text-xs font-bold hover:bg-[#6320d4] transition"
+                  className="flex items-center gap-1.5 px-4 py-2 bg-[var(--primary-color)] text-white rounded-xl text-xs font-bold hover:bg-[var(--primary-color-hover)] transition"
                 >
                   <FiPlus size={13} />
                   New Listing
@@ -1222,7 +1222,7 @@ export default function MyListingsPage() {
               <FiFilter size={13} className="text-[var(--primary-color)]" />
               <span className="text-xs font-bold text-[#1a1a2e]">Filter Listings</span>
               {hasAppliedFilters && (
-                <span className="ml-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#f3eeff] text-[var(--primary-color)]">
+                <span className="ml-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-[var(--primary-color-light)] text-[var(--primary-color)]">
                   {appliedLabels.length} filter{appliedLabels.length !== 1 ? "s" : ""} applied
                 </span>
               )}
@@ -1278,7 +1278,7 @@ export default function MyListingsPage() {
                 disabled={!hasPendingChanges}
                 className={`flex items-center gap-1.5 px-4 py-1.5 rounded-xl text-xs font-bold transition ${
                   hasPendingChanges
-                    ? "bg-[var(--primary-color)] text-white hover:bg-[#6320d4]"
+                    ? "bg-[var(--primary-color)] text-white hover:bg-[var(--primary-color-hover)]"
                     : "bg-gray-100 text-gray-400 cursor-not-allowed"
                 }`}
               >
@@ -1293,7 +1293,7 @@ export default function MyListingsPage() {
               {appliedLabels.map((label) => (
                 <span
                   key={label}
-                  className="flex items-center gap-1 text-[11px] font-semibold px-2.5 py-1 rounded-full bg-[#f3eeff] text-[var(--primary-color)] border border-[#e0d0ff]"
+                  className="flex items-center gap-1 text-[11px] font-semibold px-2.5 py-1 rounded-full bg-[var(--primary-color-light)] text-[var(--primary-color)] border border-[#e0d0ff]"
                 >
                   {label}
                 </span>

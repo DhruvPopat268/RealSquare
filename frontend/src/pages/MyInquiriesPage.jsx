@@ -133,7 +133,7 @@ function InquiryCard({ inquiry, onRequestStatusUpdate, updating }) {
       {/* Row 1 — Purpose / Category / Type */}
       <div className="flex flex-wrap gap-2">
         {inquiry.listingType?.name && (
-          <span className="px-2.5 py-1 bg-[#f5f0ff] text-[var(--primary-color)] border border-[#e0d5ff] rounded-lg text-[11px] font-bold">
+          <span className="px-2.5 py-1 bg-[var(--primary-color-light)] text-[var(--primary-color)] border border-[#e0d5ff] rounded-lg text-[11px] font-bold">
             {inquiry.listingType.name}
           </span>
         )}
@@ -158,7 +158,7 @@ function InquiryCard({ inquiry, onRequestStatusUpdate, updating }) {
             </span>
           )}
           {inquiry.furnishingType && (
-            <span className="flex items-center gap-1 px-2.5 py-1 bg-[#f5f0ff] text-[var(--primary-color)] rounded-lg text-[11px] font-semibold">
+            <span className="flex items-center gap-1 px-2.5 py-1 bg-[var(--primary-color-light)] text-[var(--primary-color)] rounded-lg text-[11px] font-semibold">
               <FiHome size={11} />
               {inquiry.furnishingType}
             </span>
@@ -207,7 +207,7 @@ function InquiryCard({ inquiry, onRequestStatusUpdate, updating }) {
               type="button"
               onClick={() => setStatusMenuOpen((open) => !open)}
               disabled={Boolean(updating)}
-              className="flex items-center gap-2 rounded-lg bg-[var(--primary-color)] px-3.5 py-2 text-xs font-bold text-white transition hover:bg-[#6320d4] disabled:opacity-60"
+              className="flex items-center gap-2 rounded-lg bg-[var(--primary-color)] px-3.5 py-2 text-xs font-bold text-white transition hover:bg-[var(--primary-color-hover)] disabled:opacity-60"
             >
               {updating ? "Updating…" : "Update Status"}
               <FiChevronDown size={13} />
@@ -421,7 +421,7 @@ export default function MyInquiriesPage() {
             </div>
             <button
               onClick={() => navigate("/create-inquiry")}
-              className="flex items-center gap-2 px-4 py-2.5 bg-[var(--primary-color)] hover:bg-[#6320d4] text-white text-sm font-bold rounded-xl border-none cursor-pointer transition-colors shadow-sm"
+              className="flex items-center gap-2 px-4 py-2.5 bg-[var(--primary-color)] hover:bg-[var(--primary-color-hover)] text-white text-sm font-bold rounded-xl border-none cursor-pointer transition-colors shadow-sm"
             >
               <FiPlus size={16} />
               Create New Requirement
@@ -476,7 +476,7 @@ export default function MyInquiriesPage() {
               <FiFilter size={13} className="text-[var(--primary-color)]" />
               <span className="text-xs font-bold text-[#1a1a2e]">Filter Requirements</span>
               {hasAppliedFilters && (
-                <span className="ml-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#f3eeff] text-[var(--primary-color)]">
+                <span className="ml-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-[var(--primary-color-light)] text-[var(--primary-color)]">
                   {appliedLabels.length} filter{appliedLabels.length !== 1 ? "s" : ""} applied
                 </span>
               )}
@@ -547,7 +547,7 @@ export default function MyInquiriesPage() {
               <button
                 onClick={handleApply}
                 disabled={!hasPendingChanges}
-                className="flex items-center gap-1.5 px-4 py-1.5 rounded-xl text-xs font-bold transition disabled:opacity-40 disabled:cursor-not-allowed bg-[var(--primary-color)] text-white hover:bg-[#6320d4] border-none cursor-pointer"
+                className="flex items-center gap-1.5 px-4 py-1.5 rounded-xl text-xs font-bold transition disabled:opacity-40 disabled:cursor-not-allowed bg-[var(--primary-color)] text-white hover:bg-[var(--primary-color-hover)] border-none cursor-pointer"
               >
                 Apply Filters
               </button>
@@ -577,7 +577,7 @@ export default function MyInquiriesPage() {
           {/* Empty state */}
           {!initialLoading && !error && inquiries.length === 0 && (
             <div className="flex flex-col items-center justify-center py-24 gap-4">
-              <div className="w-16 h-16 rounded-2xl bg-[#f3eeff] flex items-center justify-center">
+              <div className="w-16 h-16 rounded-2xl bg-[var(--primary-color-light)] flex items-center justify-center">
                 <FiClipboard size={28} className="text-[var(--primary-color)]" />
               </div>
               <div className="text-center">
@@ -593,7 +593,7 @@ export default function MyInquiriesPage() {
               {!hasAppliedFilters && (
                 <button
                   onClick={() => navigate("/create-inquiry")}
-                  className="flex items-center gap-2 px-5 py-2.5 bg-[var(--primary-color)] hover:bg-[#6320d4] text-white text-sm font-bold rounded-xl border-none cursor-pointer transition-colors"
+                  className="flex items-center gap-2 px-5 py-2.5 bg-[var(--primary-color)] hover:bg-[var(--primary-color-hover)] text-white text-sm font-bold rounded-xl border-none cursor-pointer transition-colors"
                 >
                   <FiPlus size={15} />
                   Create Requirement
@@ -655,7 +655,7 @@ export default function MyInquiriesPage() {
                   if (await handleStatusUpdate(inquiry._id, status)) setStatusConfirmation(null);
                 }}
                 disabled={Boolean(statusUpdating)}
-                className="rounded-xl bg-[var(--primary-color)] px-4 py-2 text-xs font-bold text-white transition hover:bg-[#6320d4] disabled:opacity-60"
+                className="rounded-xl bg-[var(--primary-color)] px-4 py-2 text-xs font-bold text-white transition hover:bg-[var(--primary-color-hover)] disabled:opacity-60"
               >
                 {statusUpdating ? "Updating…" : "Confirm"}
               </button>

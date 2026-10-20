@@ -167,7 +167,7 @@ export default function CityAutocomplete({
             <li
               key={s.place_id}
               onMouseDown={() => handleSelect(s)}
-              className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-gray-700 cursor-pointer hover:bg-[#f0ebff] hover:text-[var(--primary-color)] transition border-b border-gray-100 last:border-b-0"
+              className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-gray-700 cursor-pointer hover:bg-[var(--primary-color-light)] hover:text-[var(--primary-color)] transition border-b border-gray-100 last:border-b-0"
             >
               <FiMapPin size={13} className="text-gray-400 flex-shrink-0" />
               <span className="font-medium">{s.description.split(",")[0].trim()}</span>

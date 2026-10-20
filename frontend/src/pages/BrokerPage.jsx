@@ -143,7 +143,7 @@ function CallSupportModal({ onClose }) {
 
             <button
               onClick={handleSubmit}
-              className="w-full mt-5 bg-[var(--primary-color)] hover:bg-[#6320d4] text-white py-3 rounded-xl font-semibold text-sm transition"
+              className="w-full mt-5 bg-[var(--primary-color)] hover:bg-[var(--primary-color-hover)] text-white py-3 rounded-xl font-semibold text-sm transition"
             >
               Request Call
             </button>
@@ -159,7 +159,7 @@ function CallSupportModal({ onClose }) {
             </p>
             <button
               onClick={onClose}
-              className="mt-6 bg-[var(--primary-color)] text-white px-8 py-2.5 rounded-xl text-sm font-semibold hover:bg-[#6320d4] transition"
+              className="mt-6 bg-[var(--primary-color)] text-white px-8 py-2.5 rounded-xl text-sm font-semibold hover:bg-[var(--primary-color-hover)] transition"
             >
               Done
             </button>
@@ -178,7 +178,7 @@ function PlanPurchasedModal({ planName, onClose }) {
         <button className="absolute top-4 right-4 text-gray-400 hover:text-gray-700" onClick={onClose}>
           <FiX size={20} />
         </button>
-        <div className="w-16 h-16 bg-[#f0ebff] rounded-full flex items-center justify-center mx-auto mb-4">
+        <div className="w-16 h-16 bg-[var(--primary-color-light)] rounded-full flex items-center justify-center mx-auto mb-4">
           <FiCheck size={30} className="text-[var(--primary-color)]" />
         </div>
         <h3 className="text-xl font-extrabold text-[#1a1a2e] mb-2">Plan Activated! 🎉</h3>
@@ -190,7 +190,7 @@ function PlanPurchasedModal({ planName, onClose }) {
         </p>
         <button
           onClick={onClose}
-          className="w-full bg-[var(--primary-color)] hover:bg-[#6320d4] text-white py-3 rounded-xl font-semibold text-sm transition"
+          className="w-full bg-[var(--primary-color)] hover:bg-[var(--primary-color-hover)] text-white py-3 rounded-xl font-semibold text-sm transition"
         >
           Start Listing Properties
         </button>
@@ -282,7 +282,7 @@ export default function BrokerPage() {
 
                 {/* Plan name */}
                 <div className="px-5 pb-4 pt-2 border-b border-gray-100">
-                  <div className="w-10 h-10 rounded-full bg-[#f0ebff] flex items-center justify-center mb-3">
+                  <div className="w-10 h-10 rounded-full bg-[var(--primary-color-light)] flex items-center justify-center mb-3">
                     <FiStar size={18} className="text-[var(--primary-color)]" />
                   </div>
                   <h3 className="text-base font-bold text-[#1a1a2e]">{plan.name}</h3>
@@ -305,7 +305,7 @@ export default function BrokerPage() {
                 <div className="px-5 pb-5 pt-4 border-t border-gray-100">
                   <button
                     onClick={() => setPurchasedPlan(plan.name)}
-                    className="w-full py-2.5 bg-[var(--primary-color)] hover:bg-[#6320d4] text-white rounded-xl text-sm font-semibold transition"
+                    className="w-full py-2.5 bg-[var(--primary-color)] hover:bg-[var(--primary-color-hover)] text-white rounded-xl text-sm font-semibold transition"
                   >
                     Select Plan
                   </button>
