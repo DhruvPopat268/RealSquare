@@ -250,6 +250,7 @@ Both pages follow the same UX pattern:
 ## Virtual Space coworking flow
 - `frontend/apkApis/21-10-26_coworking.md` documents the coworking-only active benefits GET endpoint and create/partial update payloads; coworking create uses the Rent purpose by default.
 - `chatbot/PropertyListingFlow.js` fetches active virtual-space benefit groups, displays every benefit on its own selectable line, and reveals that plan's monthly rent input as soon as any benefit is selected. The picker submits each selected plan and its rent together, without a follow-up rent prompt or an inner scrolling area; the chatbot message area handles scrolling. It also hides workspace types already added.
+- Chatbot Edit restores the last question's step and collected-data snapshot before the answer, so resubmitting a coworking workspace answer does not retain stale data or append a duplicate workspace.
 - The commercial edit form uses a coworking-specific section for workspace floor and workspace configurations; generic commercial status, area, floor, and furnishings sections are hidden for coworking listings.
 ### Coworking Property Details
 - Customer property detail pages identify coworking listings by property type and display the workspace floor with cabin, hall, and virtual space details.

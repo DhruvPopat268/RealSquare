@@ -21,8 +21,8 @@ export function useChatbot(runStep) {
   const prevStepRef      = useRef("init");
   const collectedDataRef = useRef({});
   const hasStartedRef    = useRef(false);
-  // snapshot of bot state just before the last user reply
-  const lastQuestionSnapRef = useRef(null); // { quickReplies, customInput, awaitingInput }
+  // Snapshot the question and collected data before the last user reply.
+  const lastQuestionSnapRef = useRef(null);
 
   const updateCollectedData = useCallback((updater) => {
     setCollectedData((prev) => {
@@ -76,7 +76,11 @@ export function useChatbot(runStep) {
     if (!text.trim()) return;
     prevStepRef.current = stepRef.current;
     // snapshot the current question BEFORE moving forward
-    lastQuestionSnapRef.current = { ...currentQuestionRef.current };
+    lastQuestionSnapRef.current = {
+      ...currentQuestionRef.current,
+      step: stepRef.current,
+      collectedData: collectedDataRef.current,
+    };
     setQuickReplies([]);
     setAwaitingInput(false);
     setCustomInput(null);
@@ -96,7 +100,10 @@ export function useChatbot(runStep) {
   const editLastAnswer = useCallback(() => {
     const snap = lastQuestionSnapRef.current;
     if (!snap) return;
-    stepRef.current = prevStepRef.current;
+    stepRef.current = snap.step ?? prevStepRef.current;
+    setCurrentStep(stepRef.current);
+    collectedDataRef.current = snap.collectedData ?? collectedDataRef.current;
+    setCollectedData(collectedDataRef.current);
     // restore currentQuestionRef so next handleUserReply snapshots correctly
     currentQuestionRef.current = { ...snap };
     setIsTyping(true);
