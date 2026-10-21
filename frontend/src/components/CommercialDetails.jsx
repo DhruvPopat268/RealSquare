@@ -241,14 +241,16 @@ export default function CommercialDetails({ data, listing }) {
 
                 {workspace.type === "virtualSpace" ? (
                   <>
-                    <p className="mt-1 text-gray-600">
-                      ₹{Number(workspace.monthlyRent).toLocaleString("en-IN")} / month
-                    </p>
                     {workspace.benefits?.length ? (
                       <div className="mt-2 space-y-2 text-sm text-gray-600">
                         {workspace.benefits.map((group) => (
                           <div key={group._id}>
-                            <p className="font-medium">{group.title}</p>
+                            <p className="font-medium">
+                              {group.title}
+                              {group.monthlyRent != null && (
+                                <> · ₹{Number(group.monthlyRent).toLocaleString("en-IN")} / month</>
+                              )}
+                            </p>
                             <ul className="list-inside list-disc">
                               {group.benefits.map((benefit) => (
                                 <li key={benefit}>{benefit}</li>

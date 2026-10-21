@@ -598,6 +598,8 @@ export async function propertyListingFlow(step, answer, collectedData, { botSay,
         (group) =>
           !availableById.has(group._id) ||
           !group.benefits?.length ||
+          !Number.isFinite(Number(group.monthlyRent)) ||
+          Number(group.monthlyRent) <= 0 ||
           group.benefits.some(
             (benefit) => !availableById.get(group._id).benefits.includes(benefit),
           ),
@@ -605,36 +607,22 @@ export async function propertyListingFlow(step, answer, collectedData, { botSay,
     ) {
       return;
     }
-    await botSay("What is the monthly rent for the virtual space? (in ₹)");
-    setCustomInput({
-      type: "number",
-      key: "coworking_virtual_space_rent",
-      placeholder: "Monthly rent in ₹...",
-      min: 0,
-    });
-    goTo("coworking_virtual_space_rent", collectedData);
-    return;
-  }
-
-  if (step === "coworking_virtual_space_rent") {
-    if (answer === "" || !Number.isFinite(Number(answer)) || Number(answer) <= 0) {
-      return;
-    }
     const entry = {
       type: "Virtual Space",
-      monthlyRent: Number(answer),
-      benefits: collectedData._coworkingVirtualSpaceBenefits ?? [],
+      benefits: benefits.map((group) => ({
+        ...group,
+        monthlyRent: Number(group.monthlyRent),
+      })),
     };
     const updated = {
       ...collectedData,
       _coworkingWorkspaces: [...(collectedData._coworkingWorkspaces ?? []), entry],
     };
     delete updated._coworkingVirtualSpaceBenefits;
+    delete updated._coworkingVirtualSpaceRentIndex;
     delete updated._virtualSpaceBenefitGroups;
     setCollectedData(() => updated);
-    const availableTypes = getAvailableCoworkingWorkspaceTypes(
-      updated._coworkingWorkspaces,
-    );
+    const availableTypes = getAvailableCoworkingWorkspaceTypes(updated._coworkingWorkspaces);
     await botSay(
       availableTypes.length
         ? "Virtual Space added. Would you like to add another workspace?"
@@ -796,7 +784,6 @@ export async function propertyListingFlow(step, answer, collectedData, { botSay,
       if (virtualSpace) {
         workspaces.push({
           type: "virtualSpace",
-          monthlyRent: virtualSpace.monthlyRent,
           benefits: virtualSpace.benefits,
         });
       }
@@ -977,11 +964,10 @@ export async function propertyListingFlow(step, answer, collectedData, { botSay,
       detailLines.push("  • Workspaces       :");
       d._coworkingWorkspaces.forEach((workspace, index) => {
         if (workspace.type === "Virtual Space") {
-          detailLines.push(
-            `      ${index + 1}). Virtual Space — ₹${workspace.monthlyRent.toLocaleString()} / month`,
-          );
+          detailLines.push(`      ${index + 1}). Virtual Space`);
           workspace.benefits.forEach((group) => {
-            detailLines.push(`          ${group.title}: ${group.benefits.join(", ")}`);
+            detailLines.push(`          ${group.title} — ₹${group.monthlyRent.toLocaleString()} / month`);
+            detailLines.push(`            ${group.benefits.join(", ")}`);
           });
         } else {
           const label = workspace.type === "Cabin" ? `Cabin ${workspace.cabinNumber}` : "Hall";

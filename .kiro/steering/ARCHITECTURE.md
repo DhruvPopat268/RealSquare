@@ -248,11 +248,12 @@ Both pages follow the same UX pattern:
 
 
 ## Virtual Space coworking flow
-- `chatbot/PropertyListingFlow.js` fetches active virtual-space benefit groups, displays every benefit on its own selectable line, hides workspace types already added, and submits selected benefit strings grouped under their master IDs with monthly rent.
+- `frontend/apkApis/21-10-26_coworking.md` documents the coworking-only active benefits GET endpoint and create/partial update payloads; coworking create uses the Rent purpose by default.
+- `chatbot/PropertyListingFlow.js` fetches active virtual-space benefit groups, displays every benefit on its own selectable line, and reveals that plan's monthly rent input as soon as any benefit is selected. The picker submits each selected plan and its rent together, without a follow-up rent prompt or an inner scrolling area; the chatbot message area handles scrolling. It also hides workspace types already added.
 - The commercial edit form uses a coworking-specific section for workspace floor and workspace configurations; generic commercial status, area, floor, and furnishings sections are hidden for coworking listings.
 ### Coworking Property Details
 - Customer property detail pages identify coworking listings by property type and display the workspace floor with cabin, hall, and virtual space details.
 - Coworking details omit generic commercial area, property status, floor information, office facilities, and furnishing/amenity sections.
 - Coworking edit forms load active virtual-space benefit plans from `/active-virtual-space-benefits`, display benefits as individual checkboxes, and preselect the benefit strings already saved for each master ID. Saved snapshots for inactive plans remain visible for removal.
 - Coworking edit requests send only changed commercial fields and changed workspace fields; the backend merges workspace patches with saved data before validating and persisting them.
-- Virtual-space benefit write payloads contain the master `_id` and selected benefit strings; create/update resolve and store the plan title from the master record.
+- Virtual-space benefit write payloads contain the master `_id`, plan-specific `monthlyRent`, and selected benefit strings; create/update resolve and store the plan title from the master record.

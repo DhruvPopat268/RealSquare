@@ -70,10 +70,19 @@ export default function CoworkingEditSection({
       benefits.push({
         _id: master._id,
         title: master.title,
+        monthlyRent: currentGroup?.monthlyRent ?? "",
         benefits: master.benefits.filter((item) => nextBenefits.includes(item)),
       });
     }
 
+    updateWorkspace(workspaceIndex, { benefits });
+  }
+
+  function updateBenefitGroupRent(workspaceIndex, groupId, monthlyRent) {
+    const workspace = workspaces[workspaceIndex];
+    const benefits = (workspace.benefits ?? []).map((group) =>
+      group._id === groupId ? { ...group, monthlyRent } : group,
+    );
     updateWorkspace(workspaceIndex, { benefits });
   }
 
@@ -211,19 +220,9 @@ export default function CoworkingEditSection({
 
           {workspace.type === "virtualSpace" && (
             <div className="flex flex-col gap-4">
-              <FormField label="Monthly Rent (₹)">
-                <NumberInput
-                  value={workspace.monthlyRent ?? ""}
-                  onChange={(value) =>
-                    updateWorkspace(workspaceIndex, { monthlyRent: value })
-                  }
-                  min={1}
-                />
-              </FormField>
-
               <div className="flex flex-col gap-2">
                 <p className="text-xs font-bold uppercase tracking-wide text-gray-600">
-                  Benefits
+                  Benefit Plans and Monthly Rent
                 </p>
                 {benefitMasters.map((master) => {
                   const selectedGroup = (workspace.benefits ?? []).find(
@@ -234,7 +233,7 @@ export default function CoworkingEditSection({
                       key={master._id}
                       className="rounded-lg border border-gray-100 p-3"
                     >
-                      <span>
+                      <div>
                         <span className="mb-2 block text-xs font-semibold text-gray-500">
                           {master.title}{!master.isActive ? " (inactive)" : ""}
                         </span>
@@ -251,7 +250,18 @@ export default function CoworkingEditSection({
                             </span>
                           ))}
                         </span>
-                      </span>
+                        {selectedGroup && (
+                          <FormField label="Monthly Rent (₹)">
+                            <NumberInput
+                              value={selectedGroup.monthlyRent ?? ""}
+                              onChange={(value) =>
+                                updateBenefitGroupRent(workspaceIndex, master._id, value)
+                              }
+                              min={1}
+                            />
+                          </FormField>
+                        )}
+                      </div>
                     </div>
                   );
                 })}
@@ -262,7 +272,7 @@ export default function CoworkingEditSection({
                       !benefitMasters.some((master) => master._id === group._id),
                   )
                   .map((group) => (
-                    <label key={group._id} className="rounded-lg border border-gray-100 p-3">
+                    <div key={group._id} className="rounded-lg border border-gray-100 p-3">
                       <span className="mb-2 block text-xs font-semibold text-gray-500">
                         {group.title} (plan no longer available)
                       </span>
@@ -279,7 +289,16 @@ export default function CoworkingEditSection({
                           </span>
                         ))}
                       </span>
-                    </label>
+                      <FormField label="Monthly Rent (₹)">
+                        <NumberInput
+                          value={group.monthlyRent ?? ""}
+                          onChange={(value) =>
+                            updateBenefitGroupRent(workspaceIndex, group._id, value)
+                          }
+                          min={1}
+                        />
+                      </FormField>
+                    </div>
                   ))}
                 {benefitMasters.length === 0 &&
                   (workspace.benefits ?? []).length === 0 && (

@@ -4,6 +4,7 @@ import { primaryColor } from "../utils/theme";
 
 export default function ChatbotVirtualSpaceBenefitsSelect({ groups, onSubmit }) {
   const [selectedBenefits, setSelectedBenefits] = useState([]);
+  const [monthlyRents, setMonthlyRents] = useState({});
 
   function toggleBenefit(groupId, benefit) {
     const key = `${groupId}:${benefit}`;
@@ -18,51 +19,89 @@ export default function ChatbotVirtualSpaceBenefitsSelect({ groups, onSubmit }) 
     .map((group) => ({
       _id: group._id,
       title: group.title,
+      monthlyRent: Number(monthlyRents[group._id]),
       benefits: group.benefits.filter((benefit) =>
         selectedBenefits.includes(`${group._id}:${benefit}`),
       ),
     }))
     .filter((group) => group.benefits.length > 0);
 
-  const canConfirm = selection.length > 0;
+  const canConfirm =
+    selection.length > 0 &&
+    selection.every(
+      (group) => Number.isFinite(group.monthlyRent) && group.monthlyRent > 0,
+    );
 
   return (
     <div className="flex w-full flex-col gap-3">
-      <div className="flex max-h-64 flex-col gap-3 overflow-y-auto pr-1">
+      <div className="flex flex-col gap-3">
         {groups.map((group) => {
           const selectedCount = group.benefits.filter((benefit) =>
             selectedBenefits.includes(`${group._id}:${benefit}`),
           ).length;
 
           return (
-          <section
-            key={group._id}
-            className="rounded-xl border p-3 transition"
-            style={
-              selectedCount > 0
-                ? { borderColor: primaryColor, backgroundColor: `${primaryColor}0D` }
-                : { borderColor: "#e5e7eb", backgroundColor: "white" }
-            }
-          >
-            <h3 className="mb-2 text-sm font-semibold text-gray-800">{group.title}</h3>
-            <div className="space-y-2">
-              {group.benefits.map((benefit) => {
-                const checked = selectedBenefits.includes(`${group._id}:${benefit}`);
-                return (
-                  <label key={`${group._id}-${benefit}`} className="flex cursor-pointer items-start gap-2 text-sm text-gray-600">
-                    <input
-                      type="checkbox"
-                      checked={checked}
-                      onChange={() => toggleBenefit(group._id, benefit)}
-                      className="mt-0.5 h-4 w-4 accent-[var(--primary-color)]"
-                    />
-                    <span>{benefit}</span>
-                    {checked && <FiCheck size={14} style={{ color: primaryColor }} aria-hidden="true" />}
-                  </label>
-                );
-              })}
-            </div>
-          </section>
+            <section
+              key={group._id}
+              className="rounded-xl border p-3 transition"
+              style={
+                selectedCount > 0
+                  ? { borderColor: primaryColor, backgroundColor: `${primaryColor}0D` }
+                  : { borderColor: "#e5e7eb", backgroundColor: "white" }
+              }
+            >
+              <h3 className="mb-2 text-sm font-semibold text-gray-800">
+                {group.title}
+              </h3>
+              <div className="space-y-2">
+                {group.benefits.map((benefit) => {
+                  const checked = selectedBenefits.includes(
+                    `${group._id}:${benefit}`,
+                  );
+
+                  return (
+                    <label
+                      key={`${group._id}-${benefit}`}
+                      className="flex cursor-pointer items-start gap-2 text-sm text-gray-600"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={checked}
+                        onChange={() => toggleBenefit(group._id, benefit)}
+                        className="mt-0.5 h-4 w-4 accent-[var(--primary-color)]"
+                      />
+                      <span>{benefit}</span>
+                      {checked && (
+                        <FiCheck
+                          size={14}
+                          style={{ color: primaryColor }}
+                          aria-hidden="true"
+                        />
+                      )}
+                    </label>
+                  );
+                })}
+              </div>
+              {selectedCount > 0 && (
+                <label className="mt-3 block text-sm font-medium text-gray-700">
+                  Monthly Rent for this plan (₹)
+                  <input
+                    type="number"
+                    min="1"
+                    step="any"
+                    value={monthlyRents[group._id] ?? ""}
+                    onChange={(event) =>
+                      setMonthlyRents((current) => ({
+                        ...current,
+                        [group._id]: event.target.value,
+                      }))
+                    }
+                    placeholder="Enter monthly rent..."
+                    className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm font-normal outline-none focus:border-[var(--primary-color)]"
+                  />
+                </label>
+              )}
+            </section>
           );
         })}
       </div>

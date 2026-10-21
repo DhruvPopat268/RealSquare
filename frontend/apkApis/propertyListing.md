@@ -369,14 +369,15 @@ Send the applicable case fields below. Do not send the placeholder keys literall
       { "type": "hall", "availableSeats": 30, "rentPerSeat": 2000 },
       {
         "type": "virtualSpace",
-        "monthlyRent": 12000,
         "benefits": [
           {
             "_id": "<activeBenefitPlanId1>",
+            "monthlyRent": 12000,
             "benefits": ["Mail and package handling"]
           },
           {
             "_id": "<activeBenefitPlanId2>",
+            "monthlyRent": 15000,
             "benefits": ["GST registration support"]
           }
         ]
@@ -386,7 +387,7 @@ Send the applicable case fields below. Do not send the placeholder keys literall
 }
 ```
 
-The coworking create route sets the listing purpose to Rent. `workspaces` may contain one or more of `cabin`, `hall`, and `virtualSpace`, with no duplicate types. `workSpaceFloor` is an integer of `-1` or greater. The chatbot selects virtual-space benefits individually; each benefit group sends the master ID and only the selected benefit strings. The backend fills the stored snapshot title from the master record. Do not send `rentInfo` or deposit fields for coworking workspace pricing.
+The coworking create route sets the listing purpose to Rent. `workspaces` may contain one or more of `cabin`, `hall`, and `virtualSpace`, with no duplicate types. `workSpaceFloor` is an integer of `-1` or greater. The chatbot selects virtual-space benefits individually; each selected plan sends its master ID, plan-specific `monthlyRent`, and only the selected benefit strings. The backend fills the stored snapshot title from the master record. Do not send `rentInfo` or deposit fields for coworking workspace pricing.
 
 **PG / co-living (single room type):**
 
@@ -661,7 +662,7 @@ Change only the workspace floor:
 }
 ```
 
-Change the virtual-space rent and selected benefits:
+Change a virtual-space plan's rent and selected benefits:
 
 ```json
 {
@@ -670,10 +671,10 @@ Change the virtual-space rent and selected benefits:
     "workspaces": [
       {
         "type": "virtualSpace",
-        "monthlyRent": 14000,
         "benefits": [
           {
             "_id": "<benefitPlanId>",
+            "monthlyRent": 14000,
             "benefits": ["Mail and package handling"]
           }
         ]
@@ -683,7 +684,7 @@ Change the virtual-space rent and selected benefits:
 }
 ```
 
-When only benefits change, omit `monthlyRent`. `benefits` contains the currently selected benefit groups and selected benefit strings. At least one benefit group with one selected benefit is required for a virtual-space workspace, so clearing all benefits is not a valid update. To update cabin details, send only the changed cabin fields under the `cabin` workspace, for example:
+Each entry in `benefits` carries that plan's `monthlyRent`. When only the rent changes, keep the existing selected benefits in that entry; when only benefit selection changes, include the plan's current rent. At least one benefit group with a positive rent and one selected benefit is required for a virtual-space workspace, so clearing all benefits is not a valid update. To update cabin details, send only the changed cabin fields under the `cabin` workspace, for example:
 
 ```json
 {
