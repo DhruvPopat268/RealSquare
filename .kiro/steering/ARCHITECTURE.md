@@ -253,5 +253,6 @@ Both pages follow the same UX pattern:
 ### Coworking Property Details
 - Customer property detail pages identify coworking listings by property type and display the workspace floor with cabin, hall, and virtual space details.
 - Coworking details omit generic commercial area, property status, floor information, office facilities, and furnishing/amenity sections.
-- Coworking edit forms load all virtual space benefit plans, including inactive plans, display benefits as individual checkboxes, and preselect the benefit strings already saved for each master ID.
+- Coworking edit forms load active virtual-space benefit plans from `/active-virtual-space-benefits`, display benefits as individual checkboxes, and preselect the benefit strings already saved for each master ID. Saved snapshots for inactive plans remain visible for removal.
 - Coworking edit requests send only changed commercial fields and changed workspace fields; the backend merges workspace patches with saved data before validating and persisting them.
+- Virtual-space benefit write payloads contain the master `_id` and selected benefit strings; create/update resolve and store the plan title from the master record.

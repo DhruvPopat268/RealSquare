@@ -26,6 +26,29 @@ Used by the chatbot and Edit Property form for categories such as Residential an
 
 Used to populate property types for a selected category in the chatbot, My Property Listings filter, and Edit Property form. `categoryId` is supplied by the selected category.
 
+### Get virtual-space benefit plans
+
+This authenticated endpoint returns active virtual-space benefit master records. Both the chatbot and Edit Property use it.
+
+**GET** `/api/mixed/property-listings/active-virtual-space-benefits`
+
+Active endpoint response example:
+
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "_id": "<benefitPlanId>",
+      "title": "Business Address Plan",
+      "benefits": ["Mail and package handling", "GST registration support"]
+    }
+  ]
+}
+```
+
+The response includes active plans only. The user selects individual benefit strings. Requests group selected benefits by master `_id` and include only the selected `benefits`; clients do not send `title`. Create and update populate the stored snapshot title from the master record. When a previously saved plan is inactive, Edit Property retains its saved snapshot and shows it separately from active plans.
+
 ### Get active furnishings and amenities
 
 **GET** `/api/mixed/property-listings/active-furnishings-amenities`
@@ -324,6 +347,47 @@ Send the applicable case fields below. Do not send the placeholder keys literall
 }
 ```
 
+**Commercial co-working space, rent:**
+
+```json
+{
+  "categoryId": "<commercialCategoryId>",
+  "propertyTypeId": "<coworkingPropertyTypeId>",
+  "cityName": "Pune",
+  "locality": { "address": "Baner, Pune", "latitude": 18.559, "longitude": 73.786 },
+  "commercialDetails": {
+    "workSpaceFloor": 0,
+    "workspaces": [
+      {
+        "type": "cabin",
+        "available": 2,
+        "config": [
+          { "availableSeats": 4, "rentPerSeat": 5000 },
+          { "availableSeats": 3, "rentPerSeat": 7000 }
+        ]
+      },
+      { "type": "hall", "availableSeats": 30, "rentPerSeat": 2000 },
+      {
+        "type": "virtualSpace",
+        "monthlyRent": 12000,
+        "benefits": [
+          {
+            "_id": "<activeBenefitPlanId1>",
+            "benefits": ["Mail and package handling"]
+          },
+          {
+            "_id": "<activeBenefitPlanId2>",
+            "benefits": ["GST registration support"]
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+The coworking create route sets the listing purpose to Rent. `workspaces` may contain one or more of `cabin`, `hall`, and `virtualSpace`, with no duplicate types. `workSpaceFloor` is an integer of `-1` or greater. The chatbot selects virtual-space benefits individually; each benefit group sends the master ID and only the selected benefit strings. The backend fills the stored snapshot title from the master record. Do not send `rentInfo` or deposit fields for coworking workspace pricing.
+
 **PG / co-living (single room type):**
 
 ```json
@@ -376,6 +440,7 @@ Send the applicable case fields below. Do not send the placeholder keys literall
 The chatbot uses `sellInfo: { "price": <number> }` for sale listings and `rentInfo: { "monthlyRent": <number> }` for rental listings. PG details are submitted under `pgDetails` and do not include sell/rent info.
 
 The response's `data._id` is used as the `propertyId` for the following media upload.
+The create request does not include `propertyListingId`; the backend generates the listing ID.
 
 > The chatbot's initial submission uploads images through the media endpoint below. This flow does not submit the Edit Property page's video/reel fields.
 
@@ -385,7 +450,7 @@ The response's `data._id` is used as the `propertyId` for the following media up
 
 **PATCH** `/api/mixed/property-listings`
 
-Used by Edit Property to save changed property fields. This is a partial update: the JSON body contains `propertyListingId` and only the fields that changed. For nested detail sections, the page sends only the changed keys inside each section. For example, changing only `bhk` sends `residentialDetails` with `bhk`, rather than resending every residential field. If `availableFrom` changes, the page also includes the selected `constructionStatus` in that section.
+Used by Edit Property to save changed property fields. This is a partial update: the JSON body must contain the existing `propertyListingId` so the backend can find the listing, plus only the fields that changed. Coworking type does not determine the listing ID. For nested detail sections, the page sends only the changed keys inside each section. For example, changing only `bhk` sends `residentialDetails` with `bhk`, rather than resending every residential field. If `availableFrom` changes, the page also includes the selected `constructionStatus` in that section.
 
 ### Common partial-update structure
 
@@ -582,6 +647,61 @@ These examples show the body sent when detail fields change. Include only sectio
 - `minSeats`: Number (office workstations)
 - `minCabins`: Number (private cabins)
 - `minMeetingRooms`: Number (meeting rooms)
+
+**Commercial co-working space (partial update cases):**
+
+The Edit Property page sends only changed commercial fields. When a workspace changes, it sends only that workspace type and changed workspace fields. The backend merges the patch with saved values by `type`, so unchanged workspaces and workspace fields are retained.
+
+Change only the workspace floor:
+
+```json
+{
+  "propertyListingId": "<propertyListingId>",
+  "commercialDetails": { "workSpaceFloor": -1 }
+}
+```
+
+Change the virtual-space rent and selected benefits:
+
+```json
+{
+  "propertyListingId": "<propertyListingId>",
+  "commercialDetails": {
+    "workspaces": [
+      {
+        "type": "virtualSpace",
+        "monthlyRent": 14000,
+        "benefits": [
+          {
+            "_id": "<benefitPlanId>",
+            "benefits": ["Mail and package handling"]
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+When only benefits change, omit `monthlyRent`. `benefits` contains the currently selected benefit groups and selected benefit strings. At least one benefit group with one selected benefit is required for a virtual-space workspace, so clearing all benefits is not a valid update. To update cabin details, send only the changed cabin fields under the `cabin` workspace, for example:
+
+```json
+{
+  "propertyListingId": "<propertyListingId>",
+  "commercialDetails": {
+    "workspaces": [
+      {
+        "type": "cabin",
+        "available": 2,
+        "config": [
+          { "availableSeats": 4, "rentPerSeat": 5000 },
+          { "availableSeats": 3, "rentPerSeat": 7000 }
+        ]
+      }
+    ]
+  }
+}
+```
 
 **Commercial plot details (complete payload reference):**
 *Send only the fields that actually changed - this shows all possible commercial plot fields*

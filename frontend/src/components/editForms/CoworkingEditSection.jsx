@@ -15,7 +15,7 @@ export default function CoworkingEditSection({
 
   useEffect(() => {
     axios
-      .get(`${API}/api/mixed/property-listings/virtual-space-benefits`, {
+      .get(`${API}/api/mixed/property-listings/active-virtual-space-benefits`, {
         withCredentials: true,
       })
       .then((response) => setBenefitMasters(response.data.data ?? []))
