@@ -33,6 +33,12 @@ export async function fetchPropertyTypes(categoryId) {
     .map((t) => ({ label: t.name, value: t._id }));
 }
 
+// ── Virtual Space Benefits ───────────────────────────────────────────────────
+export async function fetchVirtualSpaceBenefits() {
+  const { data } = await axios.get(`${API}/api/mixed/property-listings/active-virtual-space-benefits`, config);
+  return data.data ?? [];
+}
+
 // ── Furnishings & Amenities ───────────────────────────────────────────────────
 export async function fetchFurnishingsAmenities() {
   const { data } = await axios.get(`${API}/api/mixed/property-listings/active-furnishings-amenities`, config);

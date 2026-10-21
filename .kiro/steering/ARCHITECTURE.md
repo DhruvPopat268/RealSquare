@@ -245,3 +245,7 @@ Both pages follow the same UX pattern:
 | `VITE_LISTING_TYPE_SELL_ID` | Sell listing type ObjectId |
 | `VITE_LISTING_TYPE_RENT_ID` | Rent listing type ObjectId |
 | `VITE_LISTING_TYPE_PG_ID` | PG listing type ObjectId |
+
+
+## Virtual Space coworking flow
+- `chatbot/PropertyListingFlow.js` fetches active virtual-space benefit groups, displays each title with its benefits for selection, hides workspace types already added, and submits selected group IDs and text snapshots with monthly rent.

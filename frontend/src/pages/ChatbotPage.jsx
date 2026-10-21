@@ -14,6 +14,7 @@ import { useChatbot } from "../chatbot/useChatbot";
 import { propertyListingFlow } from "../chatbot/PropertyListingFlow";
 import ChatbotPlacesInput from "../chatbot/ChatbotPlacesInput";
 import ChatbotMultiSelect from "../chatbot/ChatbotMultiSelect";
+import ChatbotVirtualSpaceBenefitsSelect from "../chatbot/ChatbotVirtualSpaceBenefitsSelect";
 import ChatbotNumberInput from "../chatbot/ChatbotNumberInput";
 import ChatbotFurnishAmenitiesInput from "../chatbot/ChatbotFurnishAmenitiesInput";
 import ChatbotDateInput from "../chatbot/ChatbotDateInput";
@@ -167,6 +168,7 @@ export default function ChatbotPage({ flow = propertyListingFlow, assistantTitle
 
   const showPlacesInput           = !!customInput && customInput.type === "places";
   const showMultiSelectInput      = !!customInput && customInput.type === "multiselect";
+  const showVirtualSpaceBenefitsInput = !!customInput && customInput.type === "virtualSpaceBenefits";
   const showNumberInput           = !!customInput && customInput.type === "number";
   const showDateInput             = !!customInput && customInput.type === "date";
   const showFurnishAmenitiesInput = !!customInput && customInput.type === "furnishamenities";
@@ -340,12 +342,28 @@ export default function ChatbotPage({ flow = propertyListingFlow, assistantTitle
                   placeholder={customInput.placeholder}
                   onSubmit={handlePlacesSubmit}
                 />
+              ) : showVirtualSpaceBenefitsInput ? (
+                <ChatbotVirtualSpaceBenefitsSelect
+                  key={customInput.key}
+                  groups={customInput.groups}
+                  onSubmit={(selection) => {
+                    const displayText = selection
+                      .map((group) => `${group.title}: ${group.benefits.join(", ")}`)
+                      .join("; ");
+                    handleUserReply(displayText, {
+                      _coworkingVirtualSpaceBenefits: selection,
+                    });
+                  }}
+                />
               ) : showMultiSelectInput ? (
                 <ChatbotMultiSelect
                   key={customInput.key}
                   options={customInput.options}
                   minSelect={customInput.minSelect ?? 1}
-                  onSubmit={(val) => handleUserReply(val)}
+                  returnArray={customInput.returnArray ?? false}
+                  onSubmit={(val) => Array.isArray(val)
+                    ? handleUserReply(val.join(", "), { _coworkingVirtualSpaceBenefits: val })
+                    : handleUserReply(val)}
                 />
               ) : showNumberInput ? (
                 <ChatbotNumberInput

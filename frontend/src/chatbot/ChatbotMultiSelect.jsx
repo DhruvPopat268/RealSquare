@@ -2,7 +2,7 @@ import { useState } from "react";
 import { FiCheck } from "react-icons/fi";
 import { primaryColor } from "../utils/theme";
 
-export default function ChatbotMultiSelect({ options, minSelect = 1, onSubmit }) {
+export default function ChatbotMultiSelect({ options, minSelect = 1, onSubmit, returnArray = false }) {
   const [selected, setSelected] = useState([]);
 
   const toggle = (opt) =>
@@ -36,7 +36,7 @@ export default function ChatbotMultiSelect({ options, minSelect = 1, onSubmit })
         })}
       </div>
       <button
-        onClick={() => canConfirm && onSubmit(selected.join(", "))}
+        onClick={() => canConfirm && onSubmit(returnArray ? selected : selected.join(", "))}
         disabled={!canConfirm}
         className="self-end px-5 py-2 rounded-xl disabled:opacity-40 text-white text-sm font-medium transition cursor-pointer border-none"
         style={{ backgroundColor: primaryColor }}
