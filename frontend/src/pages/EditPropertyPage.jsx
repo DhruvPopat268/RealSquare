@@ -20,6 +20,7 @@ const LISTING_TYPE_PG_ID   = import.meta.env.VITE_LISTING_TYPE_PG_ID;
 const CATEGORY_RESIDENTIAL_ID = import.meta.env.VITE_CATEGORY_RESIDENTIAL_ID;
 const CATEGORY_COMMERCIAL_ID  = import.meta.env.VITE_CATEGORY_COMMERCIAL_ID;
 const BROKER_ROLE_ID = import.meta.env.VITE_BROKER_ROLE_ID;
+const COMMERCIAL_COWORKING_SPACE_ID = import.meta.env.VITE_COMMERCIAL_PROPERTY_TYPE_CO_workking_space_ID;
 
 /** Returns true when the listing type/category/propertyType should show furnishings */
 function computeShowFurnishings(listing) {
@@ -277,6 +278,26 @@ export default function EditPropertyPage() {
     // Include the selected status whenever the date changes, even if the status itself did not.
     const getChangedDetails = (section) => {
       const changed = getChangedFields(form[section], originalForm[section]);
+
+      if (
+        section === "commercialDetails" &&
+        listing.propertyType?.id?.toString() === COMMERCIAL_COWORKING_SPACE_ID &&
+        changed?.workspaces
+      ) {
+        const oldWorkspaces = originalForm.commercialDetails?.workspaces ?? [];
+        const newWorkspaces = form.commercialDetails?.workspaces ?? [];
+        const changedWorkspaces = newWorkspaces.flatMap((workspace) => {
+          const previous = oldWorkspaces.find((item) => item.type === workspace.type);
+          const fields = getChangedFields(workspace, previous);
+          return fields ? [{ type: workspace.type, ...fields }] : [];
+        });
+        const removedWorkspaces = oldWorkspaces
+          .filter((workspace) => !newWorkspaces.some((item) => item.type === workspace.type))
+          .map((workspace) => ({ type: workspace.type, _remove: true }));
+
+        changed.workspaces = [...changedWorkspaces, ...removedWorkspaces];
+      }
+
       if (
         changed &&
         Object.prototype.hasOwnProperty.call(changed, "availableFrom") &&

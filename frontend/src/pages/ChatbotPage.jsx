@@ -348,8 +348,8 @@ export default function ChatbotPage({ flow = propertyListingFlow, assistantTitle
                   groups={customInput.groups}
                   onSubmit={(selection) => {
                     const displayText = selection
-                      .map((group) => `${group.title}: ${group.benefits.join(", ")}`)
-                      .join("; ");
+                      .flatMap((group) => group.benefits)
+                      .join(", ");
                     handleUserReply(displayText, {
                       _coworkingVirtualSpaceBenefits: selection,
                     });

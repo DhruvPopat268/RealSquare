@@ -3,24 +3,24 @@ import { FiCheck } from "react-icons/fi";
 import { primaryColor } from "../utils/theme";
 
 export default function ChatbotVirtualSpaceBenefitsSelect({ groups, onSubmit }) {
-  const [selected, setSelected] = useState({});
+  const [selectedBenefits, setSelectedBenefits] = useState([]);
 
-  function toggleBenefit(group, benefit) {
-    setSelected((current) => {
-      const selectedBenefits = current[group._id] ?? [];
-      const benefits = selectedBenefits.includes(benefit)
-        ? selectedBenefits.filter((item) => item !== benefit)
-        : [...selectedBenefits, benefit];
-
-      return { ...current, [group._id]: benefits };
-    });
+  function toggleBenefit(groupId, benefit) {
+    const key = `${groupId}:${benefit}`;
+    setSelectedBenefits((current) =>
+      current.includes(key)
+        ? current.filter((item) => item !== key)
+        : [...current, key],
+    );
   }
 
   const selection = groups
     .map((group) => ({
       _id: group._id,
       title: group.title,
-      benefits: selected[group._id] ?? [],
+      benefits: group.benefits.filter((benefit) =>
+        selectedBenefits.includes(`${group._id}:${benefit}`),
+      ),
     }))
     .filter((group) => group.benefits.length > 0);
 
@@ -29,48 +29,42 @@ export default function ChatbotVirtualSpaceBenefitsSelect({ groups, onSubmit }) 
   return (
     <div className="flex w-full flex-col gap-3">
       <div className="flex max-h-64 flex-col gap-3 overflow-y-auto pr-1">
-        {groups.map((group) => (
+        {groups.map((group) => {
+          const selectedCount = group.benefits.filter((benefit) =>
+            selectedBenefits.includes(`${group._id}:${benefit}`),
+          ).length;
+
+          return (
           <section
             key={group._id}
-            className="rounded-xl border border-gray-200 p-3"
+            className="rounded-xl border p-3 transition"
+            style={
+              selectedCount > 0
+                ? { borderColor: primaryColor, backgroundColor: `${primaryColor}0D` }
+                : { borderColor: "#e5e7eb", backgroundColor: "white" }
+            }
           >
-            <h3 className="mb-2 text-sm font-semibold text-gray-800">
-              {group.title}
-            </h3>
-            <div className="flex flex-wrap gap-2">
+            <h3 className="mb-2 text-sm font-semibold text-gray-800">{group.title}</h3>
+            <div className="space-y-2">
               {group.benefits.map((benefit) => {
-                const active = (selected[group._id] ?? []).includes(benefit);
-
+                const checked = selectedBenefits.includes(`${group._id}:${benefit}`);
                 return (
-                  <button
-                    key={`${group._id}-${benefit}`}
-                    type="button"
-                    onClick={() => toggleBenefit(group, benefit)}
-                    className="rounded-full border-2 px-3 py-1.5 text-left text-sm font-medium transition"
-                    style={
-                      active
-                        ? {
-                            backgroundColor: primaryColor,
-                            borderColor: primaryColor,
-                            color: "white",
-                          }
-                        : {
-                            backgroundColor: "white",
-                            borderColor: "#e5e7eb",
-                            color: "#4b5563",
-                          }
-                    }
-                  >
-                    {active && (
-                      <FiCheck size={11} className="mr-1 inline -mt-0.5" />
-                    )}
-                    {benefit}
-                  </button>
+                  <label key={`${group._id}-${benefit}`} className="flex cursor-pointer items-start gap-2 text-sm text-gray-600">
+                    <input
+                      type="checkbox"
+                      checked={checked}
+                      onChange={() => toggleBenefit(group._id, benefit)}
+                      className="mt-0.5 h-4 w-4 accent-[var(--primary-color)]"
+                    />
+                    <span>{benefit}</span>
+                    {checked && <FiCheck size={14} style={{ color: primaryColor }} aria-hidden="true" />}
+                  </label>
                 );
               })}
             </div>
           </section>
-        ))}
+          );
+        })}
       </div>
 
       <button

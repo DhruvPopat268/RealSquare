@@ -248,4 +248,10 @@ Both pages follow the same UX pattern:
 
 
 ## Virtual Space coworking flow
-- `chatbot/PropertyListingFlow.js` fetches active virtual-space benefit groups, displays each title with its benefits for selection, hides workspace types already added, and submits selected group IDs and text snapshots with monthly rent.
+- `chatbot/PropertyListingFlow.js` fetches active virtual-space benefit groups, displays every benefit on its own selectable line, hides workspace types already added, and submits selected benefit strings grouped under their master IDs with monthly rent.
+- The commercial edit form uses a coworking-specific section for workspace floor and workspace configurations; generic commercial status, area, floor, and furnishings sections are hidden for coworking listings.
+### Coworking Property Details
+- Customer property detail pages identify coworking listings by property type and display the workspace floor with cabin, hall, and virtual space details.
+- Coworking details omit generic commercial area, property status, floor information, office facilities, and furnishing/amenity sections.
+- Coworking edit forms load all virtual space benefit plans, including inactive plans, display benefits as individual checkboxes, and preselect the benefit strings already saved for each master ID.
+- Coworking edit requests send only changed commercial fields and changed workspace fields; the backend merges workspace patches with saved data before validating and persisting them.

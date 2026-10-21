@@ -550,7 +550,7 @@ export async function propertyListingFlow(step, answer, collectedData, { botSay,
         };
         setCollectedData(() => updated);
         await botSay(
-          "Choose the benefits you will provide. Benefits are grouped by plan:",
+          "Choose each benefit you will provide:",
         );
         setCustomInput({
           type: "virtualSpaceBenefits",

@@ -1,5 +1,7 @@
 import { Section, Grid, FormField, TextInput, NumberInput, SelectField, AreaField, DateField } from "./EditFormShared";
 import FurnishingsAmenitiesSection from "./FurnishingsAmenitiesSection";
+import CoworkingEditSection from "./CoworkingEditSection";
+import { COMMERCIAL_COWORKING_SPACE_ID } from "../../chatbot/chatbotConstants";
 
 const OWNERSHIP_OPTIONS = [{ value: "Freehold", label: "Freehold" }, { value: "Leasehold", label: "Leasehold" }, { value: "CooperativeSociety", label: "Cooperative Society" }, { value: "PowerOfAttorney", label: "Power of Attorney" }];
 const ZONE_OPTIONS = ["Industrial", "Commercial", "Residential", "SEZ", "OpenSpaces", "Agricultural", "Others"];
@@ -14,6 +16,7 @@ export default function CommercialEditForm({ listing, form, onChange, furnishing
   const isSell = !!listing.sellInfo;
   const isRent = !!listing.rentInfo;
   const propType = listing.propertyType?.name ?? "";
+  const isCoworking = listing.propertyType?.id?.toString() === COMMERCIAL_COWORKING_SPACE_ID;
   const isOffice = propType.toLowerCase().includes("office") || com.minSeats != null || com.minCabins != null;
   const isPlot = listing.commercialDetails?.plotArea ? true : false;
 
@@ -41,26 +44,28 @@ export default function CommercialEditForm({ listing, form, onChange, furnishing
         </Grid>
       </Section>
 
-      <Section title="Property Status">
-        <Grid>
-          <FormField label="Property Status">
-            <SelectField value={com.propertyStatus ?? ""} onChange={(v) => setCom("propertyStatus", v)} options={PROPERTY_STATUS_OPTIONS} placeholder="Select property status" />
-          </FormField>
-          <FormField label="Age of Property (years)">
-            <NumberInput value={com.ageOfProperty ?? ""} onChange={(v) => setCom("ageOfProperty", v)} placeholder="e.g. 3" min={0} />
-          </FormField>
-          <FormField label="Construction Status">
-            <SelectField value={com.constructionStatus ?? ""} onChange={(v) => setCom("constructionStatus", v)} options={STATUS_OPTIONS} placeholder="Select status" />
-          </FormField>
-          {com.constructionStatus === "UnderConstruction" && (
-            <FormField label="Available From">
-              <DateField value={com.availableFrom ?? ""} onChange={(v) => setCom("availableFrom", v)} />
+      {!isCoworking && (
+        <Section title="Property Status">
+          <Grid>
+            <FormField label="Property Status">
+              <SelectField value={com.propertyStatus ?? ""} onChange={(v) => setCom("propertyStatus", v)} options={PROPERTY_STATUS_OPTIONS} placeholder="Select property status" />
             </FormField>
-          )}
-        </Grid>
-      </Section>
+            <FormField label="Age of Property (years)">
+              <NumberInput value={com.ageOfProperty ?? ""} onChange={(v) => setCom("ageOfProperty", v)} placeholder="e.g. 3" min={0} />
+            </FormField>
+            <FormField label="Construction Status">
+              <SelectField value={com.constructionStatus ?? ""} onChange={(v) => setCom("constructionStatus", v)} options={STATUS_OPTIONS} placeholder="Select status" />
+            </FormField>
+            {com.constructionStatus === "UnderConstruction" && (
+              <FormField label="Available From">
+                <DateField value={com.availableFrom ?? ""} onChange={(v) => setCom("availableFrom", v)} />
+              </FormField>
+            )}
+          </Grid>
+        </Section>
+      )}
 
-      {!isPlot && (
+      {!isPlot && !isCoworking && (
         <Section title="Area Details">
           <Grid>
             <FormField label="Built-up Area">
@@ -94,18 +99,20 @@ export default function CommercialEditForm({ listing, form, onChange, furnishing
         </Section>
       )}
 
-      <Section title="Floor Information">
-        <Grid>
-          <FormField label="Total Floors">
-            <NumberInput value={com.totalFloors ?? ""} onChange={(v) => setCom("totalFloors", v)} placeholder="Number of floors" min={0} />
-          </FormField>
-          <FormField label="Your Floor">
-            <TextInput value={com.yourFloor ?? ""} onChange={(v) => setCom("yourFloor", v)} placeholder="e.g. 3rd, Ground, etc." />
-          </FormField>
-        </Grid>
-      </Section>
+      {!isCoworking && (
+        <Section title="Floor Information">
+          <Grid>
+            <FormField label="Total Floors">
+              <NumberInput value={com.totalFloors ?? ""} onChange={(v) => setCom("totalFloors", v)} placeholder="Number of floors" min={0} />
+            </FormField>
+            <FormField label="Your Floor">
+              <TextInput value={com.yourFloor ?? ""} onChange={(v) => setCom("yourFloor", v)} placeholder="e.g. 3rd, Ground, etc." />
+            </FormField>
+          </Grid>
+        </Section>
+      )}
 
-      {isOffice && (
+      {isOffice && !isCoworking && (
         <Section title="Office Specifications">
           <Grid cols={3}>
             <FormField label="Min Workstations">
@@ -122,7 +129,7 @@ export default function CommercialEditForm({ listing, form, onChange, furnishing
       )}
 
       {/* Furnishings & Amenities — hidden for commercial plots */}
-      {showFurnishings && (
+      {showFurnishings && !isCoworking && (
         <FurnishingsAmenitiesSection
           availableFurnishings={furnishingsAmenities?.furnishings ?? []}
           availableAmenities={furnishingsAmenities?.amenities ?? []}
@@ -132,6 +139,15 @@ export default function CommercialEditForm({ listing, form, onChange, furnishing
           onFurnishTypeChange={(v) => setCom("furnishType", v)}
           onFurnishingsChange={(v) => setCom("furnishings", v)}
           onAmenitiesChange={(v) => setCom("amenities", v)}
+        />
+      )}
+
+      {isCoworking && (
+        <CoworkingEditSection
+          workSpaceFloor={com.workSpaceFloor}
+          workspaces={com.workspaces ?? []}
+          onFloorChange={(value) => setCom("workSpaceFloor", value)}
+          onWorkspacesChange={(value) => setCom("workspaces", value)}
         />
       )}
 

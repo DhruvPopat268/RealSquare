@@ -44,6 +44,7 @@ export default function CommercialDetails({ data, listing }) {
 
   const rentInfo = listing.rentInfo;
   const propTypeName = listing.propertyType?.name ?? "";
+  const isCoworking = propTypeName.toLowerCase().includes("cowork");
 
   const isOffice =
     propTypeName.toLowerCase().includes("office") ||
@@ -76,28 +77,28 @@ export default function CommercialDetails({ data, listing }) {
             </div>
           )}
 
-          {data.builtUpArea && (
+          {!isCoworking && data.builtUpArea && (
             <div>
               <p className="text-gray-500 text-sm mb-1">Built-up Area</p>
               <p className="font-semibold text-lg">{formatArea(data.builtUpArea)}</p>
             </div>
           )}
 
-          {data.carpetArea && (
+          {!isCoworking && data.carpetArea && (
             <div>
               <p className="text-gray-500 text-sm mb-1">Carpet Area</p>
               <p className="font-semibold text-lg">{formatArea(data.carpetArea)}</p>
             </div>
           )}
 
-          {data.plotArea && (
+          {!isCoworking && data.plotArea && (
             <div>
               <p className="text-gray-500 text-sm mb-1">Plot Area</p>
               <p className="font-semibold text-lg">{formatArea(data.plotArea)}</p>
             </div>
           )}
 
-          {data.length != null && data.width != null && (
+          {!isCoworking && data.length != null && data.width != null && (
             <div>
               <p className="text-gray-500 text-sm mb-1">Dimensions</p>
               <p className="font-semibold text-lg">{data.length} × {data.width} ft</p>
@@ -125,7 +126,7 @@ export default function CommercialDetails({ data, listing }) {
             </div>
           )}
 
-          {data.constructionStatus && (
+          {!isCoworking && data.constructionStatus && (
             <div>
               <p className="text-gray-500 text-sm mb-1">Status</p>
               <p className="font-semibold text-lg">
@@ -134,14 +135,14 @@ export default function CommercialDetails({ data, listing }) {
             </div>
           )}
 
-          {data.propertyStatus && (
+          {!isCoworking && data.propertyStatus && (
             <div>
               <p className="text-gray-500 text-sm mb-1">Property Status</p>
               <p className="font-semibold text-lg">{data.propertyStatus === "NewlyAdded" ? "Newly Added" : "Re-release"}</p>
             </div>
           )}
 
-          {data.ageOfProperty != null && (
+          {!isCoworking && data.ageOfProperty != null && (
             <div>
               <p className="text-gray-500 text-sm mb-1">Age of Property</p>
               <p className="font-semibold text-lg">
@@ -150,7 +151,7 @@ export default function CommercialDetails({ data, listing }) {
             </div>
           )}
 
-          {(data.constructionStatus === "UnderConstruction" && data.availableFrom) || rentInfo?.availableFrom ? (
+          {!isCoworking && ((data.constructionStatus === "UnderConstruction" && data.availableFrom) || rentInfo?.availableFrom) ? (
             <div>
               <p className="text-gray-500 text-sm mb-1">Available From</p>
               <p className="font-semibold text-lg">
@@ -159,7 +160,7 @@ export default function CommercialDetails({ data, listing }) {
             </div>
           ) : null}
 
-          {rentInfo?.securityDeposit != null && (
+          {!isCoworking && rentInfo?.securityDeposit != null && (
             <div>
               <p className="text-gray-500 text-sm mb-1">Security Deposit</p>
               <p className="font-semibold text-lg">
@@ -171,7 +172,7 @@ export default function CommercialDetails({ data, listing }) {
       </div>
 
       {/* Floor Information */}
-      {(data.totalFloors != null || data.yourFloor) && (
+      {!isCoworking && (data.totalFloors != null || data.yourFloor) && (
         <div className="bg-white rounded-2xl p-6">
           <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
             <FiLayers className="text-[#5E23DC]" />
@@ -195,7 +196,7 @@ export default function CommercialDetails({ data, listing }) {
       )}
 
       {/* Office Specifications */}
-      {isOffice && (data.minSeats != null || data.minCabins != null || data.minMeetingRooms != null) && (
+      {!isCoworking && isOffice && (data.minSeats != null || data.minCabins != null || data.minMeetingRooms != null) && (
         <div className="bg-white rounded-2xl p-6">
           <h2 className="text-2xl font-bold mb-6">Office Facilities</h2>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
@@ -224,6 +225,9 @@ export default function CommercialDetails({ data, listing }) {
       {data.workspaces?.length > 0 && (
         <div className="bg-white rounded-2xl p-6">
           <h2 className="text-2xl font-bold mb-5">Co-working Spaces</h2>
+          {data.workSpaceFloor != null && (
+            <p className="mb-4 text-gray-600">Workspace Floor: {data.workSpaceFloor}</p>
+          )}
           <div className="grid gap-4 md:grid-cols-2">
             {data.workspaces.map((workspace, index) => (
               <div key={index} className="rounded-xl border border-gray-200 p-4">
@@ -277,11 +281,13 @@ export default function CommercialDetails({ data, listing }) {
       )}
 
       {/* Furnishings & Amenities — card grid display */}
-      <FurnishingsAmenitiesDisplay
-        furnishType={data.furnishType}
-        furnishings={data.furnishings ?? []}
-        amenities={data.amenities ?? []}
-      />
+      {!isCoworking && (
+        <FurnishingsAmenitiesDisplay
+          furnishType={data.furnishType}
+          furnishings={data.furnishings ?? []}
+          amenities={data.amenities ?? []}
+        />
+      )}
 
     </div>
   );
