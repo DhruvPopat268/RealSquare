@@ -140,6 +140,10 @@ Conversational UI engine for guided property listing and inquiry creation.
 
 Purpose labels are shared through `chatbotApi.js`: the property listing flow keeps the backend label (`Sell`), while the inquiry flow requests the `Buy` display label for the Sell purpose ID. Both flows submit the same purpose ID.
 
+`ProjectListingFlow.js` guides users through project details, location, status, units, residential or commercial configurations, pricing, and images. It skips furnishing and amenities questions, proceeds directly from maximum price to image upload, and does not ask for contact person details.
+
+`EditProjectPage.jsx` does not expose contact person fields.
+
 ---
 
 ## Utils (`src/utils/`)

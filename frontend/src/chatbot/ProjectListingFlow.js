@@ -5,9 +5,8 @@ import {
   CATEGORY_RESIDENTIAL_ID,
   PROJECT_COMMERCIAL_PROPERTY_TYPE_EXCLUDE_IDS,
   PROJECT_RESIDENTIAL_PROPERTY_TYPE_EXCLUDE_IDS,
-  FURNISH_TYPE_OPTIONS,
 } from "./chatbotConstants";
-import { fetchActiveCategories, fetchPropertyTypes, fetchFurnishingsAmenities } from "./chatbotApi";
+import { fetchActiveCategories, fetchPropertyTypes } from "./chatbotApi";
 
 const PROJECT_STATUS_OPTIONS = ["Ready to Move", "Under Construction", "New Launch"];
 
@@ -24,21 +23,10 @@ async function askNumber(prompt, key, helpers, step, options = {}) {
   goTo(step, options.data);
 }
 
-async function askContactName(helpers, data) {
-  helpers.setCollectedData(() => data);
-  await helpers.botSay("What is the contact person's name?", [], true);
-  helpers.goTo("contact_name", data);
-}
-
 async function askImages(helpers, data) {
   await helpers.botSay("📸 Please upload at least 1 project image. You can upload up to 20 images.");
   helpers.setCustomInput({ type: "images", key: "project_images" });
   helpers.goTo("images_upload", data);
-}
-
-async function askProjectFurnishing(data, helpers) {
-  await helpers.botSay("What is the furnishing status for this project?", FURNISH_TYPE_OPTIONS);
-  helpers.goTo("project_furnish_type", data);
 }
 
 function buildProjectSummary(data) {
@@ -50,10 +38,6 @@ function buildProjectSummary(data) {
   const possession = data.projectStatus === "Ready to Move"
     ? "Ready to Move"
     : `${data.projectStatus} · Expected possession: ${data.possessionDate}`;
-  const contacts = (data.contacts ?? []).map((contact, index) =>
-    `${index + 1}. ${contact.name} · ${contact.mobile}`
-  ).join("\n");
-
   return [
     "✅ Project details collected for review",
     "",
@@ -68,10 +52,6 @@ function buildProjectSummary(data) {
     `Towers / buildings: ${data.towerCount ?? "Not provided"}`,
     `Configurations:\n${configurations}`,
     `Project price range: ₹${Number(data.minPrice).toLocaleString("en-IN")} – ₹${Number(data.maxPrice).toLocaleString("en-IN")}`,
-    `Furnishing: ${data.furnishType}`,
-    `Furnishings selected: ${(data.furnishings ?? []).length}`,
-    `Amenities selected: ${(data.amenities ?? []).length}`,
-    `Contacts:\n${contacts}`,
     `Images: ${(data._images ?? []).length} uploaded`,
     "",
     "Your answers have not been submitted.",
@@ -332,7 +312,7 @@ export async function projectListingFlow(step, answer, collectedData, helpers) {
     if (residentialConfigurations.length === 0) return;
     const updated = { ...collectedData, residentialConfigurations };
     setCollectedData(() => updated);
-    await askProjectFurnishing(updated, helpers);
+    await askMinimumPrice(updated, helpers);
     return;
   }
 
@@ -394,39 +374,8 @@ export async function projectListingFlow(step, answer, collectedData, helpers) {
       await botSay(`What area unit should be used for configuration ${configurationNumber}?`, AREA_UNIT_OPTIONS);
       goTo("commercial_area_unit", collectedData);
     } else if (answer === "Done") {
-      await askProjectFurnishing(collectedData, helpers);
+      await askMinimumPrice(collectedData, helpers);
     }
-    return;
-  }
-
-  if (step === "project_furnish_type") {
-    if (!FURNISH_TYPE_OPTIONS.includes(answer)) return;
-    let available = { furnishings: [], amenities: [] };
-    try {
-      available = await fetchFurnishingsAmenities();
-    } catch {
-      // Keep the selection step usable if the option service is temporarily unavailable.
-    }
-    const updated = { ...collectedData, furnishType: answer, _projectFurnishings: available.furnishings ?? [], _projectAmenities: available.amenities ?? [] };
-    setCollectedData(() => updated);
-    await helpers.botSay("Select the furnishings and amenities available in this project.");
-    helpers.setCustomInput({
-      type: "furnishamenities",
-      key: "project_furnishings_amenities",
-      furnishType: answer,
-      furnishings: updated._projectFurnishings,
-      amenities: updated._projectAmenities,
-    });
-    goTo("project_furnishings_amenities", updated);
-    return;
-  }
-
-  if (step === "project_furnishings_amenities") {
-    const selection = collectedData._furnishAmenitiesPayload ?? { furnishings: [], amenities: [] };
-    const updated = { ...collectedData, furnishings: selection.furnishings, amenities: selection.amenities };
-    delete updated._furnishAmenitiesPayload;
-    setCollectedData(() => updated);
-    await askMinimumPrice(updated, helpers);
     return;
   }
 
@@ -452,49 +401,7 @@ export async function projectListingFlow(step, answer, collectedData, helpers) {
     }
     const updated = { ...collectedData, maxPrice };
     setCollectedData(() => updated);
-    await askContactName(helpers, { ...updated, contacts: [] });
-    return;
-  }
-
-  if (step === "contact_name") {
-    if (!answer?.trim()) return;
-    const updated = { ...collectedData, _contactName: answer.trim() };
-    setCollectedData(() => updated);
-    await botSay("What is this contact person's 10-digit mobile number?", [], true);
-    goTo("contact_mobile", updated);
-    return;
-  }
-
-  if (step === "contact_mobile") {
-    if (!answer) return;
-    const digits = answer?.replace(/\D/g, "") ?? "";
-    const mobile = digits.length === 12 && digits.startsWith("91")
-      ? digits.slice(2)
-      : digits.length === 11 && digits.startsWith("0")
-        ? digits.slice(1)
-        : digits;
-    if (!/^\d{10}$/.test(mobile)) {
-      await botSay("Please enter a valid 10-digit mobile number, with or without the +91 prefix.", [], true);
-      goTo("contact_mobile", collectedData);
-      return;
-    }
-    const updated = {
-      ...collectedData,
-      contacts: [...(collectedData.contacts ?? []), { name: collectedData._contactName, mobile }],
-    };
-    delete updated._contactName;
-    setCollectedData(() => updated);
-    await botSay("Would you like to add another contact?", ["Add another", "Done"]);
-    goTo("add_contact", updated);
-    return;
-  }
-
-  if (step === "add_contact") {
-    if (answer === "Add another") {
-      await askContactName(helpers, collectedData);
-    } else if (answer === "Done") {
-      await askImages(helpers, collectedData);
-    }
+    await askImages(helpers, updated);
     return;
   }
 

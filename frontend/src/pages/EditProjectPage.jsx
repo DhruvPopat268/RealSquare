@@ -17,7 +17,7 @@ export default function EditProjectPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const source = useMemo(() => STATIC_PROJECTS.find((project) => project.id === id), [id]);
-  const [form, setForm] = useState(() => source ? { ...source, commercialConfigurations: source.commercialConfigurations?.map((item) => ({ ...item })) ?? [], residentialConfigurations: [...(source.residentialConfigurations ?? [])], contacts: source.contacts.map((contact) => ({ ...contact })) } : null);
+  const [form, setForm] = useState(() => source ? { ...source, commercialConfigurations: source.commercialConfigurations?.map((item) => ({ ...item })) ?? [], residentialConfigurations: [...(source.residentialConfigurations ?? [])] } : null);
   const [newFiles, setNewFiles] = useState([]);
   const [videoFiles, setVideoFiles] = useState({ video: null, reel: null });
   const [brochureFile, setBrochureFile] = useState(null);
@@ -38,7 +38,6 @@ export default function EditProjectPage() {
 
   const update = (key, value) => setForm((current) => ({ ...current, [key]: value }));
   const updateCommercial = (index, key, value) => update("commercialConfigurations", form.commercialConfigurations.map((item, i) => i === index ? { ...item, [key]: value } : item));
-  const updateContact = (index, key, value) => update("contacts", form.contacts.map((item, i) => i === index ? { ...item, [key]: value } : item));
 
   return (
     <div className="min-h-screen bg-[#f9f9fb] flex flex-col">
@@ -122,11 +121,6 @@ export default function EditProjectPage() {
             onFurnishingsChange={(furnishingSelections) => update("furnishingSelections", furnishingSelections)}
             onAmenitiesChange={(amenitySelections) => update("amenitySelections", amenitySelections)}
           />
-
-          <Section title="Contact persons">
-            <div className="flex flex-col gap-4">{form.contacts.map((contact, index) => <div key={index} className="rounded-xl border border-gray-100 p-4"><div className="mb-3 flex items-center justify-between"><h4 className="text-sm font-semibold text-gray-700">Contact {index + 1}</h4>{form.contacts.length > 1 && <button type="button" onClick={() => update("contacts", form.contacts.filter((_, i) => i !== index))} className="text-red-500" aria-label="Remove contact"><FiTrash2 size={15} /></button>}</div><Grid><FormField label="Name"><TextInput value={contact.name} onChange={(value) => updateContact(index, "name", value)} /></FormField><FormField label="Mobile number"><TextInput value={contact.mobile} onChange={(value) => updateContact(index, "mobile", value)} /></FormField></Grid></div>)}</div>
-            <button type="button" onClick={() => update("contacts", [...form.contacts, { name: "", mobile: "" }])} className="mt-3 inline-flex items-center gap-2 text-sm font-semibold text-[var(--primary-color)]"><FiPlus size={15} /> Add contact person</button>
-          </Section>
 
           <div className="flex items-center justify-end gap-3 pb-4"><button type="button" onClick={() => navigate("/my-property-listings?view=projects")} className="rounded-xl border border-gray-200 px-5 py-2.5 text-sm font-semibold text-gray-600">Cancel</button><button type="button" onClick={() => { setSaved(true); window.setTimeout(() => setSaved(false), 3000); }} className="rounded-xl bg-[var(--primary-color)] px-5 py-2.5 text-sm font-semibold text-white">{saved ? "Changes ready" : "Save changes"}</button></div>
           {saved && <p className="text-right text-xs text-amber-700">This project edit screen is a UI preview; changes are not persisted yet.</p>}
