@@ -8,12 +8,14 @@ export default function ChatbotIdealForMultiSelect({ options = [], minSelect = 1
 
   return (
     <div className="w-full space-y-3">
-      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
+      <div className="grid grid-cols-3 gap-2 lg:grid-cols-5">
         {options.map((option) => {
           const active = selectedIds.includes(option._id);
           return (
-            <button key={option._id} type="button" onClick={() => toggle(option._id)} className="relative flex min-h-12 items-center gap-2 rounded-xl border-2 px-2 text-left transition" style={{ borderColor: active ? primaryColor : "#e5e7eb" }}>
-              <img src={option.image} alt={option.name} className="h-10 w-[50px] shrink-0 rounded bg-gray-100 object-contain" />
+            <button key={option._id} type="button" onClick={() => toggle(option._id)} className="relative flex h-14 items-center gap-2 rounded-xl border-2 px-2 text-left transition" style={{ borderColor: active ? primaryColor : "#e5e7eb" }}>
+              <div className="h-7 w-7 shrink-0 flex items-center justify-center">
+                <img src={option.image} alt={option.name} className="h-7 w-7 rounded bg-gray-100 object-contain" />
+              </div>
               <span className="text-sm font-medium" style={{ color: active ? primaryColor : "#4b5563" }}>{option.name}</span>
               {active && <span className="ml-auto flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-white" style={{ backgroundColor: primaryColor }}><FiCheck size={12} /></span>}
             </button>
