@@ -14,6 +14,7 @@ import { useChatbot } from "../chatbot/useChatbot";
 import { propertyListingFlow } from "../chatbot/PropertyListingFlow";
 import ChatbotPlacesInput from "../chatbot/ChatbotPlacesInput";
 import ChatbotMultiSelect from "../chatbot/ChatbotMultiSelect";
+import ChatbotIdealForMultiSelect from "../chatbot/ChatbotIdealForMultiSelect";
 import ChatbotVirtualSpaceBenefitsSelect from "../chatbot/ChatbotVirtualSpaceBenefitsSelect";
 import ChatbotNumberInput from "../chatbot/ChatbotNumberInput";
 import ChatbotFurnishAmenitiesInput from "../chatbot/ChatbotFurnishAmenitiesInput";
@@ -168,12 +169,13 @@ export default function ChatbotPage({ flow = propertyListingFlow, assistantTitle
 
   const showPlacesInput           = !!customInput && customInput.type === "places";
   const showMultiSelectInput      = !!customInput && customInput.type === "multiselect";
+  const showIdealForInput         = !!customInput && customInput.type === "idealFor";
   const showVirtualSpaceBenefitsInput = !!customInput && customInput.type === "virtualSpaceBenefits";
   const showNumberInput           = !!customInput && customInput.type === "number";
   const showDateInput             = !!customInput && customInput.type === "date";
   const showFurnishAmenitiesInput = !!customInput && customInput.type === "furnishamenities";
   const showImageInput            = !!customInput && customInput.type === "images";
-  const showTextInput             = awaitingInput && !showPlacesInput && !showMultiSelectInput && !showNumberInput && !showDateInput && !showFurnishAmenitiesInput && !showImageInput;
+  const showTextInput             = awaitingInput && !showPlacesInput && !showMultiSelectInput && !showIdealForInput && !showNumberInput && !showDateInput && !showFurnishAmenitiesInput && !showImageInput;
 
   useEffect(() => {
     if (showTextInput) inputRef.current?.focus();
@@ -329,12 +331,22 @@ export default function ChatbotPage({ flow = propertyListingFlow, assistantTitle
               {!isTyping && quickReplies.length > 0 && (
                 <QuickReplies options={quickReplies} onSelect={handleQuickReply} />
               )}
+              {!isTyping && showIdealForInput && (
+                <div className="-mt-1">
+                  <ChatbotIdealForMultiSelect
+                    key={customInput.key}
+                    options={customInput.options}
+                    minSelect={customInput.minSelect ?? 1}
+                    onSubmit={(selection) => handleUserReply(selection.map((option) => option.name).join(", "), { _idealForSelection: selection })}
+                  />
+                </div>
+              )}
             </div>
 
-            <div className="border-t border-gray-100" />
+            {!showIdealForInput && <div className="border-t border-gray-100" />}
 
             {/* Input bar */}
-            <div className="px-4 py-3 flex items-end gap-3">
+            {!showIdealForInput && <div className="px-4 py-3 flex items-end gap-3">
               {showPlacesInput ? (
                 <ChatbotPlacesInput
                   mode={customInput.mode}
@@ -421,7 +433,7 @@ export default function ChatbotPage({ flow = propertyListingFlow, assistantTitle
                   </button>
                 </>
               )}
-            </div>
+            </div>}
           </div>
 
           <p className="text-center text-xs text-gray-400">

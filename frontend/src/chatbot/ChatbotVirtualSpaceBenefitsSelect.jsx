@@ -34,7 +34,7 @@ export default function ChatbotVirtualSpaceBenefitsSelect({ groups, onSubmit }) 
 
   return (
     <div className="flex w-full flex-col gap-3">
-      <div className="flex flex-col gap-3">
+      <div className="flex flex-col gap-3 max-h-64 overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
         {groups.map((group) => {
           const selectedCount = group.benefits.filter((benefit) =>
             selectedBenefits.includes(`${group._id}:${benefit}`),

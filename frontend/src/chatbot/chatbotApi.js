@@ -33,6 +33,12 @@ export async function fetchPropertyTypes(categoryId) {
     .map((t) => ({ label: t.name, value: t._id }));
 }
 
+// ── Project listing Ideal For options ──────────────────────────────────────
+export async function fetchActiveIdealFor() {
+  const { data } = await axios.get(`${API}/api/mixed/project-listings/ideal-for`, config);
+  return data.data ?? [];
+}
+
 // ── Virtual Space Benefits ───────────────────────────────────────────────────
 export async function fetchVirtualSpaceBenefits() {
   const { data } = await axios.get(`${API}/api/mixed/property-listings/active-virtual-space-benefits`, config);

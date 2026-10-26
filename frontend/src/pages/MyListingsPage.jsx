@@ -64,7 +64,7 @@ export const STATIC_PROJECTS = [
     name: "Greenview Residences",
     developer: "Greenview Group",
     category: "Residential",
-    propertyType: "Apartment",
+    idealFor: [{ id: "ideal-families", name: "Families", image: "https://images.unsplash.com/photo-1511895426328-dc8714191300?w=600", order: 1 }],
     location: "Gachibowli, Hyderabad",
     cityName: "Hyderabad",
     locality: "Gachibowli",
@@ -99,7 +99,7 @@ export const STATIC_PROJECTS = [
     name: "Vertex Business Park",
     developer: "Vertex Developments",
     category: "Commercial",
-    propertyType: "Office",
+    idealFor: [{ id: "ideal-professionals", name: "Professionals", image: "https://images.unsplash.com/photo-1497366754035-f200968a6e72?w=600", order: 1 }],
     location: "HITEC City, Hyderabad",
     cityName: "Hyderabad",
     locality: "HITEC City",
@@ -117,9 +117,10 @@ export const STATIC_PROJECTS = [
     amenitySelections: [],
     minPrice: 9500000,
     maxPrice: 32000000,
+    commercialAreaUnit: "sqft",
     commercialConfigurations: [
-      { builtUpArea: 1200, carpetArea: 900, areaUnit: "sqft" },
-      { builtUpArea: 2400, carpetArea: 1800, areaUnit: "sqft" },
+      { carpetArea: 900 },
+      { carpetArea: 1800 },
     ],
     priceRange: "₹95 L – ₹3.2 Cr",
     reraId: "P02400008246",
@@ -987,7 +988,7 @@ export default function MyListingsPage() {
                     </p>
                     <p className="mt-4 text-base font-extrabold text-[var(--primary-color)]">{project.priceRange}</p>
                     <div className="mt-4 grid grid-cols-2 gap-3 border-t border-gray-100 pt-4 text-xs text-gray-600">
-                      <p className="col-span-2"><span className="font-semibold">Project type:</span> {project.propertyType}</p>
+                      <p className="col-span-2"><span className="font-semibold">Ideal for:</span> {(project.idealFor ?? []).map((option) => option.name).join(", ") || "—"}</p>
                       <p className="col-span-2"><span className="font-semibold">Listing status:</span> {project.listingStatus}</p>
                       <p><span className="font-semibold">Total units:</span> {project.totalUnits}</p>
                       <p><span className="font-semibold">Available units:</span> {project.availableUnits}</p>
@@ -999,7 +1000,7 @@ export default function MyListingsPage() {
                           <div className="space-y-1">
                             {project.commercialConfigurations.map((configuration, index) => (
                               <p key={`${project.id}-configuration-${index}`}>
-                                Built-up area: {configuration.builtUpArea.toLocaleString("en-IN")} {configuration.areaUnit} · Carpet area: {configuration.carpetArea.toLocaleString("en-IN")} {configuration.areaUnit}
+                                Carpet area: {configuration.carpetArea.toLocaleString("en-IN")} {project.commercialAreaUnit}
                               </p>
                             ))}
                           </div>

@@ -17,7 +17,7 @@ export default function EditProjectPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const source = useMemo(() => STATIC_PROJECTS.find((project) => project.id === id), [id]);
-  const [form, setForm] = useState(() => source ? { ...source, commercialConfigurations: source.commercialConfigurations?.map((item) => ({ ...item })) ?? [], residentialConfigurations: [...(source.residentialConfigurations ?? [])] } : null);
+  const [form, setForm] = useState(() => source ? { ...source, commercialAreaUnit: source.commercialAreaUnit ?? source.commercialConfigurations?.[0]?.areaUnit ?? "sqft", commercialConfigurations: source.commercialConfigurations?.map(({ areaUnit, ...item }) => ({ ...item })) ?? [], residentialConfigurations: [...(source.residentialConfigurations ?? [])] } : null);
   const [newFiles, setNewFiles] = useState([]);
   const [videoFiles, setVideoFiles] = useState({ video: null, reel: null });
   const [brochureFile, setBrochureFile] = useState(null);
@@ -78,12 +78,11 @@ export default function EditProjectPage() {
               <FormField label="Project name"><TextInput value={form.name} onChange={(value) => update("name", value)} /></FormField>
               <FormField label="Developer / builder name"><TextInput value={form.developer} onChange={(value) => update("developer", value)} /></FormField>
               <FormField label="Category"><SelectField value={form.category} onChange={() => {}} options={["Residential", "Commercial"]} disabled /></FormField>
-              <FormField label="Property type"><TextInput value={form.propertyType} onChange={(value) => update("propertyType", value)} /></FormField>
               <FormField label="City"><TextInput value={form.cityName} onChange={(value) => update("cityName", value)} /></FormField>
               <FormField label="Locality"><TextInput value={form.locality} onChange={(value) => update("locality", value)} /></FormField>
               <FormField label="RERA Registration ID" hint="Optional"><TextInput value={form.reraId} onChange={(value) => update("reraId", value)} placeholder="Enter project RERA ID" /></FormField>
               <FormField label="Total units"><NumberInput value={form.totalUnits} onChange={(value) => update("totalUnits", value)} min={1} /></FormField>
-              <FormField label="Available units"><NumberInput value={form.availableUnits} onChange={(value) => update("availableUnits", value)} min={0} /></FormField>
+              <FormField label="Available units"><NumberInput value={form.availableUnits} onChange={(value) => update("availableUnits", value)} min={1} /></FormField>
               <FormField label="Towers / buildings"><NumberInput value={form.towerCount ?? ""} onChange={(value) => update("towerCount", value)} min={1} /></FormField>
               <FormField label="Minimum unit price (₹)"><NumberInput value={form.minPrice} onChange={(value) => update("minPrice", value)} min={0} /></FormField>
               <FormField label="Maximum unit price (₹)"><NumberInput value={form.maxPrice} onChange={(value) => update("maxPrice", value)} min={0} /></FormField>
@@ -106,8 +105,9 @@ export default function EditProjectPage() {
             </Section>
           ) : (
             <Section title="Area configurations">
-              <div className="flex flex-col gap-4">{form.commercialConfigurations.map((configuration, index) => <div key={index} className="rounded-xl border border-gray-100 p-4"><div className="mb-3 flex items-center justify-between"><h4 className="text-sm font-semibold text-gray-700">Configuration {index + 1}</h4><button type="button" onClick={() => update("commercialConfigurations", form.commercialConfigurations.filter((_, i) => i !== index))} className="text-red-500" aria-label="Remove configuration"><FiTrash2 size={15} /></button></div><Grid><FormField label="Built-up area"><NumberInput value={configuration.builtUpArea} onChange={(value) => updateCommercial(index, "builtUpArea", value)} min={0} /></FormField><FormField label="Carpet area"><NumberInput value={configuration.carpetArea} onChange={(value) => updateCommercial(index, "carpetArea", value)} min={0} /></FormField><FormField label="Area unit"><SelectField value={configuration.areaUnit} onChange={(value) => updateCommercial(index, "areaUnit", value)} options={[{ value: "sqft", label: "sq.ft" }, { value: "sqyd", label: "sq.yd" }, { value: "sqmt", label: "sq.m" }]} /></FormField></Grid></div>)}</div>
-              <button type="button" onClick={() => update("commercialConfigurations", [...form.commercialConfigurations, { builtUpArea: "", carpetArea: "", areaUnit: "sqft" }])} className="mt-3 inline-flex items-center gap-2 text-sm font-semibold text-[var(--primary-color)]"><FiPlus size={15} /> Add area configuration</button>
+              <FormField label="Area unit"><SelectField value={form.commercialAreaUnit} onChange={(value) => update("commercialAreaUnit", value)} options={[{ value: "sqft", label: "sq.ft" }, { value: "sqyd", label: "sq.yd" }, { value: "sqmt", label: "sq.m" }]} /></FormField>
+              <div className="flex flex-col gap-4">{form.commercialConfigurations.map((configuration, index) => <div key={index} className="rounded-xl border border-gray-100 p-4"><div className="mb-3 flex items-center justify-between"><h4 className="text-sm font-semibold text-gray-700">Configuration {index + 1}</h4><button type="button" onClick={() => update("commercialConfigurations", form.commercialConfigurations.filter((_, i) => i !== index))} className="text-red-500" aria-label="Remove configuration"><FiTrash2 size={15} /></button></div><FormField label={`Carpet area (${form.commercialAreaUnit})`}><NumberInput value={configuration.carpetArea} onChange={(value) => updateCommercial(index, "carpetArea", value)} min={0} /></FormField></div>)}</div>
+              <button type="button" onClick={() => update("commercialConfigurations", [...form.commercialConfigurations, { carpetArea: "" }])} className="mt-3 inline-flex items-center gap-2 text-sm font-semibold text-[var(--primary-color)]"><FiPlus size={15} /> Add area configuration</button>
             </Section>
           )}
 

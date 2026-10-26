@@ -3,10 +3,9 @@ import {
   BHK_OPTIONS,
   CATEGORY_COMMERCIAL_ID,
   CATEGORY_RESIDENTIAL_ID,
-  PROJECT_COMMERCIAL_PROPERTY_TYPE_EXCLUDE_IDS,
-  PROJECT_RESIDENTIAL_PROPERTY_TYPE_EXCLUDE_IDS,
 } from "./chatbotConstants";
-import { fetchActiveCategories, fetchPropertyTypes } from "./chatbotApi";
+import { fetchActiveCategories, fetchActiveIdealFor } from "./chatbotApi";
+import api from "../utils/axiosInterceptor";
 
 const PROJECT_STATUS_OPTIONS = ["Ready to Move", "Under Construction", "New Launch"];
 
@@ -33,7 +32,7 @@ function buildProjectSummary(data) {
   const configurations = data.categoryId === CATEGORY_RESIDENTIAL_ID
     ? (data.residentialConfigurations ?? []).join(", ")
     : (data.commercialConfigurations ?? []).map((config, index) =>
-      `${index + 1}. ${config.unitName}: ${config.builtUpArea} ${config.areaUnit} built-up, ${config.carpetArea} ${config.areaUnit} carpet`
+      `${index + 1}. ${config.unitName}: ${config.carpetArea} ${data.commercialAreaUnit} carpet area`
     ).join("\n");
   const possession = data.projectStatus === "Ready to Move"
     ? "Ready to Move"
@@ -44,7 +43,7 @@ function buildProjectSummary(data) {
     `Project: ${data.projectName}`,
     `Developer / Builder: ${data.developerName}`,
     `Category: ${data.categoryName}`,
-    `Property type: ${data.propertyTypeName}`,
+    `Ideal for: ${(data.idealFor ?? []).map((option) => option.name).join(", ")}`,
     `Location: ${data.locality?.address}, ${data.cityName}`,
     `Status: ${possession}`,
     `Total units: ${data.totalUnits}`,
@@ -58,10 +57,87 @@ function buildProjectSummary(data) {
   ].join("\n");
 }
 
-function excludedTypesForCategory(categoryId) {
-  if (categoryId === CATEGORY_RESIDENTIAL_ID) return PROJECT_RESIDENTIAL_PROPERTY_TYPE_EXCLUDE_IDS;
-  if (categoryId === CATEGORY_COMMERCIAL_ID) return PROJECT_COMMERCIAL_PROPERTY_TYPE_EXCLUDE_IDS;
-  return [];
+function getSubmitErrorMessage(error) {
+  const validationMessages = error.response?.data?.errors
+    ?.map((item) => item.msg ?? item.message)
+    .filter(Boolean);
+  return validationMessages?.join("; ") || error.response?.data?.message || error.message || "Please try again.";
+}
+
+async function submitProject(data, helpers) {
+  const { botSay, setCollectedData, goTo } = helpers;
+  let workingData = data;
+  const apiUrl = import.meta.env.VITE_API_URL;
+
+  if (!workingData._projectId) {
+    const payload = {
+      categoryId: workingData.categoryId,
+      ...(workingData.idealFor?.length && { idealFor: workingData.idealFor.map((option) => option.id) }),
+      cityName: workingData.cityName,
+      locality: workingData.locality,
+      projectName: workingData.projectName,
+      developerName: workingData.developerName,
+      projectStatus: workingData.projectStatus,
+      ...(workingData.possessionDate && { possessionDate: workingData.possessionDate }),
+      totalUnits: workingData.totalUnits,
+      availableUnits: workingData.availableUnits,
+      ...(workingData.towerCount !== null && workingData.towerCount !== undefined && { towerCount: workingData.towerCount }),
+      minPrice: workingData.minPrice,
+      maxPrice: workingData.maxPrice,
+    };
+
+    if (workingData.categoryId === CATEGORY_RESIDENTIAL_ID) {
+      payload.residentialConfigurations = workingData.residentialConfigurations ?? [];
+    } else if (workingData.categoryId === CATEGORY_COMMERCIAL_ID) {
+      payload.commercialAreaUnit = workingData.commercialAreaUnit;
+      payload.commercialConfigurations = workingData.commercialConfigurations ?? [];
+    }
+
+    try {
+      await botSay("⏳ Submitting your project listing...");
+      const { data: response } = await api.post(
+        `${apiUrl}/api/mixed/project-listings`,
+        payload,
+        { withCredentials: true }
+      );
+      const projectId = response.data?._id;
+      if (!projectId) throw new Error("The project was created but the server did not return its ID.");
+
+      workingData = { ...workingData, _projectId: projectId };
+      setCollectedData(() => workingData);
+    } catch (error) {
+      await botSay(`⚠️ Failed to create the project listing: ${getSubmitErrorMessage(error)}`, ["Retry"]);
+      goTo("submit_retry", workingData);
+      return;
+    }
+  }
+
+  if (!workingData._projectImagesUploaded) {
+    try {
+      await botSay("📸 Uploading your project images...");
+      const formData = new FormData();
+      formData.append("projectId", workingData._projectId);
+      (workingData._images ?? []).forEach((image) => formData.append("images", image));
+      const { data: mediaResponse } = await api.post(
+        `${apiUrl}/api/mixed/project-listings/media`,
+        formData,
+        { withCredentials: true }
+      );
+      workingData = { ...workingData, _projectImagesUploaded: true, _uploadedImageUrls: mediaResponse.data?.images ?? [] };
+      setCollectedData(() => workingData);
+      await botSay(`🎉 ${mediaResponse.message ?? "Project listed successfully"}\n\nYour project details and images have been submitted.`);
+    } catch (error) {
+      await botSay(
+        `⚠️ Your project was created, but image upload failed: ${getSubmitErrorMessage(error)}\n\nChoose Retry to upload the images.`,
+        ["Retry"]
+      );
+      goTo("submit_retry", workingData);
+      return;
+    }
+  }
+
+  await botSay("Do you want to list another project?", ["Yes", "No"]);
+  goTo("ask_more_listing", workingData);
 }
 
 async function askCategories(data, { botSay, setCollectedData, goTo }) {
@@ -85,34 +161,31 @@ async function askCategories(data, { botSay, setCollectedData, goTo }) {
   }
 }
 
-async function askPropertyTypes(category, data, helpers) {
+async function askIdealFor(data, helpers) {
   const { botSay, setCollectedData, goTo } = helpers;
-  const excludedIds = excludedTypesForCategory(category.value);
-
   try {
-    const types = (await fetchPropertyTypes(category.value))
-      .filter((type) => !excludedIds.includes(type.value));
-
-    if (types.length === 0) {
-      await botSay(
-        "There are no available project property types for this category. Please choose another category.",
-        data._projectCategories.map((item) => item.label)
-      );
-      goTo("category", data);
+    const options = await fetchActiveIdealFor();
+    if (options.length === 0) {
+      await botSay("There are no active Ideal For options available. Please retry.", ["Retry"]);
+      goTo("retry_ideal_for", data);
       return;
     }
-
-    const updated = { ...data, _projectPropertyTypes: types };
-    delete updated._projectCategoryForRetry;
+    const updated = { ...data, _idealForOptions: options };
     setCollectedData(() => updated);
-    await botSay(`What type of ${category.label.toLowerCase()} project is it?`, types.map((type) => type.label));
-    goTo("property_type", updated);
+    await botSay("Who is this project ideal for? Select all that apply.");
+    helpers.setCustomInput({ type: "idealFor", key: "project_ideal_for", options, minSelect: 1 });
+    goTo("ideal_for", updated);
   } catch {
-    const retryData = { ...data, _projectCategoryForRetry: category };
-    setCollectedData(() => retryData);
-    await botSay("⚠️ Failed to load project property types. Please try again.", ["Retry"]);
-    goTo("retry_property_types", retryData);
+    setCollectedData(() => data);
+    await botSay("⚠️ Failed to load Ideal For options. Please try again.", ["Retry"]);
+    goTo("retry_ideal_for", data);
   }
+}
+
+async function askProjectCity(data, helpers) {
+  await helpers.botSay("Great! In which city is the project located?");
+  helpers.setCustomInput({ type: "places", mode: "city", placeholder: "Search for a city..." });
+  helpers.goTo("city", data);
 }
 
 export async function projectListingFlow(step, answer, collectedData, helpers) {
@@ -139,35 +212,31 @@ export async function projectListingFlow(step, answer, collectedData, helpers) {
       categoryName: category.label,
     };
     setCollectedData(() => updated);
-    await askPropertyTypes(category, updated, helpers);
+    if (category.value === CATEGORY_COMMERCIAL_ID) await askIdealFor(updated, helpers);
+    else await askProjectCity(updated, helpers);
     return;
   }
 
-  if (step === "retry_property_types") {
+  if (step === "retry_ideal_for") {
     if (answer !== "Retry") return;
-    const category = collectedData._projectCategoryForRetry;
-    if (!category) {
-      await askCategories(collectedData, helpers);
-      return;
-    }
-    await askPropertyTypes(category, collectedData, helpers);
+    await askIdealFor(collectedData, helpers);
     return;
   }
 
-  if (step === "property_type") {
-    if (!answer) return;
-    const type = collectedData._projectPropertyTypes?.find((item) => item.label === answer);
-    if (!type) return;
-
+  if (step === "ideal_for") {
+    const selected = collectedData._idealForSelection;
+    if (!Array.isArray(selected) || selected.length === 0) return;
     const updated = {
       ...collectedData,
-      propertyTypeId: type.value,
-      propertyTypeName: type.label,
+      idealFor: selected.map((option) => ({
+        id: option._id,
+        name: option.name,
+        image: option.image,
+        order: option.order,
+      })),
     };
     setCollectedData(() => updated);
-    await botSay("Great! In which city is the project located?");
-    helpers.setCustomInput({ type: "places", mode: "city", placeholder: "Search for a city..." });
-    goTo("city", updated);
+    await askProjectCity(updated, helpers);
     return;
   }
 
@@ -218,7 +287,7 @@ export async function projectListingFlow(step, answer, collectedData, helpers) {
     if (!answer) return;
     const updated = { ...collectedData, developerName: answer };
     setCollectedData(() => updated);
-    await botSay("What is the project's launch status?", PROJECT_STATUS_OPTIONS);
+    await botSay("What is the project's status?", PROJECT_STATUS_OPTIONS);
     goTo("project_status", updated);
     return;
   }
@@ -255,11 +324,11 @@ export async function projectListingFlow(step, answer, collectedData, helpers) {
     const updated = { ...collectedData, totalUnits };
     setCollectedData(() => updated);
     await askNumber(
-      "How many units are currently available? Enter 0 if none are available.",
+      "How many units are currently available?",
       "project_available_units",
       helpers,
       "available_units",
-      { placeholder: "Available units...", allowZero: true, data: updated }
+      { placeholder: "Available units...", min: 0, allowZero: true, data: updated }
     );
     return;
   }
@@ -267,14 +336,10 @@ export async function projectListingFlow(step, answer, collectedData, helpers) {
   if (step === "available_units") {
     if (!answer) return;
     const availableUnits = Number(answer);
-    if (!Number.isInteger(availableUnits) || availableUnits < 0 || availableUnits > collectedData.totalUnits) {
-      await askNumber(
-        `Enter a whole number from 0 to ${collectedData.totalUnits}.`,
-        "project_available_units_retry",
-        helpers,
-        "available_units",
-        { placeholder: "Available units...", allowZero: true, data: collectedData }
-      );
+    if (!Number.isInteger(availableUnits) || availableUnits < 1 || availableUnits > collectedData.totalUnits) {
+      await botSay(`❌ Available units must be a whole number from 1 to ${collectedData.totalUnits}.\n\nPlease enter a valid number.`);
+      helpers.setCustomInput({ type: "number", key: "project_available_units_retry", placeholder: "Available units...", min: 0, allowZero: true });
+      goTo("available_units", collectedData);
       return;
     }
     const updated = { ...collectedData, availableUnits };
@@ -318,31 +383,19 @@ export async function projectListingFlow(step, answer, collectedData, helpers) {
 
   if (step === "commercial_area_unit") {
     if (!AREA_UNIT_OPTIONS.includes(answer)) return;
-    const updated = { ...collectedData, _commercialAreaUnit: answer };
+    const updated = { ...collectedData, commercialAreaUnit: answer };
     setCollectedData(() => updated);
-    await askNumber("What is the built-up area for this unit?", "commercial_built_up_area", helpers, "commercial_built_up_area", { placeholder: "Built-up area...", data: updated });
-    return;
-  }
-
-  if (step === "commercial_built_up_area") {
-    if (!answer) return;
-    const builtUpArea = Number(answer);
-    if (!Number.isFinite(builtUpArea) || builtUpArea <= 0) {
-      await askNumber("Enter a built-up area greater than zero.", "commercial_built_up_area_retry", helpers, "commercial_built_up_area", { placeholder: "Built-up area...", data: collectedData });
-      return;
-    }
-    const updated = { ...collectedData, _commercialBuiltUpArea: builtUpArea };
-    setCollectedData(() => updated);
-    await askNumber(`What is the carpet area? (must not exceed ${builtUpArea} ${updated._commercialAreaUnit})`, "commercial_carpet_area", helpers, "commercial_carpet_area", { placeholder: "Carpet area...", data: updated });
+    await askNumber(`What is the carpet area for configuration 1? (in ${answer})`, "commercial_carpet_area", helpers, "commercial_carpet_area", { placeholder: "Carpet area...", data: updated });
     return;
   }
 
   if (step === "commercial_carpet_area") {
     if (!answer) return;
     const carpetArea = Number(answer);
-    if (!Number.isFinite(carpetArea) || carpetArea <= 0 || carpetArea > collectedData._commercialBuiltUpArea) {
+    if (!Number.isFinite(carpetArea) || carpetArea <= 0) {
+      const configurationNumber = (collectedData.commercialConfigurations?.length ?? 0) + 1;
       await askNumber(
-        `Enter a carpet area greater than zero and no more than ${collectedData._commercialBuiltUpArea} ${collectedData._commercialAreaUnit}.`,
+        `Enter a carpet area greater than zero for configuration ${configurationNumber}.`,
         "commercial_carpet_area_retry",
         helpers,
         "commercial_carpet_area",
@@ -352,15 +405,12 @@ export async function projectListingFlow(step, answer, collectedData, helpers) {
     }
     const configuration = {
       unitName: `Configuration ${(collectedData.commercialConfigurations?.length ?? 0) + 1}`,
-      areaUnit: collectedData._commercialAreaUnit,
-      builtUpArea: collectedData._commercialBuiltUpArea,
       carpetArea,
     };
     const updated = {
       ...collectedData,
       commercialConfigurations: [...(collectedData.commercialConfigurations ?? []), configuration],
     };
-    ["_commercialAreaUnit", "_commercialBuiltUpArea"].forEach((key) => delete updated[key]);
     setCollectedData(() => updated);
     await botSay("Would you like to add another commercial configuration?", ["Add another", "Done"]);
     goTo("commercial_add_configuration", updated);
@@ -371,8 +421,7 @@ export async function projectListingFlow(step, answer, collectedData, helpers) {
     if (answer === "Add another") {
       const configurationNumber = (collectedData.commercialConfigurations?.length ?? 0) + 1;
       await botSay(`Let's add configuration ${configurationNumber}.`);
-      await botSay(`What area unit should be used for configuration ${configurationNumber}?`, AREA_UNIT_OPTIONS);
-      goTo("commercial_area_unit", collectedData);
+      await askNumber(`What is the carpet area for configuration ${configurationNumber}? (in ${collectedData.commercialAreaUnit})`, "commercial_carpet_area", helpers, "commercial_carpet_area", { placeholder: "Carpet area...", data: collectedData });
     } else if (answer === "Done") {
       await askMinimumPrice(collectedData, helpers);
     }
@@ -415,8 +464,28 @@ export async function projectListingFlow(step, answer, collectedData, helpers) {
     const updated = { ...collectedData, _images: images };
     delete updated._uploadedImages;
     setCollectedData(() => updated);
-    await botSay(buildProjectSummary(updated));
-    goTo("review_complete", updated);
+    await botSay(`${buildProjectSummary(updated)}\n\nReady to submit? 🚀`, ["Yes, Submit"]);
+    goTo("submit", updated);
+    return;
+  }
+
+  if (step === "submit") {
+    if (answer !== "Yes, Submit") return;
+    await submitProject(collectedData, helpers);
+    return;
+  }
+
+  if (step === "submit_retry") {
+    if (answer !== "Retry") return;
+    await submitProject(collectedData, helpers);
+    return;
+  }
+
+  if (step === "ask_more_listing") {
+    if (answer === "Yes") {
+      await botSay("Starting a new project listing...");
+      setTimeout(() => window.location.reload(), 1000);
+    }
   }
 }
 
@@ -433,7 +502,7 @@ async function askProjectConfigurations(data, helpers) {
     return;
   }
 
-  await helpers.botSay("What area unit should be used for configuration 1?", AREA_UNIT_OPTIONS);
+  await helpers.botSay("What area unit should be used for all commercial configurations?", AREA_UNIT_OPTIONS);
   helpers.setCollectedData((previous) => ({ ...previous, ...data, commercialConfigurations: [] }));
   helpers.goTo("commercial_area_unit", { ...data, commercialConfigurations: [] });
 }
