@@ -41,7 +41,7 @@ function buildProjectSummary(data) {
     "✅ Project details collected for review",
     "",
     `Project: ${data.projectName}`,
-    `Developer / Builder: ${data.developerName}`,
+    `Developer / Builder: ${data.developerName || "Not provided"}`,
     `Category: ${data.categoryName}`,
     `Ideal for: ${(data.idealFor ?? []).map((option) => option.name).join(", ")}`,
     `Location: ${data.locality?.address}, ${data.cityName}`,
@@ -76,7 +76,7 @@ async function submitProject(data, helpers) {
       cityName: workingData.cityName,
       locality: workingData.locality,
       projectName: workingData.projectName,
-      developerName: workingData.developerName,
+      ...(workingData.developerName && { developerName: workingData.developerName }),
       projectStatus: workingData.projectStatus,
       ...(workingData.possessionDate && { possessionDate: workingData.possessionDate }),
       totalUnits: workingData.totalUnits,
@@ -278,14 +278,16 @@ export async function projectListingFlow(step, answer, collectedData, helpers) {
     if (!answer) return;
     const updated = { ...collectedData, projectName: answer };
     setCollectedData(() => updated);
-    await botSay("What is the developer or builder name?", [], true);
+    await botSay("What is the developer or builder name?", ["Skip"], true);
     goTo("developer_name", updated);
     return;
   }
 
   if (step === "developer_name") {
     if (!answer) return;
-    const updated = { ...collectedData, developerName: answer };
+    const updated = { ...collectedData };
+    if (answer === "Skip") delete updated.developerName;
+    else updated.developerName = answer;
     setCollectedData(() => updated);
     await botSay("What is the project's status?", PROJECT_STATUS_OPTIONS);
     goTo("project_status", updated);

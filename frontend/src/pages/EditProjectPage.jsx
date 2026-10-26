@@ -76,7 +76,7 @@ export default function EditProjectPage() {
           <Section title="Project details">
             <Grid>
               <FormField label="Project name"><TextInput value={form.name} onChange={(value) => update("name", value)} /></FormField>
-              <FormField label="Developer / builder name"><TextInput value={form.developer} onChange={(value) => update("developer", value)} /></FormField>
+              <FormField label="Developer / builder name" hint="Optional"><TextInput value={form.developer} onChange={(value) => update("developer", value)} /></FormField>
               <FormField label="Category"><SelectField value={form.category} onChange={() => {}} options={["Residential", "Commercial"]} disabled /></FormField>
               <FormField label="City"><TextInput value={form.cityName} onChange={(value) => update("cityName", value)} /></FormField>
               <FormField label="Locality"><TextInput value={form.locality} onChange={(value) => update("locality", value)} /></FormField>
