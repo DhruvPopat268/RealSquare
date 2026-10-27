@@ -9,7 +9,6 @@ import {
   FiChevronLeft,
   FiChevronRight,
   FiExternalLink,
-  FiUser,
   FiCalendar,
   FiEdit2,
   FiStar,
@@ -348,25 +347,10 @@ export default function PropertyDetail() {
             {!property._isApiListing && property.emiStarts && (
               <p className="text-purple-700 font-medium">EMI starts at {property.emiStarts}</p>
             )}
-            {/* Listed by + date — right-aligned card strip */}
-            {property._isApiListing && (property.listedBy?.name || property.createdAt) && (
+            {/* Listing date — right-aligned card strip */}
+            {property._isApiListing && property.createdAt && (
               <div className="flex items-center gap-4 bg-white border border-gray-100 rounded-xl px-4 py-3 shadow-sm">
-                {property.listedBy?.name && (
-                  <div className="flex items-center gap-2 text-sm">
-                    <span className="w-7 h-7 rounded-full bg-purple-100 flex items-center justify-center flex-shrink-0">
-                      <FiUser size={13} className="text-[#5E23DC]" />
-                    </span>
-                    <div className="leading-tight text-left">
-                      <p className="text-[11px] text-gray-400 uppercase tracking-wide">Listed by</p>
-                      <p className="font-semibold text-gray-800 text-sm">{property.listedBy.name}</p>
-                    </div>
-                  </div>
-                )}
-                {property.listedBy?.name && property.createdAt && (
-                  <div className="w-px h-8 bg-gray-200" />
-                )}
-                {property.createdAt && (
-                  <div className="flex items-center gap-2 text-sm">
+                <div className="flex items-center gap-2 text-sm">
                     <span className="w-7 h-7 rounded-full bg-purple-100 flex items-center justify-center flex-shrink-0">
                       <FiCalendar size={13} className="text-[#5E23DC]" />
                     </span>
@@ -376,39 +360,42 @@ export default function PropertyDetail() {
                         {new Date(property.createdAt).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })}
                       </p>
                     </div>
-                  </div>
-                )}
+                </div>
+              </div>
+            )}
+            {property._isApiListing && (
+              <div className="flex justify-end gap-2" onClick={(e) => e.stopPropagation()}>
+                <button className="flex items-center gap-1.5 rounded-xl border border-gray-100 bg-white px-3 py-1.5 text-xs font-medium shadow-md transition hover:shadow-lg">
+                  <FiShare2 size={12} /> SHARE
+                </button>
+                {(() => {
+                  const statusOptions = getAvailableStatusOptions(property.status, property.listingType?.id?.toString());
+                  return statusOptions.length > 0 ? (
+                    <button
+                      onClick={handleOpenStatusModal}
+                      className="flex items-center gap-1.5 rounded-xl bg-amber-500 px-3 py-1.5 text-xs font-medium text-white shadow-md transition hover:bg-amber-600"
+                    >
+                      <FiZap size={12} /> UPDATE STATUS
+                    </button>
+                  ) : null;
+                })()}
+                <button
+                  onClick={() => navigate(`/edit-property/${property._id}`)}
+                  className="flex items-center gap-1.5 rounded-xl bg-[var(--primary-color)] px-3 py-1.5 text-xs font-medium text-white shadow-md transition hover:bg-[var(--primary-color-hover)]"
+                >
+                  <FiEdit2 size={12} /> EDIT
+                </button>
               </div>
             )}
           </div>
         </div>
 
-        {/* Share / Save / Edit — always visible */}
-        <div className="flex justify-end gap-2 mb-5" onClick={(e) => e.stopPropagation()}>
-          <button className="bg-white shadow-md px-3 py-1.5 rounded-xl flex items-center gap-1.5 text-xs font-medium border border-gray-100 hover:shadow-lg transition">
-            <FiShare2 size={12} /> SHARE
-          </button>
-          {property._isApiListing && property.isListedByCurrentUser ? (
-            <>
-              {(() => {
-                const statusOptions = getAvailableStatusOptions(property.status, property.listingType?.id?.toString());
-                return statusOptions.length > 0 ? (
-                  <button
-                    onClick={handleOpenStatusModal}
-                    className="bg-amber-500 shadow-md px-3 py-1.5 rounded-xl flex items-center gap-1.5 text-xs font-medium text-white hover:bg-amber-600 transition"
-                  >
-                    <FiZap size={12} /> UPDATE STATUS
-                  </button>
-                ) : null;
-              })()}
-              <button
-                onClick={() => navigate(`/edit-property/${property._id}`)}
-                className="bg-[var(--primary-color)] shadow-md px-3 py-1.5 rounded-xl flex items-center gap-1.5 text-xs font-medium text-white hover:bg-[var(--primary-color-hover)] transition"
-              >
-                <FiEdit2 size={12} /> EDIT
-              </button>
-            </>
-          ) : (
+        {/* Static listing actions remain below the heading when there is no API listing date card. */}
+        {!property._isApiListing && (
+          <div className="mb-5 flex justify-end gap-2" onClick={(e) => e.stopPropagation()}>
+            <button className="flex items-center gap-1.5 rounded-xl border border-gray-100 bg-white px-3 py-1.5 text-xs font-medium shadow-md transition hover:shadow-lg">
+              <FiShare2 size={12} /> SHARE
+            </button>
             <>
               <button onClick={handleWishlistToggle} className="bg-white shadow-md px-3 py-1.5 rounded-xl flex items-center gap-1.5 text-xs font-medium border border-gray-100 hover:shadow-lg transition">
                 <FiHeart size={12} className={wishlist ? "text-red-500 fill-red-500" : ""} /> FAVOURITE
@@ -417,8 +404,8 @@ export default function PropertyDetail() {
                 <FiStar size={12} className={interested ? "text-yellow-500 fill-yellow-500" : ""} /> INTERESTED
               </button>
             </>
-          )}
-        </div>
+          </div>
+        )}
 
         {/* IMAGE GALLERY — 4 images, 4th blurred with +N overlay */}
         {gallery.length > 0 && (

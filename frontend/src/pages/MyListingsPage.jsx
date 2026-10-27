@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import {
   FiArrowLeft, FiHome, FiMapPin, FiCalendar, FiList,
@@ -635,41 +635,6 @@ function EndOfList({ total }) {
 // ── Page ──────────────────────────────────────────────────────────────────────
 export default function MyListingsPage() {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const showProjectView = searchParams.get("view") === "projects";
-  const [projectCards, setProjectCards] = useState(STATIC_PROJECTS);
-  const [projectUnitsModal, setProjectUnitsModal] = useState(null);
-  const [projectUnitsForm, setProjectUnitsForm] = useState({ totalUnits: "", availableUnits: "" });
-  const [projectUnitsError, setProjectUnitsError] = useState("");
-  const [projectStatusModal, setProjectStatusModal] = useState(null);
-
-  const openProjectUnitsModal = (project) => {
-    setProjectUnitsForm({ totalUnits: String(project.totalUnits), availableUnits: String(project.availableUnits) });
-    setProjectUnitsError("");
-    setProjectUnitsModal(project);
-  };
-
-  const saveProjectUnits = () => {
-    const totalUnits = projectUnitsModal.totalUnits;
-    const availableUnits = Number(projectUnitsForm.availableUnits);
-    if (!Number.isInteger(availableUnits) || availableUnits < 0 || availableUnits > totalUnits) {
-      setProjectUnitsError(`Enter available units from 0 to ${totalUnits}.`);
-      return;
-    }
-    setProjectCards((projects) => projects.map((project) => project.id === projectUnitsModal.id
-      ? { ...project, availableUnits }
-      : project));
-    setProjectUnitsModal(null);
-  };
-
-  const updateProjectListingStatus = () => {
-    if (!projectStatusModal?.selectedStatus) return;
-    setProjectCards((projects) => projects.map((project) => project.id === projectStatusModal.project.id
-      ? { ...project, listingStatus: projectStatusModal.selectedStatus }
-      : project));
-    setProjectStatusModal(null);
-  };
-
   // ── Access guard + rejected count from /me ───────────────────────────────
   const [authLoading,  setAuthLoading]  = useState(true);
   const [allowed,      setAllowed]      = useState(false);
@@ -735,20 +700,15 @@ export default function MyListingsPage() {
 
   // ── Fetch filter options on mount ─────────────────────────────────────────
   useEffect(() => {
-    if (showProjectView) {
-      setOptionsLoading(false);
-      return;
-    }
     setOptionsLoading(true);
     Promise.all([fetchActivePurposes(), fetchActiveCategories()])
       .then(([p, c]) => { setPurposes(p); setCategories(c); })
       .catch(() => {})
       .finally(() => setOptionsLoading(false));
-  }, [showProjectView]);
+  }, []);
 
   // ── Reload property types when pending category changes ───────────────────
   useEffect(() => {
-    if (showProjectView) return;
     setPropertyTypes([]);
     setPendingFilters((prev) => ({ ...prev, typeId: "" }));
     if (!pendingFilters.categoryId) return;
@@ -756,7 +716,7 @@ export default function MyListingsPage() {
       .then(setPropertyTypes)
       .catch(() => {});
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pendingFilters.categoryId, showProjectView]);
+  }, [pendingFilters.categoryId]);
 
   // ── Core fetch ────────────────────────────────────────────────────────────
   const loadPage = useCallback(async (pageNum, filters) => {
@@ -795,10 +755,6 @@ export default function MyListingsPage() {
 
   // ── Re-fetch from page 1 when applied filters change ─────────────────────
   useEffect(() => {
-    if (showProjectView) {
-      setLoading(false);
-      return;
-    }
     pageRef.current = 1;
     hasMoreRef.current = true;
     setLoading(true);
@@ -807,11 +763,11 @@ export default function MyListingsPage() {
     setPage(1);
     setHasMore(true);
     loadPage(1, appliedFilters);
-  }, [appliedFilters, loadPage, showProjectView]);
+  }, [appliedFilters, loadPage]);
 
   // ── IntersectionObserver ─────────────────────────────────────────────────
   useEffect(() => {
-    if (showProjectView || !sentinelNode || !hasMore || loading || loadingMore) return;
+    if (!sentinelNode || !hasMore || loading || loadingMore) return;
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (!entry.isIntersecting || loadingMoreRef.current || !hasMoreRef.current) return;
@@ -826,7 +782,7 @@ export default function MyListingsPage() {
     return () => {
       observer.disconnect();
     };
-  }, [sentinelNode, hasMore, loading, loadingMore, appliedFilters, loadPage, showProjectView]);
+  }, [sentinelNode, hasMore, loading, loadingMore, appliedFilters, loadPage]);
 
   // ── Filter handlers ───────────────────────────────────────────────────────
   const handleApply = () => {
@@ -949,149 +905,6 @@ export default function MyListingsPage() {
             </button>
           </div>
         </div>
-        <Footer />
-      </>
-    );
-  }
-
-  if (showProjectView) {
-    return (
-      <>
-        <Navbar />
-        <main className="min-h-screen bg-[#f9f9fb]">
-          <div className="mx-auto max-w-6xl px-4 py-8">
-            <button
-              onClick={() => navigate("/my-property-listings")}
-              className="flex items-center gap-1.5 text-sm text-gray-400 hover:text-[var(--primary-color)] transition mb-3"
-            >
-              <FiArrowLeft size={14} /> My Property Listings
-            </button>
-            <div className="mb-6">
-              <h1 className="text-xl font-extrabold text-[#1a1a2e]">My Project Listings</h1>
-              <p className="text-xs text-gray-400 mt-1">2 sample projects · Residential and Commercial</p>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-              {projectCards.map((project) => (
-                <article key={project.id} className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
-                  <img src={project.image} alt={project.name} className="h-52 w-full object-cover" />
-                  <div className="p-5">
-                    <div className="mb-3 flex items-center justify-between gap-3">
-                      <span className={`rounded-full px-2.5 py-1 text-[11px] font-bold ${project.category === "Residential" ? "bg-purple-100 text-purple-700" : "bg-blue-100 text-blue-700"}`}>
-                        {project.category}
-                      </span>
-                      <span className="rounded-full bg-amber-100 px-2.5 py-1 text-[11px] font-semibold text-amber-700">{project.status}</span>
-                    </div>
-                    <h2 className="text-lg font-extrabold text-[#1a1a2e]">{project.name}</h2>
-                    <p className="mt-1 text-xs text-gray-400">By {project.developer}</p>
-                    <p className="mt-1 flex items-center gap-1 text-sm text-gray-500">
-                      <FiMapPin size={13} /> {project.location}
-                    </p>
-                    <p className="mt-4 text-base font-extrabold text-[var(--primary-color)]">{project.priceRange}</p>
-                    <div className="mt-4 grid grid-cols-2 gap-3 border-t border-gray-100 pt-4 text-xs text-gray-600">
-                      <p className="col-span-2"><span className="font-semibold">Ideal for:</span> {(project.idealFor ?? []).map((option) => option.name).join(", ") || "—"}</p>
-                      <p className="col-span-2"><span className="font-semibold">Listing status:</span> {project.listingStatus}</p>
-                      <p><span className="font-semibold">Total units:</span> {project.totalUnits}</p>
-                      <p><span className="font-semibold">Available units:</span> {project.availableUnits}</p>
-                      {project.category === "Residential" ? (
-                        <p className="col-span-2"><span className="font-semibold">BHK configurations:</span> {project.configurations}</p>
-                      ) : (
-                        <div className="col-span-2">
-                          <p className="mb-1 font-semibold">Area configurations:</p>
-                          <div className="space-y-1">
-                            {project.commercialConfigurations.map((configuration, index) => (
-                              <p key={`${project.id}-configuration-${index}`}>
-                                Carpet area: {configuration.carpetArea.toLocaleString("en-IN")} {project.commercialAreaUnit}
-                              </p>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-                      {project.possession && (
-                        <p className="col-span-2 flex items-center gap-1">
-                          <FiCalendar size={12} /> <span className="font-semibold">Possession:</span> {project.possession}
-                        </p>
-                      )}
-                    </div>
-                    <div className="mt-5 flex flex-wrap gap-2">
-                      <button
-                        type="button"
-                        onClick={() => navigate(`/edit-project/${project.id}`)}
-                        className="inline-flex items-center gap-2 rounded-xl border border-[var(--primary-color)] px-4 py-2 text-sm font-semibold text-[var(--primary-color)] transition hover:bg-[var(--primary-color)]/5"
-                      >
-                        <FiEdit2 size={14} /> Edit project
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => openProjectUnitsModal(project)}
-                        className="inline-flex items-center gap-2 rounded-xl bg-[var(--primary-color)] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[var(--primary-color-hover)]"
-                      >
-                        Update available units
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setProjectStatusModal({ project, selectedStatus: null })}
-                        className="inline-flex items-center gap-2 rounded-xl bg-amber-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-amber-600"
-                      >
-                        <FiZap size={14} /> Update Status
-                      </button>
-                    </div>
-                  </div>
-                </article>
-              ))}
-            </div>
-            {projectUnitsModal && (
-              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4" onMouseDown={(event) => { if (event.target === event.currentTarget) setProjectUnitsModal(null); }}>
-                <section role="dialog" aria-modal="true" aria-labelledby="project-units-title" className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
-                  <div className="mb-5 flex items-start justify-between gap-4">
-                    <div>
-                      <h2 id="project-units-title" className="text-lg font-bold text-[#1a1a2e]">Update project units</h2>
-                      <p className="mt-1 text-sm text-gray-500">{projectUnitsModal.name}</p>
-                    </div>
-                    <button type="button" onClick={() => setProjectUnitsModal(null)} aria-label="Close dialog" className="rounded-lg p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-700"><FiX size={18} /></button>
-                  </div>
-                  <div className="flex flex-col gap-4">
-                    <label className="flex flex-col gap-1.5 text-xs font-bold uppercase tracking-wide text-gray-600">Total units<input type="number" value={projectUnitsForm.totalUnits} readOnly aria-readonly="true" className="w-full cursor-not-allowed rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm font-normal normal-case tracking-normal text-gray-500" /></label>
-                    <label className="flex flex-col gap-1.5 text-xs font-bold uppercase tracking-wide text-gray-600">Available units<input type="number" min="0" step="1" value={projectUnitsForm.availableUnits} onChange={(event) => { setProjectUnitsForm((form) => ({ ...form, availableUnits: event.target.value })); setProjectUnitsError(""); }} className="w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm font-normal normal-case tracking-normal text-gray-800 focus:border-[var(--primary-color)] focus:outline-none" /></label>
-                    {projectUnitsError && <p role="alert" className="text-xs text-red-600">{projectUnitsError}</p>}
-                  </div>
-                  <div className="mt-6 flex justify-end gap-2">
-                    <button type="button" onClick={() => setProjectUnitsModal(null)} className="rounded-xl border border-gray-200 px-4 py-2 text-sm font-semibold text-gray-600">Cancel</button>
-                    <button type="button" onClick={saveProjectUnits} className="rounded-xl bg-[var(--primary-color)] px-4 py-2 text-sm font-semibold text-white">Save units</button>
-                  </div>
-                </section>
-              </div>
-            )}
-            {projectStatusModal && (
-              <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/40 px-4" onMouseDown={(event) => { if (event.target === event.currentTarget) setProjectStatusModal(null); }}>
-                <section role="dialog" aria-modal="true" aria-labelledby="project-status-title" className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl">
-                  <h2 id="project-status-title" className="text-base font-extrabold text-[#1a1a2e]">Update Status</h2>
-                  <p className="mt-1 truncate text-xs text-gray-400">{projectStatusModal.project.name}</p>
-                  {projectStatusModal.selectedStatus ? (
-                    <>
-                      <p className="mt-5 text-sm text-gray-600">Change listing status to <strong>{projectStatusModal.selectedStatus}</strong>?</p>
-                      <div className="mt-6 flex justify-end gap-2">
-                        <button type="button" onClick={() => setProjectStatusModal((modal) => ({ ...modal, selectedStatus: null }))} className="rounded-xl border border-gray-200 px-4 py-2 text-sm font-semibold text-gray-600">Back</button>
-                        <button type="button" onClick={updateProjectListingStatus} className="rounded-xl bg-[var(--primary-color)] px-4 py-2 text-sm font-semibold text-white">Confirm</button>
-                      </div>
-                    </>
-                  ) : (
-                    <>
-                      <p className="mt-5 text-sm text-gray-500">Current status: <span className="font-bold text-gray-800">{projectStatusModal.project.listingStatus}</span></p>
-                      <div className="mt-4 flex flex-col gap-2">
-                        {(projectStatusModal.project.listingStatus === "Active" ? ["Inactive", "Sold"] : ["Active"]).map((status) => (
-                          <button key={status} type="button" onClick={() => setProjectStatusModal((modal) => ({ ...modal, selectedStatus: status }))} className="w-full rounded-xl border border-gray-200 px-4 py-3 text-left text-sm font-semibold text-gray-700 transition hover:border-[var(--primary-color)] hover:bg-[var(--primary-color-light)] hover:text-[var(--primary-color)]">
-                            <FiZap size={14} className="mr-2 inline" /> Mark as {status}
-                          </button>
-                        ))}
-                      </div>
-                      <button type="button" onClick={() => setProjectStatusModal(null)} className="mt-4 w-full text-center text-xs text-gray-400 hover:text-gray-600">Cancel</button>
-                    </>
-                  )}
-                </section>
-              </div>
-            )}
-          </div>
-        </main>
         <Footer />
       </>
     );

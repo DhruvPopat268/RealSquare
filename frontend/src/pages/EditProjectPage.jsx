@@ -33,7 +33,7 @@ export default function EditProjectPage() {
   }, []);
 
   if (!form) {
-    return <><Navbar /><main className="min-h-[60vh] p-8 text-center"><h1 className="text-xl font-bold">Project not found</h1><button onClick={() => navigate("/my-property-listings?view=projects")} className="mt-4 text-[var(--primary-color)]">Back to My Project Listings</button></main><Footer /></>;
+    return <><Navbar /><main className="min-h-[60vh] p-8 text-center"><h1 className="text-xl font-bold">Project not found</h1><button onClick={() => navigate("/my-project-listings")} className="mt-4 text-[var(--primary-color)]">Back to My Project Listings</button></main><Footer /></>;
   }
 
   const update = (key, value) => setForm((current) => ({ ...current, [key]: value }));
@@ -43,7 +43,7 @@ export default function EditProjectPage() {
     <div className="min-h-screen bg-[#f9f9fb] flex flex-col">
       <Navbar />
       <main className="mx-auto w-full max-w-4xl flex-1 px-4 py-8">
-        <button onClick={() => navigate("/my-property-listings?view=projects")} className="mb-4 flex items-center gap-1.5 text-sm text-gray-400 hover:text-[var(--primary-color)]">
+        <button onClick={() => navigate("/my-project-listings")} className="mb-4 flex items-center gap-1.5 text-sm text-gray-400 hover:text-[var(--primary-color)]">
           <FiArrowLeft size={14} /> Back to My Project Listings
         </button>
         <div className="mb-7">
@@ -122,7 +122,7 @@ export default function EditProjectPage() {
             onAmenitiesChange={(amenitySelections) => update("amenitySelections", amenitySelections)}
           />
 
-          <div className="flex items-center justify-end gap-3 pb-4"><button type="button" onClick={() => navigate("/my-property-listings?view=projects")} className="rounded-xl border border-gray-200 px-5 py-2.5 text-sm font-semibold text-gray-600">Cancel</button><button type="button" onClick={() => { setSaved(true); window.setTimeout(() => setSaved(false), 3000); }} className="rounded-xl bg-[var(--primary-color)] px-5 py-2.5 text-sm font-semibold text-white">{saved ? "Changes ready" : "Save changes"}</button></div>
+          <div className="flex items-center justify-end gap-3 pb-4"><button type="button" onClick={() => navigate("/my-project-listings")} className="rounded-xl border border-gray-200 px-5 py-2.5 text-sm font-semibold text-gray-600">Cancel</button><button type="button" onClick={() => { setSaved(true); window.setTimeout(() => setSaved(false), 3000); }} className="rounded-xl bg-[var(--primary-color)] px-5 py-2.5 text-sm font-semibold text-white">{saved ? "Changes ready" : "Save changes"}</button></div>
           {saved && <p className="text-right text-xs text-amber-700">This project edit screen is a UI preview; changes are not persisted yet.</p>}
         </div>
       </main>

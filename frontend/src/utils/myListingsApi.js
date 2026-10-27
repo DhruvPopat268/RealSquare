@@ -48,6 +48,35 @@ export async function fetchMyListings({ page, limit, status, purposeId, category
   return payload.properties ?? [];
 }
 
+export async function fetchMyProjectListings({ page, limit, categoryId, idealForId } = {}) {
+  const qs = new URLSearchParams();
+  if (page != null) qs.set("page", page);
+  if (limit != null) qs.set("limit", limit);
+  if (categoryId) qs.set("categoryId", categoryId);
+  if (idealForId) qs.set("idealForId", idealForId);
+
+  const query = qs.toString() ? `?${qs.toString()}` : "";
+  const { data } = await axios.get(
+    `${API}/api/mixed/project-listings/my-listings${query}`,
+    config
+  );
+  const payload = data.data ?? {};
+
+  return {
+    projects: payload.projects ?? [],
+    pagination: payload.pagination ?? { page: 1, limit: 10, totalCount: 0, hasMore: false },
+    stats: payload.stats ?? null,
+  };
+}
+
+export async function fetchProjectListingById(projectId) {
+  const { data } = await axios.get(
+    `${API}/api/mixed/project-listings/${projectId}`,
+    config
+  );
+  return data.data;
+}
+
 /**
  * Fetch active property purposes (Sell / Rent / PG …)
  */

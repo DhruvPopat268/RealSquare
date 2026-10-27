@@ -363,8 +363,10 @@ export default function Navbar() {
     : user?.role?.name?.toLowerCase()?.includes("builder") || user?.role?.name?.toLowerCase()?.includes("developer") ? "builder"
     : "customer";
 
-  // Show "My Property Listings" if user has listing-allowed role OR has existing listings
+  // Show each listings menu entry when the user has listings of that type.
   const canViewMyListings = user && user.myPropertyListingAllowed === true;
+  const canViewMyProjectListings = user && user.myProjectListingAllowed === true;
+  const canViewAnyListings = canViewMyListings || canViewMyProjectListings;
 
   const SWITCH_ROLES = [
     { key: "customer", label: "Customer",           icon: "🏠", desc: "Looking to buy or rent" },
@@ -718,7 +720,7 @@ export default function Navbar() {
                   )}
 
                   {/* My Listings button */}
-                  {(canViewMyListings || user?.isProfileCompleted) && (
+                  {(canViewAnyListings || user?.isProfileCompleted) && (
                     <div className="mb-3 pb-3 border-b border-gray-100">
                       {canViewMyListings && (
                         <button
@@ -742,10 +744,10 @@ export default function Navbar() {
                           )}
                         </button>
                       )}
-                      {canViewMyListings && (
+                      {canViewMyProjectListings && (
                         <button
-                          onClick={() => { setProfileOpen(false); navigate("/my-property-listings?view=projects"); }}
-                          className="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl border border-gray-200 transition group mt-2"
+                          onClick={() => { setProfileOpen(false); navigate("/my-project-listings"); }}
+                          className={`w-full flex items-center gap-2 px-3 py-2.5 rounded-xl border border-gray-200 transition group ${canViewMyListings ? "mt-2" : ""}`}
                           onMouseEnter={e => { e.currentTarget.style.borderColor = primaryColor; e.currentTarget.style.backgroundColor = "#f5f0ff"; }}
                           onMouseLeave={e => { e.currentTarget.style.borderColor = "#e5e7eb"; e.currentTarget.style.backgroundColor = "transparent"; }}
                         >
@@ -756,7 +758,7 @@ export default function Navbar() {
                       )}
                       <button
                         onClick={() => { setProfileOpen(false); navigate("/my-inquiries"); }}
-                        className={`w-full flex items-center gap-2 px-3 py-2.5 rounded-xl border border-gray-200 transition group ${canViewMyListings ? "mt-2" : ""}`}
+                        className={`w-full flex items-center gap-2 px-3 py-2.5 rounded-xl border border-gray-200 transition group ${canViewAnyListings ? "mt-2" : ""}`}
                         onMouseEnter={e => { e.currentTarget.style.borderColor = primaryColor; e.currentTarget.style.backgroundColor = "#f5f0ff"; }}
                         onMouseLeave={e => { e.currentTarget.style.borderColor = "#e5e7eb"; e.currentTarget.style.backgroundColor = "transparent"; }}
                       >
@@ -998,7 +1000,7 @@ export default function Navbar() {
                     </div>
                   )}
                   {/* My Property Listings */}
-                  {(canViewMyListings || user?.isProfileCompleted) && (
+                  {(canViewAnyListings || user?.isProfileCompleted) && (
                     <div className="mx-2 mb-1">
                       {canViewMyListings && (
                         <button
@@ -1022,10 +1024,10 @@ export default function Navbar() {
                           )}
                         </button>
                       )}
-                      {canViewMyListings && (
+                      {canViewMyProjectListings && (
                         <button
-                          onClick={() => { setMobileOpen(false); navigate("/my-property-listings?view=projects"); }}
-                          className="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl border border-gray-200 bg-white transition cursor-pointer mt-2"
+                          onClick={() => { setMobileOpen(false); navigate("/my-project-listings"); }}
+                          className={`w-full flex items-center gap-2 px-3 py-2.5 rounded-xl border border-gray-200 bg-white transition cursor-pointer ${canViewMyListings ? "mt-2" : ""}`}
                           onMouseEnter={e => { e.currentTarget.style.borderColor = primaryColor; e.currentTarget.style.backgroundColor = "#f5f0ff"; }}
                           onMouseLeave={e => { e.currentTarget.style.borderColor = "#e5e7eb"; e.currentTarget.style.backgroundColor = "white"; }}
                         >
@@ -1036,7 +1038,7 @@ export default function Navbar() {
                       )}
                       <button
                         onClick={() => { setMobileOpen(false); navigate("/my-inquiries"); }}
-                        className={`w-full flex items-center gap-2 px-3 py-2.5 rounded-xl border border-gray-200 bg-white transition cursor-pointer ${canViewMyListings ? "mt-2" : ""}`}
+                        className={`w-full flex items-center gap-2 px-3 py-2.5 rounded-xl border border-gray-200 bg-white transition cursor-pointer ${canViewAnyListings ? "mt-2" : ""}`}
                         onMouseEnter={e => { e.currentTarget.style.borderColor = primaryColor; e.currentTarget.style.backgroundColor = "#f5f0ff"; }}
                         onMouseLeave={e => { e.currentTarget.style.borderColor = "#e5e7eb"; e.currentTarget.style.backgroundColor = "white"; }}
                       >
