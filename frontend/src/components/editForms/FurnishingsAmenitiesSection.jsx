@@ -5,18 +5,18 @@
  * - Icon cards in a responsive grid
  * - Click to toggle selection (card highlights in purple)
  * - hasCount=true → inline  −  N  +  counter appears on the card
- * - Amenities: simple toggle cards (no counter)
+ * - Amenities: selectable cards with an optional quantity counter
  *
  * Props
  * ─────
  * availableFurnishings  – { _id, name, hasCount, icon? }[]
- * availableAmenities    – { _id, name, icon? }[]
+ * availableAmenities    – { _id, name, hasCount, icon? }[]
  * furnishType           – string | ""
  * selectedFurnishings   – { id, name, count }[] | { furnishingId, count }[]
  * selectedAmenities     – { id, name }[]         | { amenityId }[]
  * onFurnishTypeChange   – (val) => void
  * onFurnishingsChange   – (arr) => void   (emits { furnishingId, count })
- * onAmenitiesChange     – (arr) => void   (emits { amenityId })
+ * onAmenitiesChange     – (arr) => void   (emits { amenityId, count })
  * disabled              – boolean
  */
 
@@ -34,6 +34,9 @@ function getFurnishingCount(f) {
 }
 function getAmenityId(a) {
   return a.id?.toString() ?? a.amenityId?.toString() ?? null;
+}
+function getAmenityCount(a) {
+  return typeof a.count === "number" ? a.count : 1;
 }
 
 // ── Icon: real image if URL present, else letter-abbreviation SVG ─────────────
@@ -115,9 +118,19 @@ function FurnishingCard({ item, active, count, onToggle, onCountChange, disabled
           >
             −
           </button>
-          <span className="min-w-[1.5rem] text-center text-sm font-bold text-[var(--primary-color)]">
-            {count}
-          </span>
+          <input
+            type="number"
+            min={1}
+            value={count}
+            disabled={disabled}
+            onClick={stopProp}
+            onChange={(e) => {
+              const val = parseInt(e.target.value, 10);
+              if (!isNaN(val) && val >= 1) onCountChange(item._id.toString(), val);
+            }}
+            className="w-9 text-center text-sm font-bold text-[var(--primary-color)] border border-[var(--primary-color)] rounded-md py-0.5 bg-white focus:outline-none focus:ring-1 focus:ring-[var(--primary-color)]/30 disabled:opacity-50
+              [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+          />
           <button
             type="button"
             disabled={disabled}
@@ -136,7 +149,8 @@ function FurnishingCard({ item, active, count, onToggle, onCountChange, disabled
 
 // ── Single amenity card ───────────────────────────────────────────────────────
 
-function AmenityCard({ item, active, onToggle, disabled }) {
+function AmenityCard({ item, active, count, onToggle, onCountChange, disabled }) {
+  const stopProp = (event) => event.stopPropagation();
   return (
     <button
       type="button"
@@ -156,6 +170,37 @@ function AmenityCard({ item, active, onToggle, disabled }) {
       <span className="text-[11px] font-semibold text-center leading-tight line-clamp-2">
         {item.name}
       </span>
+      {active && item.hasCount && (
+        <div className="mt-1 flex items-center gap-1" onClick={stopProp}>
+          <button
+            type="button"
+            disabled={disabled || count <= 1}
+            onClick={(event) => { stopProp(event); onCountChange(item._id.toString(), count - 1); }}
+            className="flex h-6 w-6 items-center justify-center rounded-full border border-[var(--primary-color)] text-sm font-bold text-[var(--primary-color)] disabled:opacity-30"
+            aria-label={`Decrease ${item.name} count`}
+          >−</button>
+          <input
+            type="number"
+            min={1}
+            value={count}
+            disabled={disabled}
+            onClick={stopProp}
+            onChange={(event) => {
+              const nextCount = Number.parseInt(event.target.value, 10);
+              if (Number.isInteger(nextCount) && nextCount >= 1) onCountChange(item._id.toString(), nextCount);
+            }}
+            className="w-9 rounded-md border border-[var(--primary-color)] bg-white py-0.5 text-center text-sm font-bold text-[var(--primary-color)] [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+            aria-label={`${item.name} count`}
+          />
+          <button
+            type="button"
+            disabled={disabled}
+            onClick={(event) => { stopProp(event); onCountChange(item._id.toString(), count + 1); }}
+            className="flex h-6 w-6 items-center justify-center rounded-full border border-[var(--primary-color)] text-sm font-bold text-[var(--primary-color)] disabled:opacity-30"
+            aria-label={`Increase ${item.name} count`}
+          >+</button>
+        </div>
+      )}
     </button>
   );
 }
@@ -172,6 +217,7 @@ export default function FurnishingsAmenitiesSection({
   onFurnishingsChange,
   onAmenitiesChange,
   disabled             = false,
+  showFurnishType      = true,  // false → hides furnish-type selector and always shows furnishings grid
 }) {
   const selectedFurnishingIds = new Set(selectedFurnishings.map(getFurnishingId).filter(Boolean));
   const selectedAmenityIds    = new Set(selectedAmenities.map(getAmenityId).filter(Boolean));
@@ -205,30 +251,42 @@ export default function FurnishingsAmenitiesSection({
     if (selectedAmenityIds.has(id)) {
       onAmenitiesChange(selectedAmenities.filter((a) => getAmenityId(a) !== id));
     } else {
-      onAmenitiesChange([...selectedAmenities, { amenityId: id }]);
+      onAmenitiesChange([...selectedAmenities, { amenityId: id, count: 1 }]);
     }
+  };
+
+  const handleAmenityCountChange = (id, newCount) => {
+    const count = Math.max(1, newCount);
+    onAmenitiesChange(selectedAmenities.map((amenity) =>
+      getAmenityId(amenity) === id ? { ...amenity, count } : amenity
+    ));
   };
 
   return (
     <div className="flex flex-col gap-5">
-      {/* ── Furnish Type ── */}
-      <Section title="Furnishing Details">
-        <FormField label="Furnishing Status">
-          <SelectField
-            value={furnishType}
-            onChange={onFurnishTypeChange}
-            options={FURNISH_TYPE_OPTIONS}
-            placeholder="Select furnishing status"
-            disabled={disabled}
-          />
-        </FormField>
-      </Section>
+      {/* ── Furnish Type — only when showFurnishType=true (edit property) ── */}
+      {showFurnishType && (
+        <Section title="Furnishing Details">
+          <FormField label="Furnishing Status">
+            <SelectField
+              value={furnishType}
+              onChange={onFurnishTypeChange}
+              options={FURNISH_TYPE_OPTIONS}
+              placeholder="Select furnishing status"
+              disabled={disabled}
+            />
+          </FormField>
+        </Section>
+      )}
 
-      {/* ── Flat Furnishings card grid — hidden when Unfurnished or not yet selected ── */}
-      {availableFurnishings.length > 0 && furnishType && furnishType !== "Unfurnished" && (
+      {/* ── Flat Furnishings card grid ──────────────────────────────────────────
+           • showFurnishType=true  (property): gate on furnishType being set and not Unfurnished
+           • showFurnishType=false (project):  always show
+          ───────────────────────────────────────────────────────────────────── */}
+      {availableFurnishings.length > 0 && (!showFurnishType || (furnishType && furnishType !== "Unfurnished")) && (
         <div className="bg-white rounded-2xl p-6 flex flex-col gap-4">
           <div className="flex items-center justify-between border-b border-gray-100 pb-3">
-            <h3 className="text-base font-bold text-[#1a1a2e]">Flat Furnishings</h3>
+            <h3 className="text-base font-bold text-[#1a1a2e]"> Furnishings</h3>
             <span className="text-xs font-semibold text-[var(--primary-color)] bg-[var(--primary-color-light)] px-2.5 py-1 rounded-full">
               {selectedFurnishCount} selected
             </span>
@@ -259,7 +317,7 @@ export default function FurnishingsAmenitiesSection({
       {availableAmenities.length > 0 && (
         <div className="bg-white rounded-2xl p-6 flex flex-col gap-4">
           <div className="flex items-center justify-between border-b border-gray-100 pb-3">
-            <h3 className="text-base font-bold text-[#1a1a2e]">Society Amenities</h3>
+            <h3 className="text-base font-bold text-[#1a1a2e]">Amenities</h3>
             <span className="text-xs font-semibold text-[var(--primary-color)] bg-[var(--primary-color-light)] px-2.5 py-1 rounded-full">
               {selectedAmenityCount} selected
             </span>
@@ -268,12 +326,16 @@ export default function FurnishingsAmenitiesSection({
             {availableAmenities.map((item) => {
               const id     = item._id.toString();
               const active = selectedAmenityIds.has(id);
+              const current = active ? selectedAmenities.find((amenity) => getAmenityId(amenity) === id) : null;
+              const count = current ? getAmenityCount(current) : 1;
               return (
                 <AmenityCard
                   key={id}
                   item={item}
                   active={active}
+                  count={count}
                   onToggle={handleAmenityToggle}
+                  onCountChange={handleAmenityCountChange}
                   disabled={disabled}
                 />
               );

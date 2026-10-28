@@ -135,6 +135,7 @@ export default function EditPropertyPage() {
   const [removedUploads, setRemovedUploads] = useState({ video: false, reelVideo: false });
   const [saving, setSaving] = useState(false);
   const [toast, setToast] = useState(null);
+  const [saveError, setSaveError] = useState("");
 
   // Auto-dismiss toast after 4 seconds
   useEffect(() => {
@@ -404,11 +405,15 @@ export default function EditPropertyPage() {
 
     // ── Frontend validation ───────────────────────────────────────────────────
     if (!form.cityName?.trim()) {
-      setToast({ type: "error", message: "City is required. Please select a city." });
+      const message = "City is required. Please select a city.";
+      setSaveError(message);
+      setToast({ type: "error", message });
       return;
     }
     if (!form.locality?.address?.trim()) {
-      setToast({ type: "error", message: "Address is required. Please select a locality." });
+      const message = "Address is required. Please select a locality.";
+      setSaveError(message);
+      setToast({ type: "error", message });
       return;
     }
 
@@ -416,25 +421,18 @@ export default function EditPropertyPage() {
     const com = form.commercialDetails;
     if (com?.builtUpArea?.value && com?.carpetArea?.value) {
       if (Number(com.carpetArea.value) > Number(com.builtUpArea.value)) {
-        setToast({ type: "error", message: `Carpet area (${com.carpetArea.value}) cannot be greater than built-up area (${com.builtUpArea.value}).` });
+        const message = `Carpet area (${com.carpetArea.value}) cannot be greater than built-up area (${com.builtUpArea.value}).`;
+        setSaveError(message);
+        setToast({ type: "error", message });
         return;
       }
     }
 
+    setSaveError("");
     setSaving(true);
 
     try {
-      // 1. PATCH property fields (no images here)
-      const patchPayload = buildDiffPayload();
-      const patchRes = await axios.patch(
-        `${API}/api/mixed/property-listings`,
-        patchPayload,
-        { withCredentials: true }
-      );
-      if (!patchRes.data.success) {
-        throw new Error(patchRes.data.message ?? "Update failed");
-      }
-      // 2. Send all changed media together through the single media endpoint.
+      // ── Detect media changes first so we can bail out early if nothing changed ──
       const originalImages = listing.media?.images ?? [];
       const imagesChanged =
         newFiles.length > 0 ||
@@ -448,8 +446,29 @@ export default function EditPropertyPage() {
         videoLinks.ytReelUrl !== originalVideoLinks.ytReelUrl;
       const mediaChanged = imagesChanged || videosChanged;
 
-      let finalMessage = patchRes.data.message ?? "Property updated successfully!";
+      // ── Build field diff payload ──────────────────────────────────────────────
+      const patchPayload = buildDiffPayload();
+      const fieldsChanged = Object.keys(patchPayload).length > 1; // >1 because propertyListingId is always present
 
+      // ── Nothing changed → just go back ───────────────────────────────────────
+      if (!fieldsChanged && !mediaChanged) {
+        navigate("/my-property-listings");
+        return;
+      }
+
+      // 1. PATCH property fields (only when fields changed)
+      if (fieldsChanged) {
+        const patchRes = await axios.patch(
+          `${API}/api/mixed/property-listings`,
+          patchPayload,
+          { withCredentials: true }
+        );
+        if (!patchRes.data.success) {
+          throw new Error(patchRes.data.message ?? "Update failed");
+        }
+      }
+
+      // 2. Send all changed media together through the single media endpoint.
       if (mediaChanged) {
         const formData = new FormData();
         formData.append("propertyListingId", id);
@@ -479,13 +498,14 @@ export default function EditPropertyPage() {
         if (!mediaRes.data.success) {
           throw new Error(mediaRes.data.message ?? "Media update failed");
         }
-        finalMessage = mediaRes.data.message ?? finalMessage;
       }
 
-      setToast({ type: "success", message: finalMessage });
-      setTimeout(() => navigate("/my-property-listings"), 2000);
+      navigate("/my-property-listings");
     } catch (err) {
-      const message = err.response?.data?.message ?? err.message ?? "Failed to update property";
+      const errors = err.response?.data?.errors;
+      const validationMessage = Array.isArray(errors) ? errors.map((item) => item.msg ?? item.message).filter(Boolean).join("; ") : "";
+      const message = err.response?.data?.message || validationMessage || err.message || "Failed to update property";
+      setSaveError(message);
       setToast({ type: "error", message });
     } finally {
       setSaving(false);
@@ -792,7 +812,9 @@ export default function EditPropertyPage() {
         />
 
         {/* Save button */}
-        <div className="sticky bottom-0 bg-white border-t border-gray-100 px-4 py-4 mt-8 rounded-t-2xl shadow-lg flex gap-3 justify-end">
+        <div className="sticky bottom-0 mt-8 flex flex-col gap-3 rounded-t-2xl border-t border-gray-100 bg-white px-4 py-4 shadow-lg">
+          {saveError && <div role="alert" className="w-full rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700 whitespace-pre-wrap">{saveError}</div>}
+          <div className="flex justify-end gap-3">
           <button
             onClick={() => navigate("/my-property-listings")}
             disabled={saving}
@@ -807,6 +829,7 @@ export default function EditPropertyPage() {
           >
             {saving ? "Saving..." : "Save Changes"}
           </button>
+          </div>
         </div>
       </div>
 

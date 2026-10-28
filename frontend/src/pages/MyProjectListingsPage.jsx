@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { FiArrowLeft, FiCalendar, FiGrid, FiHome, FiList, FiMapPin } from "react-icons/fi";
+import { FiArrowLeft, FiGrid, FiHome, FiList, FiMapPin } from "react-icons/fi";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import PageSpinner from "../components/PageSpinner";
@@ -20,16 +20,13 @@ function mapProjectListing(project) {
   return {
     id: project._id,
     name: project.projectName,
+    completionPercentage: project.projectCompletionPercentage,
     developer: project.developerName,
     category: project.category?.name ?? "",
     image: project.media?.images?.[0] ?? "",
     location: [project.locality?.address, project.cityName].filter(Boolean).join(", "),
     projectStatus: project.projectStatus,
     listingStatus: project.status,
-    possession: project.possessionDate
-      ? new Date(project.possessionDate).toLocaleDateString("en-IN", { month: "long", year: "numeric" })
-      : null,
-    idealFor: project.idealFor ?? [],
     budgetRange: project.budgetRange ?? "Price on request",
     totalUnits: project.totalUnits,
     availableUnits: project.availableUnits,
@@ -37,6 +34,25 @@ function mapProjectListing(project) {
     commercialAreaUnit: commercialDetails.areaUnit,
     commercialConfigurations: commercialDetails.configurations ?? [],
   };
+}
+
+function ProjectCompletionPercentageRing({ percentage }) {
+  const value = Math.max(0, Math.min(100, Number(percentage) || 0));
+  const color = value <= 40 ? "#EF4444" : value < 100 ? "#EAB308" : "#22C55E";
+  const degrees = value * 3.6;
+
+  return (
+    <div
+      className="h-10 w-10 flex-shrink-0 rounded-full p-[2px]"
+      style={{ background: `conic-gradient(${color} 0deg ${degrees}deg, #e5e7eb ${degrees}deg 360deg)` }}
+      title={`Listing completion: ${value}%`}
+      aria-label={`Listing completion: ${value}%`}
+    >
+      <div className="flex h-full w-full items-center justify-center rounded-full bg-white text-[9px] font-bold" style={{ color }}>
+        {value}%
+      </div>
+    </div>
+  );
 }
 
 function EndOfList({ total }) {
@@ -317,12 +333,14 @@ export default function MyProjectListingsPage() {
                         <span className="rounded-full bg-amber-100 px-2.5 py-1 text-[11px] font-semibold text-amber-700">{project.projectStatus ?? "—"}</span>
                         <span className="rounded-full bg-gray-100 px-2.5 py-1 text-[11px] font-semibold text-gray-600">{project.listingStatus}</span>
                       </div>
-                      <button type="button" onClick={() => navigate(`/project/${project.id}`)} className="text-left text-sm font-bold leading-snug text-[#1a1a2e] transition hover:text-[var(--primary-color)]">{project.name}</button>
+                      <div className="flex items-start justify-between gap-2">
+                        <button type="button" onClick={() => navigate(`/project/${project.id}`)} className="min-w-0 text-left text-sm font-bold leading-snug text-[#1a1a2e] transition hover:text-[var(--primary-color)]">{project.name}</button>
+                        <ProjectCompletionPercentageRing percentage={project.completionPercentage} />
+                      </div>
                       {project.developer && <p className="mt-1 text-xs text-gray-400">By {project.developer}</p>}
-                      <p className="mt-1 flex items-center gap-1 text-xs text-gray-500"><FiMapPin size={13} /> {project.location}</p>
+                      <p className="mt-1 flex min-w-0 items-start gap-1 text-xs text-gray-500"><FiMapPin size={13} className="mt-0.5 shrink-0" /><span className="min-w-0 break-words">{project.location}</span></p>
                       <p className="mt-2 text-sm font-extrabold text-[var(--primary-color)]">{project.budgetRange}</p>
                       <div className="mt-3 grid grid-cols-2 gap-2 border-t border-gray-100 pt-3 text-xs text-gray-600">
-                        <p className="col-span-2"><span className="font-semibold">Ideal for:</span> {project.idealFor.join(", ") || "—"}</p>
                         <p><span className="font-semibold">Total units:</span> {project.totalUnits}</p>
                         <p><span className="font-semibold">Available units:</span> {project.availableUnits}</p>
                         {project.category === "Residential" ? (
@@ -330,9 +348,8 @@ export default function MyProjectListingsPage() {
                         ) : (
                           <p className="col-span-2"><span className="font-semibold">Carpet area configuration:</span> {project.commercialConfigurations.map((item) => `${Number(item.carpetArea).toLocaleString("en-IN")} ${project.commercialAreaUnit}`).join(", ") || "—"}</p>
                         )}
-                        {project.possession && <p className="col-span-2 flex items-center gap-1"><FiCalendar size={12} /> <span className="font-semibold">Possession:</span> {project.possession}</p>}
                       </div>
-                      <div className="mt-4 flex flex-wrap gap-2 border-t border-gray-100 pt-3">
+                      <div className="mt-auto pt-3 border-t border-gray-100 flex flex-wrap gap-2">
                         <button type="button" onClick={(event) => { event.stopPropagation(); navigate(`/edit-project/${project.id}`); }} className="rounded-xl bg-[var(--primary-color)] px-3 py-2 text-xs font-semibold text-white transition hover:bg-[var(--primary-color-hover)]">Edit Details</button>
                         <button type="button" onClick={(event) => { event.stopPropagation(); setStatusProject(project); setStatusValue(project.listingStatus); }} className="rounded-xl bg-[var(--primary-color)] px-3 py-2 text-xs font-semibold text-white transition hover:bg-[var(--primary-color-hover)]">Update Status</button>
                         <button type="button" onClick={(event) => { event.stopPropagation(); setUnitsProject(project); setUnitsValue(String(project.availableUnits ?? "")); setUnitsError(""); }} className="rounded-xl bg-[var(--primary-color)] px-3 py-2 text-xs font-semibold text-white transition hover:bg-[var(--primary-color-hover)]">Update Units</button>

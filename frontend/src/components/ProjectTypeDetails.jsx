@@ -14,18 +14,27 @@ function Value({ label, children }) {
 
 function ConfigurationDetails({ configurations = [], areaUnit, residential, embedded = false }) {
   const label = residential ? "Residential Configurations" : "Carpet Area Configurations";
-  const entries = configurations.map((configuration) => {
-    const area = configuration.carpetArea;
-    const areaText = area == null ? null : `${Number(area).toLocaleString("en-IN")} ${AREA_UNITS[areaUnit] ?? areaUnit ?? "sq.ft"}`;
-    return [residential ? configuration.bhk : null, areaText].filter(Boolean).join(" · ");
-  }).filter(Boolean);
 
-  if (!entries.length) return null;
+  if (!configurations.length) return null;
   return (
     <section className={embedded ? "mt-5 border-t border-gray-100 pt-5" : "rounded-2xl bg-white p-6"}>
       {embedded ? <h3 className="mb-4 text-base font-bold text-[#1a1a2e]">{label}</h3> : <h2 className="mb-5 text-xl font-bold text-[#1a1a2e]">{label}</h2>}
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-7">
-        {entries.map((entry, index) => <p key={`${entry}-${index}`} className="rounded-xl border border-gray-100 bg-gray-50 px-4 py-3 text-sm font-medium text-gray-700">{entry}</p>)}
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {configurations.map((configuration, index) => {
+          const area = configuration.carpetArea;
+          const areaText = area == null ? null : `${Number(area).toLocaleString("en-IN")} ${AREA_UNITS[areaUnit] ?? areaUnit ?? "sq.ft"}`;
+          const title = [residential ? configuration.bhk : null, areaText].filter(Boolean).join(" · ");
+          return (
+            <div key={`${title}-${index}`} className="rounded-xl border border-gray-100 bg-gray-50 px-4 py-3 flex flex-col gap-1">
+              <p className="text-sm font-semibold text-gray-800">{title || `Configuration ${index + 1}`}</p>
+              {configuration.furnishType && (
+                <span className="w-fit text-[11px] font-semibold px-2 py-0.5 rounded-full bg-blue-100 text-blue-700">
+                  {configuration.furnishType}
+                </span>
+              )}
+            </div>
+          );
+        })}
       </div>
     </section>
   );
@@ -36,7 +45,7 @@ function ResidentialProjectDetails({ project }) {
   return (
     <div className="flex flex-col gap-6">
       <ConfigurationDetails configurations={details.configurations} areaUnit={details.areaUnit} residential />
-      <FurnishingsAmenitiesDisplay furnishType={project.furnishType} furnishings={project.furnishings ?? []} amenities={project.amenities ?? []} />
+      <FurnishingsAmenitiesDisplay furnishings={project.furnishings ?? []} amenities={project.amenities ?? []} />
     </div>
   );
 }
@@ -54,7 +63,7 @@ function CommercialProjectDetails({ project }) {
         </div>
         <ConfigurationDetails configurations={details.configurations} areaUnit={details.areaUnit} embedded />
       </section>
-      <FurnishingsAmenitiesDisplay furnishType={project.furnishType} furnishings={project.furnishings ?? []} amenities={project.amenities ?? []} />
+      <FurnishingsAmenitiesDisplay furnishings={project.furnishings ?? []} amenities={project.amenities ?? []} />
     </div>
   );
 }
