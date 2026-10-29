@@ -1,5 +1,6 @@
 import { FiCheck, FiHome, FiUsers, FiCalendar, FiClock } from "react-icons/fi";
 import FurnishingsAmenitiesDisplay from "./FurnishingsAmenitiesDisplay";
+import ListingOverviewFields from "./ListingOverviewFields";
 
 function formatDate(dateStr) {
   if (!dateStr) return null;
@@ -26,6 +27,7 @@ export default function PGDetails({ data, listing }) {
         </h2>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+          <ListingOverviewFields listing={listing} />
           {data.pgName && (
             <div>
               <p className="text-gray-500 text-sm mb-1">PG Name</p>

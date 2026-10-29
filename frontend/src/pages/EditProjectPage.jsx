@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import { FiArrowLeft, FiAlertCircle, FiCheck, FiPlus, FiTrash2, FiUpload, FiX } from "react-icons/fi";
@@ -21,6 +21,26 @@ const ZONE_TYPE_OPTIONS     = ["Industrial", "Commercial", "Residential", "SEZ",
 const LOCATION_HUB_OPTIONS  = ["IT Park", "Business Park", "Mall", "Commercial Project", "Residential Project", "Retail Complex/Building", "Market/High Street", "Others"];
 const FURNISHING_TYPES = ["Unfurnished", "Semi-Furnished", "Fully-Furnished"];
 const newConfigId = () => `cfg-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+
+function residentialBhkFields(value) {
+  if (value === "1 RK") return { bhkType: "RK", bhkCount: 1 };
+  const match = String(value ?? "").match(/^(\d+)\s*BHK$/i);
+  return match ? { bhkType: "BHK", bhkCount: Number(match[1]) } : { bhkType: "", bhkCount: "" };
+}
+
+function toResidentialConfiguration(item) {
+  const bhk = typeof item === "string" ? item : item.bhk ?? "";
+  return {
+    _clientId: newConfigId(),
+    bhk,
+    ...residentialBhkFields(bhk),
+    ...(typeof item !== "string" && item.carpetArea != null ? { carpetArea: item.carpetArea } : {}),
+    furnishingOptions: typeof item === "string" ? [] : (item.furnishingOptions ?? []).filter((option) => typeof option === "string"),
+    price: typeof item === "string" ? "" : item.price ?? "",
+    image2DUrl: typeof item === "string" ? "" : item.image2DUrl ?? "",
+    model3DUrl: typeof item === "string" ? "" : item.model3DUrl ?? "",
+  };
+}
 
 const EMPTY = { projectName: "", developerName: "", projectDescription: "", launchDate: "", projectStatus: "", possessionDate: "", reraId: "", cityName: "", locality: { address: "", latitude: null, longitude: null }, totalUnits: "", availableUnits: "", towerCount: "", minPrice: "", maxPrice: "", furnishings: [], amenities: [], idealFor: [], residentialDetails: { areaUnit: "sqft", configurations: [] }, commercialDetails: { areaUnit: "sqft", configurations: [], zoneType: "", locationHub: "" } };
 
@@ -72,11 +92,7 @@ function toForm(project) {
     idealFor: (project.idealFor ?? []).map((item) => String(item.id ?? item._id)),
     residentialDetails: {
       areaUnit:       project.residentialDetails?.areaUnit ?? "sqft",
-      configurations: (project.residentialDetails?.configurations ?? []).map((item) =>
-        typeof item === "string"
-          ? { _clientId: newConfigId(), bhk: item, carpetArea: "", furnishingOptions: [], price: "", image2DUrl: "", model3DUrl: "" }
-          : { _clientId: newConfigId(), bhk: item.bhk, ...(item.carpetArea != null ? { carpetArea: item.carpetArea } : {}), furnishingOptions: (item.furnishingOptions ?? []).filter((option) => typeof option === "string"), price: item.price ?? "", image2DUrl: item.image2DUrl ?? "", model3DUrl: item.model3DUrl ?? "" }
-      ),
+      configurations: (project.residentialDetails?.configurations ?? []).map(toResidentialConfiguration),
     },
     commercialDetails: {
       areaUnit:       project.commercialDetails?.areaUnit    ?? "sqft",
@@ -113,6 +129,8 @@ export default function EditProjectPage() {
   const [toast, setToast] = useState(null);
   const [saveError, setSaveError] = useState("");
   const [furnishingsAmenities, setFurnishingsAmenities] = useState({ furnishings: [], amenities: [] });
+  const [addedConfigurationMessage, setAddedConfigurationMessage] = useState("");
+  const configurationCardRefs = useRef({});
 
   useEffect(() => {
     // Fetch furnishings & amenities options (reuses the property listing endpoint — same FurnishingAmenity collection)
@@ -150,18 +168,65 @@ export default function EditProjectPage() {
   const setConfiguration = (section, index, key, value) => {
     setForm((current) => ({ ...current, [section]: { ...current[section], configurations: current[section].configurations.map((item, i) => i === index ? { ...item, [key]: value } : item) } }));
   };
+  const setResidentialUnitType = (index, unitType) => {
+    setForm((current) => ({
+      ...current,
+      residentialDetails: {
+        ...current.residentialDetails,
+        configurations: current.residentialDetails.configurations.map((item, i) => i !== index ? item : unitType === "RK"
+          ? { ...item, bhkType: "RK", bhkCount: 1, bhk: "1 RK" }
+          : unitType === "BHK"
+            ? { ...item, bhkType: "BHK", bhkCount: "", bhk: "" }
+            : { ...item, bhkType: "", bhkCount: "", bhk: "" }),
+      },
+    }));
+  };
+  const setResidentialBhkCount = (index, count) => {
+    setForm((current) => ({
+      ...current,
+      residentialDetails: {
+        ...current.residentialDetails,
+        configurations: current.residentialDetails.configurations.map((item, i) => i === index
+          ? { ...item, bhkCount: count, bhk: count === "" ? "" : `${count} BHK` }
+          : item),
+      },
+    }));
+  };
+  const addResidentialConfiguration = () => {
+    const configuration = { _clientId: newConfigId(), bhk: "", bhkType: "", bhkCount: "", carpetArea: "", furnishingOptions: [], price: "", image2DUrl: "", model3DUrl: "" };
+    const configurationNumber = form.residentialDetails.configurations.length + 1;
+    setDetail("residentialDetails", "configurations", [...form.residentialDetails.configurations, configuration]);
+    setAddedConfigurationMessage(`Configuration ${configurationNumber} has been added below. Fill in its details.`);
+    window.setTimeout(() => configurationCardRefs.current[configuration._clientId]?.scrollIntoView({ behavior: "smooth", block: "center" }), 50);
+  };
+  const addCommercialConfiguration = () => {
+    const configuration = { _clientId: newConfigId(), carpetArea: "", furnishingOptions: [], price: "", image2DUrl: "", model3DUrl: "" };
+    const configurationNumber = form.commercialDetails.configurations.length + 1;
+    setDetail("commercialDetails", "configurations", [...form.commercialDetails.configurations, configuration]);
+    setAddedConfigurationMessage(`Area configuration ${configurationNumber} has been added below. Fill in its details.`);
+    window.setTimeout(() => configurationCardRefs.current[configuration._clientId]?.scrollIntoView({ behavior: "smooth", block: "center" }), 50);
+  };
   const configImageKey = (configuration, slot) => `${configuration._clientId}:${slot}`;
   const renderConfigurationMedia = (section, configuration) => (
-    <div className="mt-4 grid gap-3 sm:grid-cols-2">
+    <div className="mt-4 grid items-start gap-3 sm:grid-cols-2">
       {[{ slot: "image2DUrl", label: "2D image" }, { slot: "model3DUrl", label: "3D model" }].map(({ slot, label }) => {
         const key = configImageKey(configuration, slot);
         const file = configurationImageFiles[key];
-        return <div key={slot} className="rounded-lg border border-gray-200 bg-white p-3">
-          <p className="mb-2 text-xs font-semibold text-gray-600">{label}</p>
-          {configuration[slot] && <div className="mb-2">{slot === "model3DUrl" ? <Interactive3DModel src={configuration[slot]} alt="Interactive 3D project configuration" height={160} /> : <img src={configuration[slot]} alt={label} className="h-16 w-20 rounded object-cover" />}<button type="button" disabled={saving} onClick={() => setConfiguration(section, form[section].configurations.indexOf(configuration), slot, "")} className="mt-1 text-xs text-red-600">Remove</button></div>}
-          {file && <div className="mb-2 flex items-center justify-between text-xs text-violet-700"><span className="truncate">{file.name}</span><button type="button" disabled={saving} onClick={() => setConfigurationImageFiles((current) => { const next = { ...current }; delete next[key]; return next; })}><FiX /></button></div>}
-          <label className="inline-flex cursor-pointer items-center gap-1 text-xs font-semibold text-[var(--primary-color)]"><FiUpload />{file || configuration[slot] ? `Replace ${label.toLowerCase()}` : `Choose ${label.toLowerCase()}`}<input type="file" accept={slot === "model3DUrl" ? ".glb,.gltf,model/gltf-binary,model/gltf+json,application/json,application/octet-stream" : "image/jpeg,image/png,image/webp"} disabled={saving} className="hidden" onChange={(event) => { const selected = event.target.files?.[0]; if (selected) setConfigurationImageFiles((current) => ({ ...current, [key]: selected })); event.target.value = ""; }} /></label>
-          {slot === "model3DUrl" && <p className="mt-2 text-[10px] text-gray-400">GLB or self-contained glTF, up to 100 MB</p>}
+        return <div key={slot} className="flex min-h-[132px] items-center justify-between gap-3 rounded-lg border border-gray-200 bg-white p-3">
+          <div className="min-w-0 flex-1">
+            <p className="mb-2 text-xs font-semibold text-gray-600">{label}</p>
+            {file && <div className="mb-2 flex items-center gap-1 text-xs text-violet-700"><span className="min-w-0 truncate">{file.name}</span><button type="button" aria-label={`Remove selected ${label.toLowerCase()}`} disabled={saving} onClick={() => setConfigurationImageFiles((current) => { const next = { ...current }; delete next[key]; return next; })}><FiX /></button></div>}
+            <label className="inline-flex cursor-pointer items-center gap-1 text-xs font-semibold text-[var(--primary-color)]"><FiUpload />{file || configuration[slot] ? `Replace ${label.toLowerCase()}` : `Choose ${label.toLowerCase()}`}<input type="file" accept={slot === "model3DUrl" ? ".glb,.gltf,model/gltf-binary,model/gltf+json,application/json,application/octet-stream" : "image/jpeg,image/png,image/webp"} disabled={saving} className="hidden" onChange={(event) => { const selected = event.target.files?.[0]; if (selected) setConfigurationImageFiles((current) => ({ ...current, [key]: selected })); event.target.value = ""; }} /></label>
+            {configuration[slot] && <button type="button" disabled={saving} onClick={() => setConfiguration(section, form[section].configurations.indexOf(configuration), slot, "")} className="mt-2 block text-xs text-red-600">Remove current {label.toLowerCase()}</button>}
+            {slot === "model3DUrl" && <p className="mt-2 text-[10px] text-gray-400">GLB or self-contained glTF, up to 100 MB</p>}
+          </div>
+          <div className="w-[48%] max-w-[220px] min-w-[120px] shrink-0">
+            {configuration[slot]
+              ? slot === "model3DUrl"
+                ? <Interactive3DModel src={configuration[slot]} alt="Interactive 3D project configuration" height={100} />
+                : <img src={configuration[slot]} alt={label} className="h-[100px] w-full rounded object-contain" />
+              : <div className="flex h-[100px] items-center justify-center rounded border border-dashed border-gray-200 text-center text-[10px] text-gray-400">No {label.toLowerCase()} selected</div>}
+          </div>
         </div>;
       })}
     </div>
@@ -203,6 +268,15 @@ export default function EditProjectPage() {
     }
     if (Number(form.minPrice) <= 0 || Number(form.maxPrice) < Number(form.minPrice)) {
       const message = "Enter a valid price range. Maximum price must be equal to or greater than minimum price.";
+      setSaveError(message);
+      setToast({ type: "error", message });
+      return;
+    }
+    if (categoryName.toLowerCase() === "residential" && (
+      form.residentialDetails.configurations.length === 0 ||
+      form.residentialDetails.configurations.some((configuration) => !BHK_OPTIONS.includes(configuration.bhk))
+    )) {
+      const message = "Add at least one residential configuration and select a valid BHK or RK count for each one.";
       setSaveError(message);
       setToast({ type: "error", message });
       return;
@@ -455,60 +529,61 @@ export default function EditProjectPage() {
           )}
 
           {isCommercial ? (
-            <Section title="Commercial configurations">
+            <Section title={<div className="flex w-full items-center justify-between gap-3"><span>Commercial configurations</span><button type="button" disabled={saving} onClick={addCommercialConfiguration} className="inline-flex shrink-0 items-center gap-2 rounded-lg bg-[var(--primary-color)] px-3 py-2 text-xs font-semibold text-white transition hover:bg-[var(--primary-color-hover)] disabled:opacity-60"><FiPlus size={14} /> Add area configuration</button></div>}>
               <Grid>
                 <FormField label="Area unit">
                   <SelectField value={form.commercialDetails.areaUnit} onChange={(value) => setDetail("commercialDetails", "areaUnit", value)} options={AREA_UNITS} />
                 </FormField>
               </Grid>
+              {addedConfigurationMessage && <p role="status" className="rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-sm text-blue-800">{addedConfigurationMessage}</p>}
+              {form.commercialDetails.configurations.length === 0 && <p className="text-sm text-gray-500">No area configurations added yet. Use the button above to add one.</p>}
               <div className="mt-4 flex flex-col gap-3">
                 {form.commercialDetails.configurations.map((configuration, index) => (
-                  <div key={configuration._clientId} className="rounded-xl border border-[var(--primary-color)] bg-[var(--primary-color-light)]/30 p-3">
-                    <div className="flex items-start gap-3"><div className="flex-1"><FormField label={`Configuration ${index + 1} carpet area (${form.commercialDetails.areaUnit})`}><NumberInput value={configuration.carpetArea} onChange={(value) => setConfiguration("commercialDetails", index, "carpetArea", value)} min={1} /></FormField></div>
-                      <button type="button" aria-label="Remove configuration" onClick={() => setDetail("commercialDetails", "configurations", form.commercialDetails.configurations.filter((_, i) => i !== index))} className="mt-6 rounded-lg p-3 text-red-500 hover:bg-red-50"><FiTrash2 size={16} /></button>
+                  <div key={configuration._clientId} ref={(element) => { configurationCardRefs.current[configuration._clientId] = element; }} className="rounded-xl border border-[var(--primary-color)] bg-[var(--primary-color-light)]/30 p-4">
+                    <div className="mb-4 flex items-center justify-between gap-3">
+                      <h4 className="text-sm font-semibold text-gray-800">Configuration {index + 1}</h4>
+                      <button type="button" disabled={saving} aria-label={`Remove configuration ${index + 1}`} onClick={() => setDetail("commercialDetails", "configurations", form.commercialDetails.configurations.filter((_, i) => i !== index))} className="rounded-lg p-2 text-red-500 transition hover:bg-red-50 disabled:opacity-60"><FiTrash2 size={16} /></button>
                     </div>
+                    <FormField label={`Carpet area (${form.commercialDetails.areaUnit})`}>
+                      <NumberInput value={configuration.carpetArea} onChange={(value) => setConfiguration("commercialDetails", index, "carpetArea", value)} min={1} disabled={saving} />
+                    </FormField>
                     {renderFurnishingOptions("commercialDetails", configuration, index)}
                     {renderConfigurationMedia("commercialDetails", configuration)}
                   </div>
                 ))}
               </div>
-              <button type="button" onClick={() => setDetail("commercialDetails", "configurations", [...form.commercialDetails.configurations, { _clientId: newConfigId(), carpetArea: "", furnishingOptions: [], price: "", image2DUrl: "", model3DUrl: "" }])} className="mt-3 inline-flex items-center gap-2 text-sm font-semibold text-[var(--primary-color)]">
-                <FiPlus size={15} /> Add area configuration
-              </button>
             </Section>
           ) : (
-            <Section title="BHK configurations">
+            <Section title={<div className="flex w-full items-center justify-between gap-3"><span>BHK configurations</span><button type="button" disabled={saving} onClick={addResidentialConfiguration} className="inline-flex shrink-0 items-center gap-2 rounded-lg bg-[var(--primary-color)] px-3 py-2 text-xs font-semibold text-white transition hover:bg-[var(--primary-color-hover)] disabled:opacity-60"><FiPlus size={14} /> Add BHK configuration</button></div>}>
               <FormField label="Area unit for all carpet areas">
                 <SelectField value={form.residentialDetails.areaUnit} onChange={(value) => setDetail("residentialDetails", "areaUnit", value)} options={AREA_UNITS} />
               </FormField>
-              <div className="mt-4 flex flex-col gap-3">
-                {BHK_OPTIONS.map((option) => {
-                  const index = form.residentialDetails.configurations.findIndex((item) => item.bhk === option);
-                  const selected = index !== -1;
-                  return (
-                    <div key={option} className={`flex flex-wrap items-start gap-3 rounded-xl border p-3 ${selected ? "border-[var(--primary-color)] bg-[var(--primary-color-light)]/30" : "border-gray-200"}`}>
-                      <button
-                        type="button"
-                        onClick={() => setDetail("residentialDetails", "configurations", selected ? form.residentialDetails.configurations.filter((item) => item.bhk !== option) : [...form.residentialDetails.configurations, { _clientId: newConfigId(), bhk: option, carpetArea: "", furnishingOptions: [], price: "", image2DUrl: "", model3DUrl: "" }])}
-                        className={`mt-6 min-w-20 rounded-full border px-4 py-2 text-sm font-semibold ${selected ? "border-[var(--primary-color)] bg-[var(--primary-color-light)] text-[var(--primary-color)]" : "border-gray-200 text-gray-500"}`}
-                      >
-                        {option}
-                      </button>
-                      {selected && (
-                        <>
-                          <div className="flex-1 min-w-[140px]">
-                            <FormField label={`Carpet area (${form.residentialDetails.areaUnit})`}>
-                              <NumberInput value={form.residentialDetails.configurations[index].carpetArea ?? ""} onChange={(value) => setConfiguration("residentialDetails", index, "carpetArea", value)} min={1} />
-                            </FormField>
-                          </div>
-                          {renderFurnishingOptions("residentialDetails", form.residentialDetails.configurations[index], index)}
-                          {renderConfigurationMedia("residentialDetails", form.residentialDetails.configurations[index])}
-                        </>
-                      )}
+              {addedConfigurationMessage && <p role="status" className="rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-sm text-blue-800">{addedConfigurationMessage}</p>}
+              {form.residentialDetails.configurations.length === 0 ? <p className="text-sm text-gray-500">No BHK configurations added yet. Use the button above to add one.</p> : (
+                <div className="mt-4 flex flex-col gap-4">
+                  {form.residentialDetails.configurations.map((configuration, index) => (
+                    <div key={configuration._clientId} ref={(element) => { configurationCardRefs.current[configuration._clientId] = element; }} className="rounded-xl border border-[var(--primary-color)] bg-[var(--primary-color-light)]/30 p-4">
+                      <div className="mb-4 flex items-center justify-between gap-3">
+                        <h4 className="text-sm font-semibold text-gray-800">Configuration {index + 1}</h4>
+                        <button type="button" disabled={saving} aria-label={`Remove configuration ${index + 1}`} onClick={() => setDetail("residentialDetails", "configurations", form.residentialDetails.configurations.filter((_, i) => i !== index))} className="rounded-lg p-2 text-red-500 transition hover:bg-red-50 disabled:opacity-60"><FiTrash2 size={16} /></button>
+                      </div>
+                      <Grid>
+                        <FormField label="Unit type">
+                          <SelectField value={configuration.bhkType} onChange={(value) => setResidentialUnitType(index, value)} options={[{ value: "BHK", label: "BHK" }, { value: "RK", label: "RK" }]} placeholder="Select BHK or RK" disabled={saving} />
+                        </FormField>
+                        <FormField label={configuration.bhkType === "RK" ? "RK count" : "BHK count"} hint={configuration.bhkType === "RK" ? "The project currently supports 1 RK." : "Enter a number from 1 to 12."}>
+                          <NumberInput value={configuration.bhkType === "RK" ? 1 : configuration.bhkCount} onChange={(value) => setResidentialBhkCount(index, value === "" ? "" : Math.min(12, Math.max(1, Math.floor(Number(value)))))} min={1} max={configuration.bhkType === "RK" ? 1 : 12} step={1} disabled={saving || configuration.bhkType !== "BHK"} />
+                        </FormField>
+                        <FormField label={`Carpet area (${form.residentialDetails.areaUnit})`}>
+                          <NumberInput value={configuration.carpetArea ?? ""} onChange={(value) => setConfiguration("residentialDetails", index, "carpetArea", value)} min={1} disabled={saving} />
+                        </FormField>
+                      </Grid>
+                      {renderFurnishingOptions("residentialDetails", configuration, index)}
+                      {renderConfigurationMedia("residentialDetails", configuration)}
                     </div>
-                  );
-                })}
-              </div>
+                  ))}
+                </div>
+              )}
             </Section>
           )}
 

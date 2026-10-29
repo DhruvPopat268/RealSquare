@@ -65,7 +65,7 @@ function FurnishTypeBadge({ value }) {
     "Unfurnished":     "bg-gray-100 text-gray-600 border-gray-200",
   };
   return (
-    <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold border ${colors[value] ?? "bg-gray-100 text-gray-600 border-gray-200"}`}>
+    <span className={`inline-flex w-fit self-start items-center px-3 py-1 rounded-full text-sm font-semibold border ${colors[value] ?? "bg-gray-100 text-gray-600 border-gray-200"}`}>
       {value}
     </span>
   );

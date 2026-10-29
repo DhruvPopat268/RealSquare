@@ -1,5 +1,6 @@
 import { FiHome } from "react-icons/fi";
 import FurnishingsAmenitiesDisplay from "./FurnishingsAmenitiesDisplay";
+import ListingOverviewFields from "./ListingOverviewFields";
 
 function formatArea(area) {
   if (!area?.value) return null;
@@ -32,6 +33,7 @@ export default function ResidentialDetails({ data, listing }) {
         </h2>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+          <ListingOverviewFields listing={listing} />
           {data.bhk != null && (
             <div>
               <p className="text-gray-500 text-sm mb-1">Configuration</p>

@@ -1,4 +1,5 @@
 import { FiCheck, FiMaximize2, FiMap } from "react-icons/fi";
+import ListingOverviewFields from "./ListingOverviewFields";
 
 function formatArea(area) {
   if (!area?.value) return null;
@@ -25,6 +26,7 @@ export default function PlotDetails({ data, listing }) {
         </h2>
         
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+          <ListingOverviewFields listing={listing} />
           {plotArea && (
             <div>
               <p className="text-gray-500 text-sm mb-1">Plot Area</p>

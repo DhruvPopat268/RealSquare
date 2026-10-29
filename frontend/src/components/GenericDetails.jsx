@@ -1,4 +1,5 @@
 import { FiCheck, FiInfo, FiMapPin } from "react-icons/fi";
+import ListingOverviewFields from "./ListingOverviewFields";
 
 function formatArea(area) {
   if (!area?.value) return null;
@@ -100,6 +101,7 @@ export default function GenericDetails({ listing }) {
         <div className="bg-white rounded-2xl p-6">
           <h2 className="text-2xl font-bold mb-6">Property Details</h2>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
+            <ListingOverviewFields listing={listing} />
             {uniqueRows.map((row, i) => (
               <div key={i}>
                 <p className="text-gray-500 text-sm mb-1">{row.label}</p>

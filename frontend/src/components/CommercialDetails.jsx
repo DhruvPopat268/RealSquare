@@ -1,5 +1,6 @@
 import { FiMaximize2, FiLayers } from "react-icons/fi";
 import FurnishingsAmenitiesDisplay from "./FurnishingsAmenitiesDisplay";
+import ListingOverviewFields from "./ListingOverviewFields";
 
 function formatArea(area) {
   if (!area?.value) return null;
@@ -63,6 +64,7 @@ export default function CommercialDetails({ data, listing }) {
         </h2>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+          <ListingOverviewFields listing={listing} />
           {data.societyName && (
             <div>
               <p className="text-gray-500 text-sm mb-1">Building / Project</p>

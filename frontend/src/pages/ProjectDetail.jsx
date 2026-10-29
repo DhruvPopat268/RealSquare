@@ -6,6 +6,7 @@ import Footer from "../components/Footer";
 import PageSpinner from "../components/PageSpinner";
 import ProjectTypeDetails from "../components/ProjectTypeDetails";
 import { fetchProjectListingById, updateProjectListingStatus } from "../utils/myListingsApi";
+import MediaSection from "../components/MediaSection";
 
 const STATUS_CONFIG = {
   Active: { label: "Active", bg: "bg-green-100", text: "text-green-700", dot: "bg-green-500" },
@@ -32,36 +33,6 @@ function formatListingStatus(status) {
   if (status === "UnderReview") return "Under Review";
   if (status === "sold") return "Sold";
   return status;
-}
-
-function getYouTubeEmbedUrl(value) {
-  if (!value) return null;
-  try {
-    const url = new URL(value);
-    const host = url.hostname.toLowerCase();
-    if (host !== "youtu.be" && host !== "youtube.com" && !host.endsWith(".youtube.com")) return null;
-    const pathParts = url.pathname.split("/").filter(Boolean);
-    const videoId = host === "youtu.be" ? pathParts[0] : url.searchParams.get("v") ?? (pathParts[0] === "watch" ? null : pathParts[1]);
-    if (!videoId || !/^[a-zA-Z0-9_-]{6,20}$/.test(videoId)) return null;
-    return `https://www.youtube-nocookie.com/embed/${videoId}?rel=0`;
-  } catch {
-    return null;
-  }
-}
-
-function MediaVideo({ title, fileUrl, youtubeUrl }) {
-  if (!fileUrl && !youtubeUrl) return null;
-  const embedUrl = getYouTubeEmbedUrl(youtubeUrl);
-  return (
-    <section className="rounded-2xl bg-white p-6">
-      <h2 className="mb-4 text-xl font-bold text-[#1a1a2e]">{title}</h2>
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        {fileUrl && <video controls playsInline preload="metadata" className="aspect-video w-full rounded-xl bg-black object-contain"><source src={fileUrl} /></video>}
-        {embedUrl && <iframe src={embedUrl} title={`${title} on YouTube`} className="aspect-video w-full rounded-xl bg-black" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerPolicy="strict-origin-when-cross-origin" allowFullScreen />}
-        {!embedUrl && youtubeUrl && <a href={youtubeUrl} target="_blank" rel="noreferrer" className="text-sm font-semibold text-[var(--primary-color)]">Watch {title.toLowerCase()}</a>}
-      </div>
-    </section>
-  );
 }
 
 function DetailItem({ label, value }) {
@@ -203,29 +174,27 @@ export default function ProjectDetail() {
             </div>
           </div>
 
-          {images.length > 0 && <div className="mb-6 grid grid-cols-2 gap-2 overflow-hidden rounded-2xl sm:grid-cols-4">
-            {images.slice(0, 4).map((image, index) => {
-              const remaining = images.length - 4;
-              const showOverlay = index === 3 && remaining > 0;
-              return <button key={`${image}-${index}`} type="button" onClick={() => setLightbox(index)} className="group relative h-40 overflow-hidden bg-gray-200 sm:h-56">
-                <img src={image} alt={`${project.projectName} ${index + 1}`} className={`h-full w-full object-cover transition group-hover:brightness-90 ${showOverlay ? "brightness-50" : ""}`} />
-                {index === 0 && <span className="absolute left-2 top-2 rounded-full bg-[var(--primary-color)] px-2 py-0.5 text-[10px] font-bold text-white">Cover</span>}
-                {showOverlay && <span className="absolute inset-0 flex items-center justify-center text-3xl font-bold text-white">+{remaining} more photos</span>}
-              </button>;
-            })}
-          </div>}
-
           <div className="mb-6 flex flex-col gap-6">
-            <MediaVideo title="Project Videos" fileUrl={project.media?.videos?.videoUrl} youtubeUrl={project.media?.videos?.ytVideoUrl} />
-            <MediaVideo title="Project Reels" fileUrl={project.media?.reelVideo?.reelUrl} youtubeUrl={project.media?.reelVideo?.ytReelUrl} />
-            {project.brochureUrl && <section className="rounded-2xl bg-white p-6">
-              <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-                <h2 className="text-xl font-bold text-[#1a1a2e]">Project Brochure (PDF)</h2>
-                <a href={project.brochureUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 font-medium text-[var(--primary-color)] hover:underline"><FiExternalLink size={14} /> Open PDF</a>
-              </div>
-              <iframe src={project.brochureUrl} title={`${project.projectName} brochure PDF`} className="h-[70vh] min-h-[420px] w-full rounded-xl border border-gray-200" />
-            </section>}
+            <MediaSection
+              images={images}
+              onImageClick={setLightbox}
+              videoUrl={project.media?.videos?.videoUrl}
+              ytVideoUrl={project.media?.videos?.ytVideoUrl}
+              reelUrl={project.media?.reelVideo?.reelUrl}
+              ytReelUrl={project.media?.reelVideo?.ytReelUrl}
+              brochureUrl={project.brochureUrl}
+            />
           </div>
+
+          {project.rera && <section className="mb-6 flex flex-col gap-4 rounded-2xl bg-white p-6">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div className="flex items-center gap-3"><span className={`flex h-9 w-9 items-center justify-center rounded-full ${project.rera.reraStatus === "verified" ? "bg-green-100" : "bg-amber-100"}`}><FiShield size={16} className={project.rera.reraStatus === "verified" ? "text-green-600" : "text-amber-500"} /></span><div><p className="mb-0.5 text-xs uppercase tracking-wide text-gray-400">RERA Registration</p><p className="text-sm font-semibold text-gray-900">{project.rera.reraId || "No RERA number provided"}</p></div></div>
+              <div className="flex flex-wrap gap-2"><span className={`rounded-full border px-3 py-1 text-xs font-bold ${project.rera.reraStatus === "verified" ? "border-green-200 bg-green-50 text-green-700" : "border-amber-200 bg-amber-50 text-amber-700"}`}>RERA {project.rera.reraStatus === "verified" ? "Verified" : "Unverified"}</span><span className={`rounded-full border px-3 py-1 text-xs font-bold ${project.rera.reraAdminApproved ? "border-blue-200 bg-blue-50 text-blue-700" : "border-gray-200 bg-gray-100 text-gray-500"}`}>{project.rera.reraAdminApproved ? "Admin Approved" : "Admin Approval Pending"}</span></div>
+            </div>
+            {project.rera.verifiedAt && <DetailItem label="Verified At" value={new Date(project.rera.verifiedAt).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })} />}
+            {projectDetails && <div className="border-t pt-4"><h3 className="mb-4 font-bold text-gray-900">RERA Project Details</h3><div className="grid grid-cols-2 gap-4 md:grid-cols-3">{[["Project Name", projectDetails.projectName], ["Developer", projectDetails.developerName], ["Location", projectDetails.localityOrCity], ["State", projectDetails.state], ["Project Type", projectDetails.projectType], ["Project Status", projectDetails.status], ["Completion Date", projectDetails.completionDate], ["Total Units", projectDetails.totalUnits], ["Confidence", projectDetails.confidence]].filter(([, value]) => value).map(([label, value]) => <DetailItem key={label} label={label} value={value} />)}</div></div>}
+            {project.rera.sources?.length > 0 && <div className="border-t pt-4"><p className="mb-2 text-xs text-gray-500">Sources</p>{project.rera.sources.map((source, index) => <a key={`${source}-${index}`} href={source} target="_blank" rel="noopener noreferrer" className="block break-all text-sm text-blue-600 hover:underline">{source}</a>)}</div>}
+          </section>}
 
           <div className="flex flex-col gap-6">
             <section className="rounded-2xl bg-white p-6">
@@ -249,16 +218,6 @@ export default function ProjectDetail() {
 
             {project.projectDescription && <section className="rounded-2xl bg-white p-6"><h2 className="mb-5 text-2xl font-bold">About {project.projectName}</h2><p className="whitespace-pre-line leading-7 text-gray-700">{project.projectDescription}</p></section>}
             <ProjectTypeDetails project={project} />
-
-            {project.rera && <section className="flex flex-col gap-4 rounded-2xl bg-white p-6">
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <div className="flex items-center gap-3"><span className={`flex h-9 w-9 items-center justify-center rounded-full ${project.rera.reraStatus === "verified" ? "bg-green-100" : "bg-amber-100"}`}><FiShield size={16} className={project.rera.reraStatus === "verified" ? "text-green-600" : "text-amber-500"} /></span><div><p className="mb-0.5 text-xs uppercase tracking-wide text-gray-400">RERA Registration</p><p className="text-sm font-semibold text-gray-900">{project.rera.reraId || "No RERA number provided"}</p></div></div>
-                <div className="flex flex-wrap gap-2"><span className={`rounded-full border px-3 py-1 text-xs font-bold ${project.rera.reraStatus === "verified" ? "border-green-200 bg-green-50 text-green-700" : "border-amber-200 bg-amber-50 text-amber-700"}`}>RERA {project.rera.reraStatus === "verified" ? "Verified" : "Unverified"}</span><span className={`rounded-full border px-3 py-1 text-xs font-bold ${project.rera.reraAdminApproved ? "border-blue-200 bg-blue-50 text-blue-700" : "border-gray-200 bg-gray-100 text-gray-500"}`}>{project.rera.reraAdminApproved ? "Admin Approved" : "Admin Approval Pending"}</span></div>
-              </div>
-              {project.rera.verifiedAt && <DetailItem label="Verified At" value={new Date(project.rera.verifiedAt).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })} />}
-              {projectDetails && <div className="border-t pt-4"><h3 className="mb-4 font-bold text-gray-900">RERA Project Details</h3><div className="grid grid-cols-2 gap-4 md:grid-cols-3">{[["Project Name", projectDetails.projectName], ["Developer", projectDetails.developerName], ["Location", projectDetails.localityOrCity], ["State", projectDetails.state], ["Project Type", projectDetails.projectType], ["Project Status", projectDetails.status], ["Completion Date", projectDetails.completionDate], ["Total Units", projectDetails.totalUnits], ["Confidence", projectDetails.confidence]].filter(([, value]) => value).map(([label, value]) => <DetailItem key={label} label={label} value={value} />)}</div></div>}
-              {project.rera.sources?.length > 0 && <div className="border-t pt-4"><p className="mb-2 text-xs text-gray-500">Sources</p>{project.rera.sources.map((source, index) => <a key={`${source}-${index}`} href={source} target="_blank" rel="noopener noreferrer" className="block break-all text-sm text-blue-600 hover:underline">{source}</a>)}</div>}
-            </section>}
 
           </div>
 

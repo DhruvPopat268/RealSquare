@@ -52,7 +52,7 @@ export function TextInput({ value, onChange, placeholder, disabled }) {
 }
 
 // ── Number input ──────────────────────────────────────────────────────────────
-export function NumberInput({ value, onChange, placeholder, min, disabled }) {
+export function NumberInput({ value, onChange, placeholder, min, max, step, disabled }) {
   const hasValue = value !== "" && value !== null && value !== undefined;
   return (
     <input
@@ -61,6 +61,8 @@ export function NumberInput({ value, onChange, placeholder, min, disabled }) {
       onChange={(e) => onChange(e.target.value === "" ? "" : Number(e.target.value))}
       placeholder={placeholder ?? ""}
       min={min ?? 0}
+      max={max}
+      step={step}
       disabled={disabled}
       className={`w-full border rounded-xl px-3 py-2.5 text-sm placeholder-gray-400
         focus:outline-none focus:ring-1 focus:ring-[var(--primary-color)]/20

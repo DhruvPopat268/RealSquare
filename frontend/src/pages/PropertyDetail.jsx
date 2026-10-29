@@ -18,8 +18,11 @@ import {
 } from "react-icons/fi";
 import { properties, newlyAddedProperties, rentProperties, commercialProperties, pgProperties, plotProperties } from "../data/properties";
 import PageSpinner from "../components/PageSpinner";
+import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
 import WishlistToast, { useWishlistToast } from "../components/WishlistToast";
 import PropertyTypeDetails from "../components/PropertyTypeDetails";
+import MediaSection from "../components/MediaSection";
 import {
   markListingInactive,
   markListingActive,
@@ -65,62 +68,6 @@ function adaptApiListing(listing) {
   const location = [addr, city].filter(Boolean).join(", ");
 
   return { ...listing, title, price, gallery, location, _isApiListing: true };
-}
-
-function getYouTubeEmbedUrl(value) {
-  if (!value) return null;
-
-  try {
-    const url = new URL(value);
-    const host = url.hostname.toLowerCase();
-    if (host !== "youtu.be" && host !== "youtube.com" && !host.endsWith(".youtube.com")) return null;
-
-    const pathParts = url.pathname.split("/").filter(Boolean);
-    const videoId = host === "youtu.be"
-      ? pathParts[0]
-      : url.searchParams.get("v") ?? (pathParts[0] === "watch" ? null : pathParts[1]);
-
-    if (!videoId || !/^[a-zA-Z0-9_-]{6,20}$/.test(videoId)) return null;
-    return `https://www.youtube-nocookie.com/embed/${videoId}?rel=0`;
-  } catch {
-    return null;
-  }
-}
-
-function ListingVideo({ title, fileUrl, youtubeUrl }) {
-  const youtubeEmbedUrl = getYouTubeEmbedUrl(youtubeUrl);
-  if (!fileUrl && !youtubeEmbedUrl) return null;
-
-  return (
-    <section className="mb-8">
-      <h2 className="text-xl font-bold text-gray-900 mb-4">{title}</h2>
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {fileUrl && (
-          <video
-            controls
-            playsInline
-            preload="metadata"
-            className="w-full aspect-video rounded-2xl bg-black object-contain"
-            aria-label={title}
-          >
-            <source src={fileUrl} />
-            Your browser does not support video playback.
-          </video>
-        )}
-        {youtubeEmbedUrl && (
-          <iframe
-            src={youtubeEmbedUrl}
-            title={`${title} on YouTube`}
-            className="w-full aspect-video rounded-2xl bg-black"
-            loading="lazy"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-            referrerPolicy="strict-origin-when-cross-origin"
-            allowFullScreen
-          />
-        )}
-      </div>
-    </section>
-  );
 }
 
 export default function PropertyDetail() {
@@ -258,6 +205,7 @@ export default function PropertyDetail() {
   if (apiLoading) {
     return (
       <div className="bg-[#f5f5f5] min-h-screen">
+        <Navbar />
         <PageSpinner key={id} />
         <div className="max-w-[1280px] mx-auto px-4 py-12 flex flex-col gap-6 animate-pulse">
           <div className="h-8 bg-gray-200 rounded w-1/2" />
@@ -266,6 +214,7 @@ export default function PropertyDetail() {
             {[1,2,3,4].map((i) => <div key={i} className="h-24 bg-gray-200 rounded-2xl" />)}
           </div>
         </div>
+        <Footer />
       </div>
     );
   }
@@ -274,10 +223,12 @@ export default function PropertyDetail() {
   if ((!property && !apiLoading) || apiError) {
     return (
       <div className="bg-[#f5f5f5] min-h-screen">
+        <Navbar />
         <div className="flex flex-col items-center justify-center py-32 gap-3">
           <p className="text-2xl font-bold text-gray-700">Property not found</p>
           <p className="text-sm text-gray-400">{apiError ?? "The property you're looking for doesn't exist."}</p>
         </div>
+        <Footer />
       </div>
     );
   }
@@ -287,6 +238,7 @@ export default function PropertyDetail() {
   // ── Render ─────────────────────────────────────────────────────────────────
   return (
     <div className="bg-[#f5f5f5] min-h-screen">
+      <Navbar />
       <PageSpinner key={id} />
 
       <div className="max-w-[1280px] mx-auto px-4 py-6">
@@ -407,61 +359,95 @@ export default function PropertyDetail() {
           </div>
         )}
 
-        {/* IMAGE GALLERY — 4 images, 4th blurred with +N overlay */}
-        {gallery.length > 0 && (
+        {/* IMAGE GALLERY + MEDIA — compact Media section */}
+        {property._isApiListing && (
           <div className="mb-6">
-            <div className="grid grid-cols-4 gap-2 rounded-2xl overflow-hidden">
-              {gallery.slice(0, 4).map((url, i) => {
-                const isLast     = i === 3;
-                const remaining  = gallery.length - 4;
-                const showOverlay = isLast && remaining > 0;
-
-                return (
-                  <div
-                    key={i}
-                    className="relative cursor-pointer overflow-hidden h-56 rounded-xl"
-                    onClick={() => setLightbox(i)}
-                  >
-                    <img
-                      src={url}
-                      alt={`Property ${i + 1}`}
-                      className={`w-full h-full object-cover transition
-                        ${showOverlay ? "blur-sm brightness-50 scale-105" : "hover:brightness-95"}`}
-                    />
-                    {i === 0 && (
-                      <span className="absolute top-2 left-2 text-[10px] font-bold bg-[var(--primary-color)] text-white px-2 py-0.5 rounded-full z-10">
-                        Cover
-                      </span>
-                    )}
-                    {showOverlay && (
-                      <div className="absolute inset-0 flex flex-col items-center justify-center gap-1">
-                        <span className="text-white text-3xl font-bold drop-shadow">+{remaining}</span>
-                        <span className="text-white/80 text-xs font-medium">more photos</span>
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
+            <MediaSection
+              images={gallery}
+              onImageClick={setLightbox}
+              videoUrl={property.media?.videos?.videoUrl}
+              ytVideoUrl={property.media?.videos?.ytVideoUrl}
+              reelUrl={property.media?.reelVideo?.reelUrl}
+              ytReelUrl={property.media?.reelVideo?.ytReelUrl}
+            />
           </div>
         )}
 
-        {property._isApiListing && (
-          <>
-            <ListingVideo
-              title="Property Videos"
-              fileUrl={property.media?.videos?.videoUrl}
-              youtubeUrl={property.media?.videos?.ytVideoUrl}
-            />
-            <ListingVideo
-              title="Property Reels"
-              fileUrl={property.media?.reelVideo?.reelUrl}
-              youtubeUrl={property.media?.reelVideo?.ytReelUrl}
-            />
-          </>
-        )}
+                {/* RERA badge — only when reraId exists */}
+                {property.rera?.reraId && (
+                  <div className="mb-6 bg-white rounded-2xl p-5 flex flex-col gap-3">
+                    <div className="flex items-center gap-3">
+                      <div className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0
+                        ${property.rera.reraStatus === "verified" ? "bg-green-100" : "bg-amber-100"}`}>
+                        <FiShield size={16} className={property.rera.reraStatus === "verified" ? "text-green-600" : "text-amber-500"} />
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-400 uppercase tracking-wide mb-0.5">RERA Registration</p>
+                        <p className="font-semibold text-gray-900 text-sm">{property.rera.reraId}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      {/* Auto-verification badge */}
+                      {property.rera.reraStatus === "verified" ? (
+                        <span className="flex items-center gap-1.5 text-xs font-bold text-green-700 bg-green-50 border border-green-200 px-3 py-1 rounded-full">
+                          <FiShield size={11} /> RERA Verified ✓
+                        </span>
+                      ) : (
+                        <span className="flex items-center gap-1.5 text-xs font-bold text-amber-700 bg-amber-50 border border-amber-200 px-3 py-1 rounded-full">
+                          <FiShield size={11} /> RERA Unverified
+                        </span>
+                      )}
+                      {/* Admin approval badge */}
+                      {property.rera.reraAdminApproved ? (
+                        <span className="flex items-center gap-1.5 text-xs font-bold text-blue-700 bg-blue-50 border border-blue-200 px-3 py-1 rounded-full">
+                          <FiShield size={11} /> Admin Approved ✓
+                        </span>
+                      ) : (
+                        <span className="flex items-center gap-1.5 text-xs font-bold text-gray-500 bg-gray-100 border border-gray-200 px-3 py-1 rounded-full">
+                          <FiShield size={11} /> Admin Approval Pending
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                )}
 
-        {/* LIGHTBOX */}
+                {property.rera?.projectDetails && (
+                  <div className="mb-6 bg-white rounded-2xl p-5">
+                    <h2 className="font-bold text-gray-900 mb-4">RERA Project Details</h2>
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                      {[
+                        ["Project Name", property.rera.projectDetails.projectName],
+                        ["Developer", property.rera.projectDetails.developerName],
+                        ["Location", property.rera.projectDetails.localityOrCity],
+                        ["State", property.rera.projectDetails.state],
+                        ["Project Type", property.rera.projectDetails.projectType],
+                        ["Project Status", property.rera.projectDetails.status],
+                        ["Completion Date", property.rera.projectDetails.completionDate],
+                        ["Total Units", property.rera.projectDetails.totalUnits],
+                        ["Confidence", property.rera.projectDetails.confidence],
+                      ].filter(([, value]) => value != null && value !== "").map(([label, value]) => (
+                        <div key={label}>
+                          <p className="text-gray-500 text-xs mb-1">{label}</p>
+                          <p className="font-semibold text-gray-900 text-sm">{value}</p>
+                        </div>
+                      ))}
+                    </div>
+                    {property.rera.sources?.length > 0 && (
+                      <div className="mt-4 pt-3 border-t">
+                        <p className="text-gray-500 text-xs mb-2">Sources</p>
+                        <div className="flex flex-col gap-1">
+                          {property.rera.sources.map((source, index) => (
+                            <a key={index} href={source} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 hover:underline break-all">
+                              {source}
+                            </a>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* LIGHTBOX */}
         {lightbox !== null && gallery[lightbox] && (
           <div
             className="fixed inset-0 z-[9999] bg-black/90 flex items-center justify-center"
@@ -521,51 +507,8 @@ export default function PropertyDetail() {
           </div>
         )}
 
-        {/* QUICK INFO */}
-        {property._isApiListing ? (
-          // ── API listing: purpose / category / type ────────────────────────
-          <div className={`bg-white rounded-2xl grid grid-cols-2 ${
-            [property.zeroBrokerage != null,
-             property.perSqFtPrice != null || property.perSqYdPrice != null || property.perSqMtPrice != null
-            ].filter(Boolean).length === 2
-              ? "md:grid-cols-5"
-              : [property.zeroBrokerage != null,
-                 property.perSqFtPrice != null || property.perSqYdPrice != null || property.perSqMtPrice != null
-                ].some(Boolean)
-                ? "md:grid-cols-4"
-                : "md:grid-cols-3"
-          } overflow-hidden shadow-sm mb-8`}>
-            <div className="p-6 border-r">
-              <p className="text-gray-500 text-sm mb-1">Purpose</p>
-              <h3 className="font-semibold text-lg">{property.listingType?.name ?? "—"}</h3>
-            </div>
-            <div className="p-6 border-r">
-              <p className="text-gray-500 text-sm mb-1">Category</p>
-              <h3 className="font-semibold text-lg">{property.category?.name ?? "—"}</h3>
-            </div>
-            <div className={`p-6 ${property.zeroBrokerage != null || (property.perSqFtPrice != null || property.perSqYdPrice != null || property.perSqMtPrice != null) ? "border-r" : ""}`}>
-              <p className="text-gray-500 text-sm mb-1">Property Type</p>
-              <h3 className="font-semibold text-lg">{property.propertyType?.name ?? "—"}</h3>
-            </div>
-            {(property.perSqFtPrice != null || property.perSqYdPrice != null || property.perSqMtPrice != null) && (
-              <div className={`p-6 ${property.zeroBrokerage != null ? "border-r" : ""}`}>
-                <p className="text-gray-500 text-sm mb-1">Price per Area</p>
-                <h3 className="font-semibold text-lg">
-                  {property.perSqFtPrice != null && `₹${property.perSqFtPrice.toLocaleString("en-IN")}/sqft`}
-                  {property.perSqYdPrice != null && `₹${property.perSqYdPrice.toLocaleString("en-IN")}/sqyd`}
-                  {property.perSqMtPrice != null && `₹${property.perSqMtPrice.toLocaleString("en-IN")}/sqmt`}
-                </h3>
-              </div>
-            )}
-            {property.zeroBrokerage != null && (
-              <div className="p-6">
-                <p className="text-gray-500 text-sm mb-1">Zero Brokerage</p>
-                <h3 className="font-semibold text-lg">{property.zeroBrokerage ? "Yes" : "No"}</h3>
-              </div>
-            )}
-          </div>
-        ) : (
-          // ── Static listing: original quick-info grid ──────────────────────
+        {/* Static listings keep their original quick-info summary. API listing summary fields live in Property Overview. */}
+        {!property._isApiListing && (
           <div className="bg-white rounded-2xl grid grid-cols-2 md:grid-cols-4 overflow-hidden shadow-sm mb-8">
             <div className="p-6 border-r">
               <h3 className="font-semibold text-lg">{property.configurations}</h3>
@@ -613,79 +556,7 @@ export default function PropertyDetail() {
               <div className="flex flex-col gap-6">
                 <PropertyTypeDetails listing={property} />
 
-                {/* RERA badge — only when reraId exists */}
-                {property.rera?.reraId && (
-                  <div className="bg-white rounded-2xl p-5 flex flex-col gap-3">
-                    <div className="flex items-center gap-3">
-                      <div className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0
-                        ${property.rera.reraStatus === "verified" ? "bg-green-100" : "bg-amber-100"}`}>
-                        <FiShield size={16} className={property.rera.reraStatus === "verified" ? "text-green-600" : "text-amber-500"} />
-                      </div>
-                      <div>
-                        <p className="text-xs text-gray-400 uppercase tracking-wide mb-0.5">RERA Registration</p>
-                        <p className="font-semibold text-gray-900 text-sm">{property.rera.reraId}</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2 flex-wrap">
-                      {/* Auto-verification badge */}
-                      {property.rera.reraStatus === "verified" ? (
-                        <span className="flex items-center gap-1.5 text-xs font-bold text-green-700 bg-green-50 border border-green-200 px-3 py-1 rounded-full">
-                          <FiShield size={11} /> RERA Verified ✓
-                        </span>
-                      ) : (
-                        <span className="flex items-center gap-1.5 text-xs font-bold text-amber-700 bg-amber-50 border border-amber-200 px-3 py-1 rounded-full">
-                          <FiShield size={11} /> RERA Unverified
-                        </span>
-                      )}
-                      {/* Admin approval badge */}
-                      {property.rera.reraAdminApproved ? (
-                        <span className="flex items-center gap-1.5 text-xs font-bold text-blue-700 bg-blue-50 border border-blue-200 px-3 py-1 rounded-full">
-                          <FiShield size={11} /> Admin Approved ✓
-                        </span>
-                      ) : (
-                        <span className="flex items-center gap-1.5 text-xs font-bold text-gray-500 bg-gray-100 border border-gray-200 px-3 py-1 rounded-full">
-                          <FiShield size={11} /> Admin Approval Pending
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                )}
 
-                {property.rera?.projectDetails && (
-                  <div className="bg-white rounded-2xl p-5">
-                    <h2 className="font-bold text-gray-900 mb-4">RERA Project Details</h2>
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                      {[
-                        ["Project Name", property.rera.projectDetails.projectName],
-                        ["Developer", property.rera.projectDetails.developerName],
-                        ["Location", property.rera.projectDetails.localityOrCity],
-                        ["State", property.rera.projectDetails.state],
-                        ["Project Type", property.rera.projectDetails.projectType],
-                        ["Project Status", property.rera.projectDetails.status],
-                        ["Completion Date", property.rera.projectDetails.completionDate],
-                        ["Total Units", property.rera.projectDetails.totalUnits],
-                        ["Confidence", property.rera.projectDetails.confidence],
-                      ].filter(([, value]) => value != null && value !== "").map(([label, value]) => (
-                        <div key={label}>
-                          <p className="text-gray-500 text-xs mb-1">{label}</p>
-                          <p className="font-semibold text-gray-900 text-sm">{value}</p>
-                        </div>
-                      ))}
-                    </div>
-                    {property.rera.sources?.length > 0 && (
-                      <div className="mt-4 pt-3 border-t">
-                        <p className="text-gray-500 text-xs mb-2">Sources</p>
-                        <div className="flex flex-col gap-1">
-                          {property.rera.sources.map((source, index) => (
-                            <a key={index} href={source} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 hover:underline break-all">
-                              {source}
-                            </a>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                )}
 
               </div>
             ) : (
@@ -894,6 +765,7 @@ export default function PropertyDetail() {
           </div>
         )
       )}
+      <Footer />
     </div>
   );
 }
