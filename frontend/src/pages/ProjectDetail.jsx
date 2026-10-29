@@ -5,20 +5,33 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import PageSpinner from "../components/PageSpinner";
 import ProjectTypeDetails from "../components/ProjectTypeDetails";
-import { fetchProjectListingById } from "../utils/myListingsApi";
+import { fetchProjectListingById, updateProjectListingStatus } from "../utils/myListingsApi";
 
 const STATUS_CONFIG = {
   Active: { label: "Active", bg: "bg-green-100", text: "text-green-700", dot: "bg-green-500" },
+  Sold: { label: "Sold", bg: "bg-blue-100", text: "text-blue-600", dot: "bg-blue-500" },
+  sold: { label: "Sold", bg: "bg-blue-100", text: "text-blue-600", dot: "bg-blue-500" },
   UnderReview: { label: "Under Review", bg: "bg-amber-100", text: "text-amber-700", dot: "bg-amber-400" },
   Rejected: { label: "Rejected", bg: "bg-red-100", text: "text-red-600", dot: "bg-red-500" },
   Inactive: { label: "Inactive", bg: "bg-gray-100", text: "text-gray-500", dot: "bg-gray-400" },
-  sold: { label: "Sold", bg: "bg-blue-100", text: "text-blue-600", dot: "bg-blue-500" },
 };
 
 function formatDate(value) {
   if (!value) return null;
   const date = new Date(value);
   return Number.isNaN(date.getTime()) ? null : date.toLocaleDateString("en-IN", { month: "long", year: "numeric" });
+}
+
+function getProjectStatusOptions(status) {
+  if (status === "Active") return ["Inactive", "Sold"];
+  if (status === "Inactive" || status === "Sold" || status === "sold") return ["Active"];
+  return [];
+}
+
+function formatListingStatus(status) {
+  if (status === "UnderReview") return "Under Review";
+  if (status === "sold") return "Sold";
+  return status;
 }
 
 function getYouTubeEmbedUrl(value) {
@@ -69,6 +82,8 @@ export default function ProjectDetail() {
   const [unitsError, setUnitsError] = useState("");
   const [statusModalOpen, setStatusModalOpen] = useState(false);
   const [listingStatusInput, setListingStatusInput] = useState("");
+  const [statusUpdating, setStatusUpdating] = useState(false);
+  const [statusError, setStatusError] = useState("");
 
   const handleShare = async () => {
     const shareData = { title: project.projectName, url: window.location.href };
@@ -94,10 +109,20 @@ export default function ProjectDetail() {
     setUnitsModalOpen(false);
   };
 
-  const handleUpdateStatus = () => {
-    if (!listingStatusInput) return;
-    setProject((current) => ({ ...current, status: listingStatusInput }));
-    setStatusModalOpen(false);
+  const handleUpdateStatus = async () => {
+    if (!listingStatusInput || statusUpdating) return;
+    setStatusUpdating(true);
+    setStatusError("");
+    try {
+      const result = await updateProjectListingStatus(project._id, listingStatusInput);
+      setProject((current) => ({ ...current, status: result.data.status }));
+      setStatusModalOpen(false);
+      setListingStatusInput("");
+    } catch (requestError) {
+      setStatusError(requestError?.response?.data?.message ?? "Failed to update project status");
+    } finally {
+      setStatusUpdating(false);
+    }
   };
 
   useEffect(() => {
@@ -172,7 +197,7 @@ export default function ProjectDetail() {
                 {shareMessage && <span role="status" className="self-center text-xs text-gray-500">{shareMessage}</span>}
                 <button type="button" onClick={handleShare} className="flex items-center gap-1.5 rounded-xl border border-gray-100 bg-white px-3 py-1.5 text-xs font-medium shadow-md transition hover:shadow-lg"><FiShare2 size={12} /> SHARE</button>
                 <button type="button" onClick={() => navigate(`/edit-project/${project._id}`)} className="flex items-center gap-1.5 rounded-xl bg-[var(--primary-color)] px-3 py-1.5 text-xs font-medium text-white transition hover:bg-[var(--primary-color-hover)]"><FiEdit2 size={12} /> Edit Details</button>
-                <button type="button" onClick={() => { setListingStatusInput(project.status); setStatusModalOpen(true); }} className="rounded-xl bg-[var(--primary-color)] px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-[var(--primary-color-hover)]">Update Status</button>
+                {getProjectStatusOptions(project.status).length > 0 && <button type="button" onClick={() => { setListingStatusInput(""); setStatusError(""); setStatusModalOpen(true); }} className="rounded-xl bg-[var(--primary-color)] px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-[var(--primary-color-hover)]">Update Status</button>}
                 <button type="button" onClick={() => { setAvailableUnitsInput(String(project.availableUnits ?? "")); setUnitsError(""); setUnitsModalOpen(true); }} className="rounded-xl bg-[var(--primary-color)] px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-[var(--primary-color-hover)]">Update Units</button>
               </div>
             </div>
@@ -190,9 +215,21 @@ export default function ProjectDetail() {
             })}
           </div>}
 
+          <div className="mb-6 flex flex-col gap-6">
+            <MediaVideo title="Project Videos" fileUrl={project.media?.videos?.videoUrl} youtubeUrl={project.media?.videos?.ytVideoUrl} />
+            <MediaVideo title="Project Reels" fileUrl={project.media?.reelVideo?.reelUrl} youtubeUrl={project.media?.reelVideo?.ytReelUrl} />
+            {project.brochureUrl && <section className="rounded-2xl bg-white p-6">
+              <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+                <h2 className="text-xl font-bold text-[#1a1a2e]">Project Brochure (PDF)</h2>
+                <a href={project.brochureUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 font-medium text-[var(--primary-color)] hover:underline"><FiExternalLink size={14} /> Open PDF</a>
+              </div>
+              <iframe src={project.brochureUrl} title={`${project.projectName} brochure PDF`} className="h-[70vh] min-h-[420px] w-full rounded-xl border border-gray-200" />
+            </section>}
+          </div>
+
           <div className="flex flex-col gap-6">
             <section className="rounded-2xl bg-white p-6">
-              <div className="mb-6 flex flex-wrap items-center justify-between gap-3"><h2 className="text-2xl font-bold">Project Overview</h2>{project.brochureUrl && <a href={project.brochureUrl} target="_blank" rel="noreferrer" className="font-medium text-[var(--primary-color)] hover:underline">Download Brochure</a>}</div>
+              <h2 className="mb-6 text-2xl font-bold">Project Overview</h2>
               <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3">
                 <DetailItem label="Project Name" value={project.projectName} />
                 <DetailItem label="Developer Name" value={project.developerName} />
@@ -223,8 +260,6 @@ export default function ProjectDetail() {
               {project.rera.sources?.length > 0 && <div className="border-t pt-4"><p className="mb-2 text-xs text-gray-500">Sources</p>{project.rera.sources.map((source, index) => <a key={`${source}-${index}`} href={source} target="_blank" rel="noopener noreferrer" className="block break-all text-sm text-blue-600 hover:underline">{source}</a>)}</div>}
             </section>}
 
-            <MediaVideo title="Project Videos" fileUrl={project.media?.videos?.videoUrl} youtubeUrl={project.media?.videos?.ytVideoUrl} />
-            <MediaVideo title="Project Reels" fileUrl={project.media?.reelVideo?.reelUrl} youtubeUrl={project.media?.reelVideo?.ytReelUrl} />
           </div>
 
           {lightbox !== null && images[lightbox] && <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/90" onClick={() => setLightbox(null)}>
@@ -244,11 +279,14 @@ export default function ProjectDetail() {
             </div>
           </div>}
 
-          {statusModalOpen && <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 px-4" onClick={() => setStatusModalOpen(false)}>
+          {statusModalOpen && <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 px-4" onClick={() => !statusUpdating && setStatusModalOpen(false)}>
             <div role="dialog" aria-modal="true" aria-labelledby="project-status-title" className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl" onClick={(event) => event.stopPropagation()}>
-              <h2 id="project-status-title" className="text-lg font-bold text-[#1a1a2e]">Update Listing Status</h2>
-              <label className="mt-4 block text-sm font-medium text-gray-700">Status<select value={listingStatusInput} onChange={(event) => setListingStatusInput(event.target.value)} className="mt-1 w-full rounded-xl border border-gray-200 bg-white px-3 py-2 outline-none focus:border-[var(--primary-color)]">{["Active", "Inactive", "UnderReview", "Rejected", "sold"].map((value) => <option key={value} value={value}>{value === "UnderReview" ? "Under Review" : value === "sold" ? "Sold" : value}</option>)}</select></label>
-              <div className="mt-5 flex justify-end gap-2"><button type="button" onClick={() => setStatusModalOpen(false)} className="rounded-xl border border-gray-200 px-4 py-2 text-sm text-gray-600">Cancel</button><button type="button" onClick={handleUpdateStatus} className="rounded-xl bg-[var(--primary-color)] px-4 py-2 text-sm font-semibold text-white">Save</button></div>
+              <h2 id="project-status-title" className="text-lg font-bold text-[#1a1a2e]">{listingStatusInput ? "Confirm Status Update" : "Update Listing Status"}</h2>
+              <p className="mt-1 text-sm text-gray-500">{project.projectName}</p>
+              <p className="mt-4 text-sm text-gray-600">Current status: <span className="font-semibold text-gray-900">{formatListingStatus(project.status)}</span></p>
+              {listingStatusInput ? <p className="mt-3 text-sm text-gray-600">Change this project to <span className="font-semibold text-gray-900">{formatListingStatus(listingStatusInput)}</span>?</p> : <div className="mt-4 flex flex-col gap-2">{getProjectStatusOptions(project.status).map((value) => <button key={value} type="button" onClick={() => { setListingStatusInput(value); setStatusError(""); }} className="w-full rounded-xl border border-gray-200 px-4 py-3 text-left text-sm font-semibold text-gray-700 transition hover:border-[var(--primary-color)] hover:bg-[var(--primary-color-light)]">Mark as {formatListingStatus(value)}</button>)}</div>}
+              {statusError && <p role="alert" className="mt-3 text-sm text-red-600">{statusError}</p>}
+              <div className="mt-5 flex justify-end gap-2"><button type="button" disabled={statusUpdating} onClick={() => { if (listingStatusInput) { setListingStatusInput(""); setStatusError(""); } else setStatusModalOpen(false); }} className="rounded-xl border border-gray-200 px-4 py-2 text-sm text-gray-600 disabled:opacity-50">{listingStatusInput ? "Back" : "Cancel"}</button>{listingStatusInput && <button type="button" disabled={statusUpdating} onClick={handleUpdateStatus} className="rounded-xl bg-[var(--primary-color)] px-4 py-2 text-sm font-semibold text-white disabled:opacity-50">{statusUpdating ? "Saving…" : "Confirm"}</button>}</div>
             </div>
           </div>}
         </div>

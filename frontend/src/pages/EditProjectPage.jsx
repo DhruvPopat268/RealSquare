@@ -10,6 +10,7 @@ import { Section, Grid, FormField, TextInput, NumberInput, SelectField } from ".
 import FurnishingsAmenitiesSection from "../components/editForms/FurnishingsAmenitiesSection";
 import CityAutocomplete from "../components/CityAutocomplete";
 import LocationAutocomplete from "../components/LocationAutocomplete";
+import Interactive3DModel from "../components/Interactive3DModel";
 import { fetchProjectListingById } from "../utils/myListingsApi";
 
 const API = import.meta.env.VITE_API_URL;
@@ -18,6 +19,8 @@ const PROJECT_STATUS_OPTIONS = ["Ready to Move", "Under Construction", "New Laun
 const AREA_UNITS = [{ value: "sqft", label: "sq.ft" }, { value: "sqyd", label: "sq.yd" }, { value: "sqmt", label: "sq.m" }];
 const ZONE_TYPE_OPTIONS     = ["Industrial", "Commercial", "Residential", "SEZ", "OpenSpaces", "Agricultural", "Others"];
 const LOCATION_HUB_OPTIONS  = ["IT Park", "Business Park", "Mall", "Commercial Project", "Residential Project", "Retail Complex/Building", "Market/High Street", "Others"];
+const FURNISHING_TYPES = ["Unfurnished", "Semi-Furnished", "Fully-Furnished"];
+const newConfigId = () => `cfg-${Date.now()}-${Math.random().toString(36).slice(2)}`;
 
 const EMPTY = { projectName: "", developerName: "", projectDescription: "", launchDate: "", projectStatus: "", possessionDate: "", reraId: "", cityName: "", locality: { address: "", latitude: null, longitude: null }, totalUnits: "", availableUnits: "", towerCount: "", minPrice: "", maxPrice: "", furnishings: [], amenities: [], idealFor: [], residentialDetails: { areaUnit: "sqft", configurations: [] }, commercialDetails: { areaUnit: "sqft", configurations: [], zoneType: "", locationHub: "" } };
 
@@ -71,8 +74,8 @@ function toForm(project) {
       areaUnit:       project.residentialDetails?.areaUnit ?? "sqft",
       configurations: (project.residentialDetails?.configurations ?? []).map((item) =>
         typeof item === "string"
-          ? { bhk: item, furnishType: "" }
-          : { bhk: item.bhk, furnishType: item.furnishType ?? "", ...(item.carpetArea != null ? { carpetArea: item.carpetArea } : {}) }
+          ? { _clientId: newConfigId(), bhk: item, carpetArea: "", furnishingOptions: [], price: "", image2DUrl: "", model3DUrl: "" }
+          : { _clientId: newConfigId(), bhk: item.bhk, ...(item.carpetArea != null ? { carpetArea: item.carpetArea } : {}), furnishingOptions: (item.furnishingOptions ?? []).filter((option) => typeof option === "string"), price: item.price ?? "", image2DUrl: item.image2DUrl ?? "", model3DUrl: item.model3DUrl ?? "" }
       ),
     },
     commercialDetails: {
@@ -80,8 +83,10 @@ function toForm(project) {
       zoneType:       project.commercialDetails?.zoneType    ?? "",
       locationHub:    project.commercialDetails?.locationHub ?? "",
       configurations: (project.commercialDetails?.configurations ?? []).map((item) => ({
-        carpetArea:  item.carpetArea,
-        furnishType: item.furnishType ?? "",
+        _clientId: newConfigId(), carpetArea: item.carpetArea,
+        furnishingOptions: (item.furnishingOptions ?? []).filter((option) => typeof option === "string"),
+        price: item.price ?? "",
+        image2DUrl: item.image2DUrl ?? "", model3DUrl: item.model3DUrl ?? "",
       })),
     },
   };
@@ -96,6 +101,7 @@ export default function EditProjectPage() {
   const [idealForOptions, setIdealForOptions] = useState([]);
   const [images, setImages] = useState([]);
   const [newFiles, setNewFiles] = useState([]);
+  const [configurationImageFiles, setConfigurationImageFiles] = useState({});
   const [videoLinks, setVideoLinks] = useState({ videoUrl: "", ytVideoUrl: "", reelUrl: "", ytReelUrl: "" });
   const [originalVideoLinks, setOriginalVideoLinks] = useState({ videoUrl: "", ytVideoUrl: "", reelUrl: "", ytReelUrl: "" });
   const [videoFiles, setVideoFiles] = useState({ video: null, reelVideo: null });
@@ -142,8 +148,38 @@ export default function EditProjectPage() {
   const setField = (key, value) => setForm((current) => ({ ...current, [key]: value }));
   const setDetail = (section, key, value) => setForm((current) => ({ ...current, [section]: { ...current[section], [key]: value } }));
   const setConfiguration = (section, index, key, value) => {
-    setDetail(section, "configurations", form[section].configurations.map((item, i) => i === index ? { ...item, [key]: value } : item));
+    setForm((current) => ({ ...current, [section]: { ...current[section], configurations: current[section].configurations.map((item, i) => i === index ? { ...item, [key]: value } : item) } }));
   };
+  const configImageKey = (configuration, slot) => `${configuration._clientId}:${slot}`;
+  const renderConfigurationMedia = (section, configuration) => (
+    <div className="mt-4 grid gap-3 sm:grid-cols-2">
+      {[{ slot: "image2DUrl", label: "2D image" }, { slot: "model3DUrl", label: "3D model" }].map(({ slot, label }) => {
+        const key = configImageKey(configuration, slot);
+        const file = configurationImageFiles[key];
+        return <div key={slot} className="rounded-lg border border-gray-200 bg-white p-3">
+          <p className="mb-2 text-xs font-semibold text-gray-600">{label}</p>
+          {configuration[slot] && <div className="mb-2">{slot === "model3DUrl" ? <Interactive3DModel src={configuration[slot]} alt="Interactive 3D project configuration" height={160} /> : <img src={configuration[slot]} alt={label} className="h-16 w-20 rounded object-cover" />}<button type="button" disabled={saving} onClick={() => setConfiguration(section, form[section].configurations.indexOf(configuration), slot, "")} className="mt-1 text-xs text-red-600">Remove</button></div>}
+          {file && <div className="mb-2 flex items-center justify-between text-xs text-violet-700"><span className="truncate">{file.name}</span><button type="button" disabled={saving} onClick={() => setConfigurationImageFiles((current) => { const next = { ...current }; delete next[key]; return next; })}><FiX /></button></div>}
+          <label className="inline-flex cursor-pointer items-center gap-1 text-xs font-semibold text-[var(--primary-color)]"><FiUpload />{file || configuration[slot] ? `Replace ${label.toLowerCase()}` : `Choose ${label.toLowerCase()}`}<input type="file" accept={slot === "model3DUrl" ? ".glb,.gltf,model/gltf-binary,model/gltf+json,application/json,application/octet-stream" : "image/jpeg,image/png,image/webp"} disabled={saving} className="hidden" onChange={(event) => { const selected = event.target.files?.[0]; if (selected) setConfigurationImageFiles((current) => ({ ...current, [key]: selected })); event.target.value = ""; }} /></label>
+          {slot === "model3DUrl" && <p className="mt-2 text-[10px] text-gray-400">GLB or self-contained glTF, up to 100 MB</p>}
+        </div>;
+      })}
+    </div>
+  );
+  const renderFurnishingOptions = (section, configuration, index) => (
+    <div className="mt-3 w-full">
+      <FormField label="Starting price (₹)">
+        <NumberInput value={configuration.price} min={1} disabled={saving} onChange={(value) => setConfiguration(section, index, "price", value)} />
+      </FormField>
+      <p className="mb-2 text-xs font-semibold text-gray-600">Furnishing options <span className="font-normal">(optional)</span></p>
+      <div className="grid gap-2 sm:grid-cols-3">{FURNISHING_TYPES.map((type) => {
+        const selected = (configuration.furnishingOptions ?? []).includes(type);
+        return <div key={type} className="rounded-lg border border-gray-200 p-2">
+          <label className="flex items-center gap-2 text-xs"><input type="checkbox" checked={selected} disabled={saving} onChange={(event) => setConfiguration(section, index, "furnishingOptions", event.target.checked ? [...(configuration.furnishingOptions ?? []), type] : (configuration.furnishingOptions ?? []).filter((item) => item !== type))} />{type}</label>
+        </div>;
+      })}</div>
+    </div>
+  );
 
   const submit = async () => {
     if (saving) return;
@@ -190,10 +226,12 @@ export default function EditProjectPage() {
       if (diff.residentialDetails) {
         const residentialDetails = { ...diff.residentialDetails };
         if (Array.isArray(residentialDetails.configurations)) {
-          residentialDetails.configurations = residentialDetails.configurations.map(({ bhk, carpetArea, furnishType }) => ({
+          residentialDetails.configurations = residentialDetails.configurations.map(({ bhk, carpetArea, furnishingOptions, price, image2DUrl, model3DUrl }) => ({
             bhk,
             ...(carpetArea !== "" && carpetArea != null && { carpetArea }),
-            ...(furnishType ? { furnishType } : {}),
+            furnishingOptions: furnishingOptions ?? [],
+            ...(price !== "" && price != null ? { price: Number(price) } : {}),
+            image2DUrl: image2DUrl ?? "", model3DUrl: model3DUrl ?? "",
           }));
         }
         patch.residentialDetails = residentialDetails;
@@ -201,9 +239,11 @@ export default function EditProjectPage() {
       if (diff.commercialDetails) {
         const commercialDetails = { ...diff.commercialDetails };
         if (Array.isArray(commercialDetails.configurations)) {
-          commercialDetails.configurations = commercialDetails.configurations.map(({ carpetArea, furnishType }) => ({
+          commercialDetails.configurations = commercialDetails.configurations.map(({ carpetArea, furnishingOptions, price, image2DUrl, model3DUrl }) => ({
             ...(carpetArea !== "" && carpetArea != null && { carpetArea }),
-            ...(furnishType ? { furnishType } : {}),
+            furnishingOptions: furnishingOptions ?? [],
+            ...(price !== "" && price != null ? { price: Number(price) } : {}),
+            image2DUrl: image2DUrl ?? "", model3DUrl: model3DUrl ?? "",
           }));
         }
         patch.commercialDetails = commercialDetails;
@@ -217,7 +257,16 @@ export default function EditProjectPage() {
       const imagesChanged = newFiles.length > 0 || !equal(images, originalImages);
       const videosChanged = Boolean(videoFiles.video || videoFiles.reelVideo || clearUploads.video || clearUploads.reelVideo) || videoLinks.ytVideoUrl !== originalVideoLinks.ytVideoUrl || videoLinks.ytReelUrl !== originalVideoLinks.ytReelUrl;
       const brochureChanged = Boolean(brochureFile) || clearBrochure;
-      if (imagesChanged || videosChanged || brochureChanged) {
+      const configImageEntries = [];
+      for (const section of ["residentialDetails", "commercialDetails"]) {
+        form[section].configurations.forEach((configuration, index) => {
+          for (const slot of ["image2DUrl", "model3DUrl"]) {
+            const file = configurationImageFiles[configImageKey(configuration, slot)];
+            if (file) configImageEntries.push({ section, index, slot, file });
+          }
+        });
+      }
+      if (imagesChanged || videosChanged || brochureChanged || configImageEntries.length) {
         const fd = new FormData();
         fd.append("projectListingId", id);
         if (imagesChanged) {
@@ -236,6 +285,10 @@ export default function EditProjectPage() {
         if (brochureChanged) {
           fd.append("clearBrochure", String(clearBrochure));
           if (brochureFile) fd.append("brochure", brochureFile);
+        }
+        if (configImageEntries.length) {
+          fd.append("configurationImageMap", JSON.stringify(configImageEntries.map(({ section, index, slot }) => ({ section, index, slot }))));
+          configImageEntries.forEach(({ file }) => fd.append("configurationMedia", file));
         }
         const response = await axios.patch(`${API}/api/mixed/project-listings/media`, fd, { withCredentials: true, headers: { "Content-Type": "multipart/form-data" } });
         if (!response.data.success) throw new Error(response.data.message ?? "Project media update failed");
@@ -410,29 +463,16 @@ export default function EditProjectPage() {
               </Grid>
               <div className="mt-4 flex flex-col gap-3">
                 {form.commercialDetails.configurations.map((configuration, index) => (
-                  <div key={index} className="flex items-start gap-3 rounded-xl border border-gray-100 p-3">
-                    <div className="flex-1">
-                      <FormField label={`Configuration ${index + 1} carpet area (${form.commercialDetails.areaUnit})`}>
-                        <NumberInput value={configuration.carpetArea} onChange={(value) => setConfiguration("commercialDetails", index, "carpetArea", value)} min={1} />
-                      </FormField>
+                  <div key={configuration._clientId} className="rounded-xl border border-[var(--primary-color)] bg-[var(--primary-color-light)]/30 p-3">
+                    <div className="flex items-start gap-3"><div className="flex-1"><FormField label={`Configuration ${index + 1} carpet area (${form.commercialDetails.areaUnit})`}><NumberInput value={configuration.carpetArea} onChange={(value) => setConfiguration("commercialDetails", index, "carpetArea", value)} min={1} /></FormField></div>
+                      <button type="button" aria-label="Remove configuration" onClick={() => setDetail("commercialDetails", "configurations", form.commercialDetails.configurations.filter((_, i) => i !== index))} className="mt-6 rounded-lg p-3 text-red-500 hover:bg-red-50"><FiTrash2 size={16} /></button>
                     </div>
-                    <div className="flex-1">
-                      <FormField label="Furnish type" hint="Optional">
-                        <SelectField
-                          value={configuration.furnishType ?? ""}
-                          onChange={(value) => setConfiguration("commercialDetails", index, "furnishType", value)}
-                          options={["Unfurnished", "Semi-Furnished", "Fully-Furnished"]}
-                          placeholder="Select"
-                        />
-                      </FormField>
-                    </div>
-                    <button type="button" aria-label="Remove configuration" onClick={() => setDetail("commercialDetails", "configurations", form.commercialDetails.configurations.filter((_, i) => i !== index))} className="mt-6 rounded-lg p-3 text-red-500 hover:bg-red-50">
-                      <FiTrash2 size={16} />
-                    </button>
+                    {renderFurnishingOptions("commercialDetails", configuration, index)}
+                    {renderConfigurationMedia("commercialDetails", configuration)}
                   </div>
                 ))}
               </div>
-              <button type="button" onClick={() => setDetail("commercialDetails", "configurations", [...form.commercialDetails.configurations, { carpetArea: "", furnishType: "" }])} className="mt-3 inline-flex items-center gap-2 text-sm font-semibold text-[var(--primary-color)]">
+              <button type="button" onClick={() => setDetail("commercialDetails", "configurations", [...form.commercialDetails.configurations, { _clientId: newConfigId(), carpetArea: "", furnishingOptions: [], price: "", image2DUrl: "", model3DUrl: "" }])} className="mt-3 inline-flex items-center gap-2 text-sm font-semibold text-[var(--primary-color)]">
                 <FiPlus size={15} /> Add area configuration
               </button>
             </Section>
@@ -449,7 +489,7 @@ export default function EditProjectPage() {
                     <div key={option} className={`flex flex-wrap items-start gap-3 rounded-xl border p-3 ${selected ? "border-[var(--primary-color)] bg-[var(--primary-color-light)]/30" : "border-gray-200"}`}>
                       <button
                         type="button"
-                        onClick={() => setDetail("residentialDetails", "configurations", selected ? form.residentialDetails.configurations.filter((item) => item.bhk !== option) : [...form.residentialDetails.configurations, { bhk: option, furnishType: "" }])}
+                        onClick={() => setDetail("residentialDetails", "configurations", selected ? form.residentialDetails.configurations.filter((item) => item.bhk !== option) : [...form.residentialDetails.configurations, { _clientId: newConfigId(), bhk: option, carpetArea: "", furnishingOptions: [], price: "", image2DUrl: "", model3DUrl: "" }])}
                         className={`mt-6 min-w-20 rounded-full border px-4 py-2 text-sm font-semibold ${selected ? "border-[var(--primary-color)] bg-[var(--primary-color-light)] text-[var(--primary-color)]" : "border-gray-200 text-gray-500"}`}
                       >
                         {option}
@@ -461,16 +501,8 @@ export default function EditProjectPage() {
                               <NumberInput value={form.residentialDetails.configurations[index].carpetArea ?? ""} onChange={(value) => setConfiguration("residentialDetails", index, "carpetArea", value)} min={1} />
                             </FormField>
                           </div>
-                          <div className="flex-1 min-w-[160px]">
-                            <FormField label="Furnish type" hint="Optional">
-                              <SelectField
-                                value={form.residentialDetails.configurations[index].furnishType ?? ""}
-                                onChange={(value) => setConfiguration("residentialDetails", index, "furnishType", value)}
-                                options={["Unfurnished", "Semi-Furnished", "Fully-Furnished"]}
-                                placeholder="Select"
-                              />
-                            </FormField>
-                          </div>
+                          {renderFurnishingOptions("residentialDetails", form.residentialDetails.configurations[index], index)}
+                          {renderConfigurationMedia("residentialDetails", form.residentialDetails.configurations[index])}
                         </>
                       )}
                     </div>

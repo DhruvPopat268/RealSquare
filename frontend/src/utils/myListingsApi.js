@@ -77,6 +77,15 @@ export async function fetchProjectListingById(projectId) {
   return data.data;
 }
 
+export async function updateProjectListingStatus(projectId, status) {
+  const { data } = await axios.patch(
+    `${API}/api/mixed/project-listings/status/${projectId}`,
+    { status },
+    config
+  );
+  return data;
+}
+
 /**
  * Fetch active property purposes (Sell / Rent / PG …)
  */

@@ -1,4 +1,5 @@
 import FurnishingsAmenitiesDisplay from "./FurnishingsAmenitiesDisplay";
+import Interactive3DModel from "./Interactive3DModel";
 
 const AREA_UNITS = { sqft: "sq.ft", sqyd: "sq.yd", sqmt: "sq.m" };
 
@@ -27,11 +28,14 @@ function ConfigurationDetails({ configurations = [], areaUnit, residential, embe
           return (
             <div key={`${title}-${index}`} className="rounded-xl border border-gray-100 bg-gray-50 px-4 py-3 flex flex-col gap-1">
               <p className="text-sm font-semibold text-gray-800">{title || `Configuration ${index + 1}`}</p>
-              {configuration.furnishType && (
-                <span className="w-fit text-[11px] font-semibold px-2 py-0.5 rounded-full bg-blue-100 text-blue-700">
-                  {configuration.furnishType}
-                </span>
-              )}
+              <p className="mt-2 text-sm font-semibold text-gray-700">Starting price: {configuration.price == null ? "—" : `₹${Number(configuration.price).toLocaleString("en-IN")}`}</p>
+              <div className="mt-2 flex flex-wrap gap-1.5">
+                {(configuration.furnishingOptions ?? []).map((option, optionIndex) => <span key={optionIndex} className="w-fit rounded-full bg-blue-100 px-2 py-0.5 text-[11px] font-semibold text-blue-700">{option}</span>)}
+              </div>
+              <div className="mt-3 grid grid-cols-2 gap-2">
+                {configuration.image2DUrl ? <a href={configuration.image2DUrl} target="_blank" rel="noreferrer" className="block"><img src={configuration.image2DUrl} alt="2D image" className="h-24 w-full rounded-lg object-cover" /><span className="text-[11px] text-gray-500">2D image</span></a> : <div className="flex h-24 items-center justify-center rounded-lg border border-dashed text-xs text-gray-400">2D image: —</div>}
+                {configuration.model3DUrl ? <div><Interactive3DModel src={configuration.model3DUrl} alt="Interactive 3D project configuration" /><span className="text-[11px] text-gray-500">Drag to rotate the 3D model</span></div> : <div className="flex h-24 items-center justify-center rounded-lg border border-dashed text-xs text-gray-400">3D model: —</div>}
+              </div>
             </div>
           );
         })}
