@@ -2,6 +2,7 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { useNavigate, useSearchParams, useLocation } from "react-router-dom";
 import { FiChevronDown, FiX, FiSearch, FiMenu, FiMapPin } from "react-icons/fi";
 import { properties, newlyAddedProperties, rentProperties, commercialProperties, pgProperties, plotProperties } from "../data/properties";
+import { fetchCitySuggestions, finishPlacesSession } from "./googlePlaces";
 
 const TYPES = ["Buy", "Rent", "Commercial", "PG/Co-Living", "Plots"];
 const INTENT_MAP = { "Buy": "BUY", "Rent": "RENT", "Commercial": "COMMERCIAL", "PG/Co-Living": "PG/CO-LIVING", "Plots": "PLOTS" };
@@ -129,6 +130,7 @@ export default function ListingHeader() {
   const debounceRef = useRef(null);
   const inlineDebounceRef = useRef(null);
   const cityDebounceRef = useRef(null);
+  const cityRequestRef = useRef(0);
   const searchRef = useRef(null);
   const modalRef = useRef(null);
   const cityModalRef = useRef(null);
@@ -161,6 +163,7 @@ export default function ListingHeader() {
         setShowCityModal(false);
         setCitySearch("");
         setCitySuggestions([]);
+        finishPlacesSession();
       }
     }
     document.addEventListener("mousedown", onOutside);
@@ -200,6 +203,7 @@ export default function ListingHeader() {
     setCityModalSource(source);
     setCitySearch("");
     setCitySuggestions([]);
+    finishPlacesSession();
     setShowCityModal(true);
   };
 
@@ -207,17 +211,20 @@ export default function ListingHeader() {
     const v = e.target.value;
     setCitySearch(v);
     clearTimeout(cityDebounceRef.current);
-    if (!v.trim()) { setCitySuggestions([]); setCitySearching(false); return; }
+    if (!v.trim()) { cityRequestRef.current += 1; setCitySuggestions([]); setCitySearching(false); finishPlacesSession(); return; }
     setCitySearching(true);
     cityDebounceRef.current = setTimeout(() => {
-      if (!autocompleteService) { setCitySearching(false); return; }
-      autocompleteService.getPlacePredictions(
-        { input: v },
-        (results, status) => {
-          setCitySearching(false);
-          setCitySuggestions(status === "OK" && results ? results.slice(0, 6) : []);
-        }
-      );
+      const requestId = ++cityRequestRef.current;
+      fetchCitySuggestions(v)
+        .then((results) => {
+          if (requestId === cityRequestRef.current) setCitySuggestions(results);
+        })
+        .catch(() => {
+          if (requestId === cityRequestRef.current) setCitySuggestions([]);
+        })
+        .finally(() => {
+          if (requestId === cityRequestRef.current) setCitySearching(false);
+        });
     }, 400);
   };
 
@@ -225,6 +232,7 @@ export default function ListingHeader() {
     setShowCityModal(false);
     setCitySearch("");
     setCitySuggestions([]);
+    finishPlacesSession();
     if (cityModalSource === "main") {
       setModalCity(cityName);
       setModalAreas([]);
@@ -614,7 +622,7 @@ export default function ListingHeader() {
         <div
           className="fixed inset-0 z-[700] flex items-start justify-center pt-[62px]"
           style={{ background: "rgba(0,0,0,0.45)" }}
-          onMouseDown={() => { setShowCityModal(false); setCitySearch(""); setCitySuggestions([]); }}
+          onMouseDown={() => { setShowCityModal(false); setCitySearch(""); setCitySuggestions([]); finishPlacesSession(); }}
         >
           <div
             ref={cityModalRef}
@@ -624,7 +632,7 @@ export default function ListingHeader() {
             {/* Header */}
             <div className="flex items-center justify-between px-5 pt-5 pb-4">
               <p className="text-sm font-bold text-[#1a1a2e]">Select City</p>
-              <button onClick={() => { setShowCityModal(false); setCitySearch(""); setCitySuggestions([]); }}>
+              <button onClick={() => { setShowCityModal(false); setCitySearch(""); setCitySuggestions([]); finishPlacesSession(); }}>
                 <FiX size={18} className="text-gray-400 hover:text-gray-700" />
               </button>
             </div>
@@ -650,16 +658,15 @@ export default function ListingHeader() {
             {citySuggestions.length > 0 && (
               <div className="border-t border-gray-100 max-h-[200px] overflow-y-auto">
                 {citySuggestions.map((s) => {
-                  const cityName = s.description.split(",")[0].trim();
                   return (
                     <button
-                      key={s.place_id}
-                      onMouseDown={() => selectCity(cityName)}
+                      key={s.placeId}
+                      onMouseDown={() => selectCity(s.city)}
                       className="w-full flex items-center gap-3 px-5 py-3 hover:bg-[var(--primary-color-light)] text-left transition"
                     >
                       <FiMapPin size={13} className="text-[var(--primary-color)] flex-shrink-0" />
-                      <span className="text-sm text-gray-800 font-medium">{cityName}</span>
-                      <span className="text-xs text-gray-400 truncate">{s.description.split(",").slice(1).join(",")}</span>
+                      <span className="text-sm text-gray-800 font-medium">{s.city}</span>
+                      <span className="text-xs text-gray-400 truncate">{s.displayAddress.split(",").slice(1).join(",")}</span>
                     </button>
                   );
                 })}

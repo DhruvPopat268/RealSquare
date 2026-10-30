@@ -5,6 +5,7 @@ import { priceTrendsData, QUARTERS, CITIES } from "../data/priceTrends";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import PageSpinner from "../components/PageSpinner";
+import { fetchCitySuggestions, finishPlacesSession } from "../components/googlePlaces";
 
 const PROP_TYPES = ["Apartment", "Independent House", "Villa"];
 
@@ -15,55 +16,39 @@ const POPULAR_CITIES = [
   { name: "Hyderabad", image: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=120&h=80&fit=crop" },
 ];
 
-const API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
-let autocompleteService = null;
-
-function loadGoogleMaps() {
-  if (window.google?.maps?.places) return Promise.resolve();
-  if (document.getElementById("gmap-script")) {
-    return new Promise((res) => {
-      const t = setInterval(() => { if (window.google?.maps?.places) { clearInterval(t); res(); } }, 100);
-    });
-  }
-  return new Promise((res, rej) => {
-    const s = document.createElement("script");
-    s.id = "gmap-script";
-    s.src = `https://maps.googleapis.com/maps/api/js?key=${API_KEY}&libraries=places`;
-    s.async = true; s.onload = res; s.onerror = rej;
-    document.head.appendChild(s);
-  });
-}
-
 // ── City Picker Modal ──────────────────────────────────────────────────────
 function CityPickerModal({ selectedCity, onSelect, onClose }) {
   const [citySearch, setCitySearch] = useState("");
   const [citySuggestions, setCitySuggestions] = useState([]);
   const [citySearching, setCitySearching] = useState(false);
   const debounceRef = useRef(null);
+  const requestRef = useRef(0);
   const modalRef = useRef(null);
-
-  useEffect(() => {
-    loadGoogleMaps().then(() => {
-      autocompleteService = new window.google.maps.places.AutocompleteService();
-    });
-  }, []);
 
   const handleCitySearch = (e) => {
     const v = e.target.value;
     setCitySearch(v);
     clearTimeout(debounceRef.current);
-    if (!v.trim()) { setCitySuggestions([]); setCitySearching(false); return; }
+    if (!v.trim()) { requestRef.current += 1; setCitySuggestions([]); setCitySearching(false); finishPlacesSession(); return; }
     setCitySearching(true);
     debounceRef.current = setTimeout(() => {
-      if (!autocompleteService) { setCitySearching(false); return; }
-      autocompleteService.getPlacePredictions(
-        { input: v },
-        (results, status) => {
-          setCitySearching(false);
-          setCitySuggestions(status === "OK" && results ? results.slice(0, 6) : []);
-        }
-      );
+      const requestId = ++requestRef.current;
+      fetchCitySuggestions(v)
+        .then((results) => {
+          if (requestId === requestRef.current) setCitySuggestions(results);
+        })
+        .catch(() => {
+          if (requestId === requestRef.current) setCitySuggestions([]);
+        })
+        .finally(() => {
+          if (requestId === requestRef.current) setCitySearching(false);
+        });
     }, 400);
+  };
+
+  const selectCity = (city) => {
+    finishPlacesSession();
+    onSelect(city);
   };
 
   return (
@@ -104,20 +89,17 @@ function CityPickerModal({ selectedCity, onSelect, onClose }) {
         {/* Google suggestions */}
         {citySuggestions.length > 0 && (
           <div className="border-t border-gray-100 max-h-[200px] overflow-y-auto">
-            {citySuggestions.map((s) => {
-              const cityName = s.description.split(",")[0].trim();
-              return (
+            {citySuggestions.map((suggestion) => (
                 <button
-                  key={s.place_id}
-                  onMouseDown={() => onSelect(cityName)}
+                  key={suggestion.placeId}
+                  onMouseDown={() => selectCity(suggestion.city)}
                   className="w-full flex items-center gap-3 px-5 py-3 hover:bg-[var(--primary-color-light)] text-left transition"
                 >
                   <FiMapPin size={13} className="text-[var(--primary-color)] flex-shrink-0" />
-                  <span className="text-sm text-gray-800 font-medium">{cityName}</span>
-                  <span className="text-xs text-gray-400 truncate">{s.description.split(",").slice(1).join(",")}</span>
+                  <span className="text-sm text-gray-800 font-medium">{suggestion.city}</span>
+                  <span className="text-xs text-gray-400 truncate">{suggestion.displayAddress.split(",").slice(1).join(",")}</span>
                 </button>
-              );
-            })}
+            ))}
           </div>
         )}
 
@@ -129,7 +111,7 @@ function CityPickerModal({ selectedCity, onSelect, onClose }) {
               {POPULAR_CITIES.map((c) => (
                 <button
                   key={c.name}
-                  onMouseDown={() => onSelect(c.name)}
+                  onMouseDown={() => selectCity(c.name)}
                   className={`relative rounded-xl overflow-hidden h-[72px] border-2 transition ${
                     selectedCity === c.name ? "border-[var(--primary-color)]" : "border-transparent hover:border-[var(--primary-color)]"
                   }`}

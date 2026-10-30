@@ -148,7 +148,7 @@ export async function inquiryFlow(step, answer, collectedData, { botSay, setColl
   // ── Q6: Preferred area ────────────────────────────────────────────────────
   if (step === "area") {
     if (answer === "SKIP") {
-      const updated = collectedData;
+      const updated = { ...collectedData };
       setCollectedData(() => updated);
       await botSay("What is your minimum budget? (in ₹)");
       setCustomInput({ type: "number", key: "budget_min", placeholder: "Minimum budget in ₹..." });

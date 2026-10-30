@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import FurnishingsAmenitiesDisplay from "./FurnishingsAmenitiesDisplay";
 import Interactive3DModel from "./Interactive3DModel";
 
@@ -57,69 +57,67 @@ function ConfigurationMedia({ configuration }) {
   );
 }
 
-function ConfigurationDetails({ configurations = [], areaUnit, residential, embedded = false }) {
+function ConfigurationDetails({ configurations = [], groups: apiGroups = [], areaUnit, residential, embedded = false }) {
   const label = residential ? "Residential Configurations" : "Carpet Area Configurations";
-  const groups = [];
-  const groupMap = new Map();
-
-  configurations.forEach((configuration, index) => {
-    const rawKey = residential
-      ? formatBhk(configuration.bhk)
-      : configuration.carpetArea == null || configuration.carpetArea === ""
-        ? "Area not specified"
-        : String(Number(configuration.carpetArea));
-    const key = rawKey;
-    if (!groupMap.has(key)) {
-      const group = {
-        key,
-        label: residential
-          ? rawKey
-          : rawKey === "Area not specified"
-            ? rawKey
-            : formatArea(configuration.carpetArea, areaUnit),
-        configurations: [],
-      };
-      groupMap.set(key, group);
-      groups.push(group);
-    }
-    groupMap.get(key).configurations.push({ configuration, index });
-  });
+  const groups = residential
+    ? apiGroups.map((group) => ({
+      key: group.bhk,
+      label: formatBhk(group.bhk),
+      carpetAreas: (group.carpetAreas ?? []).map((area) => ({
+        key: area.carpetArea == null ? "__unspecified__" : String(Number(area.carpetArea)),
+        label: formatArea(area.carpetArea, areaUnit),
+        configurations: area.configurations ?? [],
+      })),
+    }))
+    : apiGroups.map((group) => ({
+      key: group.carpetArea == null ? "__unspecified__" : String(Number(group.carpetArea)),
+      label: formatArea(group.carpetArea, areaUnit),
+      configurations: group.configurations ?? [],
+    }));
   const [selectedGroupKey, setSelectedGroupKey] = useState(groups[0]?.key ?? "");
   const selectedGroup = groups.find((group) => group.key === selectedGroupKey) ?? groups[0];
+  const areaGroups = residential ? selectedGroup?.carpetAreas ?? [] : [];
+  const firstAreaKey = areaGroups[0]?.key ?? "";
+  const [selectedAreaKey, setSelectedAreaKey] = useState(areaGroups[0]?.key ?? "");
+  const selectedArea = residential
+    ? areaGroups.find((area) => area.key === selectedAreaKey) ?? areaGroups[0]
+    : selectedGroup;
+  const currentConfigurations = selectedArea?.configurations ?? [];
+  const [activeConfigurationIndex, setActiveConfigurationIndex] = useState(0);
+  const activeConfiguration = currentConfigurations[activeConfigurationIndex] ?? currentConfigurations[0];
+
+  useEffect(() => {
+    setSelectedAreaKey(firstAreaKey);
+    setActiveConfigurationIndex(0);
+  }, [selectedGroup?.key, firstAreaKey]);
+  useEffect(() => setActiveConfigurationIndex(0), [selectedArea?.key]);
 
   if (!configurations.length) return null;
   return (
     <section className={embedded ? "mt-5 border-t border-gray-100 pt-5" : "rounded-2xl bg-white p-6"}>
       {embedded ? <h3 className="mb-4 text-base font-bold text-[#1a1a2e]">{label}</h3> : <h2 className="mb-5 text-xl font-bold text-[#1a1a2e]">{label}</h2>}
-      <div className="mb-5 flex gap-2 overflow-x-auto pb-1" role="tablist" aria-label={residential ? "Configurations by BHK" : "Configurations by carpet area"}>
-        {groups.map((group) => (
-          <button key={group.key} type="button" role="tab" aria-selected={selectedGroup?.key === group.key} onClick={() => setSelectedGroupKey(group.key)} className={`shrink-0 rounded-xl px-4 py-2 text-sm font-semibold transition ${selectedGroup?.key === group.key ? "bg-[var(--primary-color)] text-white shadow-sm" : "bg-gray-100 text-gray-600 hover:bg-gray-200"}`}>
-            {group.label}
-          </button>
-        ))}
+      <div className="mb-4 flex gap-2 overflow-x-auto pb-1" role="tablist" aria-label={residential ? "Configurations by BHK" : "Configurations by carpet area"}>
+        {groups.map((group) => <button key={group.key} type="button" role="tab" aria-selected={selectedGroup?.key === group.key} onClick={() => { setSelectedGroupKey(group.key); setActiveConfigurationIndex(0); }} className={`shrink-0 rounded-xl px-4 py-2 text-sm font-semibold transition ${selectedGroup?.key === group.key ? "bg-[var(--primary-color)] text-white shadow-sm" : "bg-gray-100 text-gray-600 hover:bg-gray-200"}`}>{group.label}</button>)}
       </div>
-
-      <div className="grid gap-4 lg:grid-cols-2">
-        {selectedGroup?.configurations.map(({ configuration, index }) => (
-          <article key={`${selectedGroup.key}-${index}`} className="rounded-xl border border-gray-200 bg-gray-50 p-4">
-            <ConfigurationMedia configuration={configuration} />
-            <div className="mt-4 grid grid-cols-1 gap-4 border-t border-gray-200 pt-4 sm:grid-cols-3">
-              <div>
-                <p className="mb-1 text-xs text-gray-500">Carpet Area</p>
-                <p className="text-sm font-semibold text-gray-900">{formatArea(configuration.carpetArea, areaUnit)}</p>
-              </div>
-              <div>
-                <p className="mb-1 text-xs text-gray-500">Furnishing Status</p>
-                {configuration.furnishingOptions?.length ? <div className="flex flex-wrap gap-1">{configuration.furnishingOptions.map((option, optionIndex) => <span key={`${option}-${optionIndex}`} className="w-fit rounded-full bg-blue-100 px-2 py-0.5 text-[11px] font-semibold text-blue-700">{option}</span>)}</div> : <p className="text-sm font-semibold text-gray-900">—</p>}
-              </div>
-              <div>
-                <p className="mb-1 text-xs text-gray-500">Starting Price</p>
-                <p className="text-sm font-semibold text-gray-900">{configuration.price == null ? "—" : `₹${Number(configuration.price).toLocaleString("en-IN")}`}</p>
-              </div>
-            </div>
-          </article>
-        ))}
-      </div>
+      {residential && areaGroups.length > 0 && <div className="mb-4 flex gap-2 overflow-x-auto pb-1" role="tablist" aria-label="Carpet area configurations">
+        {areaGroups.map((area) => <button key={area.key} type="button" role="tab" aria-selected={selectedArea?.key === area.key} onClick={() => { setSelectedAreaKey(area.key); setActiveConfigurationIndex(0); }} className={`shrink-0 rounded-xl px-4 py-2 text-sm font-semibold transition ${selectedArea?.key === area.key ? "bg-[var(--primary-color)] text-white shadow-sm" : "bg-gray-100 text-gray-600 hover:bg-gray-200"}`}>{area.label}</button>)}
+      </div>}
+      {activeConfiguration && <article className="rounded-xl border border-gray-200 bg-gray-50 p-4 sm:p-5">
+        <div className="mb-3 flex items-center justify-between gap-3">
+          <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-gray-600 ring-1 ring-gray-200">{currentConfigurations.length} {currentConfigurations.length === 1 ? "configuration" : "configurations"} available</span>
+          {currentConfigurations.length > 1 && <div className="flex items-center gap-2">
+            <button type="button" aria-label="Previous configuration" onClick={() => setActiveConfigurationIndex((index) => (index - 1 + currentConfigurations.length) % currentConfigurations.length)} className="flex h-8 w-8 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-700 hover:bg-gray-100">‹</button>
+            <span className="min-w-12 text-center text-xs font-medium text-gray-500">{activeConfigurationIndex + 1} / {currentConfigurations.length}</span>
+            <button type="button" aria-label="Next configuration" onClick={() => setActiveConfigurationIndex((index) => (index + 1) % currentConfigurations.length)} className="flex h-8 w-8 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-700 hover:bg-gray-100">›</button>
+          </div>}
+        </div>
+        <ConfigurationMedia key={`${selectedGroup?.key}-${selectedArea?.key}-${activeConfigurationIndex}`} configuration={activeConfiguration} />
+        <div className="mt-4 grid grid-cols-1 gap-4 border-t border-gray-200 pt-4 sm:grid-cols-3">
+          <div><p className="mb-1 text-xs text-gray-500">Carpet Area</p><p className="text-sm font-semibold text-gray-900">{formatArea(activeConfiguration.carpetArea, areaUnit)}</p></div>
+          <div><p className="mb-1 text-xs text-gray-500">Furnishing Status</p>{activeConfiguration.furnishingOptions?.length ? <div className="flex flex-wrap gap-1">{activeConfiguration.furnishingOptions.map((option, optionIndex) => <span key={`${option}-${optionIndex}`} className="w-fit rounded-full bg-blue-100 px-2 py-0.5 text-[11px] font-semibold text-blue-700">{option}</span>)}</div> : <p className="text-sm font-semibold text-gray-900">—</p>}</div>
+          <div><p className="mb-1 text-xs text-gray-500">Starting Price</p><p className="text-sm font-semibold text-gray-900">{activeConfiguration.price == null ? "—" : `₹${Number(activeConfiguration.price).toLocaleString("en-IN")}`}</p></div>
+        </div>
+      </article>}
     </section>
   );
 }
@@ -128,7 +126,7 @@ function ResidentialProjectDetails({ project }) {
   const details = project.residentialDetails ?? {};
   return (
     <div className="flex flex-col gap-6">
-      <ConfigurationDetails configurations={details.configurations} areaUnit={details.areaUnit} residential />
+      <ConfigurationDetails configurations={details.configurations} groups={project.configurationGroups?.residential ?? []} areaUnit={details.areaUnit} residential />
       <FurnishingsAmenitiesDisplay furnishings={project.furnishings ?? []} amenities={project.amenities ?? []} />
     </div>
   );
@@ -145,7 +143,7 @@ function CommercialProjectDetails({ project }) {
           <Value label="Location Hub">{details.locationHub}</Value>
           <Value label="Area Unit">{AREA_UNITS[details.areaUnit] ?? details.areaUnit}</Value>
         </div>
-        <ConfigurationDetails configurations={details.configurations} areaUnit={details.areaUnit} embedded />
+        <ConfigurationDetails configurations={details.configurations} groups={project.configurationGroups?.commercial ?? []} areaUnit={details.areaUnit} embedded />
       </section>
       <FurnishingsAmenitiesDisplay furnishings={project.furnishings ?? []} amenities={project.amenities ?? []} />
     </div>

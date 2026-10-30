@@ -4,6 +4,7 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import PageSpinner from "../components/PageSpinner";
 import PlacesAutocomplete from "../components/PlacesAutocomplete";
+import CityAutocomplete from "../components/CityAutocomplete";
 import { getPricePerSqft } from "../data/propertyPrices";
 
 const fmt = (n) => "\u20b9" + Number(Math.round(n)).toLocaleString("en-IN");
@@ -156,11 +157,10 @@ export default function PropertyValueCalculator() {
               </div>
 
               <FIELD label="City">
-                <PlacesAutocomplete
+                <CityAutocomplete
                   value={form.city}
                   onChange={set("city")}
                   placeholder="Search city e.g. Mumbai"
-                  types={["(cities)"]}
                 />
               </FIELD>
 

@@ -743,6 +743,7 @@ export default function EditPropertyPage() {
                 }}
                 placeholder="Search city..."
                 disabled={saving}
+                commitOnSelect
               />
             </FormField>
             <FormField label="Address" hint={!form.cityName ? "Select a city first" : ""}>

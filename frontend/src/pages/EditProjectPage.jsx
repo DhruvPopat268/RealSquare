@@ -435,9 +435,12 @@ export default function EditProjectPage() {
               <CityAutocomplete
                 value={form.cityName}
                 onChange={(v) => setField("cityName", v)}
-                onSelect={({ city }) => setForm((current) => ({ ...current, cityName: city, locality: { address: "", latitude: null, longitude: null } }))}
+                onSelect={({ city }) => {
+                  setForm((current) => ({ ...current, cityName: city, locality: { address: "", latitude: null, longitude: null } }));
+                }}
                 placeholder="Search city..."
                 disabled={saving}
+                commitOnSelect
               />
             </FormField>
             <FormField label="Locality" hint={!form.cityName ? "Select a city first" : ""}>
