@@ -322,10 +322,6 @@ export default function EditProjectPage() {
         }
         patch.commercialDetails = commercialDetails;
       }
-      if (Object.keys(patch).length > 1) {
-        const response = await axios.patch(`${API}/api/mixed/project-listings`, patch, { withCredentials: true });
-        if (!response.data.success) throw new Error(response.data.message ?? "Project update failed");
-      }
 
       const originalImages = project.media?.images ?? [];
       const imagesChanged = newFiles.length > 0 || !equal(images, originalImages);
@@ -340,6 +336,15 @@ export default function EditProjectPage() {
           }
         });
       }
+      const mediaChanged = imagesChanged || videosChanged || brochureChanged || configImageEntries.length > 0;
+      const fieldsChanged = Object.keys(patch).length > 1;
+
+      // Send an ID-only update when the user saves without changing fields or media.
+      if (fieldsChanged || !mediaChanged) {
+        const response = await axios.patch(`${API}/api/mixed/project-listings`, patch, { withCredentials: true });
+        if (!response.data.success) throw new Error(response.data.message ?? "Project update failed");
+      }
+
       if (imagesChanged || videosChanged || brochureChanged || configImageEntries.length) {
         const fd = new FormData();
         fd.append("projectListingId", id);
@@ -389,6 +394,28 @@ export default function EditProjectPage() {
         <h1 className="text-2xl font-bold text-[#1a1a2e]">Edit Project</h1>
         <p className="mb-7 mt-1 text-sm text-gray-400">Update the details from your project listing.</p>
         {toast && <div className={`mb-5 flex items-center gap-2 rounded-xl px-4 py-3 text-sm ${toast.type === "success" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}>{toast.type === "success" ? <FiCheck /> : <FiAlertCircle />} {toast.message}</div>}
+
+        {project.status === "Rejected" && (
+          <div className="mb-6 flex flex-col gap-3 rounded-2xl border border-red-200 bg-red-50 p-4">
+            <div className="flex items-start gap-3">
+              <FiAlertCircle size={18} className="mt-0.5 shrink-0 text-red-500" />
+              <div className="flex-1">
+                <h3 className="mb-1 text-sm font-bold text-red-700">Project Rejected</h3>
+                <p className="mb-2 text-xs text-red-600">Your project was rejected by admin. Please review the reasons below and update your listing accordingly.</p>
+              </div>
+            </div>
+            {project.rejectedReasons?.length > 0 && (
+              <div className="rounded-lg border-l-4 border-red-500 bg-red-100/50 p-3">
+                <p className="mb-2 text-xs font-semibold text-red-700">Rejection Reasons:</p>
+                <ul className="flex flex-col gap-1.5">
+                  {project.rejectedReasons.map((reason, index) => (
+                    <li key={index} className="flex items-start gap-2 text-xs text-red-600"><span className="mt-0.5 text-red-500">•</span><span>{reason}</span></li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+        )}
 
         <div className="flex flex-col gap-5">
           <Section title="Photos"><ImageEditor images={images} onChange={setImages} newFiles={newFiles} onNewFiles={(files) => setNewFiles((current) => [...current, ...files])} onRemoveNew={(index) => setNewFiles((current) => current.filter((_, i) => i !== index))} onNewFilesReorder={setNewFiles} disabled={saving} /></Section>

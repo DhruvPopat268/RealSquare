@@ -48,12 +48,13 @@ export async function fetchMyListings({ page, limit, status, purposeId, category
   return payload.properties ?? [];
 }
 
-export async function fetchMyProjectListings({ page, limit, categoryId, idealForId } = {}) {
+export async function fetchMyProjectListings({ page, limit, categoryId, idealForId, status } = {}) {
   const qs = new URLSearchParams();
   if (page != null) qs.set("page", page);
   if (limit != null) qs.set("limit", limit);
   if (categoryId) qs.set("categoryId", categoryId);
   if (idealForId) qs.set("idealForId", idealForId);
+  if (status && status !== "All") qs.set("status", status);
 
   const query = qs.toString() ? `?${qs.toString()}` : "";
   const { data } = await axios.get(

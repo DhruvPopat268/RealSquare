@@ -747,13 +747,16 @@ export default function Navbar() {
                       {canViewMyProjectListings && (
                         <button
                           onClick={() => { setProfileOpen(false); navigate("/my-project-listings"); }}
-                          className={`w-full flex items-center gap-2 px-3 py-2.5 rounded-xl border border-gray-200 transition group ${canViewMyListings ? "mt-2" : ""}`}
-                          onMouseEnter={e => { e.currentTarget.style.borderColor = primaryColor; e.currentTarget.style.backgroundColor = "#f5f0ff"; }}
-                          onMouseLeave={e => { e.currentTarget.style.borderColor = "#e5e7eb"; e.currentTarget.style.backgroundColor = "transparent"; }}
+                          className={`w-full flex items-center gap-2 px-3 py-2.5 rounded-xl border transition group ${canViewMyListings ? "mt-2" : ""}`}
+                          style={user?.rejectedProjectListingsCount > 0 ? {} : { borderColor: "#e5e7eb" }}
+                          onMouseEnter={e => { if (!(user?.rejectedProjectListingsCount > 0)) { e.currentTarget.style.borderColor = primaryColor; e.currentTarget.style.backgroundColor = "#f5f0ff"; }}}
+                          onMouseLeave={e => { if (!(user?.rejectedProjectListingsCount > 0)) { e.currentTarget.style.borderColor = "#e5e7eb"; e.currentTarget.style.backgroundColor = "transparent"; }}}
                         >
-                          <FiList size={14} className="flex-shrink-0" style={{ color: primaryColor }} />
-                          <span className="text-xs font-semibold flex-1 text-left text-[#1a1a2e]">My Project Listings</span>
-                          <span className="text-[11px] text-gray-400">→</span>
+                          <FiList size={14} className={user?.rejectedProjectListingsCount > 0 ? "text-red-500 flex-shrink-0" : "flex-shrink-0"} style={user?.rejectedProjectListingsCount > 0 ? {} : { color: primaryColor }} />
+                          <span className={`text-xs font-semibold flex-1 text-left ${user?.rejectedProjectListingsCount > 0 ? "text-red-600" : "text-[#1a1a2e]"}`}>My Project Listings</span>
+                          {user?.rejectedProjectListingsCount > 0 ? (
+                            <span className="flex items-center gap-1 text-[10px] font-bold text-red-600 bg-red-100 border border-red-300 px-1.5 py-0.5 rounded-full"><FiAlertTriangle size={10} />{user.rejectedProjectListingsCount} Action Required</span>
+                          ) : <span className="text-[11px] text-gray-400">→</span>}
                         </button>
                       )}
                       <button
@@ -1027,13 +1030,16 @@ export default function Navbar() {
                       {canViewMyProjectListings && (
                         <button
                           onClick={() => { setMobileOpen(false); navigate("/my-project-listings"); }}
-                          className={`w-full flex items-center gap-2 px-3 py-2.5 rounded-xl border border-gray-200 bg-white transition cursor-pointer ${canViewMyListings ? "mt-2" : ""}`}
-                          onMouseEnter={e => { e.currentTarget.style.borderColor = primaryColor; e.currentTarget.style.backgroundColor = "#f5f0ff"; }}
-                          onMouseLeave={e => { e.currentTarget.style.borderColor = "#e5e7eb"; e.currentTarget.style.backgroundColor = "white"; }}
+                          className={`w-full flex items-center gap-2 px-3 py-2.5 rounded-xl border transition cursor-pointer ${canViewMyListings ? "mt-2" : ""}`}
+                          style={user?.rejectedProjectListingsCount > 0 ? { borderColor: "#fca5a5", backgroundColor: "#fef2f2" } : { borderColor: "#e5e7eb", backgroundColor: "white" }}
+                          onMouseEnter={e => { if (!(user?.rejectedProjectListingsCount > 0)) { e.currentTarget.style.borderColor = primaryColor; e.currentTarget.style.backgroundColor = "#f5f0ff"; }}}
+                          onMouseLeave={e => { if (!(user?.rejectedProjectListingsCount > 0)) { e.currentTarget.style.borderColor = "#e5e7eb"; e.currentTarget.style.backgroundColor = "white"; }}}
                         >
-                          <FiList size={14} className="flex-shrink-0" style={{ color: primaryColor }} />
-                          <span className="text-xs font-semibold flex-1 text-left text-[#1a1a2e]">My Project Listings</span>
-                          <span className="text-[11px] text-gray-400">→</span>
+                          <FiList size={14} className={user?.rejectedProjectListingsCount > 0 ? "text-red-500 flex-shrink-0" : "flex-shrink-0"} style={user?.rejectedProjectListingsCount > 0 ? {} : { color: primaryColor }} />
+                          <span className={`text-xs font-semibold flex-1 text-left ${user?.rejectedProjectListingsCount > 0 ? "text-red-600" : "text-[#1a1a2e]"}`}>My Project Listings</span>
+                          {user?.rejectedProjectListingsCount > 0 ? (
+                            <span className="flex items-center gap-1 text-[10px] font-bold text-red-600 bg-red-100 border border-red-300 px-1.5 py-0.5 rounded-full"><FiAlertTriangle size={10} />{user.rejectedProjectListingsCount} Action Required</span>
+                          ) : <span className="text-[11px] text-gray-400">→</span>}
                         </button>
                       )}
                       <button

@@ -452,6 +452,14 @@ export default function EditPropertyPage() {
 
       // ── Nothing changed → just go back ───────────────────────────────────────
       if (!fieldsChanged && !mediaChanged) {
+        const patchRes = await axios.patch(
+          `${API}/api/mixed/property-listings`,
+          patchPayload,
+          { withCredentials: true }
+        );
+        if (!patchRes.data.success) {
+          throw new Error(patchRes.data.message ?? "Update failed");
+        }
         navigate("/my-property-listings");
         return;
       }

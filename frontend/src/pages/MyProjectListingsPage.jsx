@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { FiArrowLeft, FiGrid, FiHome, FiList, FiMapPin } from "react-icons/fi";
+import { FiAlertTriangle, FiArrowLeft, FiGrid, FiHome, FiList, FiMapPin } from "react-icons/fi";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import PageSpinner from "../components/PageSpinner";
@@ -134,8 +134,9 @@ export default function MyProjectListingsPage() {
   const [projectCategories, setProjectCategories] = useState([]);
   const [projectIdealForOptions, setProjectIdealForOptions] = useState([]);
   const [projectFilterOptionsLoading, setProjectFilterOptionsLoading] = useState(true);
-  const [pendingFilters, setPendingFilters] = useState({ categoryId: "", idealForId: "" });
-  const [appliedFilters, setAppliedFilters] = useState({ categoryId: "", idealForId: "" });
+  const [rejectedCount, setRejectedCount] = useState(0);
+  const [pendingFilters, setPendingFilters] = useState({ categoryId: "", idealForId: "", status: "" });
+  const [appliedFilters, setAppliedFilters] = useState({ categoryId: "", idealForId: "", status: "" });
   const [sentinelNode, setSentinelNode] = useState(null);
   const pageRef = useRef(1);
   const hasMoreRef = useRef(false);
@@ -151,6 +152,7 @@ export default function MyProjectListingsPage() {
           return;
         }
         setAllowed(ALLOWED_ROLES.includes(data.data?.role?._id));
+        setRejectedCount(data.data?.rejectedProjectListingsCount ?? 0);
       })
       .catch(() => navigate("/login"))
       .finally(() => setAuthLoading(false));
@@ -179,6 +181,7 @@ export default function MyProjectListingsPage() {
         limit: PAGE_LIMIT,
         categoryId: appliedFilters.categoryId || undefined,
         idealForId: appliedFilters.idealForId || undefined,
+        status: appliedFilters.status || undefined,
       });
       if (requestId !== requestIdRef.current) return;
       const projects = result.projects.map(mapProjectListing);
@@ -290,6 +293,21 @@ export default function MyProjectListingsPage() {
             )}
           </div>
 
+          {rejectedCount > 0 && (
+            <div className="mb-5 flex items-center gap-3 rounded-2xl border border-red-200 bg-red-50 px-4 py-3">
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-red-100"><FiAlertTriangle size={16} className="text-red-500" /></div>
+              <div className="flex-1">
+                <p className="text-sm font-bold text-red-700">{rejectedCount} {rejectedCount === 1 ? "project requires" : "projects require"} your attention</p>
+                <p className="mt-0.5 text-xs text-red-500">{rejectedCount === 1 ? "A project listing was" : "Some project listings were"} rejected. Please review the reasons and update accordingly.</p>
+              </div>
+              <button type="button" onClick={() => {
+                const rejectedFilters = { ...appliedFilters, status: "Rejected" };
+                setPendingFilters(rejectedFilters);
+                setAppliedFilters(rejectedFilters);
+              }} className="shrink-0 rounded-lg border border-red-300 bg-red-100 px-3 py-1.5 text-xs font-bold text-red-600 transition hover:bg-red-200">View Rejected</button>
+            </div>
+          )}
+
           {projectStats && !projectLoading && (
             <div className="mb-5 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
               {[
@@ -323,9 +341,9 @@ export default function MyProjectListingsPage() {
                 {projectIdealForOptions.map((option) => <option key={option._id} value={option._id}>{option.name}</option>)}
               </select>
             </label>
-            <button type="button" disabled={projectFilterOptionsLoading || (pendingFilters.categoryId === appliedFilters.categoryId && pendingFilters.idealForId === appliedFilters.idealForId)} onClick={() => setAppliedFilters({ ...pendingFilters })} className="rounded-xl bg-[var(--primary-color)] px-4 py-2 text-sm font-semibold text-white transition disabled:cursor-not-allowed disabled:opacity-40">Apply filters</button>
-            {(pendingFilters.categoryId || pendingFilters.idealForId || appliedFilters.categoryId || appliedFilters.idealForId) && (
-              <button type="button" disabled={projectFilterOptionsLoading} onClick={() => { const clear = { categoryId: "", idealForId: "" }; setPendingFilters(clear); setAppliedFilters(clear); }} className="rounded-xl border border-gray-200 px-4 py-2 text-sm font-semibold text-gray-500 transition hover:border-gray-300 disabled:opacity-40">Clear</button>
+            <button type="button" disabled={projectFilterOptionsLoading || (pendingFilters.categoryId === appliedFilters.categoryId && pendingFilters.idealForId === appliedFilters.idealForId && pendingFilters.status === appliedFilters.status)} onClick={() => setAppliedFilters({ ...pendingFilters })} className="rounded-xl bg-[var(--primary-color)] px-4 py-2 text-sm font-semibold text-white transition disabled:cursor-not-allowed disabled:opacity-40">Apply filters</button>
+            {(pendingFilters.categoryId || pendingFilters.idealForId || pendingFilters.status || appliedFilters.categoryId || appliedFilters.idealForId || appliedFilters.status) && (
+              <button type="button" disabled={projectFilterOptionsLoading} onClick={() => { const clear = { categoryId: "", idealForId: "", status: "" }; setPendingFilters(clear); setAppliedFilters(clear); }} className="rounded-xl border border-gray-200 px-4 py-2 text-sm font-semibold text-gray-500 transition hover:border-gray-300 disabled:opacity-40">Clear</button>
             )}
           </div>
 
