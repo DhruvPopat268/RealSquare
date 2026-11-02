@@ -78,6 +78,15 @@ export async function fetchProjectListingById(projectId) {
   return data.data;
 }
 
+export async function updateProjectAvailableUnits(projectId, availableUnits) {
+  const { data } = await axios.patch(
+    API + "/api/mixed/project-listings/available-units/" + projectId,
+    { availableUnits },
+    config
+  );
+  return data;
+}
+
 export async function updateProjectListingStatus(projectId, status) {
   const { data } = await axios.patch(
     `${API}/api/mixed/project-listings/status/${projectId}`,

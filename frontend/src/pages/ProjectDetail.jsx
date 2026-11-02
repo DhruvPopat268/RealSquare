@@ -5,7 +5,7 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import PageSpinner from "../components/PageSpinner";
 import ProjectTypeDetails from "../components/ProjectTypeDetails";
-import { fetchProjectListingById, updateProjectListingStatus } from "../utils/myListingsApi";
+import { fetchProjectListingById, updateProjectAvailableUnits, updateProjectListingStatus } from "../utils/myListingsApi";
 import MediaSection from "../components/MediaSection";
 
 const STATUS_CONFIG = {
@@ -51,6 +51,7 @@ export default function ProjectDetail() {
   const [unitsModalOpen, setUnitsModalOpen] = useState(false);
   const [availableUnitsInput, setAvailableUnitsInput] = useState("");
   const [unitsError, setUnitsError] = useState("");
+  const [unitsUpdating, setUnitsUpdating] = useState(false);
   const [statusModalOpen, setStatusModalOpen] = useState(false);
   const [listingStatusInput, setListingStatusInput] = useState("");
   const [statusUpdating, setStatusUpdating] = useState(false);
@@ -70,15 +71,26 @@ export default function ProjectDetail() {
     }
   };
 
-  const handleUpdateUnits = () => {
+  const handleUpdateUnits = async () => {
+    if (!project || unitsUpdating) return;
     const availableUnits = Number(availableUnitsInput);
     if (!Number.isInteger(availableUnits) || availableUnits < 1 || availableUnits > Number(project.totalUnits)) {
-      setUnitsError(`Enter a whole number from 1 to ${project.totalUnits}.`);
+      setUnitsError("Enter a whole number from 1 to " + project.totalUnits + ".");
       return;
     }
-    setProject((current) => ({ ...current, availableUnits }));
-    setUnitsModalOpen(false);
+    setUnitsUpdating(true);
+    setUnitsError("");
+    try {
+      const result = await updateProjectAvailableUnits(project._id, availableUnits);
+      setProject((current) => ({ ...current, availableUnits: result.data.availableUnits }));
+      setUnitsModalOpen(false);
+    } catch (requestError) {
+      setUnitsError(requestError?.response?.data?.message ?? "Failed to update available units");
+    } finally {
+      setUnitsUpdating(false);
+    }
   };
+
 
   const handleUpdateStatus = async () => {
     if (!listingStatusInput || statusUpdating) return;
@@ -186,13 +198,13 @@ export default function ProjectDetail() {
             />
           </div>
 
-          {project.rera && <section className="mb-6 flex flex-col gap-4 rounded-2xl bg-white p-6">
+          {project.rera?.reraId && <section className="mb-6 flex flex-col gap-4 rounded-2xl bg-white p-6">
             <div className="flex flex-wrap items-center justify-between gap-3">
-              <div className="flex items-center gap-3"><span className={`flex h-9 w-9 items-center justify-center rounded-full ${project.rera.reraStatus === "verified" ? "bg-green-100" : "bg-amber-100"}`}><FiShield size={16} className={project.rera.reraStatus === "verified" ? "text-green-600" : "text-amber-500"} /></span><div><p className="mb-0.5 text-xs uppercase tracking-wide text-gray-400">RERA Registration</p><p className="text-sm font-semibold text-gray-900">{project.rera.reraId || "No RERA number provided"}</p></div></div>
+              <div className="flex items-center gap-3"><span className={`flex h-9 w-9 items-center justify-center rounded-full ${project.rera.reraStatus === "verified" ? "bg-green-100" : "bg-amber-100"}`}><FiShield size={16} className={`${project.rera.reraStatus === "verified" ? "text-green-600" : "text-amber-500"}`} /></span><div><p className="mb-0.5 text-xs uppercase tracking-wide text-gray-400">RERA Registration</p><p className="text-sm font-semibold text-gray-900">{project.rera.reraId}</p></div></div>
               <div className="flex flex-wrap gap-2"><span className={`rounded-full border px-3 py-1 text-xs font-bold ${project.rera.reraStatus === "verified" ? "border-green-200 bg-green-50 text-green-700" : "border-amber-200 bg-amber-50 text-amber-700"}`}>RERA {project.rera.reraStatus === "verified" ? "Verified" : "Unverified"}</span><span className={`rounded-full border px-3 py-1 text-xs font-bold ${project.rera.reraAdminApproved ? "border-blue-200 bg-blue-50 text-blue-700" : "border-gray-200 bg-gray-100 text-gray-500"}`}>{project.rera.reraAdminApproved ? "Admin Approved" : "Admin Approval Pending"}</span></div>
             </div>
             {project.rera.verifiedAt && <DetailItem label="Verified At" value={new Date(project.rera.verifiedAt).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })} />}
-            {projectDetails && <div className="border-t pt-4"><h3 className="mb-4 font-bold text-gray-900">RERA Project Details</h3><div className="grid grid-cols-2 gap-4 md:grid-cols-3">{[["Project Name", projectDetails.projectName], ["Developer", projectDetails.developerName], ["Location", projectDetails.localityOrCity], ["State", projectDetails.state], ["Project Type", projectDetails.projectType], ["Project Status", projectDetails.status], ["Completion Date", projectDetails.completionDate], ["Total Units", projectDetails.totalUnits], ["Confidence", projectDetails.confidence]].filter(([, value]) => value).map(([label, value]) => <DetailItem key={label} label={label} value={value} />)}</div></div>}
+            {project.rera.projectDetails && <div className="border-t pt-4"><h3 className="mb-4 font-bold text-gray-900">RERA Project Details</h3><div className="grid grid-cols-2 gap-4 md:grid-cols-3">{[["Project Name", project.rera.projectDetails.projectName], ["Developer", project.rera.projectDetails.developerName], ["Location", project.rera.projectDetails.localityOrCity], ["State", project.rera.projectDetails.state], ["Project Type", project.rera.projectDetails.projectType], ["Project Status", project.rera.projectDetails.status], ["Completion Date", project.rera.projectDetails.completionDate], ["Total Units", project.rera.projectDetails.totalUnits], ["Confidence", project.rera.projectDetails.confidence]].filter(([, value]) => value != null && value !== "").map(([label, value]) => <DetailItem key={label} label={label} value={value} />)}</div></div>}
             {project.rera.sources?.length > 0 && <div className="border-t pt-4"><p className="mb-2 text-xs text-gray-500">Sources</p>{project.rera.sources.map((source, index) => <a key={`${source}-${index}`} href={source} target="_blank" rel="noopener noreferrer" className="block break-all text-sm text-blue-600 hover:underline">{source}</a>)}</div>}
           </section>}
 
@@ -234,7 +246,7 @@ export default function ProjectDetail() {
               <p className="mt-1 text-sm text-gray-500">Total units: {project.totalUnits}</p>
               <label className="mt-4 block text-sm font-medium text-gray-700">Available units<input type="number" min="1" max={project.totalUnits} value={availableUnitsInput} onChange={(event) => { setAvailableUnitsInput(event.target.value); setUnitsError(""); }} className="mt-1 w-full rounded-xl border border-gray-200 px-3 py-2 outline-none focus:border-[var(--primary-color)]" /></label>
               {unitsError && <p className="mt-2 text-sm text-red-600">{unitsError}</p>}
-              <div className="mt-5 flex justify-end gap-2"><button type="button" onClick={() => setUnitsModalOpen(false)} className="rounded-xl border border-gray-200 px-4 py-2 text-sm text-gray-600">Cancel</button><button type="button" onClick={handleUpdateUnits} className="rounded-xl bg-[var(--primary-color)] px-4 py-2 text-sm font-semibold text-white">Save</button></div>
+              <div className="mt-5 flex justify-end gap-2"><button type="button" onClick={() => setUnitsModalOpen(false)} className="rounded-xl border border-gray-200 px-4 py-2 text-sm text-gray-600">Cancel</button><button type="button" disabled={unitsUpdating} onClick={handleUpdateUnits} className="rounded-xl bg-[var(--primary-color)] px-4 py-2 text-sm font-semibold text-white disabled:opacity-60">{unitsUpdating ? "Saving…" : "Save"}</button></div>
             </div>
           </div>}
 

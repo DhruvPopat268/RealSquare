@@ -4,7 +4,7 @@ import { FiAlertTriangle, FiArrowLeft, FiGrid, FiHome, FiList, FiMapPin } from "
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import PageSpinner from "../components/PageSpinner";
-import { fetchActiveCategories, fetchMyProjectListings, updateProjectListingStatus } from "../utils/myListingsApi";
+import { fetchActiveCategories, fetchMyProjectListings, updateProjectAvailableUnits, updateProjectListingStatus } from "../utils/myListingsApi";
 import { fetchActiveIdealFor } from "../chatbot/chatbotApi";
 
 const PAGE_LIMIT = 10;
@@ -91,20 +91,33 @@ export default function MyProjectListingsPage() {
   const [unitsProject, setUnitsProject] = useState(null);
   const [unitsValue, setUnitsValue] = useState("");
   const [unitsError, setUnitsError] = useState("");
+  const [unitsUpdating, setUnitsUpdating] = useState(false);
   const [statusProject, setStatusProject] = useState(null);
   const [statusValue, setStatusValue] = useState("");
   const [statusUpdating, setStatusUpdating] = useState(false);
   const [statusError, setStatusError] = useState("");
 
-  const saveAvailableUnits = () => {
+  const saveAvailableUnits = async () => {
+    if (!unitsProject || unitsUpdating) return;
     const availableUnits = Number(unitsValue);
-    if (!Number.isInteger(availableUnits) || availableUnits < 1 || availableUnits > Number(unitsProject?.totalUnits)) {
-      setUnitsError(`Enter a whole number from 1 to ${unitsProject?.totalUnits}.`);
+    if (!Number.isInteger(availableUnits) || availableUnits < 1 || availableUnits > Number(unitsProject.totalUnits)) {
+      setUnitsError("Enter a whole number from 1 to " + unitsProject.totalUnits + ".");
       return;
     }
-    setProjectCards((projects) => projects.map((project) => project.id === unitsProject.id ? { ...project, availableUnits } : project));
-    setUnitsProject(null);
+    setUnitsUpdating(true);
+    setUnitsError("");
+    try {
+      const result = await updateProjectAvailableUnits(unitsProject.id, availableUnits);
+      const updatedAvailableUnits = result.data.availableUnits;
+      setProjectCards((projects) => projects.map((project) => project.id === unitsProject.id ? { ...project, availableUnits: updatedAvailableUnits } : project));
+      setUnitsProject(null);
+    } catch (error) {
+      setUnitsError(error?.response?.data?.message ?? "Failed to update available units");
+    } finally {
+      setUnitsUpdating(false);
+    }
   };
+
 
   const saveListingStatus = async () => {
     if (!statusProject || !statusValue || statusUpdating) return;
@@ -424,7 +437,7 @@ export default function MyProjectListingsPage() {
                   <input type="number" min="1" max={unitsProject.totalUnits} value={unitsValue} onChange={(event) => { setUnitsValue(event.target.value); setUnitsError(""); }} className="mt-1 w-full rounded-xl border border-gray-200 px-3 py-2 outline-none focus:border-[var(--primary-color)]" />
                 </label>
                 {unitsError && <p className="mt-2 text-sm text-red-600">{unitsError}</p>}
-                <div className="mt-5 flex justify-end gap-2"><button type="button" onClick={() => setUnitsProject(null)} className="rounded-xl border border-gray-200 px-4 py-2 text-sm text-gray-600">Cancel</button><button type="button" onClick={saveAvailableUnits} className="rounded-xl bg-[var(--primary-color)] px-4 py-2 text-sm font-semibold text-white">Save</button></div>
+                <div className="mt-5 flex justify-end gap-2"><button type="button" onClick={() => setUnitsProject(null)} className="rounded-xl border border-gray-200 px-4 py-2 text-sm text-gray-600">Cancel</button><button type="button" disabled={unitsUpdating} onClick={saveAvailableUnits} className="rounded-xl bg-[var(--primary-color)] px-4 py-2 text-sm font-semibold text-white disabled:opacity-60">{unitsUpdating ? "Saving…" : "Save"}</button></div>
               </div>
             </div>
           )}

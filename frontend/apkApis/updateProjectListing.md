@@ -6,6 +6,30 @@ Authentication: `user_token` cookie (`withCredentials: true` for web) or bearer 
 
 ---
 
+## Update Available Units
+
+**PATCH** `/api/mixed/project-listings/available-units/:id`
+
+Used by the Update Units actions on My Project Listings and Project Detail. Authentication is required, and only the project owner can make the change. The project ID is supplied as `:id` in the URL.
+
+```json
+{ "availableUnits": 42 }
+```
+
+`availableUnits` must be a whole number from 1 through the project's `totalUnits`.
+
+**Success (200):**
+
+```json
+{
+  "success": true,
+  "message": "Available units updated successfully",
+  "data": { "availableUnits": 42 }
+}
+```
+
+Invalid IDs or unit counts return **400**, a missing project returns **404**, and a request from a non-owner returns **403**.
+
 ## 1. Update Project Text Data
 
 **PATCH** `/api/mixed/project-listings`
@@ -128,6 +152,8 @@ Partial update — always include `projectListingId`, send only changed fields.
   "reraId": "PR/MH/PUNE/REALTORSHUB001234"
 }
 ```
+
+When a changed RERA ID is submitted, the API checks it using Serper search results and Gemini extraction. A verification result is saved with the project. If verification services fail, the project edit still saves and the RERA ID is marked unverified. An unchanged ID is not checked again.
 
 **Clear RERA ID:**
 
