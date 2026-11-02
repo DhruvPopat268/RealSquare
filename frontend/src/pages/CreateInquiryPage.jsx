@@ -208,7 +208,10 @@ export default function CreateInquiryPage() {
                   key={customInput.key}
                   options={customInput.options}
                   minSelect={customInput.minSelect ?? 1}
-                  onSubmit={(val) => handleUserReply(val)}
+                  returnArray={customInput.returnArray ?? false}
+                  onSubmit={(val) => Array.isArray(val)
+                    ? handleUserReply(val.join(", "), { [customInput.resultKey ?? "_coworkingVirtualSpaceBenefits"]: val })
+                    : handleUserReply(val)}
                 />
               ) : showNumberInput ? (
                 <ChatbotNumberInput

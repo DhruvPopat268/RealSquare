@@ -47,8 +47,8 @@ Used by the create-requirement chatbot after the user confirms the summary. The 
 | `isProperty` | boolean | The chatbot sends `true` for Ready To Move and `false` for Under Construction. The backend accepts either value; `false` excludes Owners from assignment under the current assignment logic. |
 | `listingType` | ID | Active property purpose ID. |
 | `preferredCity` | string | City being searched. |
-| `budget.min` | number | Must be less than `budget.max`. |
-| `budget.max` | number | Must be greater than `budget.min`. |
+| `budget.min` | number | Required except for Rent / Commercial / Co-working requirements. Must be less than `budget.max` when provided. |
+| `budget.max` | number | Required except for Rent / Commercial / Co-working requirements. Must be greater than `budget.min` when provided. |
 | `inquiryClassification` | string | `hot`, `warm`, or `cold`. |
 | `lastFollowUpDate` | ISO 8601 date | The chatbot sends the selected date as an ISO date-time. |
 | `preferredCommunication` | string array | At least one value: `call`, `whatsapp`, `email`, `sms`. |
@@ -143,6 +143,56 @@ Plots do not include `furnishingType` in this flow.
 ```
 
 The current flow omits `propertyCategory`, `propertyType`, `bhk`, `builtUpArea`, `plotArea`, and `furnishingType` for PG.
+
+**Co-working requirement (Rent / Commercial / configured Co-working property type):**
+
+When `listingType`, `propertyCategory`, and `propertyType` match the Rent, Commercial, and Co-working IDs configured by the backend, send `coworkingWorkspaces` instead of `budget`. The backend requires all three matching IDs, requires one to three distinct workspace entries, and rejects `budget` for this case. `preferredArea`, `remarks`, and the other common fields remain optional as described above. Do not include `furnishingType`, `bhk`, `builtUpArea`, or `plotArea` for this chatbot flow.
+
+Each selected workspace has a different payload shape:
+
+| `type` | Required fields | Rent meaning |
+|---|---|---|
+| `hall` | `requiredSeats`, `minRentPerSeat`, `maxRentPerSeat` | Monthly rent range per seat |
+| `cabin` | `requiredSeats`, `minRentPerSeat`, `maxRentPerSeat` | Monthly rent range per seat |
+| `virtualSpace` | `minMonthlyRent`, `maxMonthlyRent` | Monthly rent range for Virtual Space |
+
+Example with all three workspace types selected:
+
+```json
+{
+  "isProperty": true,
+  "listingType": "<rentPurposeId>",
+  "propertyCategory": "<commercialCategoryId>",
+  "propertyType": "<configuredCoworkingPropertyTypeId>",
+  "preferredCity": "Pune",
+  "preferredArea": "Baner",
+  "coworkingWorkspaces": [
+    {
+      "type": "hall",
+      "requiredSeats": 10,
+      "minRentPerSeat": 5000,
+      "maxRentPerSeat": 8000
+    },
+    {
+      "type": "cabin",
+      "requiredSeats": 4,
+      "minRentPerSeat": 7000,
+      "maxRentPerSeat": 12000
+    },
+    {
+      "type": "virtualSpace",
+      "minMonthlyRent": 1500,
+      "maxMonthlyRent": 4000
+    }
+  ],
+  "inquiryClassification": "warm",
+  "lastFollowUpDate": "2026-10-15T00:00:00.000Z",
+  "preferredCommunication": ["call", "whatsapp"],
+  "remarks": "Looking for a co-working space in Baner"
+}
+```
+
+For a single workspace, include only its object in `coworkingWorkspaces`. Hall and Cabin seat counts must be positive whole numbers. All minimum and maximum rents must be positive, and maximum rent must be at least the minimum. Virtual Space does not accept seat fields; Hall and Cabin do not accept monthly-total rent fields.
 
 On success, the API creates the requirement and assignments for eligible professionals. The page displays a confirmation; it does not require the response body to continue.
 

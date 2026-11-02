@@ -374,7 +374,7 @@ export default function ChatbotPage({ flow = propertyListingFlow, assistantTitle
                   minSelect={customInput.minSelect ?? 1}
                   returnArray={customInput.returnArray ?? false}
                   onSubmit={(val) => Array.isArray(val)
-                    ? handleUserReply(val.join(", "), { _coworkingVirtualSpaceBenefits: val })
+                    ? handleUserReply(val.join(", "), { [customInput.resultKey ?? "_coworkingVirtualSpaceBenefits"]: val })
                     : handleUserReply(val)}
                 />
               ) : showNumberInput ? (

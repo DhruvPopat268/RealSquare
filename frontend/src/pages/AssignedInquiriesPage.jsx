@@ -9,6 +9,7 @@ import {
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import CoinIcon from "../components/CoinIcon";
+import CoworkingInquiryDetails from "../components/CoworkingInquiryDetails";
 import { fetchAssignedInquiries, purchaseAssignedInquiry } from "../utils/inquiryApi";
 import { fetchActivePurposes, fetchActiveCategories, fetchActivePropertyTypes } from "../utils/myListingsApi";
 
@@ -108,7 +109,7 @@ function AssignedInquiryCard({ assignment, onPurchase }) {
         <div className="flex items-center gap-2">
           <span className={`px-2.5 py-0.5 rounded-full text-[11px] font-semibold border ${
             purchased
-              ? "bg-[var(--primary-color-light)] border-[#e0d5ff] text-[var(--primary-color)]"
+              ? "bg-gray-100 border-gray-200 text-gray-600"
               : "bg-green-50 border-green-200 text-green-600"
           }`}>
             {purchased ? "Purchased" : "Active"}
@@ -117,9 +118,9 @@ function AssignedInquiryCard({ assignment, onPurchase }) {
       </div>
 
       {/* createdBy — masked or real */}
-      <div className={`flex items-start gap-3 p-3 rounded-xl border ${purchased ? "border-[#e0d5ff] bg-[#f9f7ff]" : "border-gray-100 bg-gray-50"}`}>
-        <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${purchased ? "bg-[var(--primary-color)]" : "bg-gray-200"}`}>
-          <FiUser size={14} className={purchased ? "text-white" : "text-gray-400"} />
+      <div className={`flex items-start gap-3 p-3 rounded-xl border ${purchased ? "border-gray-200 bg-gray-50" : "border-gray-100 bg-gray-50"}`}>
+        <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 bg-gray-200">
+          <FiUser size={14} className="text-gray-500" />
         </div>
         <div className="flex-1 min-w-0">
           <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wide mb-1">Requirement By</p>
@@ -154,7 +155,7 @@ function AssignedInquiryCard({ assignment, onPurchase }) {
 
       {/* Location */}
       <div className="flex items-start gap-2">
-        <FiMapPin size={14} className="text-[var(--primary-color)] flex-shrink-0 mt-0.5" />
+        <FiMapPin size={14} className="text-gray-400 flex-shrink-0 mt-0.5" />
         <div>
           <p className="text-sm font-semibold text-[#1a1a2e]">{inquiry.preferredCity}</p>
           {inquiry.preferredArea && (
@@ -164,11 +165,13 @@ function AssignedInquiryCard({ assignment, onPurchase }) {
       </div>
 
       {/* Budget */}
-      <div className="flex items-center gap-2">
-        <p className="text-sm font-semibold text-[#1a1a2e]">
-          {formatBudget(inquiry.budget.min, inquiry.budget.max)}
-        </p>
-      </div>
+      {inquiry.budget && (
+        <div className="flex items-center gap-2">
+          <p className="text-sm font-semibold text-[#1a1a2e]">
+            {formatBudget(inquiry.budget.min, inquiry.budget.max)}
+          </p>
+        </div>
+      )}
 
       <p className="text-xs font-semibold text-gray-500">
         {inquiry.isProperty ? "Ready To Move Property" : "Under Construction Property"}
@@ -177,7 +180,7 @@ function AssignedInquiryCard({ assignment, onPurchase }) {
       {/* Row 1 — Purpose / Category / Type */}
       <div className="flex flex-wrap gap-2">
         {inquiry.listingType?.name && (
-          <span className="px-2.5 py-1 bg-[var(--primary-color-light)] text-[var(--primary-color)] border border-[#e0d5ff] rounded-lg text-[11px] font-bold">
+          <span className="px-2.5 py-1 bg-gray-50 text-gray-600 border border-gray-200 rounded-lg text-[11px] font-bold">
             {inquiry.listingType.name}
           </span>
         )}
@@ -202,13 +205,15 @@ function AssignedInquiryCard({ assignment, onPurchase }) {
             </span>
           )}
           {inquiry.furnishingType && (
-            <span className="flex items-center gap-1 px-2.5 py-1 bg-[var(--primary-color-light)] text-[var(--primary-color)] rounded-lg text-[11px] font-semibold">
+            <span className="flex items-center gap-1 px-2.5 py-1 bg-gray-50 text-gray-600 border border-gray-200 rounded-lg text-[11px] font-semibold">
               <FiHome size={11} />
               {inquiry.furnishingType}
             </span>
           )}
         </div>
       )}
+
+      <CoworkingInquiryDetails workspaces={inquiry.coworkingWorkspaces} />
 
       {/* Row 3 — Communication Preferences */}
       <div className="flex flex-wrap items-center gap-1.5">

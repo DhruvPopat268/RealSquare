@@ -4,8 +4,11 @@ import {
   FURNISH_TYPE_OPTIONS,
   RESIDENTIAL_PLOT_IDS,
   COMMERCIAL_PLOT_IDS,
+  COMMERCIAL_COWORKING_SPACE_ID,
   CATEGORY_RESIDENTIAL_ID,
   CATEGORY_COMMERCIAL_ID,
+  LISTING_TYPE_SELL_ID,
+  LISTING_TYPE_RENT_ID,
 } from "./chatbotConstants";
 import { fetchActivePurposes, fetchActiveCategories, fetchPropertyTypes } from "./chatbotApi";
 import api from "../utils/axiosInterceptor";
@@ -15,6 +18,30 @@ const INQUIRY_TYPE_OPTIONS     = ["Ready To Move Property", "Under Construction 
 const INQUIRY_CLASS_OPTIONS    = ["Hot 🔥 (High Priority)", "Warm 🌤️ (Medium Priority)", "Cold ❄️ (Low Priority)"];
 const INQUIRY_CLASS_MAP        = { "Hot 🔥 (High Priority)": "hot", "Warm 🌤️ (Medium Priority)": "warm", "Cold ❄️ (Low Priority)": "cold" };
 const COMM_PREF_OPTIONS        = ["Call", "WhatsApp", "Email", "SMS"];
+const COWORKING_WORKSPACE_OPTIONS = ["Hall", "Cabins", "Virtual Space"];
+
+const isCoworkingRequirement = (data) => Boolean(COMMERCIAL_COWORKING_SPACE_ID)
+  && data.listingTypeId === LISTING_TYPE_RENT_ID
+  && data.categoryId === CATEGORY_COMMERCIAL_ID
+  && data.propertyTypeId === COMMERCIAL_COWORKING_SPACE_ID;
+
+async function askNextCoworkingWorkspaceField(data, { botSay, setCustomInput, goTo }) {
+  const type = data._coworkingSelectedTypes[data._coworkingWorkspaceIndex];
+  const pending = { type };
+  const updated = { ...data, _coworkingPendingWorkspace: pending };
+  const displayType = type === "virtualSpace" ? "Virtual Space" : type === "cabin" ? "Cabins" : "Hall";
+
+  if (type === "virtualSpace") {
+    await botSay("What is the minimum monthly rent for Virtual Space? (in ₹)");
+    setCustomInput({ type: "number", key: "coworking_virtual_min_rent", placeholder: "Minimum monthly rent in ₹...", min: 1 });
+    goTo("coworking_workspace_min_rent", updated);
+    return;
+  }
+
+  await botSay(`How many seats do you need for ${displayType}?`);
+  setCustomInput({ type: "number", key: "coworking_required_seats", placeholder: "Number of seats...", min: 1 });
+  goTo("coworking_workspace_seats", updated);
+}
 
 // ── Main flow ─────────────────────────────────────────────────────────────────
 export async function inquiryFlow(step, answer, collectedData, { botSay, setCollectedData, goTo, setCustomInput }) {
@@ -37,6 +64,27 @@ export async function inquiryFlow(step, answer, collectedData, { botSay, setColl
     }
     const updated = { ...collectedData, inquiryType: answer };
     setCollectedData(() => updated);
+
+    if (answer === "Under Construction Property") {
+      const sellRequirement = {
+        ...updated,
+        listingTypeId: LISTING_TYPE_SELL_ID,
+        listingTypeName: "Sell",
+      };
+      setCollectedData(() => sellRequirement);
+      try {
+        await botSay("What category does the property fall under?");
+        const categories = await fetchActiveCategories();
+        await botSay("Select the category:", categories.map((category) => category.label));
+        const nextData = { ...sellRequirement, _categories: categories };
+        setCollectedData(() => nextData);
+        goTo("category", nextData);
+      } catch {
+        await botSay("⚠️ Failed to load categories. Please refresh and try again.");
+      }
+      return;
+    }
+
     try {
       await botSay("Got it! What is the property purpose you're interested in?");
       const purposes = await fetchActivePurposes({ showBuyLabel: true });
@@ -112,7 +160,13 @@ export async function inquiryFlow(step, answer, collectedData, { botSay, setColl
     setCollectedData(() => updated);
     try {
       await botSay(`What type of ${answer.toLowerCase()} property are you looking for?`);
-      const types = await fetchPropertyTypes(matched?.value);
+      const availableTypes = await fetchPropertyTypes(matched?.value);
+      const allowCoworkingType = Boolean(COMMERCIAL_COWORKING_SPACE_ID)
+        && collectedData.listingTypeId === LISTING_TYPE_RENT_ID
+        && matched?.value === CATEGORY_COMMERCIAL_ID;
+      const types = allowCoworkingType
+        ? availableTypes
+        : availableTypes.filter((type) => String(type.value) !== String(COMMERCIAL_COWORKING_SPACE_ID));
       await botSay("Select the property type:", types.map((t) => t.label));
       setCollectedData(() => ({ ...updated, _propertyTypes: types }));
       goTo("property_type", { ...updated, _propertyTypes: types });
@@ -150,6 +204,12 @@ export async function inquiryFlow(step, answer, collectedData, { botSay, setColl
     if (answer === "SKIP") {
       const updated = { ...collectedData };
       setCollectedData(() => updated);
+      if (isCoworkingRequirement(updated)) {
+        await botSay("Which co-working workspace types are you looking for? Select all that apply.");
+        setCustomInput({ type: "multiselect", key: "coworking_workspace_types", options: COWORKING_WORKSPACE_OPTIONS, minSelect: 1, returnArray: true, resultKey: "_selectedCoworkingWorkspaceTypes" });
+        goTo("coworking_workspace_types", updated);
+        return;
+      }
       await botSay("What is your minimum budget? (in ₹)");
       setCustomInput({ type: "number", key: "budget_min", placeholder: "Minimum budget in ₹..." });
       goTo("budget_min", updated);
@@ -164,9 +224,116 @@ export async function inquiryFlow(step, answer, collectedData, { botSay, setColl
     delete updated._localityLatitude;
     delete updated._localityLongitude;
     setCollectedData(() => updated);
+    if (isCoworkingRequirement(updated)) {
+      await botSay("Which co-working workspace types are you looking for? Select all that apply.");
+      setCustomInput({ type: "multiselect", key: "coworking_workspace_types", options: COWORKING_WORKSPACE_OPTIONS, minSelect: 1, returnArray: true, resultKey: "_selectedCoworkingWorkspaceTypes" });
+      goTo("coworking_workspace_types", updated);
+      return;
+    }
     await botSay("What is your minimum budget? (in ₹)");
     setCustomInput({ type: "number", key: "budget_min", placeholder: "Minimum budget in ₹..." });
     goTo("budget_min", updated);
+    return;
+  }
+
+  // Co-working requirements ask for workspace-specific seat and rent ranges instead of area/budget fields.
+  if (step === "coworking_workspace_types") {
+    const selected = (collectedData._selectedCoworkingWorkspaceTypes ?? []).map((label) => ({
+      Hall: "hall",
+      Cabins: "cabin",
+      "Virtual Space": "virtualSpace",
+    }[label])).filter(Boolean).sort((a, b) =>
+      ["hall", "cabin", "virtualSpace"].indexOf(a) - ["hall", "cabin", "virtualSpace"].indexOf(b)
+    );
+    if (!selected.length) return;
+
+    const updated = {
+      ...collectedData,
+      _coworkingSelectedTypes: selected,
+      _coworkingWorkspaceIndex: 0,
+      _coworkingWorkspaces: [],
+    };
+    delete updated._selectedCoworkingWorkspaceTypes;
+    setCollectedData(() => updated);
+    await askNextCoworkingWorkspaceField(updated, { botSay, setCustomInput, goTo });
+    return;
+  }
+
+  if (step === "coworking_workspace_seats") {
+    if (!answer) return;
+    const seats = Number(answer);
+    if (!Number.isInteger(seats) || seats < 1) {
+      await botSay("Please enter a whole number of seats greater than zero.");
+      setCustomInput({ type: "number", key: "coworking_required_seats_retry", placeholder: "Number of seats...", min: 1 });
+      goTo("coworking_workspace_seats", collectedData);
+      return;
+    }
+    const workspaceType = collectedData._coworkingSelectedTypes[collectedData._coworkingWorkspaceIndex];
+    const updated = { ...collectedData, _coworkingPendingWorkspace: { type: workspaceType, requiredSeats: seats } };
+    setCollectedData(() => updated);
+    const displayType = updated._coworkingPendingWorkspace.type === "cabin" ? "Cabins" : "Hall";
+    await botSay(`What is the minimum monthly rent per seat for ${displayType}? (in ₹)`);
+    setCustomInput({ type: "number", key: "coworking_min_rent_per_seat", placeholder: "Minimum monthly rent per seat in ₹...", min: 1 });
+    goTo("coworking_workspace_min_rent", updated);
+    return;
+  }
+
+  if (step === "coworking_workspace_min_rent") {
+    if (!answer) return;
+    const minRent = Number(answer);
+    if (!Number.isFinite(minRent) || minRent <= 0) {
+      await botSay("Please enter a monthly rent greater than zero.");
+      setCustomInput({ type: "number", key: "coworking_min_rent_retry", placeholder: "Minimum monthly rent in ₹...", min: 1 });
+      goTo("coworking_workspace_min_rent", collectedData);
+      return;
+    }
+    const workspaceType = collectedData._coworkingSelectedTypes[collectedData._coworkingWorkspaceIndex];
+    const updated = { ...collectedData, _coworkingPendingWorkspace: { ...collectedData._coworkingPendingWorkspace, type: workspaceType, minRent } };
+    setCollectedData(() => updated);
+    const isPerSeat = workspaceType === "hall" || workspaceType === "cabin";
+    const workspaceLabel = workspaceType === "hall" ? "Hall" : workspaceType === "cabin" ? "Cabins" : "Virtual Space";
+    await botSay(isPerSeat
+      ? `What is the maximum monthly rent per seat for ${workspaceLabel}? (in ₹)`
+      : "What is the maximum monthly rent for Virtual Space? (in ₹)");
+    setCustomInput({ type: "number", key: "coworking_max_rent", placeholder: isPerSeat ? `Maximum monthly rent per seat for ${workspaceLabel} in ₹...` : "Maximum monthly rent in ₹...", min: 1 });
+    goTo("coworking_workspace_max_rent", updated);
+    return;
+  }
+
+  if (step === "coworking_workspace_max_rent") {
+    if (!answer) return;
+    const maxRent = Number(answer);
+    const pending = collectedData._coworkingPendingWorkspace;
+    if (!Number.isFinite(maxRent) || maxRent <= 0 || maxRent < pending.minRent) {
+      await botSay(`Maximum rent must be at least the minimum rent of ₹${Number(pending.minRent).toLocaleString("en-IN")}. Please enter it again.`);
+      setCustomInput({ type: "number", key: "coworking_max_rent_retry", placeholder: "Maximum monthly rent in ₹...", min: 1 });
+      goTo("coworking_workspace_max_rent", collectedData);
+      return;
+    }
+
+    const workspaceType = collectedData._coworkingSelectedTypes[collectedData._coworkingWorkspaceIndex];
+    const workspace = workspaceType === "virtualSpace"
+      ? { type: workspaceType, minMonthlyRent: pending.minRent, maxMonthlyRent: maxRent }
+      : { type: workspaceType, requiredSeats: pending.requiredSeats, minRentPerSeat: pending.minRent, maxRentPerSeat: maxRent };
+    const nextIndex = collectedData._coworkingWorkspaceIndex + 1;
+    const updated = {
+      ...collectedData,
+      _coworkingWorkspaceIndex: nextIndex,
+      _coworkingWorkspaces: [...(collectedData._coworkingWorkspaces ?? []), workspace],
+    };
+    delete updated._coworkingPendingWorkspace;
+
+    if (nextIndex < updated._coworkingSelectedTypes.length) {
+      setCollectedData(() => updated);
+      await askNextCoworkingWorkspaceField(updated, { botSay, setCustomInput, goTo });
+      return;
+    }
+
+    updated.coworkingWorkspaces = updated._coworkingWorkspaces;
+    ["_coworkingSelectedTypes", "_coworkingWorkspaceIndex", "_coworkingWorkspaces"].forEach((key) => delete updated[key]);
+    setCollectedData(() => updated);
+    await botSay("How would you classify this requirement?", INQUIRY_CLASS_OPTIONS);
+    goTo("lead_classification", updated);
     return;
   }
 
@@ -376,6 +543,7 @@ export async function inquiryFlow(step, answer, collectedData, { botSay, setColl
   // ── Summary ───────────────────────────────────────────────────────────────
   if (step === "summary") {
     const d = collectedData;
+    const isCoworking = isCoworkingRequirement(d);
 
     const budgetStr = d.budgetMin !== undefined && d.budgetMax !== undefined
       ? `₹${d.budgetMin.toLocaleString()} – ₹${d.budgetMax.toLocaleString()}`
@@ -393,6 +561,14 @@ export async function inquiryFlow(step, answer, collectedData, { botSay, setColl
           : "Built-up Area")
       : "BHK Requirement";
 
+    const workspaceLines = (d.coworkingWorkspaces ?? []).map((workspace) => {
+      const label = workspace.type === "virtualSpace" ? "Virtual Space" : workspace.type === "cabin" ? "Cabins" : "Hall";
+      if (workspace.type === "virtualSpace") {
+        return `  • ${label}: ₹${workspace.minMonthlyRent.toLocaleString("en-IN")} – ₹${workspace.maxMonthlyRent.toLocaleString("en-IN")} monthly`;
+      }
+      return `  • ${label}: ${workspace.requiredSeats} seats, ₹${workspace.minRentPerSeat.toLocaleString("en-IN")} – ₹${workspace.maxRentPerSeat.toLocaleString("en-IN")} per seat/month`;
+    }).join("\n");
+
     const msg =
       `✅ Here's a summary of the requirement. Please review before submitting.\n\n` +
       `📋 Basic Info:\n` +
@@ -403,11 +579,12 @@ export async function inquiryFlow(step, answer, collectedData, { botSay, setColl
       `📍 Location:\n` +
       `  • City            : ${d.preferredCity ?? "—"}\n` +
       `  • Area            : ${d.preferredArea ?? "—"}\n\n` +
-      `💰 Budget:\n` +
-      `  • Range           : ${budgetStr}\n\n` +
-      `🏠 Property Requirements:\n` +
-      `  • ${areaLabel.padEnd(18)}: ${areaStr}\n` +
-      (d.furnishingPreference ? `  • Furnishing      : ${d.furnishingPreference}\n` : "") + `\n` +
+      (isCoworking ? `🏢 Workspace Requirements:\n${workspaceLines}\n\n` :
+        `💰 Budget:\n` +
+        `  • Range           : ${budgetStr}\n\n` +
+        `🏠 Property Requirements:\n` +
+        `  • ${areaLabel.padEnd(18)}: ${areaStr}\n` +
+        (d.furnishingPreference ? `  • Furnishing      : ${d.furnishingPreference}\n` : "") + `\n`) +
       `🎯 Lead Info:\n` +
       `  • Classification  : ${d.leadClassification ?? "—"}\n` +
       `  • Last Follow-up  : ${d.lastFollowUpDate ?? "—"}\n` +
@@ -433,6 +610,7 @@ export async function inquiryFlow(step, answer, collectedData, { botSay, setColl
 
     try {
       const d = collectedData;
+      const isCoworking = isCoworkingRequirement(d);
 
       // ── Build payload ──────────────────────────────────────────────────
       // Map comm preferences to lowercase API values
@@ -444,10 +622,11 @@ export async function inquiryFlow(step, answer, collectedData, { botSay, setColl
         isProperty: d.inquiryType === "Ready To Move Property",
         listingType:             d.listingTypeId,
         preferredCity:           d.preferredCity,
-        budget:                  { min: d.budgetMin, max: d.budgetMax },
         inquiryClassification:   d.leadClassification,
         lastFollowUpDate:        new Date(d.lastFollowUpDate).toISOString(),
         preferredCommunication,
+        ...(!isCoworking && { budget: { min: d.budgetMin, max: d.budgetMax } }),
+        ...(isCoworking && { coworkingWorkspaces: d.coworkingWorkspaces }),
         ...(d.furnishingPreference && { furnishingType: d.furnishingPreference }),
         ...(d.categoryId    && { propertyCategory: d.categoryId }),
         ...(d.propertyTypeId && { propertyType: d.propertyTypeId }),

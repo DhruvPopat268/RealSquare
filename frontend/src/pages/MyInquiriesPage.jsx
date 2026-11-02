@@ -7,6 +7,7 @@ import {
 } from "react-icons/fi";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import CoworkingInquiryDetails from "../components/CoworkingInquiryDetails";
 import { fetchMyInquiries, updateMyInquiryStatus } from "../utils/inquiryApi";
 import { fetchActivePurposes, fetchActiveCategories, fetchActivePropertyTypes } from "../utils/myListingsApi";
 
@@ -110,7 +111,7 @@ function InquiryCard({ inquiry, onRequestStatusUpdate, updating }) {
 
       {/* Location */}
       <div className="flex items-start gap-2">
-        <FiMapPin size={14} className="text-[var(--primary-color)] flex-shrink-0 mt-0.5" />
+        <FiMapPin size={14} className="text-gray-400 flex-shrink-0 mt-0.5" />
         <div>
           <p className="text-sm font-semibold text-[#1a1a2e]">{inquiry.preferredCity}</p>
           {inquiry.preferredArea && (
@@ -120,11 +121,13 @@ function InquiryCard({ inquiry, onRequestStatusUpdate, updating }) {
       </div>
 
       {/* Budget */}
-      <div className="flex items-center gap-2">
-        <p className="text-sm font-semibold text-[#1a1a2e]">
-          {formatBudget(inquiry.budget.min, inquiry.budget.max)}
-        </p>
-      </div>
+      {inquiry.budget && (
+        <div className="flex items-center gap-2">
+          <p className="text-sm font-semibold text-[#1a1a2e]">
+            {formatBudget(inquiry.budget.min, inquiry.budget.max)}
+          </p>
+        </div>
+      )}
 
       <p className="text-xs font-semibold text-gray-500">
         {inquiry.isProperty ? "Ready To Move Property" : "Under Construction Property"}
@@ -133,7 +136,7 @@ function InquiryCard({ inquiry, onRequestStatusUpdate, updating }) {
       {/* Row 1 — Purpose / Category / Type */}
       <div className="flex flex-wrap gap-2">
         {inquiry.listingType?.name && (
-          <span className="px-2.5 py-1 bg-[var(--primary-color-light)] text-[var(--primary-color)] border border-[#e0d5ff] rounded-lg text-[11px] font-bold">
+          <span className="px-2.5 py-1 bg-gray-50 text-gray-600 border border-gray-200 rounded-lg text-[11px] font-bold">
             {inquiry.listingType.name}
           </span>
         )}
@@ -158,13 +161,15 @@ function InquiryCard({ inquiry, onRequestStatusUpdate, updating }) {
             </span>
           )}
           {inquiry.furnishingType && (
-            <span className="flex items-center gap-1 px-2.5 py-1 bg-[var(--primary-color-light)] text-[var(--primary-color)] rounded-lg text-[11px] font-semibold">
+            <span className="flex items-center gap-1 px-2.5 py-1 bg-gray-50 text-gray-600 border border-gray-200 rounded-lg text-[11px] font-semibold">
               <FiHome size={11} />
               {inquiry.furnishingType}
             </span>
           )}
         </div>
       )}
+
+      <CoworkingInquiryDetails workspaces={inquiry.coworkingWorkspaces} />
 
       {/* Row 3 — Communication Preferences */}
       <div className="flex flex-wrap items-center gap-1.5">
@@ -207,7 +212,7 @@ function InquiryCard({ inquiry, onRequestStatusUpdate, updating }) {
               type="button"
               onClick={() => setStatusMenuOpen((open) => !open)}
               disabled={Boolean(updating)}
-              className="flex items-center gap-2 rounded-lg bg-[var(--primary-color)] px-3.5 py-2 text-xs font-bold text-white transition hover:bg-[var(--primary-color-hover)] disabled:opacity-60"
+              className="flex items-center gap-2 rounded-lg bg-gray-800 px-3.5 py-2 text-xs font-bold text-white transition hover:bg-gray-700 disabled:opacity-60"
             >
               {updating ? "Updating…" : "Update Status"}
               <FiChevronDown size={13} />
