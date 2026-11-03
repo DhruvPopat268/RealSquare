@@ -58,7 +58,7 @@ Used by the create-requirement chatbot after the user confirms the summary. The 
 | Field | Type | When included |
 |---|---|---|
 | `propertyCategory` | ID | Selected category; omitted for PG/Co-Living. |
-| `propertyType` | ID | Selected property type; omitted for PG/Co-Living. |
+| `propertyType` | ID | Selected property type; omitted for PG/Co-Living and Under Construction requirements. |
 | `preferredArea` | string | Omitted when the user skips locality. |
 | `remarks` | string | Omitted when the user skips notes. |
 | `furnishingType` | string | Included when selected; one of `Unfurnished`, `Semi-Furnished`, `Fully-Furnished`. |
@@ -143,6 +143,54 @@ Plots do not include `furnishingType` in this flow.
 ```
 
 The current flow omits `propertyCategory`, `propertyType`, `bhk`, `builtUpArea`, `plotArea`, and `furnishingType` for PG.
+
+**Under Construction requirement:**
+
+The chatbot defaults purpose to Sell, sets `isProperty` to `false`, asks for Residential or Commercial category, and does not ask for a property type. Budget, furnishing preference, and the common lead fields above are still required by the chatbot.
+
+- For Residential, the user selects one BHK option, then selects a furnishing type. Send BHK as the existing integer `bhk` field (`0` represents 1 RK) and furnishing as `furnishingType`.
+- For Commercial, the chatbot loads active options from `GET /api/mixed/project-listings/ideal-for`, asks the user to select exactly one, then asks for a carpet-area unit and approximate area, followed by furnishing type. Send the selected option ID as a one-item `idealFor` array, area as `carpetArea`, and furnishing as `furnishingType`.
+- `idealFor` and `carpetArea` are allowed only for Under Construction Commercial requirements. They are required for that category. Residential Under Construction requires `bhk` instead.
+- `propertyType` must be omitted. `builtUpArea` and `plotArea` are not used for Under Construction requirements.
+
+**Under Construction Residential payload:**
+
+```json
+{
+  "isProperty": false,
+  "listingType": "<sellPurposeId>",
+  "propertyCategory": "<residentialCategoryId>",
+  "preferredCity": "Pune",
+  "preferredArea": "Baner",
+  "budget": { "min": 5000000, "max": 9000000 },
+  "bhk": 2,
+  "furnishingType": "Semi-Furnished",
+  "inquiryClassification": "hot",
+  "lastFollowUpDate": "2026-10-15T00:00:00.000Z",
+  "preferredCommunication": ["call", "whatsapp"]
+}
+```
+
+**Under Construction Commercial payload:**
+
+```json
+{
+  "isProperty": false,
+  "listingType": "<sellPurposeId>",
+  "propertyCategory": "<commercialCategoryId>",
+  "preferredCity": "Pune",
+  "preferredArea": "Baner",
+  "budget": { "min": 10000000, "max": 20000000 },
+  "carpetArea": { "value": 1800, "unit": "sqft" },
+  "idealFor": ["<idealForId>"],
+  "furnishingType": "Unfurnished",
+  "inquiryClassification": "warm",
+  "lastFollowUpDate": "2026-10-15T00:00:00.000Z",
+  "preferredCommunication": ["email"]
+}
+```
+
+Carpet area must be greater than zero and use `sqft`, `sqyd`, or `sqmt`. `idealFor` must contain exactly one ID referencing an active configured option.
 
 **Co-working requirement (Rent / Commercial / configured Co-working property type):**
 

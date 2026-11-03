@@ -8,6 +8,7 @@ import {
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import CoworkingInquiryDetails from "../components/CoworkingInquiryDetails";
+import IdealForInquiryDetails from "../components/IdealForInquiryDetails";
 import { fetchMyInquiries, updateMyInquiryStatus } from "../utils/inquiryApi";
 import { fetchActivePurposes, fetchActiveCategories, fetchActivePropertyTypes } from "../utils/myListingsApi";
 
@@ -84,7 +85,8 @@ function InquiryCard({ inquiry, onRequestStatusUpdate, updating }) {
   const cls = CLASSIFICATION_STYLES[inquiry.inquiryClassification] ?? CLASSIFICATION_STYLES.cold;
 
   const areaDetail =
-    inquiry.bhk != null          ? `${inquiry.bhk} BHK`
+    inquiry.bhk != null          ? (inquiry.bhk === 0 ? "1 RK" : `${inquiry.bhk} BHK`)
+    : inquiry.carpetArea?.value ? `${inquiry.carpetArea.value} ${inquiry.carpetArea.unit ?? ""} carpet area`.trim()
     : inquiry.builtUpArea?.value ? `${inquiry.builtUpArea.value} ${inquiry.builtUpArea.unit} built-up`
     : inquiry.plotArea?.value    ? `${inquiry.plotArea.value} ${inquiry.plotArea.unit} plot`
     : null;
@@ -170,6 +172,7 @@ function InquiryCard({ inquiry, onRequestStatusUpdate, updating }) {
       )}
 
       <CoworkingInquiryDetails workspaces={inquiry.coworkingWorkspaces} />
+      <IdealForInquiryDetails options={inquiry.idealFor} />
 
       {/* Row 3 — Communication Preferences */}
       <div className="flex flex-wrap items-center gap-1.5">
@@ -212,7 +215,7 @@ function InquiryCard({ inquiry, onRequestStatusUpdate, updating }) {
               type="button"
               onClick={() => setStatusMenuOpen((open) => !open)}
               disabled={Boolean(updating)}
-              className="flex items-center gap-2 rounded-lg bg-gray-800 px-3.5 py-2 text-xs font-bold text-white transition hover:bg-gray-700 disabled:opacity-60"
+              className="flex items-center gap-2 rounded-lg bg-[var(--primary-color)] px-3.5 py-2 text-xs font-bold text-white transition hover:bg-[var(--primary-color-hover)] disabled:opacity-60"
             >
               {updating ? "Updating…" : "Update Status"}
               <FiChevronDown size={13} />

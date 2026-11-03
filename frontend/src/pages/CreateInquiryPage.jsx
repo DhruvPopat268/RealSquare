@@ -9,6 +9,7 @@ import ChatbotPlacesInput from "../chatbot/ChatbotPlacesInput";
 import ChatbotMultiSelect from "../chatbot/ChatbotMultiSelect";
 import ChatbotNumberInput from "../chatbot/ChatbotNumberInput";
 import ChatbotDateInput from "../chatbot/ChatbotDateInput";
+import ChatbotIdealForMultiSelect from "../chatbot/ChatbotIdealForMultiSelect";
 
 function BotAvatar() {
   return (
@@ -96,10 +97,11 @@ export default function CreateInquiryPage() {
 
   // Focus text input when it becomes active
   const showPlacesInput      = !!customInput && customInput.type === "places";
+  const showIdealForInput    = !!customInput && customInput.type === "idealFor";
   const showMultiSelectInput = !!customInput && customInput.type === "multiselect";
   const showNumberInput      = !!customInput && customInput.type === "number";
   const showDateInput        = !!customInput && customInput.type === "date";
-  const showTextInput        = awaitingInput && !showPlacesInput && !showMultiSelectInput && !showNumberInput && !showDateInput;
+  const showTextInput        = awaitingInput && !showPlacesInput && !showIdealForInput && !showMultiSelectInput && !showNumberInput && !showDateInput;
 
   useEffect(() => {
     if (showTextInput) inputRef.current?.focus();
@@ -202,6 +204,18 @@ export default function CreateInquiryPage() {
                   cityName={customInput.cityName ?? ""}
                   placeholder={customInput.placeholder}
                   onSubmit={handlePlacesSubmit}
+                />
+              ) : showIdealForInput ? (
+                <ChatbotIdealForMultiSelect
+                  key={customInput.key}
+                  options={customInput.options}
+                  minSelect={customInput.minSelect ?? 1}
+                  singleSelect
+                  showCheckIndicator={false}
+                  onSubmit={(selection) => handleUserReply(
+                    selection.map((option) => option.name).join(", "),
+                    { _idealForSelection: selection }
+                  )}
                 />
               ) : showMultiSelectInput ? (
                 <ChatbotMultiSelect

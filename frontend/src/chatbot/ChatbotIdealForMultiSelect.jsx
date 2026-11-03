@@ -2,9 +2,12 @@ import { useState } from "react";
 import { FiCheck } from "react-icons/fi";
 import { primaryColor } from "../utils/theme";
 
-export default function ChatbotIdealForMultiSelect({ options = [], minSelect = 1, onSubmit }) {
+export default function ChatbotIdealForMultiSelect({ options = [], minSelect = 1, onSubmit, singleSelect = false, showCheckIndicator = true }) {
   const [selectedIds, setSelectedIds] = useState([]);
-  const toggle = (id) => setSelectedIds((current) => current.includes(id) ? current.filter((value) => value !== id) : [...current, id]);
+  const toggle = (id) => setSelectedIds((current) => {
+    if (current.includes(id)) return current.filter((value) => value !== id);
+    return singleSelect ? [id] : [...current, id];
+  });
 
   return (
     <div className="w-full space-y-3">
@@ -17,7 +20,7 @@ export default function ChatbotIdealForMultiSelect({ options = [], minSelect = 1
                 <img src={option.image} alt={option.name} className="h-7 w-7 rounded bg-gray-100 object-contain" />
               </div>
               <span className="text-sm font-medium" style={{ color: active ? primaryColor : "#4b5563" }}>{option.name}</span>
-              {active && <span className="ml-auto flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-white" style={{ backgroundColor: primaryColor }}><FiCheck size={12} /></span>}
+              {active && showCheckIndicator && <span className="ml-auto flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-white" style={{ backgroundColor: primaryColor }}><FiCheck size={12} /></span>}
             </button>
           );
         })}

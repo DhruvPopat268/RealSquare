@@ -10,7 +10,7 @@ import {
   LISTING_TYPE_SELL_ID,
   LISTING_TYPE_RENT_ID,
 } from "./chatbotConstants";
-import { fetchActivePurposes, fetchActiveCategories, fetchPropertyTypes } from "./chatbotApi";
+import { fetchActivePurposes, fetchActiveCategories, fetchPropertyTypes, fetchActiveIdealFor } from "./chatbotApi";
 import api from "../utils/axiosInterceptor";
 
 // ── Inquiry-specific constants ────────────────────────────────────────────────
@@ -41,6 +41,31 @@ async function askNextCoworkingWorkspaceField(data, { botSay, setCustomInput, go
   await botSay(`How many seats do you need for ${displayType}?`);
   setCustomInput({ type: "number", key: "coworking_required_seats", placeholder: "Number of seats...", min: 1 });
   goTo("coworking_workspace_seats", updated);
+}
+
+async function askUnderConstructionCity(data, { botSay, setCustomInput, goTo }) {
+  await botSay("Which city are you looking for a property in?");
+  setCustomInput({ type: "places", mode: "city", placeholder: "Search for a city..." });
+  goTo("city", data);
+}
+
+async function askUnderConstructionIdealFor(data, { botSay, setCollectedData, setCustomInput, goTo }) {
+  try {
+    const options = await fetchActiveIdealFor();
+    if (!options.length) {
+      await botSay("There are no active Ideal For options available. Please retry.", ["Retry"]);
+      goTo("retry_under_construction_ideal_for", data);
+      return;
+    }
+    const updated = { ...data, _idealForOptions: options };
+    setCollectedData(() => updated);
+    await botSay("Who is this commercial property ideal for? Select one option.");
+    setCustomInput({ type: "idealFor", key: "requirement_ideal_for", options, minSelect: 1 });
+    goTo("under_construction_ideal_for", updated);
+  } catch {
+    await botSay("⚠️ Failed to load Ideal For options. Please try again.", ["Retry"]);
+    goTo("retry_under_construction_ideal_for", data);
+  }
 }
 
 // ── Main flow ─────────────────────────────────────────────────────────────────
@@ -74,7 +99,10 @@ export async function inquiryFlow(step, answer, collectedData, { botSay, setColl
       setCollectedData(() => sellRequirement);
       try {
         await botSay("What category does the property fall under?");
-        const categories = await fetchActiveCategories();
+        const categories = (await fetchActiveCategories()).filter((category) =>
+          [CATEGORY_RESIDENTIAL_ID, CATEGORY_COMMERCIAL_ID].includes(category.value)
+        );
+        if (!categories.length) throw new Error("No supported project categories are available");
         await botSay("Select the category:", categories.map((category) => category.label));
         const nextData = { ...sellRequirement, _categories: categories };
         setCollectedData(() => nextData);
@@ -156,8 +184,19 @@ export async function inquiryFlow(step, answer, collectedData, { botSay, setColl
   if (step === "category") {
     if (!answer) return;
     const matched = collectedData._categories?.find((c) => c.label === answer);
+    if (!matched) return;
     const updated = { ...collectedData, categoryId: matched?.value ?? null, categoryName: answer };
     setCollectedData(() => updated);
+
+    if (updated.inquiryType === "Under Construction Property") {
+      if (updated.categoryId === CATEGORY_COMMERCIAL_ID) {
+        await askUnderConstructionIdealFor(updated, { botSay, setCollectedData, setCustomInput, goTo });
+      } else {
+        await askUnderConstructionCity(updated, { botSay, setCustomInput, goTo });
+      }
+      return;
+    }
+
     try {
       await botSay(`What type of ${answer.toLowerCase()} property are you looking for?`);
       const availableTypes = await fetchPropertyTypes(matched?.value);
@@ -173,6 +212,31 @@ export async function inquiryFlow(step, answer, collectedData, { botSay, setColl
     } catch {
       await botSay("⚠️ Failed to load property types. Please refresh and try again.");
     }
+    return;
+  }
+
+  if (step === "retry_under_construction_ideal_for") {
+    if (answer !== "Retry") return;
+    await askUnderConstructionIdealFor(collectedData, { botSay, setCollectedData, setCustomInput, goTo });
+    return;
+  }
+
+  if (step === "under_construction_ideal_for") {
+    const selected = collectedData._idealForSelection;
+    if (!Array.isArray(selected) || selected.length === 0) return;
+    const updated = {
+      ...collectedData,
+      idealFor: selected.map((option) => ({
+        id: option._id,
+        name: option.name,
+        image: option.image,
+        order: option.order,
+      })),
+    };
+    delete updated._idealForSelection;
+    delete updated._idealForOptions;
+    setCollectedData(() => updated);
+    await askUnderConstructionCity(updated, { botSay, setCustomInput, goTo });
     return;
   }
 
@@ -372,11 +436,24 @@ export async function inquiryFlow(step, answer, collectedData, { botSay, setColl
     const isCommercial   = categoryId === CATEGORY_COMMERCIAL_ID;
     const isResPlot      = RESIDENTIAL_PLOT_IDS.includes(propertyTypeId);
     const isCommPlot     = COMMERCIAL_PLOT_IDS.includes(propertyTypeId);
+    const isUnderConstruction = updated.inquiryType === "Under Construction Property";
 
     // PG — no BHK, no area, no furnishing → go straight to lead classification
     if (isPG) {
       await botSay("How would you classify this requirement?", INQUIRY_CLASS_OPTIONS);
       goTo("lead_classification", updated);
+      return;
+    }
+
+    if (isUnderConstruction && isResidential) {
+      await botSay("How many BHK are you looking for?", BHK_OPTIONS);
+      goTo("bhk", updated);
+      return;
+    }
+
+    if (isUnderConstruction && isCommercial) {
+      await botSay("What unit should the approximate carpet area be in?", AREA_UNIT_OPTIONS);
+      goTo("carpet_area_unit", updated);
       return;
     }
 
@@ -409,6 +486,11 @@ export async function inquiryFlow(step, answer, collectedData, { botSay, setColl
       bhkLabel: answer,
     };
     setCollectedData(() => updated);
+    if (updated.inquiryType === "Under Construction Property") {
+      await botSay("What furnishing type are you looking for?", FURNISH_TYPE_OPTIONS);
+      goTo("furnishing", updated);
+      return;
+    }
     await botSay("What furnishing type are you looking for?", FURNISH_TYPE_OPTIONS);
     goTo("furnishing", updated);
     return;
@@ -432,6 +514,36 @@ export async function inquiryFlow(step, answer, collectedData, { botSay, setColl
       requiredArea: { value: Number(answer), unit: collectedData._areaUnit },
     };
     delete updated._areaUnit;
+    setCollectedData(() => updated);
+    await botSay("What furnishing type are you looking for?", FURNISH_TYPE_OPTIONS);
+    goTo("furnishing", updated);
+    return;
+  }
+
+  if (step === "carpet_area_unit") {
+    if (!AREA_UNIT_OPTIONS.includes(answer)) return;
+    const updated = { ...collectedData, _carpetAreaUnit: answer };
+    setCollectedData(() => updated);
+    await botSay(`What is the approximate carpet area you want? (in ${answer})`);
+    setCustomInput({ type: "number", key: "carpet_area_value", placeholder: `Approximate carpet area in ${answer}...`, min: 1 });
+    goTo("carpet_area_value", updated);
+    return;
+  }
+
+  if (step === "carpet_area_value") {
+    if (!answer) return;
+    const value = Number(answer);
+    if (!Number.isFinite(value) || value <= 0) {
+      await botSay("Please enter a carpet area greater than zero.");
+      setCustomInput({ type: "number", key: "carpet_area_value_retry", placeholder: `Approximate carpet area in ${collectedData._carpetAreaUnit}...`, min: 1 });
+      goTo("carpet_area_value", collectedData);
+      return;
+    }
+    const updated = {
+      ...collectedData,
+      carpetArea: { value, unit: collectedData._carpetAreaUnit },
+    };
+    delete updated._carpetAreaUnit;
     setCollectedData(() => updated);
     await botSay("What furnishing type are you looking for?", FURNISH_TYPE_OPTIONS);
     goTo("furnishing", updated);
@@ -549,17 +661,25 @@ export async function inquiryFlow(step, answer, collectedData, { botSay, setColl
       ? `₹${d.budgetMin.toLocaleString()} – ₹${d.budgetMax.toLocaleString()}`
       : "—";
 
-    const areaStr = d.requiredArea
+    const areaStr = d.carpetArea
+      ? `${d.carpetArea.value} ${d.carpetArea.unit}`
+      : d.requiredArea
       ? `${d.requiredArea.value} ${d.requiredArea.unit}`
       : d.bhkLabel
       ? d.bhkLabel
       : "—";
 
-    const areaLabel = d.requiredArea
+    const areaLabel = d.carpetArea
+      ? "Carpet Area"
+      : d.requiredArea
       ? (RESIDENTIAL_PLOT_IDS.includes(d.propertyTypeId) || COMMERCIAL_PLOT_IDS.includes(d.propertyTypeId)
           ? "Plot Area"
           : "Built-up Area")
       : "BHK Requirement";
+
+    const idealForSummary = d.idealFor?.length
+      ? `  • Ideal For       : ${d.idealFor.map((option) => option.name).join(", ")}\n`
+      : "";
 
     const workspaceLines = (d.coworkingWorkspaces ?? []).map((workspace) => {
       const label = workspace.type === "virtualSpace" ? "Virtual Space" : workspace.type === "cabin" ? "Cabins" : "Hall";
@@ -575,7 +695,8 @@ export async function inquiryFlow(step, answer, collectedData, { botSay, setColl
       `  • Requirement Type: ${d.inquiryType ?? "—"}\n` +
       `  • Purpose         : ${d.listingTypeName ?? "—"}\n` +
       `  • Category        : ${d.categoryName ?? "—"}\n` +
-      `  • Property Type   : ${d.propertyTypeName ?? "—"}\n\n` +
+      (d.inquiryType === "Under Construction Property" ? "" : `  • Property Type   : ${d.propertyTypeName ?? "—"}\n`) +
+      idealForSummary + "\n" +
       `📍 Location:\n` +
       `  • City            : ${d.preferredCity ?? "—"}\n` +
       `  • Area            : ${d.preferredArea ?? "—"}\n\n` +
@@ -630,6 +751,8 @@ export async function inquiryFlow(step, answer, collectedData, { botSay, setColl
         ...(d.furnishingPreference && { furnishingType: d.furnishingPreference }),
         ...(d.categoryId    && { propertyCategory: d.categoryId }),
         ...(d.propertyTypeId && { propertyType: d.propertyTypeId }),
+        ...(d.idealFor?.length && { idealFor: d.idealFor.map((option) => option.id) }),
+        ...(d.carpetArea && { carpetArea: d.carpetArea }),
         ...(d.preferredArea && { preferredArea: d.preferredArea }),
         ...(d.notes         && { remarks: d.notes }),
       };

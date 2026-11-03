@@ -10,6 +10,7 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import CoinIcon from "../components/CoinIcon";
 import CoworkingInquiryDetails from "../components/CoworkingInquiryDetails";
+import IdealForInquiryDetails from "../components/IdealForInquiryDetails";
 import { fetchAssignedInquiries, purchaseAssignedInquiry } from "../utils/inquiryApi";
 import { fetchActivePurposes, fetchActiveCategories, fetchActivePropertyTypes } from "../utils/myListingsApi";
 
@@ -92,7 +93,8 @@ function AssignedInquiryCard({ assignment, onPurchase }) {
   const inquiryIsUnavailable = UNAVAILABLE_INQUIRY_STATUSES.has(inquiry.status);
 
   const areaDetail =
-    inquiry.bhk != null          ? `${inquiry.bhk} BHK`
+    inquiry.bhk != null          ? (inquiry.bhk === 0 ? "1 RK" : `${inquiry.bhk} BHK`)
+    : inquiry.carpetArea?.value ? `${inquiry.carpetArea.value} ${inquiry.carpetArea.unit ?? ""} carpet area`.trim()
     : inquiry.builtUpArea?.value ? `${inquiry.builtUpArea.value} ${inquiry.builtUpArea.unit} built-up`
     : inquiry.plotArea?.value    ? `${inquiry.plotArea.value} ${inquiry.plotArea.unit} plot`
     : null;
@@ -214,6 +216,7 @@ function AssignedInquiryCard({ assignment, onPurchase }) {
       )}
 
       <CoworkingInquiryDetails workspaces={inquiry.coworkingWorkspaces} />
+      <IdealForInquiryDetails options={inquiry.idealFor} />
 
       {/* Row 3 — Communication Preferences */}
       <div className="flex flex-wrap items-center gap-1.5">
