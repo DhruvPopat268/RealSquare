@@ -3,9 +3,10 @@ function formatRent(value) {
 }
 
 function workspaceName(type) {
-  if (type === "virtualSpace") return "Virtual Space";
-  if (type === "cabin") return "Cabins";
-  return "Hall";
+  if (type === "virtual_office") return "Virtual Office";
+  if (type === "individual_private_cabin") return "Individual Private Cabin";
+  if (type === "dedicated_coworking_desk") return "Dedicated Coworking Desk";
+  return type;
 }
 
 export default function CoworkingInquiryDetails({ workspaces = [] }) {
@@ -16,7 +17,7 @@ export default function CoworkingInquiryDetails({ workspaces = [] }) {
       <p className="mb-2 text-[10px] font-bold uppercase tracking-wide text-gray-400">Workspace Requirements</p>
       <div className="space-y-2">
         {workspaces.map((workspace) => {
-          const isVirtual = workspace.type === "virtualSpace";
+          const isVirtual = workspace.type === "virtual_office";
           const min = isVirtual ? workspace.minMonthlyRent : workspace.minRentPerSeat;
           const max = isVirtual ? workspace.maxMonthlyRent : workspace.maxRentPerSeat;
           return (

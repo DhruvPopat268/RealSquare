@@ -200,9 +200,9 @@ Each selected workspace has a different payload shape:
 
 | `type` | Required fields | Rent meaning |
 |---|---|---|
-| `hall` | `requiredSeats`, `minRentPerSeat`, `maxRentPerSeat` | Monthly rent range per seat |
-| `cabin` | `requiredSeats`, `minRentPerSeat`, `maxRentPerSeat` | Monthly rent range per seat |
-| `virtualSpace` | `minMonthlyRent`, `maxMonthlyRent` | Monthly rent range for Virtual Space |
+| `dedicated_coworking_desk` (Dedicated Coworking Desk) | `requiredSeats`, `minRentPerSeat`, `maxRentPerSeat` | Monthly rent range per seat |
+| `individual_private_cabin` (Individual Private Cabin) | `requiredSeats`, `minRentPerSeat`, `maxRentPerSeat` | Monthly rent range per seat |
+| `virtual_office` (Virtual Office) | `minMonthlyRent`, `maxMonthlyRent` | Monthly rent range |
 
 Example with all three workspace types selected:
 
@@ -216,19 +216,19 @@ Example with all three workspace types selected:
   "preferredArea": "Baner",
   "coworkingWorkspaces": [
     {
-      "type": "hall",
+      "type": "dedicated_coworking_desk",
       "requiredSeats": 10,
       "minRentPerSeat": 5000,
       "maxRentPerSeat": 8000
     },
     {
-      "type": "cabin",
+      "type": "individual_private_cabin",
       "requiredSeats": 4,
       "minRentPerSeat": 7000,
       "maxRentPerSeat": 12000
     },
     {
-      "type": "virtualSpace",
+      "type": "virtual_office",
       "minMonthlyRent": 1500,
       "maxMonthlyRent": 4000
     }
@@ -240,7 +240,7 @@ Example with all three workspace types selected:
 }
 ```
 
-For a single workspace, include only its object in `coworkingWorkspaces`. Hall and Cabin seat counts must be positive whole numbers. All minimum and maximum rents must be positive, and maximum rent must be at least the minimum. Virtual Space does not accept seat fields; Hall and Cabin do not accept monthly-total rent fields.
+For a single workspace, include only its object in `coworkingWorkspaces`. Dedicated Coworking Desk and Individual Private Cabin seat counts must be positive whole numbers. All minimum and maximum rents must be positive, and maximum rent must be at least the minimum. Virtual Office does not accept seat fields; Dedicated Coworking Desk and Individual Private Cabin do not accept monthly-total rent fields. Legacy enum values (`hall`, `cabin`, and `virtualSpace`) are no longer accepted; migrate existing records with the backend workspace-type migration before deploying clients that send the new values.
 
 On success, the API creates the requirement and assignments for eligible professionals. The page displays a confirmation; it does not require the response body to continue.
 

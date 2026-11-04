@@ -18,7 +18,7 @@ const INQUIRY_TYPE_OPTIONS     = ["Ready To Move Property", "Under Construction 
 const INQUIRY_CLASS_OPTIONS    = ["Hot 🔥 (High Priority)", "Warm 🌤️ (Medium Priority)", "Cold ❄️ (Low Priority)"];
 const INQUIRY_CLASS_MAP        = { "Hot 🔥 (High Priority)": "hot", "Warm 🌤️ (Medium Priority)": "warm", "Cold ❄️ (Low Priority)": "cold" };
 const COMM_PREF_OPTIONS        = ["Call", "WhatsApp", "Email", "SMS"];
-const COWORKING_WORKSPACE_OPTIONS = ["Hall", "Cabins", "Virtual Space"];
+const COWORKING_WORKSPACE_OPTIONS = ["Dedicated Coworking Desk", "Individual Private Cabin", "Virtual Office"];
 
 const isCoworkingRequirement = (data) => Boolean(COMMERCIAL_COWORKING_SPACE_ID)
   && data.listingTypeId === LISTING_TYPE_RENT_ID
@@ -29,10 +29,10 @@ async function askNextCoworkingWorkspaceField(data, { botSay, setCustomInput, go
   const type = data._coworkingSelectedTypes[data._coworkingWorkspaceIndex];
   const pending = { type };
   const updated = { ...data, _coworkingPendingWorkspace: pending };
-  const displayType = type === "virtualSpace" ? "Virtual Space" : type === "cabin" ? "Cabins" : "Hall";
+  const displayType = type === "virtual_office" ? "Virtual Office" : type === "individual_private_cabin" ? "Individual Private Cabin" : "Dedicated Coworking Desk";
 
-  if (type === "virtualSpace") {
-    await botSay("What is the minimum monthly rent for Virtual Space? (in ₹)");
+  if (type === "virtual_office") {
+    await botSay("What is the minimum monthly rent for Virtual Office? (in ₹)");
     setCustomInput({ type: "number", key: "coworking_virtual_min_rent", placeholder: "Minimum monthly rent in ₹...", min: 1 });
     goTo("coworking_workspace_min_rent", updated);
     return;
@@ -303,11 +303,11 @@ export async function inquiryFlow(step, answer, collectedData, { botSay, setColl
   // Co-working requirements ask for workspace-specific seat and rent ranges instead of area/budget fields.
   if (step === "coworking_workspace_types") {
     const selected = (collectedData._selectedCoworkingWorkspaceTypes ?? []).map((label) => ({
-      Hall: "hall",
-      Cabins: "cabin",
-      "Virtual Space": "virtualSpace",
+      "Dedicated Coworking Desk": "dedicated_coworking_desk",
+      "Individual Private Cabin": "individual_private_cabin",
+      "Virtual Office": "virtual_office",
     }[label])).filter(Boolean).sort((a, b) =>
-      ["hall", "cabin", "virtualSpace"].indexOf(a) - ["hall", "cabin", "virtualSpace"].indexOf(b)
+      ["dedicated_coworking_desk", "individual_private_cabin", "virtual_office"].indexOf(a) - ["dedicated_coworking_desk", "individual_private_cabin", "virtual_office"].indexOf(b)
     );
     if (!selected.length) return;
 
@@ -335,7 +335,7 @@ export async function inquiryFlow(step, answer, collectedData, { botSay, setColl
     const workspaceType = collectedData._coworkingSelectedTypes[collectedData._coworkingWorkspaceIndex];
     const updated = { ...collectedData, _coworkingPendingWorkspace: { type: workspaceType, requiredSeats: seats } };
     setCollectedData(() => updated);
-    const displayType = updated._coworkingPendingWorkspace.type === "cabin" ? "Cabins" : "Hall";
+    const displayType = updated._coworkingPendingWorkspace.type === "individual_private_cabin" ? "Individual Private Cabin" : "Dedicated Coworking Desk";
     await botSay(`What is the minimum monthly rent per seat for ${displayType}? (in ₹)`);
     setCustomInput({ type: "number", key: "coworking_min_rent_per_seat", placeholder: "Minimum monthly rent per seat in ₹...", min: 1 });
     goTo("coworking_workspace_min_rent", updated);
@@ -354,11 +354,11 @@ export async function inquiryFlow(step, answer, collectedData, { botSay, setColl
     const workspaceType = collectedData._coworkingSelectedTypes[collectedData._coworkingWorkspaceIndex];
     const updated = { ...collectedData, _coworkingPendingWorkspace: { ...collectedData._coworkingPendingWorkspace, type: workspaceType, minRent } };
     setCollectedData(() => updated);
-    const isPerSeat = workspaceType === "hall" || workspaceType === "cabin";
-    const workspaceLabel = workspaceType === "hall" ? "Hall" : workspaceType === "cabin" ? "Cabins" : "Virtual Space";
+    const isPerSeat = workspaceType === "dedicated_coworking_desk" || workspaceType === "individual_private_cabin";
+    const workspaceLabel = workspaceType === "dedicated_coworking_desk" ? "Dedicated Coworking Desk" : workspaceType === "individual_private_cabin" ? "Individual Private Cabin" : "Virtual Office";
     await botSay(isPerSeat
       ? `What is the maximum monthly rent per seat for ${workspaceLabel}? (in ₹)`
-      : "What is the maximum monthly rent for Virtual Space? (in ₹)");
+      : "What is the maximum monthly rent for Virtual Office? (in ₹)");
     setCustomInput({ type: "number", key: "coworking_max_rent", placeholder: isPerSeat ? `Maximum monthly rent per seat for ${workspaceLabel} in ₹...` : "Maximum monthly rent in ₹...", min: 1 });
     goTo("coworking_workspace_max_rent", updated);
     return;
@@ -376,7 +376,7 @@ export async function inquiryFlow(step, answer, collectedData, { botSay, setColl
     }
 
     const workspaceType = collectedData._coworkingSelectedTypes[collectedData._coworkingWorkspaceIndex];
-    const workspace = workspaceType === "virtualSpace"
+    const workspace = workspaceType === "virtual_office"
       ? { type: workspaceType, minMonthlyRent: pending.minRent, maxMonthlyRent: maxRent }
       : { type: workspaceType, requiredSeats: pending.requiredSeats, minRentPerSeat: pending.minRent, maxRentPerSeat: maxRent };
     const nextIndex = collectedData._coworkingWorkspaceIndex + 1;
@@ -682,8 +682,8 @@ export async function inquiryFlow(step, answer, collectedData, { botSay, setColl
       : "";
 
     const workspaceLines = (d.coworkingWorkspaces ?? []).map((workspace) => {
-      const label = workspace.type === "virtualSpace" ? "Virtual Space" : workspace.type === "cabin" ? "Cabins" : "Hall";
-      if (workspace.type === "virtualSpace") {
+      const label = workspace.type === "virtual_office" ? "Virtual Office" : workspace.type === "individual_private_cabin" ? "Individual Private Cabin" : "Dedicated Coworking Desk";
+      if (workspace.type === "virtual_office") {
         return `  • ${label}: ₹${workspace.minMonthlyRent.toLocaleString("en-IN")} – ₹${workspace.maxMonthlyRent.toLocaleString("en-IN")} monthly`;
       }
       return `  • ${label}: ${workspace.requiredSeats} seats, ₹${workspace.minRentPerSeat.toLocaleString("en-IN")} – ₹${workspace.maxRentPerSeat.toLocaleString("en-IN")} per seat/month`;

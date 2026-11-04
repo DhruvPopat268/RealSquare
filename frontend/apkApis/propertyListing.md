@@ -359,16 +359,16 @@ Send the applicable case fields below. Do not send the placeholder keys literall
     "workSpaceFloor": 0,
     "workspaces": [
       {
-        "type": "cabin",
+        "type": "individual_private_cabin",
         "available": 2,
         "config": [
           { "availableSeats": 4, "rentPerSeat": 5000 },
           { "availableSeats": 3, "rentPerSeat": 7000 }
         ]
       },
-      { "type": "hall", "availableSeats": 30, "rentPerSeat": 2000 },
+      { "type": "dedicated_coworking_desk", "availableSeats": 30, "rentPerSeat": 2000 },
       {
-        "type": "virtualSpace",
+        "type": "virtual_office",
         "benefits": [
           {
             "_id": "<activeBenefitPlanId1>",
@@ -387,7 +387,7 @@ Send the applicable case fields below. Do not send the placeholder keys literall
 }
 ```
 
-The coworking create route sets the listing purpose to Rent. `workspaces` may contain one or more of `cabin`, `hall`, and `virtualSpace`, with no duplicate types. `workSpaceFloor` is an integer of `-1` or greater. The chatbot selects virtual-space benefits individually; each selected plan sends its master ID, plan-specific `monthlyRent`, and only the selected benefit strings. The backend fills the stored snapshot title from the master record. Do not send `rentInfo` or deposit fields for coworking workspace pricing.
+The coworking create route sets the listing purpose to Rent. `workspaces` may contain one or more of `individual_private_cabin`, `dedicated_coworking_desk`, and `virtual_office`, with no duplicate types. These display as Individual Private Cabin, Dedicated Coworking Desk, and Virtual Office. `workSpaceFloor` is an integer of `-1` or greater. The chatbot selects virtual-office benefits individually; each selected plan sends its master ID, plan-specific `monthlyRent`, and only the selected benefit strings. The backend fills the stored snapshot title from the master record. Do not send `rentInfo` or deposit fields for coworking workspace pricing. Migrate existing records with the backend workspace-type migration before deploying clients that send the new values.
 
 **PG / co-living (single room type):**
 
@@ -670,7 +670,7 @@ Change a virtual-space plan's rent and selected benefits:
   "commercialDetails": {
     "workspaces": [
       {
-        "type": "virtualSpace",
+        "type": "virtual_office",
         "benefits": [
           {
             "_id": "<benefitPlanId>",
@@ -684,7 +684,7 @@ Change a virtual-space plan's rent and selected benefits:
 }
 ```
 
-Each entry in `benefits` carries that plan's `monthlyRent`. When only the rent changes, keep the existing selected benefits in that entry; when only benefit selection changes, include the plan's current rent. At least one benefit group with a positive rent and one selected benefit is required for a virtual-space workspace, so clearing all benefits is not a valid update. To update cabin details, send only the changed cabin fields under the `cabin` workspace, for example:
+Each entry in `benefits` carries that plan's `monthlyRent`. When only the rent changes, keep the existing selected benefits in that entry; when only benefit selection changes, include the plan's current rent. At least one benefit group with a positive rent and one selected benefit is required for a virtual-space workspace, so clearing all benefits is not a valid update. To update cabin details, send only the changed cabin fields under the `individual_private_cabin` workspace, for example:
 
 ```json
 {
@@ -692,7 +692,7 @@ Each entry in `benefits` carries that plan's `monthlyRent`. When only the rent c
   "commercialDetails": {
     "workspaces": [
       {
-        "type": "cabin",
+        "type": "individual_private_cabin",
         "available": 2,
         "config": [
           { "availableSeats": 4, "rentPerSeat": 5000 },

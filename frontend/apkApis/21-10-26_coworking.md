@@ -30,7 +30,7 @@ Example response:
 
 **POST** `/api/mixed/property-listings`
 
-Coworking listings automatically use the Rent listing purpose. Do not send `listingTypeId`, `propertyListingId`, `rentInfo`, or property-wide monthly rent. `workSpaceFloor` must be an integer greater than or equal to `-1`. Include one or more unique workspace types: `cabin`, `hall`, and `virtualSpace`.
+Coworking listings automatically use the Rent listing purpose. Do not send `listingTypeId`, `propertyListingId`, `rentInfo`, or property-wide monthly rent. `workSpaceFloor` must be an integer greater than or equal to `-1`. Include one or more unique workspace types: `individual_private_cabin`, `dedicated_coworking_desk`, and `virtual_office`.
 
 ```json
 {
@@ -46,7 +46,7 @@ Coworking listings automatically use the Rent listing purpose. Do not send `list
     "workSpaceFloor": 0,
     "workspaces": [
       {
-        "type": "cabin",
+        "type": "individual_private_cabin",
         "available": 2,
         "config": [
           { "availableSeats": 4, "rentPerSeat": 5000 },
@@ -54,12 +54,12 @@ Coworking listings automatically use the Rent listing purpose. Do not send `list
         ]
       },
       {
-        "type": "hall",
+        "type": "dedicated_coworking_desk",
         "availableSeats": 30,
         "rentPerSeat": 2000
       },
       {
-        "type": "virtualSpace",
+        "type": "virtual_office",
         "benefits": [
           {
             "_id": "<activeBenefitPlanId>",
@@ -73,9 +73,9 @@ Coworking listings automatically use the Rent listing purpose. Do not send `list
 }
 ```
 
-For virtual space, send the selected master `_id`, that plan's positive `monthlyRent`, and one or more benefit strings from that master. Do not send `title`; the API resolves and stores it from the master. The API rejects unknown or inactive plan IDs and benefits that are not in the selected plan. Sending a valid subset of a plan's benefits is supported.
+For a virtual office, send the selected master `_id`, that plan's positive `monthlyRent`, and one or more benefit strings from that master. Do not send `title`; the API resolves and stores it from the master. The API rejects unknown or inactive plan IDs and benefits that are not in the selected plan. Sending a valid subset of a plan's benefits is supported.
 
-Cabin `available` must match the number of `config` entries. Each cabin and the hall require a positive integer seat count and a non-negative `rentPerSeat`.
+Individual Private Cabin `available` must match the number of `config` entries. Each cabin and the Dedicated Coworking Desk require a positive integer seat count and a non-negative `rentPerSeat`.
 
 ## Update a coworking listing
 
@@ -102,7 +102,7 @@ Change virtual-space selected benefits and rent:
   "commercialDetails": {
     "workspaces": [
       {
-        "type": "virtualSpace",
+        "type": "virtual_office",
         "benefits": [
           {
             "_id": "<benefitPlanId>",
@@ -127,7 +127,7 @@ Change hall details:
   "commercialDetails": {
     "workspaces": [
       {
-        "type": "hall",
+        "type": "dedicated_coworking_desk",
         "availableSeats": 35,
         "rentPerSeat": 2200
       }
@@ -144,7 +144,7 @@ Change cabin details:
   "commercialDetails": {
     "workspaces": [
       {
-        "type": "cabin",
+        "type": "individual_private_cabin",
         "available": 2,
         "config": [
           { "availableSeats": 5, "rentPerSeat": 5500 },

@@ -18,14 +18,14 @@ import {
 } from "./chatbotApi";
 import api from "../utils/axiosInterceptor";
 
-const COWORKING_WORKSPACE_TYPES = ["Hall", "Cabins", "Virtual Space"];
+const COWORKING_WORKSPACE_TYPES = ["Dedicated Coworking Desk", "Individual Private Cabin", "Virtual Office"];
 
 function getAvailableCoworkingWorkspaceTypes(workspaces = []) {
   const addedTypes = new Set(
     workspaces.map((workspace) => {
-      if (workspace.type === "Cabin" || workspace.type === "cabin") return "Cabins";
-      if (workspace.type === "hall") return "Hall";
-      if (workspace.type === "virtualSpace") return "Virtual Space";
+      if (workspace.type === "Individual Private Cabin" || workspace.type === "individual_private_cabin") return "Individual Private Cabin";
+      if (workspace.type === "dedicated_coworking_desk") return "Dedicated Coworking Desk";
+      if (workspace.type === "virtual_office") return "Virtual Office";
       return workspace.type;
     }),
   );
@@ -526,9 +526,9 @@ export async function propertyListingFlow(step, answer, collectedData, { botSay,
       return;
     }
 
-    if (answer === "Virtual Space") {
-      if (collectedData._coworkingWorkspaces?.some((workspace) => workspace.type === "Virtual Space")) {
-        await botSay("Virtual Space has already been added. Choose Done to continue.", ["Done"]);
+    if (answer === "Virtual Office") {
+      if (collectedData._coworkingWorkspaces?.some((workspace) => workspace.type === "Virtual Office")) {
+        await botSay("Virtual Office has already been added. Choose Done to continue.", ["Done"]);
         goTo("coworking_workspace_more", collectedData);
         return;
       }
@@ -539,7 +539,7 @@ export async function propertyListingFlow(step, answer, collectedData, { botSay,
         );
         if (!benefitGroups.length) {
           await botSay(
-            "Virtual Space benefits are not configured yet. Choose another workspace type.",
+            "Virtual Office benefits are not configured yet. Choose another workspace type.",
             getAvailableCoworkingWorkspaceTypes(collectedData._coworkingWorkspaces),
           );
           return;
@@ -566,21 +566,21 @@ export async function propertyListingFlow(step, answer, collectedData, { botSay,
       }
       return;
     }
-    if (answer !== "Hall" && answer !== "Cabins") return;
-    if (answer === "Hall" && collectedData._coworkingWorkspaces?.some((workspace) => workspace.type === "Hall")) {
-      await botSay("Hall has already been added. Choose Done to continue.", ["Done"]);
+    if (answer !== "Dedicated Coworking Desk" && answer !== "Individual Private Cabin") return;
+    if (answer === "Dedicated Coworking Desk" && collectedData._coworkingWorkspaces?.some((workspace) => workspace.type === "Dedicated Coworking Desk")) {
+      await botSay("Dedicated Coworking Desk has already been added. Choose Done to continue.", ["Done"]);
       goTo("coworking_workspace_more", collectedData);
       return;
     }
     const updated = { ...collectedData, _coworkingPendingType: answer };
     setCollectedData(() => updated);
-    if (answer === "Hall") {
-      await botSay("How many seats are available in the hall?");
+    if (answer === "Dedicated Coworking Desk") {
+      await botSay("How many seats are available for the Dedicated Coworking Desk?");
       setCustomInput({ type: "number", key: "coworking_hall_seats", placeholder: "Number of seats...", min: 0 });
       goTo("coworking_hall_seats", updated);
     } else {
-      await botSay("How many cabins are available?");
-      setCustomInput({ type: "number", key: "coworking_cabin_count", placeholder: "Number of cabins...", min: 0 });
+      await botSay("How many Individual Private Cabins are available?");
+      setCustomInput({ type: "number", key: "coworking_cabin_count", placeholder: "Number of Individual Private Cabins...", min: 0 });
       goTo("coworking_cabin_count", updated);
     }
     return;
@@ -608,7 +608,7 @@ export async function propertyListingFlow(step, answer, collectedData, { botSay,
       return;
     }
     const entry = {
-      type: "Virtual Space",
+      type: "Virtual Office",
       benefits: benefits.map((group) => ({
         ...group,
         monthlyRent: Number(group.monthlyRent),
@@ -625,8 +625,8 @@ export async function propertyListingFlow(step, answer, collectedData, { botSay,
     const availableTypes = getAvailableCoworkingWorkspaceTypes(updated._coworkingWorkspaces);
     await botSay(
       availableTypes.length
-        ? "Virtual Space added. Would you like to add another workspace?"
-        : "Virtual Space added. All workspace types have been added.",
+        ? "Virtual Office added. Would you like to add another workspace?"
+        : "Virtual Office added. All workspace types have been added.",
       availableTypes.length ? ["Add another workspace", "Done"] : ["Done"],
     );
     goTo("coworking_workspace_more", updated);
@@ -637,7 +637,7 @@ export async function propertyListingFlow(step, answer, collectedData, { botSay,
     if (!answer || Number(answer) <= 0) return;
     const updated = { ...collectedData, _coworkingPendingSeatCount: Number(answer) };
     setCollectedData(() => updated);
-    await botSay("What is the monthly rent per seat in the hall? (in ₹)");
+    await botSay("What is the monthly rent per seat for the Dedicated Coworking Desk? (in ₹)");
     setCustomInput({ type: "number", key: "coworking_hall_rent", placeholder: "Monthly rent per seat in ₹...", min: 0 });
     goTo("coworking_hall_rent", updated);
     return;
@@ -646,7 +646,7 @@ export async function propertyListingFlow(step, answer, collectedData, { botSay,
   if (step === "coworking_hall_rent") {
     if (!answer || Number(answer) <= 0) return;
     const entry = {
-      type: "Hall",
+      type: "Dedicated Coworking Desk",
       seatCount: collectedData._coworkingPendingSeatCount,
       rentPerSeatMonthly: Number(answer),
     };
@@ -662,8 +662,8 @@ export async function propertyListingFlow(step, answer, collectedData, { botSay,
     );
     await botSay(
       availableTypes.length
-        ? "Hall added. Would you like to add another workspace?"
-        : "Hall added. All workspace types have been added.",
+        ? "Dedicated Coworking Desk added. Would you like to add another workspace?"
+        : "Dedicated Coworking Desk added. All workspace types have been added.",
       availableTypes.length ? ["Add another workspace", "Done"] : ["Done"],
     );
     goTo("coworking_workspace_more", updated);
@@ -672,7 +672,7 @@ export async function propertyListingFlow(step, answer, collectedData, { botSay,
 
   if (step === "coworking_cabin_count") {
     if (!answer || Number(answer) <= 0) return;
-    const existingCabins = (collectedData._coworkingWorkspaces ?? []).filter((workspace) => workspace.type === "Cabin").length;
+    const existingCabins = (collectedData._coworkingWorkspaces ?? []).filter((workspace) => workspace.type === "Individual Private Cabin").length;
     const updated = {
       ...collectedData,
       _coworkingCabinTotal: Number(answer),
@@ -682,8 +682,8 @@ export async function propertyListingFlow(step, answer, collectedData, { botSay,
     };
     setCollectedData(() => updated);
     const cabinNumber = updated._coworkingCabinStartNumber;
-    await botSay(`How many seats are available in Cabin ${cabinNumber}?`);
-    setCustomInput({ type: "number", key: "coworking_cabin_seats_1", placeholder: `Seats in Cabin ${cabinNumber}...`, min: 0 });
+    await botSay(`How many seats are available in Individual Private Cabin ${cabinNumber}?`);
+    setCustomInput({ type: "number", key: "coworking_cabin_seats_1", placeholder: `Seats in Individual Private Cabin ${cabinNumber}...`, min: 0 });
     goTo("coworking_cabin_seats", updated);
     return;
   }
@@ -693,8 +693,8 @@ export async function propertyListingFlow(step, answer, collectedData, { botSay,
     const cabinNumber = collectedData._coworkingCabinStartNumber + collectedData._coworkingCabinIndex;
     const updated = { ...collectedData, _coworkingPendingCabinSeats: Number(answer) };
     setCollectedData(() => updated);
-    await botSay(`What is the monthly rent per seat in Cabin ${cabinNumber}? (in ₹)`);
-    setCustomInput({ type: "number", key: `coworking_cabin_rent_${cabinNumber}`, placeholder: `Monthly rent per seat in Cabin ${cabinNumber}...`, min: 0 });
+    await botSay(`What is the monthly rent per seat in Individual Private Cabin ${cabinNumber}? (in ₹)`);
+    setCustomInput({ type: "number", key: `coworking_cabin_rent_${cabinNumber}`, placeholder: `Monthly rent per seat in Individual Private Cabin ${cabinNumber}...`, min: 0 });
     goTo("coworking_cabin_rent", updated);
     return;
   }
@@ -705,7 +705,7 @@ export async function propertyListingFlow(step, answer, collectedData, { botSay,
     const pendingCabins = [
       ...(collectedData._coworkingPendingCabins ?? []),
       {
-        type: "Cabin",
+        type: "Individual Private Cabin",
         cabinNumber,
         seatCount: collectedData._coworkingPendingCabinSeats,
         rentPerSeatMonthly: Number(answer),
@@ -722,8 +722,8 @@ export async function propertyListingFlow(step, answer, collectedData, { botSay,
 
     if (nextIndex < collectedData._coworkingCabinTotal) {
       const nextCabinNumber = updated._coworkingCabinStartNumber + nextIndex;
-      await botSay(`How many seats are available in Cabin ${nextCabinNumber}?`);
-      setCustomInput({ type: "number", key: `coworking_cabin_seats_${nextCabinNumber}`, placeholder: `Seats in Cabin ${nextCabinNumber}...`, min: 0 });
+      await botSay(`How many seats are available in Individual Private Cabin ${nextCabinNumber}?`);
+      setCustomInput({ type: "number", key: `coworking_cabin_seats_${nextCabinNumber}`, placeholder: `Seats in Individual Private Cabin ${nextCabinNumber}...`, min: 0 });
       goTo("coworking_cabin_seats", updated);
       return;
     }
@@ -735,7 +735,7 @@ export async function propertyListingFlow(step, answer, collectedData, { botSay,
       updated._coworkingWorkspaces,
     );
     await botSay(
-      `${pendingCabins.length} cabin${pendingCabins.length === 1 ? "" : "s"} added. ${
+      `${pendingCabins.length} individual private cabin${pendingCabins.length === 1 ? "" : "s"} added. ${
         availableTypes.length
           ? "Would you like to add another workspace?"
           : "All workspace types have been added."
@@ -760,13 +760,13 @@ export async function propertyListingFlow(step, answer, collectedData, { botSay,
       }
     } else if (answer === "Done") {
       const entries = collectedData._coworkingWorkspaces ?? [];
-      const cabins = entries.filter((item) => item.type === "Cabin");
-      const hall = entries.find((item) => item.type === "Hall");
-      const virtualSpace = entries.find((item) => item.type === "Virtual Space");
+      const cabins = entries.filter((item) => item.type === "Individual Private Cabin");
+      const hall = entries.find((item) => item.type === "Dedicated Coworking Desk");
+      const virtualSpace = entries.find((item) => item.type === "Virtual Office");
       const workspaces = [];
       if (cabins.length) {
         workspaces.push({
-          type: "cabin",
+          type: "individual_private_cabin",
           available: cabins.length,
           config: cabins.map((item) => ({
             availableSeats: item.seatCount,
@@ -776,14 +776,14 @@ export async function propertyListingFlow(step, answer, collectedData, { botSay,
       }
       if (hall) {
         workspaces.push({
-          type: "hall",
+          type: "dedicated_coworking_desk",
           availableSeats: hall.seatCount,
           rentPerSeat: hall.rentPerSeatMonthly,
         });
       }
       if (virtualSpace) {
         workspaces.push({
-          type: "virtualSpace",
+          type: "virtual_office",
           benefits: virtualSpace.benefits,
         });
       }
@@ -963,14 +963,14 @@ export async function propertyListingFlow(step, answer, collectedData, { botSay,
     if (d._coworkingWorkspaces?.length) {
       detailLines.push("  • Workspaces       :");
       d._coworkingWorkspaces.forEach((workspace, index) => {
-        if (workspace.type === "Virtual Space") {
-          detailLines.push(`      ${index + 1}). Virtual Space`);
+        if (workspace.type === "Virtual Office") {
+          detailLines.push(`      ${index + 1}). Virtual Office`);
           workspace.benefits.forEach((group) => {
             detailLines.push(`          ${group.title} — ₹${group.monthlyRent.toLocaleString()} / month`);
             detailLines.push(`            ${group.benefits.join(", ")}`);
           });
         } else {
-          const label = workspace.type === "Cabin" ? `Cabin ${workspace.cabinNumber}` : "Hall";
+          const label = workspace.type === "Individual Private Cabin" ? `Individual Private Cabin ${workspace.cabinNumber}` : "Dedicated Coworking Desk";
           detailLines.push(`      ${index + 1}). ${label} — ${workspace.seatCount} seats — ₹${workspace.rentPerSeatMonthly.toLocaleString()} / seat / month`);
         }
       });

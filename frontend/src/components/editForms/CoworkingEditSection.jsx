@@ -120,17 +120,17 @@ export default function CoworkingEditSection({
           className="rounded-xl border border-gray-200 p-4"
         >
           <h4 className="mb-4 text-sm font-bold text-gray-800">
-            {workspace.type === "cabin"
-              ? "Cabins"
-              : workspace.type === "hall"
-                ? "Hall"
-                : "Virtual Space"}
+            {workspace.type === "individual_private_cabin"
+              ? "Individual Private Cabin"
+              : workspace.type === "dedicated_coworking_desk"
+                ? "Dedicated Coworking Desk"
+                : "Virtual Office"}
           </h4>
 
-          {workspace.type === "cabin" && (
+          {workspace.type === "individual_private_cabin" && (
             <div className="flex flex-col gap-4">
               <p className="text-xs text-gray-500">
-                {workspace.available} cabins
+                {workspace.available} individual private cabins
               </p>
               {workspace.config.map((cabin, configIndex) => (
                 <div
@@ -139,7 +139,7 @@ export default function CoworkingEditSection({
                 >
                   <div className="mb-3 flex items-center justify-between">
                     <p className="text-xs font-semibold text-gray-700">
-                      Cabin {configIndex + 1}
+                      Individual Private Cabin {configIndex + 1}
                     </p>
                     {workspace.config.length > 1 && (
                       <button
@@ -190,12 +190,12 @@ export default function CoworkingEditSection({
                 className="flex items-center gap-2 self-start text-xs font-semibold text-[var(--primary-color)]"
               >
                 <FiPlus size={15} />
-                Add Cabin
+                Add Individual Private Cabin
               </button>
             </div>
           )}
 
-          {workspace.type === "hall" && (
+          {workspace.type === "dedicated_coworking_desk" && (
             <Grid>
               <FormField label="Available Seats">
                 <NumberInput
@@ -218,7 +218,7 @@ export default function CoworkingEditSection({
             </Grid>
           )}
 
-          {workspace.type === "virtualSpace" && (
+          {workspace.type === "virtual_office" && (
             <div className="flex flex-col gap-4">
               <div className="flex flex-col gap-2">
                 <p className="text-xs font-bold uppercase tracking-wide text-gray-600">
@@ -303,7 +303,7 @@ export default function CoworkingEditSection({
                 {benefitMasters.length === 0 &&
                   (workspace.benefits ?? []).length === 0 && (
                     <p className="text-xs text-gray-500">
-                      No active Virtual Space benefit plans are available.
+                      No active Virtual Office benefit plans are available.
                     </p>
                   )}
               </div>
