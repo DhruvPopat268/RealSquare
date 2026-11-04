@@ -16,9 +16,11 @@ export default function Footer() {
 
         {/* Brand — full width on tablet and below */}
         <div className="col-span-2 md:col-span-3 lg:col-span-1">
-          <div className="text-[22px] font-extrabold text-white mb-3">
-            real<span className="text-[#a78bfa]">square</span>
-          </div>
+          <img
+            src={import.meta.env.VITE_FOOTER_LOGO_URL}
+            alt="RealSquare"
+            className="mb-3 h-9 w-auto object-contain"
+          />
           <p className="text-[13px] leading-relaxed text-[#9ca3af] mb-4">
             India's most trusted real estate platform. Find your dream home today.
           </p>
