@@ -152,6 +152,11 @@ export default function ProjectDetail() {
   const possession = formatDate(project.possessionDate);
   const launch = formatDate(project.launchDate);
   const status = STATUS_CONFIG[project.status] ?? STATUS_CONFIG.Inactive;
+  const perAreaPrices = [
+    project.perSqFtPrice != null && `₹${Number(project.perSqFtPrice).toLocaleString("en-IN")}/sqft`,
+    project.perSqYdPrice != null && `₹${Number(project.perSqYdPrice).toLocaleString("en-IN")}/sqyd`,
+    project.perSqMtPrice != null && `₹${Number(project.perSqMtPrice).toLocaleString("en-IN")}/sqmt`,
+  ].filter(Boolean).join(" · ");
   const projectDetails = project.rera?.projectDetails;
   const configurations = project.category?.name?.toLowerCase().includes("residential")
     ? project.residentialDetails?.configurations ?? []
@@ -175,6 +180,7 @@ export default function ProjectDetail() {
             <div className="flex flex-col items-start gap-3 lg:items-end lg:text-right">
               <span className="rounded-full bg-[var(--primary-color-light)] px-3 py-1 text-xs font-bold text-[var(--primary-color)]">{project.category?.name ?? "Project"}</span>
               <h2 className="text-3xl font-bold text-black">{project.budgetRange ?? "Price on request"}</h2>
+              {perAreaPrices && <p className="text-sm font-semibold text-gray-600">Price per Area: {perAreaPrices}</p>}
               {project.createdAt && <div className="flex items-center gap-2 rounded-xl border border-gray-100 bg-white px-4 py-3 text-left shadow-sm"><span className="flex h-7 w-7 items-center justify-center rounded-full bg-purple-100"><FiCalendar size={13} className="text-[var(--primary-color)]" /></span><div className="leading-tight"><p className="text-[11px] uppercase tracking-wide text-gray-400">Listed on</p><p className="text-sm font-semibold text-gray-800">{new Date(project.createdAt).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })}</p></div></div>}
               <div className="flex justify-end gap-2">
                 {shareMessage && <span role="status" className="self-center text-xs text-gray-500">{shareMessage}</span>}

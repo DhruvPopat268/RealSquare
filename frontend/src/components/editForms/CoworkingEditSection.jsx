@@ -30,6 +30,33 @@ export default function CoworkingEditSection({
     );
   }
 
+  function addWorkspace(type) {
+    const defaults = {
+      individual_private_cabin: {
+        type,
+        available: 1,
+        config: [{ availableSeats: "", rentPerSeat: "" }],
+      },
+      dedicated_coworking_desk: {
+        type,
+        availableSeats: "",
+        rentPerSeat: "",
+      },
+      virtual_office: {
+        type,
+        benefits: benefitMasters.map((master) => ({
+          _id: master._id,
+          title: master.title,
+          monthlyRent: "",
+          benefits: [...master.benefits],
+        })),
+      },
+    };
+
+    if (workspaces.some((workspace) => workspace.type === type)) return;
+    onWorkspacesChange([...workspaces, defaults[type]]);
+  }
+
   function updateCabinConfig(workspaceIndex, configIndex, key, value) {
     const workspace = workspaces[workspaceIndex];
     const config = workspace.config.map((cabin, index) =>
@@ -228,6 +255,15 @@ export default function CoworkingEditSection({
                   const selectedGroup = (workspace.benefits ?? []).find(
                     (group) => group._id === master._id,
                   );
+                  const displayedBenefits = [
+                    ...master.benefits,
+                    ...(selectedGroup?.benefits ?? []),
+                  ].filter(
+                    (benefit, index, benefits) =>
+                      benefits.findIndex(
+                        (item) => item.trim().toLowerCase() === benefit.trim().toLowerCase(),
+                      ) === index,
+                  );
                   return (
                     <div
                       key={master._id}
@@ -238,11 +274,14 @@ export default function CoworkingEditSection({
                           {master.title}{!master.isActive ? " (inactive)" : ""}
                         </span>
                         <span className="flex flex-col gap-2">
-                          {master.benefits.map((benefit) => (
+                          {displayedBenefits.map((benefit) => (
                             <span key={benefit} className="flex items-start gap-2 text-sm text-gray-700">
                               <input
                                 type="checkbox"
-                                checked={selectedGroup?.benefits.includes(benefit) ?? false}
+                                checked={(selectedGroup?.benefits ?? []).some(
+                                  (selectedBenefit) =>
+                                    selectedBenefit.trim().toLowerCase() === benefit.trim().toLowerCase(),
+                                )}
                                 onChange={() => toggleBenefit(workspaceIndex, master, benefit)}
                                 className="mt-0.5 h-4 w-4 accent-[var(--primary-color)]"
                               />
@@ -251,15 +290,17 @@ export default function CoworkingEditSection({
                           ))}
                         </span>
                         {selectedGroup && (
-                          <FormField label="Monthly Rent (₹)">
-                            <NumberInput
-                              value={selectedGroup.monthlyRent ?? ""}
-                              onChange={(value) =>
-                                updateBenefitGroupRent(workspaceIndex, master._id, value)
-                              }
-                              min={1}
-                            />
-                          </FormField>
+                          <div className="mt-3">
+                            <FormField label="Monthly Rent (₹)">
+                              <NumberInput
+                                value={selectedGroup.monthlyRent ?? ""}
+                                onChange={(value) =>
+                                  updateBenefitGroupRent(workspaceIndex, master._id, value)
+                                }
+                                min={1}
+                              />
+                            </FormField>
+                          </div>
                         )}
                       </div>
                     </div>
@@ -289,15 +330,17 @@ export default function CoworkingEditSection({
                           </span>
                         ))}
                       </span>
-                      <FormField label="Monthly Rent (₹)">
-                        <NumberInput
-                          value={group.monthlyRent ?? ""}
-                          onChange={(value) =>
-                            updateBenefitGroupRent(workspaceIndex, group._id, value)
-                          }
-                          min={1}
-                        />
-                      </FormField>
+                      <div className="mt-3">
+                        <FormField label="Monthly Rent (₹)">
+                          <NumberInput
+                            value={group.monthlyRent ?? ""}
+                            onChange={(value) =>
+                              updateBenefitGroupRent(workspaceIndex, group._id, value)
+                            }
+                            min={1}
+                          />
+                        </FormField>
+                      </div>
                     </div>
                   ))}
                 {benefitMasters.length === 0 &&
@@ -311,6 +354,28 @@ export default function CoworkingEditSection({
           )}
         </div>
       ))}
+
+      {workspaces.length < 3 && (
+        <div className="flex flex-wrap gap-2">
+          {[
+            ["dedicated_coworking_desk", "Add Dedicated Coworking Desk"],
+            ["individual_private_cabin", "Add Individual Private Cabin"],
+            ["virtual_office", "Add Virtual Office"],
+          ]
+            .filter(([type]) => !workspaces.some((workspace) => workspace.type === type))
+            .map(([type, label]) => (
+              <button
+                key={type}
+                type="button"
+                onClick={() => addWorkspace(type)}
+                className="flex items-center gap-2 rounded-md border border-[var(--primary-color)] px-3 py-2 text-xs font-semibold text-[var(--primary-color)]"
+              >
+                <FiPlus size={14} />
+                {label}
+              </button>
+            ))}
+        </div>
+      )}
     </Section>
   );
 }

@@ -482,7 +482,7 @@ export default function EditProjectPage() {
             </FormField>
           </Grid></Section>
 
-          <Section title="RERA verification"><FormField label="RERA ID" hint="Optional"><TextInput value={form.reraId} onChange={(value) => setField("reraId", value)} placeholder="Enter project RERA ID" /></FormField></Section>
+          <Section title="Project RERA Verification"><FormField label="Project RERA ID" hint="Optional"><TextInput value={form.reraId} onChange={(value) => setField("reraId", value)} placeholder="Enter project RERA ID" /></FormField></Section>
 
           <Section title="Project details">
             <Grid>

@@ -194,15 +194,15 @@ Carpet area must be greater than zero and use `sqft`, `sqyd`, or `sqmt`. `idealF
 
 **Co-working requirement (Rent / Commercial / configured Co-working property type):**
 
-When `listingType`, `propertyCategory`, and `propertyType` match the Rent, Commercial, and Co-working IDs configured by the backend, send `coworkingWorkspaces` instead of `budget`. The backend requires all three matching IDs, requires one to three distinct workspace entries, and rejects `budget` for this case. `preferredArea`, `remarks`, and the other common fields remain optional as described above. Do not include `furnishingType`, `bhk`, `builtUpArea`, or `plotArea` for this chatbot flow.
+When `listingType`, `propertyCategory`, and `propertyType` match the Rent, Commercial, and Co-working IDs configured by the backend, send `coworkingWorkspaces` instead of `budget`. The backend requires all three matching IDs and one to three distinct workspace entries, each with its own `furnishingType`; it rejects `budget` and top-level `furnishingType` for this case. `preferredArea`, `remarks`, and other common fields remain optional as described above. Do not include `bhk`, `builtUpArea`, or `plotArea` for this chatbot flow.
 
 Each selected workspace has a different payload shape:
 
 | `type` | Required fields | Rent meaning |
 |---|---|---|
-| `dedicated_coworking_desk` (Dedicated Coworking Desk) | `requiredSeats`, `minRentPerSeat`, `maxRentPerSeat` | Monthly rent range per seat |
-| `individual_private_cabin` (Individual Private Cabin) | `requiredSeats`, `minRentPerSeat`, `maxRentPerSeat` | Monthly rent range per seat |
-| `virtual_office` (Virtual Office) | `minMonthlyRent`, `maxMonthlyRent` | Monthly rent range |
+| `dedicated_coworking_desk` (Dedicated Coworking Desk) | `requiredSeats`, `minRentPerSeat`, `maxRentPerSeat`, `furnishingType` | Monthly rent range per seat |
+| `individual_private_cabin` (Individual Private Cabin) | `requiredSeats`, `minRentPerSeat`, `maxRentPerSeat`, `furnishingType` | Monthly rent range per seat |
+| `virtual_office` (Virtual Office) | `minMonthlyRent`, `maxMonthlyRent`, `furnishingType` | Monthly rent range |
 
 Example with all three workspace types selected:
 
@@ -219,18 +219,21 @@ Example with all three workspace types selected:
       "type": "dedicated_coworking_desk",
       "requiredSeats": 10,
       "minRentPerSeat": 5000,
-      "maxRentPerSeat": 8000
+      "maxRentPerSeat": 8000,
+      "furnishingType": "Fully-Furnished"
     },
     {
       "type": "individual_private_cabin",
       "requiredSeats": 4,
       "minRentPerSeat": 7000,
-      "maxRentPerSeat": 12000
+      "maxRentPerSeat": 12000,
+      "furnishingType": "Semi-Furnished"
     },
     {
       "type": "virtual_office",
       "minMonthlyRent": 1500,
-      "maxMonthlyRent": 4000
+      "maxMonthlyRent": 4000,
+      "furnishingType": "Unfurnished"
     }
   ],
   "inquiryClassification": "warm",
@@ -240,7 +243,7 @@ Example with all three workspace types selected:
 }
 ```
 
-For a single workspace, include only its object in `coworkingWorkspaces`. Dedicated Coworking Desk and Individual Private Cabin seat counts must be positive whole numbers. All minimum and maximum rents must be positive, and maximum rent must be at least the minimum. Virtual Office does not accept seat fields; Dedicated Coworking Desk and Individual Private Cabin do not accept monthly-total rent fields. Legacy enum values (`hall`, `cabin`, and `virtualSpace`) are no longer accepted; migrate existing records with the backend workspace-type migration before deploying clients that send the new values.
+For a single workspace, include only its object in `coworkingWorkspaces`. `furnishingType` must be `Unfurnished`, `Semi-Furnished`, or `Fully-Furnished`. Dedicated Coworking Desk and Individual Private Cabin seat counts must be positive whole numbers. All minimum and maximum rents must be positive, and maximum rent must be at least the minimum. Virtual Office does not accept seat fields; Dedicated Coworking Desk and Individual Private Cabin do not accept monthly-total rent fields. Legacy enum values (`hall`, `cabin`, and `virtualSpace`) are no longer accepted; migrate existing records with the backend workspace-type migration before deploying clients that send the new values.
 
 On success, the API creates the requirement and assignments for eligible professionals. The page displays a confirmation; it does not require the response body to continue.
 

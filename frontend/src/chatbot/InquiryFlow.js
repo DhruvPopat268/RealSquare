@@ -376,9 +376,28 @@ export async function inquiryFlow(step, answer, collectedData, { botSay, setColl
     }
 
     const workspaceType = collectedData._coworkingSelectedTypes[collectedData._coworkingWorkspaceIndex];
+    const updated = {
+      ...collectedData,
+      _coworkingPendingWorkspace: { ...pending, maxRent },
+    };
+    setCollectedData(() => updated);
+    const workspaceLabel = workspaceType === "dedicated_coworking_desk" ? "Dedicated Coworking Desk" : workspaceType === "individual_private_cabin" ? "Individual Private Cabin" : "Virtual Office";
+    await botSay(`What furnishing status do you prefer for ${workspaceLabel}?`, FURNISH_TYPE_OPTIONS);
+    goTo("coworking_workspace_furnishing", updated);
+    return;
+  }
+
+  if (step === "coworking_workspace_furnishing") {
+    if (!FURNISH_TYPE_OPTIONS.includes(answer)) {
+      await botSay("Please choose a furnishing status for this workspace.", FURNISH_TYPE_OPTIONS);
+      return;
+    }
+
+    const workspaceType = collectedData._coworkingSelectedTypes[collectedData._coworkingWorkspaceIndex];
+    const pending = collectedData._coworkingPendingWorkspace;
     const workspace = workspaceType === "virtual_office"
-      ? { type: workspaceType, minMonthlyRent: pending.minRent, maxMonthlyRent: maxRent }
-      : { type: workspaceType, requiredSeats: pending.requiredSeats, minRentPerSeat: pending.minRent, maxRentPerSeat: maxRent };
+      ? { type: workspaceType, minMonthlyRent: pending.minRent, maxMonthlyRent: pending.maxRent, furnishingType: answer }
+      : { type: workspaceType, requiredSeats: pending.requiredSeats, minRentPerSeat: pending.minRent, maxRentPerSeat: pending.maxRent, furnishingType: answer };
     const nextIndex = collectedData._coworkingWorkspaceIndex + 1;
     const updated = {
       ...collectedData,
@@ -684,9 +703,9 @@ export async function inquiryFlow(step, answer, collectedData, { botSay, setColl
     const workspaceLines = (d.coworkingWorkspaces ?? []).map((workspace) => {
       const label = workspace.type === "virtual_office" ? "Virtual Office" : workspace.type === "individual_private_cabin" ? "Individual Private Cabin" : "Dedicated Coworking Desk";
       if (workspace.type === "virtual_office") {
-        return `  • ${label}: ₹${workspace.minMonthlyRent.toLocaleString("en-IN")} – ₹${workspace.maxMonthlyRent.toLocaleString("en-IN")} monthly`;
+        return `  • ${label}: ₹${workspace.minMonthlyRent.toLocaleString("en-IN")} – ₹${workspace.maxMonthlyRent.toLocaleString("en-IN")} monthly, ${workspace.furnishingType}`;
       }
-      return `  • ${label}: ${workspace.requiredSeats} seats, ₹${workspace.minRentPerSeat.toLocaleString("en-IN")} – ₹${workspace.maxRentPerSeat.toLocaleString("en-IN")} per seat/month`;
+      return `  • ${label}: ${workspace.requiredSeats} seats, ₹${workspace.minRentPerSeat.toLocaleString("en-IN")} – ₹${workspace.maxRentPerSeat.toLocaleString("en-IN")} per seat/month, ${workspace.furnishingType}`;
     }).join("\n");
 
     const msg =
