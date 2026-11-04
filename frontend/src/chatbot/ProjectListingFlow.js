@@ -136,7 +136,7 @@ async function submitProject(data, helpers) {
     }
   }
 
-  await botSay("Do you want to list another project?", ["Yes", "No"]);
+  await botSay("Do you want to list another project?", ["Yes", "No", "View My Projects"]);
   goTo("ask_more_listing", workingData);
 }
 

@@ -154,6 +154,16 @@ export default function ChatbotPage({ flow = propertyListingFlow, assistantTitle
       navigate("/project-listing");
       return;
     }
+    if (currentStep === "ask_more_listing") {
+      if (option === "View My Properties") {
+        navigate("/my-property-listings");
+        return;
+      }
+      if (option === "View My Projects") {
+        navigate("/my-project-listings");
+        return;
+      }
+    }
     handleUserReply(option);
   };
 

@@ -1065,7 +1065,7 @@ export async function propertyListingFlow(step, answer, collectedData, { botSay,
         : "Profile → My Property Listings → Edit Property";
       await botSay(`⚠️ Property listed but image upload failed: ${err.message}\n\nYou can try uploading images from ${editPath}.`);
     }
-    await botSay("Do you want to do more listing?", ["Yes", "No"]);
+    await botSay("Do you want to do more listing?", ["Yes", "No", "View My Properties"]);
     goTo("ask_more_listing", collectedData);
     return;
   }
