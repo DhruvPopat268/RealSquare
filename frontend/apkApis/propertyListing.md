@@ -653,6 +653,41 @@ These examples show the body sent when detail fields change. Include only sectio
 
 The Edit Property page sends only changed commercial fields. When a workspace changes, it sends only that workspace type and changed workspace fields. The backend merges the patch with saved values by `type`, so unchanged workspaces and workspace fields are retained.
 
+Co-working listings also use shared commercial-level furnishing and amenity fields. `furnishTypes` is an array that may contain `Unfurnished`, `Semi-Furnished`, and/or `Fully-Furnished`; furnishing items can be selected when `Semi-Furnished` or `Fully-Furnished` is included. Amenities are independent of furnishing status and can always be updated. When neither furnishing status that allows items is selected, the Edit Property page sends `furnishings: []` and the API clears saved furnishing items. Send `amenities: []` to clear amenities; omit `amenities` to keep the saved selections. Older records that only contain `furnishType` remain readable.
+
+Update co-working shared furnishing and amenity details:
+
+```json
+{
+  "propertyListingId": "<propertyListingId>",
+  "commercialDetails": {
+    "furnishTypes": ["Semi-Furnished", "Fully-Furnished"],
+    "furnishings": [
+      { "id": "<deskFurnishingId>", "name": "Dedicated Desk", "count": 12 },
+      { "id": "<chairFurnishingId>", "name": "Office Chair", "count": 12 }
+    ],
+    "amenities": [
+      { "id": "<wifiAmenityId>", "name": "High-Speed WiFi" },
+      { "id": "<meetingRoomAmenityId>", "name": "Meeting Room" }
+    ]
+  }
+}
+```
+
+Clear co-working furnishing statuses and items while retaining the current amenities:
+
+```json
+{
+  "propertyListingId": "<propertyListingId>",
+  "commercialDetails": {
+    "furnishTypes": [],
+    "furnishings": []
+  }
+}
+```
+
+The API also clears furnishings if `furnishTypes` contains only `Unfurnished`. Invalid status values and duplicate status entries are rejected. Amenities remain unchanged unless the `amenities` field is included.
+
 Change only the workspace floor:
 
 ```json
