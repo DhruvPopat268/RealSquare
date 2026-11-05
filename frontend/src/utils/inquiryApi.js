@@ -10,7 +10,7 @@ const config = { withCredentials: true };
  *
  * @param {{ page?: number, limit?: number }} params
  */
-export async function fetchMyInquiries({ page = 1, limit = 10, purposeId, categoryId, typeId, status, classification, search } = {}) {
+export async function fetchMyInquiries({ page = 1, limit = 10, purposeId, categoryId, typeId, status, classification, isProperty, search } = {}) {
   const qs = new URLSearchParams();
   qs.set("page",  page);
   qs.set("limit", limit);
@@ -19,6 +19,7 @@ export async function fetchMyInquiries({ page = 1, limit = 10, purposeId, catego
   if (typeId)         qs.set("typeId",         typeId);
   if (status)         qs.set("status",         status);
   if (classification) qs.set("classification", classification);
+  if (isProperty)    qs.set("isProperty",    isProperty);
   if (search)         qs.set("search",         search);
 
   const { data } = await axios.get(
@@ -43,12 +44,13 @@ export async function updateMyInquiryStatus({ inquiryId, status }) {
  * GET /api/mixed/inquiries/assigned
  * Returns { assignments, pagination }
  *
- * @param {{ page?: number, limit?: number, status?: string, classification?: string,
+ * @param {{ page?: number, limit?: number, status?: string, classification?: string, isProperty?: string,
  *           purposeId?: string, categoryId?: string, typeId?: string, search?: string }} params
  */
 export async function fetchAssignedInquiries({
   page = 1, limit = 10,
   status, classification,
+  isProperty,
   purposeId, categoryId, typeId,
   search,
 } = {}) {
@@ -57,6 +59,7 @@ export async function fetchAssignedInquiries({
   qs.set("limit", limit);
   if (status)         qs.set("status",         status);
   if (classification) qs.set("classification", classification);
+  if (isProperty)    qs.set("isProperty",    isProperty);
   if (purposeId)      qs.set("purposeId",      purposeId);
   if (categoryId)     qs.set("categoryId",     categoryId);
   if (typeId)         qs.set("typeId",         typeId);

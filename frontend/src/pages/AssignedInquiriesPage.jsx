@@ -21,11 +21,15 @@ const ALLOWED_ROLES = [
 ];
 
 const LIMIT = 10;
-const EMPTY_FILTERS = { status: "", classification: "", purposeId: "", categoryId: "", typeId: "" };
+const EMPTY_FILTERS = { status: "", classification: "", purposeId: "", categoryId: "", typeId: "", isProperty: "" };
 const UNAVAILABLE_INQUIRY_STATUSES = new Set(["expired", "inactive", "completed", "rejected"]);
 
 const STATUS_OPTIONS = [{ _id: "active", name: "Active" }, { _id: "purchased", name: "Purchased" }];
 const CLASS_OPTIONS  = [{ _id: "hot", name: "Hot 🔥" }, { _id: "warm", name: "Warm 🌤️" }, { _id: "cold", name: "Cold ❄️" }];
+const REQUIREMENT_TYPE_OPTIONS = [
+  { _id: "true", name: "Ready To Move Property" },
+  { _id: "false", name: "Under Construction Property" },
+];
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -181,7 +185,7 @@ function AssignedInquiryCard({ assignment, onPurchase }) {
 
       {/* Row 1 — Purpose / Category / Type */}
       <div className="flex flex-wrap gap-2">
-        {inquiry.listingType?.name && (
+        {inquiry.isProperty && inquiry.listingType?.name && (
           <span className="px-2.5 py-1 bg-gray-50 text-gray-600 border border-gray-200 rounded-lg text-[11px] font-bold">
             {inquiry.listingType.name}
           </span>
@@ -377,6 +381,7 @@ export default function AssignedInquiriesPage() {
         limit:          LIMIT,
         status:         filters.status         || undefined,
         classification: filters.classification || undefined,
+        isProperty:     filters.isProperty     || undefined,
         purposeId:      filters.purposeId      || undefined,
         categoryId:     filters.categoryId     || undefined,
         typeId:         filters.typeId         || undefined,
@@ -417,6 +422,7 @@ export default function AssignedInquiriesPage() {
             limit: LIMIT,
             status: appliedFilters.status || undefined,
             classification: appliedFilters.classification || undefined,
+            isProperty: appliedFilters.isProperty || undefined,
             purposeId: appliedFilters.purposeId || undefined,
             categoryId: appliedFilters.categoryId || undefined,
             typeId: appliedFilters.typeId || undefined,
@@ -485,6 +491,7 @@ export default function AssignedInquiriesPage() {
     appliedSearch && `"${appliedSearch}"`,
     appliedFilters.status         && STATUS_OPTIONS.find((o) => o._id === appliedFilters.status)?.name,
     appliedFilters.classification && CLASS_OPTIONS.find((o) => o._id === appliedFilters.classification)?.name,
+    appliedFilters.isProperty     && REQUIREMENT_TYPE_OPTIONS.find((o) => o._id === appliedFilters.isProperty)?.name,
     appliedFilters.purposeId      && purposes.find((o) => (o._id ?? o.value) === appliedFilters.purposeId)?.name,
     appliedFilters.categoryId     && categories.find((o) => (o._id ?? o.value) === appliedFilters.categoryId)?.name,
     appliedFilters.typeId         && propertyTypes.find((o) => (o._id ?? o.value) === appliedFilters.typeId)?.name,
@@ -607,6 +614,13 @@ export default function AssignedInquiriesPage() {
 
             {/* Dropdowns */}
             <div className="flex flex-wrap gap-2 mb-3">
+              <FilterSelect
+                label="Requirement Type"
+                value={pendingFilters.isProperty}
+                options={REQUIREMENT_TYPE_OPTIONS}
+                disabled={purchaseLoading}
+                onChange={(val) => setPendingFilters((prev) => ({ ...prev, isProperty: val }))}
+              />
               <FilterSelect
                 label="Status"
                 value={pendingFilters.status}

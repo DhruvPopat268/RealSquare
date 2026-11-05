@@ -218,7 +218,12 @@ export default function FurnishingsAmenitiesSection({
   onAmenitiesChange,
   disabled             = false,
   showFurnishType      = true,  // false → hides furnish-type selector and always shows furnishings grid
+  multiFurnishType     = false,
+  furnishTypes         = [],
+  onFurnishTypesChange,
 }) {
+  const activeFurnishTypes = multiFurnishType ? furnishTypes : [furnishType].filter(Boolean);
+  const canSelectFurnishings = !showFurnishType || activeFurnishTypes.includes("Fully-Furnished") || activeFurnishTypes.includes("Semi-Furnished");
   const selectedFurnishingIds = new Set(selectedFurnishings.map(getFurnishingId).filter(Boolean));
   const selectedAmenityIds    = new Set(selectedAmenities.map(getAmenityId).filter(Boolean));
 
@@ -262,19 +267,46 @@ export default function FurnishingsAmenitiesSection({
     ));
   };
 
+  const handleFurnishTypeToggle = (value) => {
+    const nextTypes = activeFurnishTypes.includes(value)
+      ? activeFurnishTypes.filter((type) => type !== value)
+      : [...activeFurnishTypes, value];
+    if (multiFurnishType) onFurnishTypesChange(nextTypes);
+    else onFurnishTypeChange(value);
+    if (!multiFurnishType && !nextTypes.includes("Fully-Furnished") && !nextTypes.includes("Semi-Furnished")) {
+      onFurnishingsChange([]);
+    }
+  };
+
   return (
     <div className="flex flex-col gap-5">
       {/* ── Furnish Type — only when showFurnishType=true (edit property) ── */}
       {showFurnishType && (
         <Section title="Furnishing Details">
           <FormField label="Furnishing Status">
-            <SelectField
-              value={furnishType}
-              onChange={onFurnishTypeChange}
-              options={FURNISH_TYPE_OPTIONS}
-              placeholder="Select furnishing status"
-              disabled={disabled}
-            />
+            {multiFurnishType ? (
+              <div className="flex flex-wrap gap-2">
+                {FURNISH_TYPE_OPTIONS.map((type) => {
+                  const selected = activeFurnishTypes.includes(type);
+                  return (
+                    <button key={type} type="button" disabled={disabled}
+                      onClick={() => handleFurnishTypeToggle(type)}
+                      aria-pressed={selected}
+                      className={`rounded-lg border px-3 py-2 text-sm transition ${selected ? "border-[var(--primary-color)] bg-[var(--primary-color-light)] text-[var(--primary-color)]" : "border-gray-200 bg-white text-gray-600"}`}>
+                      {type}
+                    </button>
+                  );
+                })}
+              </div>
+            ) : (
+              <SelectField
+                value={furnishType}
+                onChange={onFurnishTypeChange}
+                options={FURNISH_TYPE_OPTIONS}
+                placeholder="Select furnishing status"
+                disabled={disabled}
+              />
+            )}
           </FormField>
         </Section>
       )}
@@ -283,7 +315,7 @@ export default function FurnishingsAmenitiesSection({
            • showFurnishType=true  (property): gate on furnishType being set and not Unfurnished
            • showFurnishType=false (project):  always show
           ───────────────────────────────────────────────────────────────────── */}
-      {availableFurnishings.length > 0 && (!showFurnishType || (furnishType && furnishType !== "Unfurnished")) && (
+      {availableFurnishings.length > 0 && canSelectFurnishings && (
         <div className="bg-white rounded-2xl p-6 flex flex-col gap-4">
           <div className="flex items-center justify-between border-b border-gray-100 pb-3">
             <h3 className="text-base font-bold text-[#1a1a2e]"> Furnishings</h3>

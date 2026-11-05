@@ -285,13 +285,12 @@ export default function CommercialDetails({ data, listing }) {
       )}
 
       {/* Furnishings & Amenities — card grid display */}
-      {!isCoworking && (
-        <FurnishingsAmenitiesDisplay
-          furnishType={data.furnishType}
-          furnishings={data.furnishings ?? []}
-          amenities={data.amenities ?? []}
-        />
-      )}
+      <FurnishingsAmenitiesDisplay
+        furnishType={data.furnishType}
+        furnishTypes={data.furnishTypes}
+        furnishings={data.furnishings ?? []}
+        amenities={data.amenities ?? []}
+      />
 
     </div>
   );

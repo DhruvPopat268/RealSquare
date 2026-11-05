@@ -13,7 +13,7 @@ import { fetchMyInquiries, updateMyInquiryStatus } from "../utils/inquiryApi";
 import { fetchActivePurposes, fetchActiveCategories, fetchActivePropertyTypes } from "../utils/myListingsApi";
 
 const LIMIT = 10;
-const EMPTY_FILTERS = { purposeId: "", categoryId: "", typeId: "", status: "", classification: "" };
+const EMPTY_FILTERS = { purposeId: "", categoryId: "", typeId: "", status: "", classification: "", isProperty: "" };
 
 const STATUS_OPTIONS      = [
   { _id: "active", name: "Active" },
@@ -24,6 +24,10 @@ const STATUS_OPTIONS      = [
 ];
 const STATUS_FILTER_OPTIONS = STATUS_OPTIONS.filter(({ _id }) => _id !== "rejected");
 const CLASS_OPTIONS       = [{ _id: "hot", name: "Hot 🔥" }, { _id: "warm", name: "Warm 🌤️" }, { _id: "cold", name: "Cold ❄️" }];
+const REQUIREMENT_TYPE_OPTIONS = [
+  { _id: "true", name: "Ready To Move Property" },
+  { _id: "false", name: "Under Construction Property" },
+];
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -137,7 +141,7 @@ function InquiryCard({ inquiry, onRequestStatusUpdate, updating }) {
 
       {/* Row 1 — Purpose / Category / Type */}
       <div className="flex flex-wrap gap-2">
-        {inquiry.listingType?.name && (
+        {inquiry.isProperty && inquiry.listingType?.name && (
           <span className="px-2.5 py-1 bg-gray-50 text-gray-600 border border-gray-200 rounded-lg text-[11px] font-bold">
             {inquiry.listingType.name}
           </span>
@@ -334,6 +338,7 @@ export default function MyInquiriesPage() {
         typeId:         filters.typeId         || undefined,
         status:         filters.status         || undefined,
         classification: filters.classification || undefined,
+        isProperty:     filters.isProperty     || undefined,
         search:         search                 || undefined,
       });
       setInquiries((prev) => replace ? newItems : [...prev, ...newItems]);
@@ -406,6 +411,7 @@ export default function MyInquiriesPage() {
     appliedSearch && `"${appliedSearch}"`,
     appliedFilters.status         && STATUS_OPTIONS.find((o) => o._id === appliedFilters.status)?.name,
     appliedFilters.classification && CLASS_OPTIONS.find((o) => o._id === appliedFilters.classification)?.name,
+    appliedFilters.isProperty     && REQUIREMENT_TYPE_OPTIONS.find((o) => o._id === appliedFilters.isProperty)?.name,
     appliedFilters.purposeId      && purposes.find((o) => (o._id ?? o.value) === appliedFilters.purposeId)?.name,
     appliedFilters.categoryId     && categories.find((o) => (o._id ?? o.value) === appliedFilters.categoryId)?.name,
     appliedFilters.typeId         && propertyTypes.find((o) => (o._id ?? o.value) === appliedFilters.typeId)?.name,
@@ -505,6 +511,13 @@ export default function MyInquiriesPage() {
 
             {/* Dropdowns */}
             <div className="flex flex-wrap gap-2 mb-3">
+              <FilterSelect
+                label="Requirement Type"
+                value={pendingFilters.isProperty}
+                options={REQUIREMENT_TYPE_OPTIONS}
+                disabled={false}
+                onChange={(val) => setPendingFilters((prev) => ({ ...prev, isProperty: val }))}
+              />
               <FilterSelect
                 label="Status"
                 value={pendingFilters.status}

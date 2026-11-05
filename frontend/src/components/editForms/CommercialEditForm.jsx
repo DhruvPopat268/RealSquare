@@ -129,14 +129,27 @@ export default function CommercialEditForm({ listing, form, onChange, furnishing
       )}
 
       {/* Furnishings & Amenities — hidden for commercial plots */}
-      {showFurnishings && !isCoworking && (
+      {showFurnishings && (
         <FurnishingsAmenitiesSection
           availableFurnishings={furnishingsAmenities?.furnishings ?? []}
           availableAmenities={furnishingsAmenities?.amenities ?? []}
           furnishType={com.furnishType ?? ""}
+          furnishTypes={com.furnishTypes ?? (com.furnishType ? [com.furnishType] : [])}
+          multiFurnishType={isCoworking}
           selectedFurnishings={com.furnishings ?? []}
           selectedAmenities={com.amenities ?? []}
-          onFurnishTypeChange={(v) => setCom("furnishType", v)}
+          onFurnishTypeChange={(value) => onChange("commercialDetails", {
+            ...com,
+            furnishType: value,
+            furnishings: value === "Unfurnished" ? [] : (com.furnishings ?? []),
+          })}
+          onFurnishTypesChange={(value) => onChange("commercialDetails", {
+            ...com,
+            furnishTypes: value,
+            furnishings: value.includes("Fully-Furnished") || value.includes("Semi-Furnished")
+              ? (com.furnishings ?? [])
+              : [],
+          })}
           onFurnishingsChange={(v) => setCom("furnishings", v)}
           onAmenitiesChange={(v) => setCom("amenities", v)}
         />

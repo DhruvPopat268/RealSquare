@@ -72,20 +72,21 @@ function FurnishTypeBadge({ value }) {
 }
 
 // ── Main export ───────────────────────────────────────────────────────────────
-export default function FurnishingsAmenitiesDisplay({ furnishType, furnishings = [], amenities = [] }) {
+export default function FurnishingsAmenitiesDisplay({ furnishType, furnishTypes, furnishings = [], amenities = [] }) {
+  const statuses = Array.isArray(furnishTypes) ? furnishTypes : [furnishType].filter(Boolean);
   const hasFurnishings = furnishings.length > 0;
   const hasAmenities   = amenities.length > 0;
 
-  if (!furnishType && !hasFurnishings && !hasAmenities) return null;
+  if (!statuses.length && !hasFurnishings && !hasAmenities) return null;
 
   return (
     <div className="flex flex-col gap-5">
 
       {/* Furnish Type */}
-      {furnishType && (
+      {statuses.length > 0 && (
         <div className="bg-white rounded-2xl p-6 flex flex-col gap-3">
           <h2 className="text-xl font-bold text-[#1a1a2e]">Furnishing Status</h2>
-          <FurnishTypeBadge value={furnishType} />
+          <div className="flex flex-wrap gap-2">{statuses.map((status) => <FurnishTypeBadge key={status} value={status} />)}</div>
         </div>
       )}
 
