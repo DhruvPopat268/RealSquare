@@ -1,10 +1,13 @@
-import { useState, useRef, useEffect } from "react";
+import { lazy, Suspense, useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { FiChevronDown, FiMenu, FiX, FiUser, FiEye, FiHeart, FiStar, FiEdit2, FiRefreshCw, FiAlertTriangle, FiList } from "react-icons/fi";
+import { FiChevronDown, FiMenu, FiX, FiUser, FiEye, FiHeart, FiStar, FiEdit2, FiRefreshCw, FiAlertTriangle, FiList, FiCamera, FiGrid } from "react-icons/fi";
 import api from "../utils/axiosInterceptor";
 import { properties } from "../data/properties";
 import CoinIcon from "./CoinIcon";
 import { primaryColor } from "../utils/theme";
+import ProfileQrModal from "./ProfileQrModal";
+
+const ScanQrModal = lazy(() => import("./ScanQrModal"));
 
 const primaryLight = "#f3eeff"; // light tint bg
 
@@ -304,6 +307,8 @@ export default function Navbar() {
   const [activeTab, setActiveTab] = useState("viewed");
   const [showSwitchModal, setShowSwitchModal] = useState(false);
   const [switchSelected, setSwitchSelected] = useState(null);
+  const [showScanModal, setShowScanModal] = useState(false);
+  const [showProfileQr, setShowProfileQr] = useState(false);
 
   const DUMMY_ACTIVITY = {
     viewed: [properties[0], properties[1], properties[2]],
@@ -448,6 +453,13 @@ export default function Navbar() {
 
         {/* Desktop right actions */}
         <div className="hidden md:flex items-center justify-end gap-4 z-10 flex-shrink-0 ml-auto">
+          <button
+            onClick={() => setShowScanModal(true)}
+            className="flex items-center gap-1.5 rounded-xl border px-3.5 py-2 text-sm font-semibold whitespace-nowrap transition-colors"
+            style={{ color: primaryColor, borderColor: primaryColor, backgroundColor: "white" }}
+          >
+            <FiCamera size={16} /> Scan
+          </button>
           <button
             onClick={() => navigate("/chatbot")}
             className="flex items-center gap-1.5 border-none text-sm font-bold text-white cursor-pointer whitespace-nowrap transition-colors px-4 py-2 rounded-xl"
@@ -597,6 +609,14 @@ export default function Navbar() {
                       <FiRefreshCw size={11} />
                       Switch
                     </button>
+                    {user.profileQr && currentRole !== "customer" && (
+                      <button
+                        onClick={() => { setProfileOpen(false); setShowProfileQr(true); }}
+                        className="flex items-center gap-1 px-2 py-1 rounded-lg border border-gray-200 hover:bg-gray-50 text-[#1a1a2e] transition flex-shrink-0 text-xs font-semibold"
+                      >
+                        <FiGrid size={12} /> QR
+                      </button>
+                    )}
                   </div>
                   {/* Active Listing Plan */}
                   {user.showListingPlan && (
@@ -910,6 +930,21 @@ export default function Navbar() {
         </div>
       </nav>
 
+      {showScanModal && (
+        <Suspense fallback={<div className="fixed inset-0 z-[700] flex items-center justify-center bg-black/50 text-sm font-semibold text-white">Opening scanner…</div>}>
+          <ScanQrModal
+            onClose={() => setShowScanModal(false)}
+            onProfileToken={(token) => {
+              setShowScanModal(false);
+              navigate(`/public-profile/${encodeURIComponent(token)}`);
+            }}
+          />
+        </Suspense>
+      )}
+      {showProfileQr && user?.profileQr && (
+        <ProfileQrModal qrUrl={user.profileQr} name={navLabel} onClose={() => setShowProfileQr(false)} />
+      )}
+
       {/* Mobile drawer */}
       {mobileOpen && (
         <div
@@ -959,6 +994,11 @@ export default function Navbar() {
                     <button onClick={() => { setMobileOpen(false); navigate("/profile"); }} className="flex items-center gap-1 px-2 py-1 rounded-lg hover:bg-white/60 text-[#1a1a2e] transition text-xs font-semibold border-none bg-transparent cursor-pointer">Edit <FiEdit2 size={11} /></button>
                     <button onClick={() => { setShowSwitchModal(true); setSwitchSelected(null); }} className="flex items-center gap-1 px-2 py-1 rounded-lg hover:bg-[#fff0f0] text-red-400 hover:text-red-500 transition text-xs font-semibold border border-red-200 hover:border-red-300 bg-transparent cursor-pointer"><FiRefreshCw size={11} />Switch</button>
                   </div>
+                  {user.profileQr && currentRole !== "customer" && (
+                    <button onClick={() => { setMobileOpen(false); setShowProfileQr(true); }} className="mx-2 mb-2 flex w-[calc(100%-1rem)] items-center justify-center gap-2 rounded-lg border border-gray-200 py-2 text-xs font-semibold text-[#1a1a2e]">
+                      <FiGrid size={13} /> View my QR
+                    </button>
+                  )}
                   {/* Plan */}
                   {user.showListingPlan && (user.activePlan ? (
                     <div className="px-2 py-2 border border-gray-100 rounded-xl mx-2 mb-2">

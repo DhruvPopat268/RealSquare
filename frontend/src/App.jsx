@@ -43,6 +43,7 @@ import MyListingsPage from "./pages/MyListingsPage";
 import MyProjectListingsPage from "./pages/MyProjectListingsPage";
 import MyInquiriesPage from "./pages/MyInquiriesPage";
 import AssignedInquiriesPage from "./pages/AssignedInquiriesPage";
+import PublicProfilePage from "./pages/PublicProfilePage";
 import PageSpinner from "./components/PageSpinner";
 import "./App.css";
 
@@ -151,6 +152,7 @@ function App() {
       <Route path="/login" element={<LoginPage />} />
       <Route path="/complete-profile" element={<CompleteProfilePage />} />
       <Route path="/profile" element={<UpdateProfilePage />} />
+      <Route path="/public-profile/:encryptedId" element={<PublicProfilePage />} />
       <Route path="/list-property" element={<ListPropertyPage />} />
       <Route path="/chatbot" element={<ChatbotPage />} />
       <Route path="/project-listing" element={<ProjectListingPage />} />
