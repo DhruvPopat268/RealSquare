@@ -38,6 +38,7 @@ export default function ScanQrModal({ onClose, onProfileToken }) {
 
   const onDecoded = (rawValue) => {
     try {
+      console.info("[QR Scanner] Decoded QR contents:", rawValue);
       const parsed = new URL(rawValue, window.location.origin);
       const match = parsed.pathname.match(/^\/public-profile\/([^/]+)\/?$/);
       if (!match) throw new Error("This QR code is not a RealSquare profile QR.");

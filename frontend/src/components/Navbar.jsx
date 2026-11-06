@@ -1,6 +1,7 @@
 import { lazy, Suspense, useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { FiChevronDown, FiMenu, FiX, FiUser, FiEye, FiHeart, FiStar, FiEdit2, FiRefreshCw, FiAlertTriangle, FiList, FiCamera, FiGrid } from "react-icons/fi";
+import { FiChevronDown, FiMenu, FiX, FiUser, FiEye, FiHeart, FiStar, FiEdit2, FiRefreshCw, FiAlertTriangle, FiList, FiGrid } from "react-icons/fi";
+import { LuScanLine } from "react-icons/lu";
 import api from "../utils/axiosInterceptor";
 import { properties } from "../data/properties";
 import CoinIcon from "./CoinIcon";
@@ -458,7 +459,7 @@ export default function Navbar() {
             className="flex items-center gap-1.5 rounded-xl border px-3.5 py-2 text-sm font-semibold whitespace-nowrap transition-colors"
             style={{ color: primaryColor, borderColor: primaryColor, backgroundColor: "white" }}
           >
-            <FiCamera size={16} /> Scan
+            <LuScanLine size={16} /> Scan
           </button>
           <button
             onClick={() => navigate("/chatbot")}
@@ -583,40 +584,40 @@ export default function Navbar() {
 
               {profileOpen && (
                 <div className="absolute top-full right-[-24px] mt-2 w-[340px] max-h-[calc(100vh-100px)] overflow-y-auto bg-white rounded-xl shadow-[0_12px_48px_rgba(0,0,0,0.14)] z-[300] p-4">
-                  <div className="flex items-center gap-3 mb-3 pb-3 border-b border-gray-100">
+                  <div className="mb-3 border-b border-gray-100 pb-3">
+                    <div className="flex items-center gap-3">
                     <ProfileCompletionAvatar photo={user.profilePhoto} label={navLabel} sizeClass="w-10 h-10" iconSize={18} percentage={profileCompletionPercentage} color={profileCompletionColor} />
                     <div className="overflow-hidden flex-1">
                       <p className="text-sm font-bold text-[#1a1a2e] truncate">{navLabel}</p>
                       <p className="text-[10px] font-semibold" style={{ color: profileCompletionColor }}>{profileCompletionPercentage}% complete</p>
                       <p className="text-xs text-gray-400 truncate">+91 {user.mobile}</p>
                       {user.role && <p className="text-[11px] font-semibold mt-0.5 text-[#1a1a2e]">{user.role.name}</p>}
-                      <div className="flex items-center gap-1.5 mt-1">
-                        <CoinIcon size={16} variant="gold" />
-                        <span className="text-xs font-bold text-[#1a1a2e]">{(user.coinsBalance ?? 0).toLocaleString()} coins</span>
-                      </div>
                     </div>
                     <button
                       onClick={() => { setProfileOpen(false); navigate("/profile"); }}
                       className="flex items-center gap-1 px-2 py-1 rounded-lg hover:bg-gray-100 text-[#1a1a2e] transition flex-shrink-0 text-xs font-semibold"
                     >
-                      Edit
-                      <FiEdit2 size={12} />
+                      Edit <FiEdit2 size={12} />
                     </button>
                     <button
                       onClick={() => { setShowSwitchModal(true); setSwitchSelected(null); }}
                       className="flex items-center gap-1 px-2 py-1 rounded-lg hover:bg-[#fff0f0] text-red-400 hover:text-red-500 transition flex-shrink-0 text-xs font-semibold border border-red-200 hover:border-red-300"
                     >
-                      <FiRefreshCw size={11} />
-                      Switch
+                      <FiRefreshCw size={11} /> Switch
                     </button>
-                    {user.profileQr && currentRole !== "customer" && (
-                      <button
-                        onClick={() => { setProfileOpen(false); setShowProfileQr(true); }}
-                        className="flex items-center gap-1 px-2 py-1 rounded-lg border border-gray-200 hover:bg-gray-50 text-[#1a1a2e] transition flex-shrink-0 text-xs font-semibold"
-                      >
-                        <FiGrid size={12} /> QR
-                      </button>
-                    )}
+                    </div>
+                    <div className="mt-2 flex items-center gap-1.5 pl-[52px]">
+                      <CoinIcon size={16} variant="gold" />
+                      <span className="whitespace-nowrap text-xs font-bold text-[#1a1a2e]">{(user.coinsBalance ?? 0).toLocaleString()} coins</span>
+                      {user.profileQr && currentRole !== "customer" && (
+                        <button
+                          onClick={() => { setProfileOpen(false); setShowProfileQr(true); }}
+                          className="ml-auto flex items-center gap-1.5 rounded-lg border border-gray-200 px-2.5 py-1 text-xs font-semibold text-[#1a1a2e] hover:bg-gray-50"
+                        >
+                          <FiGrid size={13} /> View QR
+                        </button>
+                      )}
+                    </div>
                   </div>
                   {/* Active Listing Plan */}
                   {user.showListingPlan && (
@@ -990,15 +991,15 @@ export default function Navbar() {
                   {/* Coins + Edit + Switch */}
                   <div className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg mx-2 mb-2">
                     <CoinIcon size={16} variant="gold" />
-                    <span className="text-xs font-bold text-[#1a1a2e] flex-1">{(user.coinsBalance ?? 0).toLocaleString()} coins</span>
+                    <span className="min-w-0 flex-1 whitespace-nowrap text-xs font-bold text-[#1a1a2e]">{(user.coinsBalance ?? 0).toLocaleString()} coins</span>
+                    {user.profileQr && currentRole !== "customer" && (
+                      <button onClick={() => { setMobileOpen(false); setShowProfileQr(true); }} title="View my QR" aria-label="View my QR" className="ml-1.5 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-md border border-gray-200 text-[#1a1a2e]">
+                        <FiGrid size={12} />
+                      </button>
+                    )}
                     <button onClick={() => { setMobileOpen(false); navigate("/profile"); }} className="flex items-center gap-1 px-2 py-1 rounded-lg hover:bg-white/60 text-[#1a1a2e] transition text-xs font-semibold border-none bg-transparent cursor-pointer">Edit <FiEdit2 size={11} /></button>
                     <button onClick={() => { setShowSwitchModal(true); setSwitchSelected(null); }} className="flex items-center gap-1 px-2 py-1 rounded-lg hover:bg-[#fff0f0] text-red-400 hover:text-red-500 transition text-xs font-semibold border border-red-200 hover:border-red-300 bg-transparent cursor-pointer"><FiRefreshCw size={11} />Switch</button>
                   </div>
-                  {user.profileQr && currentRole !== "customer" && (
-                    <button onClick={() => { setMobileOpen(false); setShowProfileQr(true); }} className="mx-2 mb-2 flex w-[calc(100%-1rem)] items-center justify-center gap-2 rounded-lg border border-gray-200 py-2 text-xs font-semibold text-[#1a1a2e]">
-                      <FiGrid size={13} /> View my QR
-                    </button>
-                  )}
                   {/* Plan */}
                   {user.showListingPlan && (user.activePlan ? (
                     <div className="px-2 py-2 border border-gray-100 rounded-xl mx-2 mb-2">
